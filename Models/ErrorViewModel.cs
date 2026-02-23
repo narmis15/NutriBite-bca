@@ -1,4 +1,4 @@
-namespace NUTRIBITE.Models
+﻿namespace NUTRIBITE.Models
 {
     public class ErrorViewModel
     {

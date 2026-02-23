@@ -2,20 +2,14 @@
     ViewData["Title"] = "NutriBite — Home";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
 
 <link rel="stylesheet" href="~/css/home.css" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-<header class="nb-nav shadow-sm">
-  <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container">
-      
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nbNavbar" aria-controls="nbNavbar" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    </div>
-  </nav>
-</header>
+
 
 <main>
   <!-- New modern hero -->
@@ -24,12 +18,18 @@
     <div class="hero-inner">
       <div class="hero-copy fade-in">
         <div class="badge bg-success text-white px-3 py-1 mb-3" style="border-radius:999px; display:inline-block;">100% Homemade</div>
-        <h1>Healthy Homemade Meals, Delivered Daily</h1>
-        <p class="lead">Fresh, calorie-counted meals prepared by verified home chefs. Flexible subscriptions, daily deliveries and meals tailored to your needs.</p>
-        <div class="cta d-flex gap-2">
-          <a class="btn btn-success btn-lg" href="/Menu" role="button" aria-label="Order Now">Order Now</a>
-          <a class="btn btn-outline-dark btn-lg" href="/Menu" role="button" aria-label="Explore Menu">Explore Menu</a>
-        </div>
+                <h1>Discover Balanced Homemade Meals for a Healthier Lifestyle</h1>
+                <p class="lead">Fresh, calorie-counted meals prepared by verified home chefs. Flexible subscriptions, daily deliveries and meals tailored to your needs.</p>
+                <div class="cta-buttons">
+                    <a href="/Menu" class="btn-primary-hero">
+                        🍽 Start Ordering
+                    </a>
+
+                    <a href="/Menu" class="btn-secondary-hero">
+                        Browse Meals →
+                    </a>
+                </div>
+                
 
         <div class="mt-3 d-flex gap-3 align-items-center">
           
@@ -126,43 +126,53 @@
         </div>
     </section>
 
-    
 
-    <!-- HOW IT WORKS (new) -->
-    <section class="how-it-works py-5" aria-labelledby="howItWorksHeading">
-        <div class="container text-center">
-            <h3 id="howItWorksHeading">How NutriBite Works</h3>
-            <p class="text-muted mb-4">Healthy meals in 4 simple steps</p>
-            <div class="row g-3">
-                <div class="col-sm-6 col-md-3">
-                    <div class="how-step card-soft">
-                        <div class="step-icon">🍽️</div>
-                        <div class="step-title">Choose Your Meal</div>
+
+<!-- HOW IT WORKS (new) -->
+<section class="how-it-works py-5" aria-labelledby="howItWorksHeading">
+    <div class="container text-center">
+        <h3 id="howItWorksHeading">How NutriBite Works</h3>
+        <p class="text-muted mb-4">Healthy meals in 4 simple steps</p>
+
+        <div class="row g-3">
+            <div class="col-sm-6 col-md-3">
+                <div class="how-step card-soft">
+                    <div class="step-icon">
+                        <img src="images/icons/choose-meal.jpeg" alt="Choose Meal" class="icon-fix-1">
                     </div>
+                    <div class="step-title">Choose Your Meal</div>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="how-step card-soft">
-                        <div class="step-icon">⏰</div>
-                        <div class="step-title">Select Time Slot</div>
+            </div>
+
+            <div class="col-sm-6 col-md-3">
+                <div class="how-step card-soft">
+                    <div class="step-icon">
+                        <img src="images/icons/time-slot.jpeg" alt="Select Time">
                     </div>
+                    <div class="step-title">Select Time Slot</div>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="how-step card-soft">
-                        <div class="step-icon">📊</div>
-                        <div class="step-title">Track Your Calories</div>
+            </div>
+
+            <div class="col-sm-6 col-md-3">
+                <div class="how-step card-soft">
+                    <div class="step-icon">
+                        <img src="images/icons/cal.jpeg" alt="Track Calories">
                     </div>
+                    <div class="step-title">Track Your Calories</div>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="how-step card-soft">
-                        <div class="step-icon">🏡</div>
-                        <div class="step-title">Enjoy Fresh Homemade Food</div>
+            </div>
+
+            <div class="col-sm-6 col-md-3">
+                <div class="how-step card-soft">
+                    <div class="step-icon">
+                        <img src="images/icons/fresh-meal.jpeg" alt="Fresh Homemade Food">
                     </div>
+                    <div class="step-title">Enjoy Fresh Homemade Food</div>
                 </div>
             </div>
         </div>
-    </section>
-
-   
+    </div>
+</section>
 
     <!-- 2) Meal Categories / Meal Subscription Grid (comes AFTER Specially For You) -->
     <section class="meals-grid-section py-5" aria-labelledby="mealsGridHeading">
@@ -299,47 +309,72 @@
         </div>
     </section>
     <!-- End food categories -->
-
-    <!-- 1) SPECIALLY FOR YOU (Students, Elderly, Corporate) -->
-    <section class="specially-for-you py-5" aria-labelledby="specialForYouHeading">
-        <div class="container">
-            <div id="specialForYouHeading" class="special-header mb-4" role="heading" aria-level="2">
-                <span>SPECIALLY FOR YOU</span>
-            </div>
-
-            <div class="special-grid" role="list">
-                <!-- Student -->
-                <div class="category-card" role="listitem" aria-label="Students">
-                    <div class="category-imgwrap">
-                        <img src="~/images/categories/student.jpeg" alt="Students meal" class="category-img" loading="lazy" />
-                    </div>
-                    <div class="category-body">
-                        <button type="button" class="category-btn" aria-label="Students category">STUDENTS</button>
-                    </div>
-                </div>
-
-                <!-- Elderly -->
-                <div class="category-card" role="listitem" aria-label="Elderly">
-                    <div class="category-imgwrap">
-                        <img src="~/images/categories/elderly.jpeg" alt="Elderly meal" class="category-img" loading="lazy" />
-                    </div>
-                    <div class="category-body">
-                        <button type="button" class="category-btn" aria-label="Elderly category">ELDERLY</button>
-                    </div>
-                </div>
-
-                <!-- Corporate -->
-                <div class="category-card" role="listitem" aria-label="Corporate">
-                    <div class="category-imgwrap">
-                        <img src="~/images/categories/corporate.jpeg" alt="Corporate meal" class="category-img" loading="lazy" />
-                    </div>
-                    <div class="category-body">
-                        <button type="button" class="category-btn" aria-label="Corporate category">CORPORATE</button>
-                    </div>
-                </div>
-            </div>
+<!-- 1) SPECIALLY FOR YOU (Students, Elderly, Corporate) -->
+<section class="specially-for-you py-5" aria-labelledby="specialForYouHeading">
+    <div class="container">
+        <div id="specialForYouHeading" class="special-header mb-4" role="heading" aria-level="2">
+            <span>SPECIALLY FOR YOU</span>
         </div>
-    </section>
+
+        <div class="special-grid" role="list">
+
+            <!-- Student -->
+            <div class="category-card" role="listitem" aria-label="Students">
+                <div class="category-imgwrap">
+                    <img src="~/images/categories/student.jpeg"
+                         alt="Students meal"
+                         class="category-img"
+                         loading="lazy" />
+                </div>
+                <div class="category-body">
+                    <a asp-controller="Students"
+                       asp-action="Index"
+                       class="category-btn"
+                       aria-label="Students category">
+                        STUDENTS
+                    </a>
+                </div>
+            </div>
+
+            <!-- Elderly -->
+            <div class="category-card" role="listitem" aria-label="Elderly">
+                <div class="category-imgwrap">
+                    <img src="~/images/categories/elderly.jpeg"
+                         alt="Elderly meal"
+                         class="category-img"
+                         loading="lazy" />
+                </div>
+                <div class="category-body">
+                    <a asp-controller="Elderly"
+                       asp-action="Index"
+                       class="category-btn"
+                       aria-label="Elderly category">
+                        ELDERLY
+                    </a>
+                </div>
+            </div>
+
+            <!-- Corporate -->
+            <div class="category-card" role="listitem" aria-label="Corporate">
+                <div class="category-imgwrap">
+                    <img src="~/images/categories/corporate.jpeg"
+                         alt="Corporate meal"
+                         class="category-img"
+                         loading="lazy" />
+                </div>
+                <div class="category-body">
+                    <a asp-controller="Corporate"
+                       asp-action="Index"
+                       class="category-btn"
+                       aria-label="Corporate category">
+                        CORPORATE
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
 
     
 
@@ -457,7 +492,7 @@
 <!-- snackbar / toast -->
 <div id="snackbar" class="snackbar" aria-live="polite" aria-atomic="true" hidden></div>
 
-@section Scripts {
+@@section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         /**
@@ -673,387 +708,62 @@
                         if (!groups[slot]) return;
                         html += `<div class="slot-block"><div class="slot-title">${slot}</div>`;
                         groups[slot].forEach(m => {
-                            html += `<div class="meal-row"><div class="meal-left"><div class="meal-name">${(m.name||'')}</div><div class="meal-meta text-muted">${(m.calories||0)} kcal</div></div></div>`;
+                            const fid = m.foodId || m.food_id;
+                            const calories = m.calories || m.cal || 0;
+                            html += `<div class="meal-item" data-id="${fid}" tabindex="0">
+                                        <div class="meal-info">
+                                            <div class="meal-name">${m.foodName || ''}</div>
+                                            <div class="meal-desc text-muted">${m.description || ''}</div>
+                                        </div>
+                                        <div class="meal-actions">
+                                            <div class="calories fw-bold">${calories} kcal</div>
+                                            <button class="btn btn-success btn-sm add-btn" data-id="${fid}" type="button">
+                                                <span class="btn-label">Add</span>
+                                                <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                <span class="btn-success">✓ Added</span>
+                                            </button>
+                                        </div>
+                                    </div>`;
                         });
-                        html += '</div>';
+                        html += `</div>`; // close slot-block
                     });
-
-                    // any other slots
-                    Object.keys(groups).forEach(k => {
-                        if (slotOrder.includes(k)) return;
-                        html += `<div class="slot-block"><div class="slot-title">${k}</div>`;
-                        groups[k].forEach(m => {
-                            html += `<div class="meal-row"><div class="meal-left"><div class="meal-name">${(m.name||'')}</div><div class="meal-meta text-muted">${(m.calories||0)} kcal</div></div></div>`;
-                        });
-                        html += '</div>';
-                    });
-
-                    html += '</div>';
+                    html += `</div>`; // close daily-list
                     $body.html(html);
-                }
 
-                $panel.find('.totalCalories').text((data.totalCalories ?? 0));
-                $panel.find('.calorieGoal').text(data.calorieGoal ?? '—');
-                $panel.find('.remainingCalories').text((data.remaining !== null && data.remaining !== undefined) ? data.remaining : '—');
+                    // attach add button handlers
+                    $body.find('.add-btn').on('click', function () {
+                        const btn = $(this);
+                        const id = btn.data('id');
+
+                        // optimistic UI update
+                        btn.attr('disabled', true).addClass('adding');
+                        setTimeout(() => {
+                            btn.removeClass('adding').addClass('added').html('✓ Added').attr('disabled', true);
+                            showSnack('Meal added to your selection.');
+                        }, 500);
+
+                        // TODO: actual add to meal plan logic here
+                    });
+                }
             }
 
             function loadDailyPanel() {
-                $.getJSON('/Meals/Today').done(function (res) {
-                    renderPanel(res || { authenticated: false });
-                }).fail(function () {
-                    // keep existing content
-                });
-            }
-
-            // slot selector
-            $(document).on('click', '.slot-btn', function () {
-                $('.slot-btn').removeClass('active');
-                $(this).addClass('active');
-                selectedSlot = $(this).data('slot');
-                showSnack('Selected ' + selectedSlot);
-            });
-
-            // favorite toggle
-            $(document).on('click', '.fav-btn', function (e) {
-                e.stopPropagation();
-                const $btn = $(this);
-                if ($btn.hasClass('processing')) return;
-                const id = $btn.data('id');
-
-                $.getJSON('/Auth/IsAuthenticated').done(function (res) {
-                    if (!(res && res.authenticated)) {
-                        // preserve intent, then open login modal
-                        if (window.setPendingAction) window.setPendingAction({ type: 'toggleFavorite', foodId: id });
-                        if (typeof showAuthModal === 'function') showAuthModal('login');
-                        else { var mp = document.getElementById('loginPrompt'); if (mp) new bootstrap.Modal(mp).show(); }
-                        return;
-                    }
-
-                    const wasActive = $btn.hasClass('active');
-                    $btn.addClass('processing').prop('disabled', true).toggleClass('active');
-
-                    $.post('/Favorites/Toggle', { foodId: id })
-                        .done(function (resp) {
-                            if (resp && resp.success) {
-                                const fav = !!resp.favorited;
-                                $btn.toggleClass('active', fav).attr('aria-pressed', String(fav));
-                                $btn.attr('title', fav ? 'Remove from favorites' : 'Add to favorites');
-                                showSnack(fav ? 'Added to favorites' : 'Removed from favorites');
-                            } else {
-                                $btn.toggleClass('active', wasActive).attr('aria-pressed', String(wasActive));
-                                alert(resp && resp.message ? resp.message : 'Unable to update favorites.');
-                            }
-                        })
-                        .fail(function () {
-                            $btn.toggleClass('active', wasActive).attr('aria-pressed', String(wasActive));
-                            alert('Unable to update favorites.');
-                        })
-                        .always(function () { $btn.removeClass('processing').prop('disabled', false); });
-                }).fail(function () { alert('Unable to verify authentication status.'); });
-            });
-
-            // Add -> Meals flow (date-wise, slot-aware)
-            $(document).on('click', '.add-btn', function () {
-                const $btn = $(this);
-                if ($btn.data('processing')) return;
-
-                const id = $btn.data('id');
-
-                $.getJSON('/Auth/IsAuthenticated').done(function (res) {
-                    if (!(res && res.authenticated)) {
-                        // preserve intent then open modal
-                        if (window.setPendingAction) window.setPendingAction({ type: 'addMeal', foodId: id, slot: selectedSlot });
-                        if (typeof showAuthModal === 'function') showAuthModal('login');
-                        else { var mp = document.getElementById('loginPrompt'); if (mp) new bootstrap.Modal(mp).show(); }
-                        return;
-                    }
-
-                    // show spinner
-                    $btn.data('processing', true);
-                    $btn.find('.btn-label').hide();
-                    $btn.find('.btn-spinner').show();
-                    $btn.prop('disabled', true);
-
-                    $.post('/Meals/Add', { foodId: id, slot: selectedSlot })
-                        .done(function (resp) {
-                            if (resp && resp.success) {
-                                if (resp.added) {
-                                    const $card = $btn.closest('.food-card');
-                                    $card.addClass('added');
-                                    setTimeout(()=> $card.removeClass('added'), 650);
-                                    showSnack('Added to ' + (resp.slot || selectedSlot));
-                                    // refresh panel
-                                    loadDailyPanel();
-                                } else {
-                                    showSnack(resp.message || 'Already added to that slot today.');
-                                }
-                            } else {
-                                alert(resp && resp.message ? resp.message : 'Unable to add meal.');
-                            }
-                        })
-                        .fail(function () {
-                            alert('Unable to add meal. Try again.');
-                        })
-                        .always(function () {
-                            $btn.find('.btn-spinner').hide();
-                            $btn.find('.btn-success').show();
-                            setTimeout(function () {
-                                $btn.find('.btn-success').hide();
-                                $btn.find('.btn-label').show();
-                                $btn.prop('disabled', false);
-                                $btn.data('processing', false);
-                            }, 1100);
-                        });
-                }).fail(function () { alert('Unable to verify authentication status.'); });
-            });
-
-            // Listen for replayed pending actions (triggered by layout when user logs in)
-            document.addEventListener('pendingAction:done', function (e) {
-                const d = e.detail || {};
-                if (!d.type) return;
-                if (d.type === 'addMeal') {
-                    const fid = d.params && d.params.foodId;
-                    // reflect same UI as manual add success
-                    const $card = $grid.find('.food-card[data-id="' + fid + '"]');
-                    if ($card.length) {
-                        $card.addClass('added');
-                        setTimeout(()=> $card.removeClass('added'), 650);
-                    }
-                    showSnack('Added to ' + (d.resp && (d.resp.slot || d.params.slot)) );
-                    // refresh panel
-                    loadDailyPanel();
-                } else if (d.type === 'toggleFavorite') {
-                    const fid = d.params && d.params.foodId;
-                    const favResp = d.resp || {};
-                    const $btn = $grid.find('.fav-btn[data-id="' + fid + '"]');
-                    if ($btn.length && favResp.success) {
-                        const fav = !!favResp.favorited;
-                        $btn.toggleClass('active', fav).attr('aria-pressed', String(fav));
-                    }
-                    if (d.resp && d.resp.success) showSnack((d.resp.favorited ? 'Added to favorites' : 'Removed from favorites'));
-                } else if (d.type === 'addToCart') {
-                    // fallback: if AJAX add succeeded, show confirmation
-                    if (d.resp && d.resp.success) showSnack('Added to cart');
-                }
-            });
-
-            // category click
-            $cats.on('click keypress', '.cat-tile', function (e) {
-                if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) return;
-                $cats.find('.cat-tile').removeClass('active');
-                $(this).addClass('active');
-                const cat = $(this).data('cat');
-                fetchFoods(cat);
-                const top = $('#foodsHeading').offset().top - 80;
-                $('html,body').animate({ scrollTop: top }, 420);
-            });
-
-            $('#exploreBtn').on('click', function () {
-                $('html,body').animate({ scrollTop: $('#foodsHeading').offset().top - 80 }, 500);
-                fetchFoods('All');
-            });
-
-            // refresh panel when user logs in
-            document.addEventListener('user:login', function () { loadDailyPanel(); });
-
-            // periodic refresh
-            setInterval(loadDailyPanel, 30000);
-
-            $(function () { renderCategoryTiles(); fetchFoods('All'); loadDailyPanel(); });
-        })();
-    </script>
-
-    <!-- Lightweight vanilla JS for trust counters & subtle hero animation trigger -->
-    <script>
-        (function () {
-            // simple fade-in hero text on load
-            document.addEventListener('DOMContentLoaded', function () {
-                var hero = document.querySelector('.hero-enhanced');
-                if (hero) hero.classList.add('in-view');
-            });
-
-            // count-up animation for metrics (vanilla)
-            function animateValue(el, start, end, duration, decimals) {
-                var startTime = null;
-                decimals = decimals || 0;
-                function step(timestamp) {
-                    if (!startTime) startTime = timestamp;
-                    var progress = Math.min((timestamp - startTime) / duration, 1);
-                    var value = start + (end - start) * progress;
-                    el.textContent = decimals ? value.toFixed(decimals) : Math.floor(value);
-                    if (progress < 1) {
-                        requestAnimationFrame(step);
-                    } else {
-                        // final value (format may differ for rating)
-                        el.textContent = decimals ? end.toFixed(decimals) : (end % 1 === 0 ? String(end) : String(end));
-                    }
-                }
-                requestAnimationFrame(step);
-            }
-
-            // start counters when visible
-            var metrics = document.querySelectorAll('.trust-metrics-strip .count');
-            if ('IntersectionObserver' in window && metrics.length) {
-                var obs = new IntersectionObserver(function (entries, o) {
-                    entries.forEach(function (entry) {
-                        if (entry.isIntersecting) {
-                            var el = entry.target;
-                            var t = el.getAttribute('data-target');
-                            var val = parseFloat(t);
-                            if (t.indexOf('.') >= 0) {
-                                animateValue(el, 0, val, 1400, 1);
-                            } else {
-                                animateValue(el, 0, val, 1400, 0);
-                            }
-                            o.unobserve(el);
+                $.getJSON('/Users/CalorieAnalytics')
+                    .done(function (data) {
+                        if (data && data.date) {
+                            renderPanel(data);
+                        } else {
+                            $('#dailyPanel .panel-body').html('<div class="text-muted">No data available. Sign in to track your meals.</div>');
                         }
+                    })
+                    .fail(function () {
+                        $('#dailyPanel .panel-body').html('<div class="text-muted">Error loading data. Please try again later.</div>');
                     });
-                }, { threshold: 0.4 });
-                metrics.forEach(function (m) { obs.observe(m); });
-            } else {
-                // fallback: animate immediately
-                metrics.forEach(function (m) {
-                    var t = m.getAttribute('data-target');
-                    var val = parseFloat(t);
-                    if (t.indexOf('.') >= 0) animateValue(m, 0, val, 1400, 1);
-                    else animateValue(m, 0, val, 1400, 0);
-                });
             }
+
+            // initial loads
+            renderCategoryTiles();
+            fetchFoods('All');
+            loadDailyPanel();
         })();
     </script>
-
-    <script>
-(function(){
-  const root = document.querySelector('.hero-carousel');
-  if (!root) return;
-
-  // helper
-  const q = (sel, el = root) => el.querySelector(sel);
-  const qs = (sel, el = root) => Array.from(el.querySelectorAll(sel));
-
-  // preload images (non-blocking)
-  qs('.carousel-slide img', root).forEach(img => {
-    const src = img.getAttribute('src');
-    if (!src) return;
-    const i = new Image();
-    i.src = src;
-  });
-
-  const slides = qs('.carousel-slide', root);
-  const dotsWrap = q('.carousel-dots');
-  const prevBtn = q('.carousel-prev');
-  const nextBtn = q('.carousel-next');
-  let current = slides.findIndex(s => s.classList.contains('active'));
-  if (current < 0) current = 0;
-  // build dots if none
-  if (dotsWrap && dotsWrap.children.length === 0) {
-    slides.forEach((s, idx) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.dataset.index = idx;
-      if (idx === current) b.classList.add('active');
-      dotsWrap.appendChild(b);
-    });
-  }
-  const dots = qs('button', dotsWrap || document.createElement('div'));
-
-  // show slide
-  function show(idx, immediate) {
-    idx = (idx + slides.length) % slides.length;
-    if (idx === current && !immediate) return;
-    slides.forEach((s,i) => s.classList.toggle('active', i === idx));
-    dots.forEach((d,i) => d.classList.toggle('active', i === idx));
-    current = idx;
-  }
-
-  // auto-play control (IntersectionObserver controlled in your original script)
-  let intervalMs = parseInt(root.getAttribute('data-interval')) || 7000;
-  let timer = null;
-  let paused = false;
-  function startAuto(){ stopAuto(); timer = setInterval(()=> { if(!paused) show(current+1); }, intervalMs); }
-  function stopAuto(){ if(timer){ clearInterval(timer); timer = null; } }
-
-  // navigation
-  nextBtn?.addEventListener('click', e=> { e.preventDefault(); show(current+1); startAuto(); });
-  prevBtn?.addEventListener('click', e=> { e.preventDefault(); show(current-1); startAuto(); });
-  dots.forEach(d => d.addEventListener('click', e => { show(Number(d.dataset.index)); startAuto(); }));
-
-  // swipe / pointer support
-  let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, moved = false;
-  const THRESH = 50; // px to register swipe
-  const MAX_VERTICAL_DRIFT = 30; // allow slight vertical movement
-
-  function onTouchStart(e){
-    const t = e.touches ? e.touches[0] : e;
-    startX = t.clientX; startY = t.clientY; dx = 0; dy = 0; dragging = true; moved = false;
-    root.classList.add('dragging');
-  }
-  function onTouchMove(e){
-    if (!dragging) return;
-    const t = e.touches ? e.touches[0] : e;
-    dx = t.clientX - startX; dy = t.clientY - startY;
-    // if predominantly horizontal, prevent vertical scrolling to improve gesture
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
-      e.preventDefault && e.preventDefault();
-      moved = true;
-    }
-  }
-  function onTouchEnd(e){
-    root.classList.remove('dragging');
-    dragging = false;
-    if (!moved) return;
-    if (Math.abs(dy) > MAX_VERTICAL_DRIFT && Math.abs(dy) > Math.abs(dx)) return; // it's vertical scroll
-    if (dx > THRESH) { show(current - 1); startAuto(); }
-    else if (dx < -THRESH) { show(current + 1); startAuto(); }
-  }
-
-  // attach both touch and pointer events for cross-browser
-  root.addEventListener('touchstart', onTouchStart, { passive: false });
-  root.addEventListener('touchmove', onTouchMove, { passive: false });
-  root.addEventListener('touchend', onTouchEnd);
-  // pointer events for desktop drag
-  root.addEventListener('pointerdown', function(e){
-    if (e.pointerType === 'mouse') return; // ignore mouse drag, keep click
-    onTouchStart(e);
-  }, { passive: true });
-  root.addEventListener('pointermove', function(e){
-    if (e.pointerType === 'mouse') return;
-    onTouchMove(e);
-  }, { passive: false });
-  root.addEventListener('pointerup', function(e){
-    if (e.pointerType === 'mouse') return;
-    onTouchEnd(e);
-  });
-
-  // pause on hover/focus (keep existing behavior)
-  root.addEventListener('mouseenter', ()=> paused = true);
-  root.addEventListener('mouseleave', ()=> paused = false);
-  root.addEventListener('focusin', ()=> paused = true);
-  root.addEventListener('focusout', ()=> paused = false);
-
-  // Respect reduced motion — if user prefers reduced motion, disable auto-play
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    stopAuto();
-  } else {
-    // only start auto when carousel becomes visible (if you already use IntersectionObserver elsewhere this is compatible)
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(entries => {
-        entries.forEach(en => {
-          if (en.isIntersecting) startAuto(); else stopAuto();
-        });
-      }, { threshold: 0.5 });
-      io.observe(root);
-    } else startAuto();
-  }
-
-  // ensure first slide visible immediately
-  show(current, true);
-
-  // debug helper - log 404s for images
-  qs('.carousel-slide img', root).forEach(img => {
-    img.addEventListener('error', () => console.warn('Carousel image failed to load:', img.getAttribute('src')));
-  });
-})();
-
-    </script>
-}

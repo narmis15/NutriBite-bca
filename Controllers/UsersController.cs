@@ -3,6 +3,9 @@ using NUTRIBITE.Models.Users;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace NUTRIBITE.Controllers
 {
@@ -155,11 +158,16 @@ namespace NUTRIBITE.Controllers
             return Json(result);
         }
 
+        // GET: /Users/CalorieAnalytics
+        // Session-protected, redirects to Auth/Login when not authenticated.
         [HttpGet]
-        public IActionResult CalorieAnalytics(int? userId)
+        public IActionResult CalorieAnalytics()
         {
-            // view loads data via AJAX; optionally pass userId via ViewBag
-            ViewBag.UserId = userId ?? 0;
+            var uid = HttpContext.Session.GetInt32("UserId");
+
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
+
             return View();
         }
 

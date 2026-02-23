@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "Orders";
+    Layout = "~/Views/Shared/_VendorLayout.cshtml";
+}
+
+<div class="vendor-card">
+
+    <!-- HEADER -->
+    <div class="orders-header">
+        <div>
+            <h2>Orders</h2>
+            <p>Manage and track your customer orders.</p>
+        </div>
+
+        <div class="orders-filter">
+            <select class="form-control">
+                <option>All Orders</option>
+                <option>Pending</option>
+                <option>Accepted</option>
+                <option>Completed</option>
+                <option>Cancelled</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-responsive mt-4">
+        <table class="table vendor-orders-table align-middle">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Food Item</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <!-- SAMPLE ROW -->
+                <tr>
+                    <td>#1023</td>
+                    <td>Rahul Sharma</td>
+                    <td>Paneer Thali</td>
+                    <td>₹199</td>
+                    <td>
+                        <span class="status-badge pending">Pending</span>
+                    </td>
+                    <td>18 Jun 2026</td>
+                    <td class="text-end">
+                        <button class="btn-action accept">Accept</button>
+                        <button class="btn-action reject">Reject</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>#1022</td>
+                    <td>Anjali Singh</td>
+                    <td>High Protein Meal</td>
+                    <td>₹249</td>
+                    <td>
+                        <span class="status-badge completed">Completed</span>
+                    </td>
+                    <td>17 Jun 2026</td>
+                    <td class="text-end">
+                        <button class="btn-action view">View</button>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+</div>

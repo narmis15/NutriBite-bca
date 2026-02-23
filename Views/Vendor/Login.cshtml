@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Vendor";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/Vendor.css" asp-append-version="true" />
+}
+<div class="vendor-auth-wrapper">
+    <div class="vendor-auth-card">
+
+        <div class="vendor-left">
+            <h2>Welcome to NutriBite</h2>
+            <p>
+                Healthy homemade meals crafted with care.
+                Manage your food items and orders easily.
+            </p>
+        </div>
+
+        <div class="vendor-right">
+            <h3 class="brand">NutriBite</h3>
+            <h5 class="mb-3">Welcome Back 👋</h5>
+
+            <form method="post" asp-action="Login">
+
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="email" name="Email" class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label>Password</label>
+                    <input type="password" name="Password" class="form-control" required />
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 mt-2">
+                    Login
+                </button>
+
+                <div class="auth-links">
+                    <a href="/Vendor/Register">Sign up</a>
+                    <a asp-controller="Vendor" asp-action="ForgotPassword">
+                        Forgot password?
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+

@@ -1,0 +1,113 @@
+﻿@{
+    ViewData["Title"] = "NutriBite — Students";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/students.css" />
+
+<section class="students-hero container my-4" role="region" aria-label="Students hero">
+    <div class="hero-card">
+        <div class="hero-left">
+            <h1>Smart Meals for Smart Students</h1>
+            <p class="lead">Fuel your brain without emptying your wallet.</p>
+            <a class="btn explore-combos" href="#featuredCombos">Explore Combos</a>
+        </div>
+        <div class="hero-right" aria-hidden="true">
+            <img src="~/images/categories/student.jpeg" alt="Students meals" loading="lazy" />
+        </div>
+    </div>
+</section>
+
+<!-- Sticky filter bar -->
+<section class="filter-bar-wrap" aria-label="Student filters">
+    <div class="filter-bar container" role="region" aria-label="Filters" id="studentsFilterBar">
+        <div class="filter-item">
+            <label for="priceRange">Budget: <span id="priceValue">₹75</span></label>
+            <input id="priceRange" type="range" min="50" max="150" value="100" />
+        </div>
+
+        <div class="filter-item toggle-item">
+            <label><input id="highProtein" type="checkbox" /> High Protein</label>
+        </div>
+
+        <div class="filter-item toggle-item">
+            <label><input id="under500" type="checkbox" /> Under 500 kcal</label>
+        </div>
+
+        <div class="filter-item toggle-item">
+            <label><input id="vegOnly" type="checkbox" /> Veg Only</label>
+        </div>
+
+        <div class="filter-item">
+            <button id="resetFilters" class="btn reset-btn">Reset</button>
+        </div>
+    </div>
+</section>
+
+<!-- Featured combos -->
+<section id="featuredCombos" class="container my-4" aria-labelledby="featuredHeading">
+    <h2 id="featuredHeading">Featured Student Combos</h2>
+
+    <div class="combos-grid" role="list">
+        <article class="combo-card" role="listitem"
+                 data-calories="630" data-protein="32" data-price="119" data-veg="true">
+            <div class="combo-badge">630 kcal</div>
+            <h3 class="combo-title">Exam Topper Combo</h3>
+            <div class="combo-meta">Protein: <strong>32g</strong></div>
+            <div class="combo-price">₹<strong>119</strong></div>
+            <div class="combo-burn">Burns in <span class="burn-mins">63</span> mins walking</div>
+            <button class="btn add-cart">Add to Cart</button>
+        </article>
+
+        <article class="combo-card" role="listitem"
+                 data-calories="450" data-protein="18" data-price="89" data-veg="false">
+            <div class="combo-badge">450 kcal</div>
+            <h3 class="combo-title">Quick Bite Rice Bowl</h3>
+            <div class="combo-meta">Protein: <strong>18g</strong></div>
+            <div class="combo-price">₹<strong>89</strong></div>
+            <div class="combo-burn">Burns in <span class="burn-mins">45</span> mins walking</div>
+            <button class="btn add-cart">Add to Cart</button>
+        </article>
+
+        <article class="combo-card" role="listitem"
+                 data-calories="510" data-protein="14" data-price="75" data-veg="true">
+            <div class="combo-badge">510 kcal</div>
+            <h3 class="combo-title">Pocket Friendly Thali</h3>
+            <div class="combo-meta">Protein: <strong>14g</strong></div>
+            <div class="combo-price">₹<strong>75</strong></div>
+            <div class="combo-burn">Burns in <span class="burn-mins">51</span> mins walking</div>
+            <button class="btn add-cart">Add to Cart</button>
+        </article>
+    </div>
+</section>
+
+<!-- Add-on energy horizontal scroll -->
+<section class="addons container my-4" aria-label="Add-on energy">
+    <h3>Add-on Energy</h3>
+    <div class="addons-scroll" role="list">
+        <div class="addon" role="listitem" data-calories="40" data-price="15" data-veg="true">
+            <span class="addon-cal">40 kcal</span>
+            <div class="addon-title">Buttermilk</div>
+            <div class="addon-price">₹15</div>
+            <button class="btn addon-add">Add</button>
+        </div>
+
+        <div class="addon" role="listitem" data-calories="60" data-price="20" data-veg="true">
+            <span class="addon-cal">60 kcal</span>
+            <div class="addon-title">Mixed Fruit Box</div>
+            <div class="addon-price">₹20</div>
+            <button class="btn addon-add">Add</button>
+        </div>
+
+        <div class="addon" role="listitem" data-calories="90" data-price="12" data-veg="true">
+            <span class="addon-cal">90 kcal</span>
+            <div class="addon-title">Peanut Chikki</div>
+            <div class="addon-price">₹12</div>
+            <button class="btn addon-add">Add</button>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/students.js"></script>
+}

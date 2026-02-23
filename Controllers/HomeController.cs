@@ -1,8 +1,13 @@
 using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+<<<<<<< HEAD
 using Microsoft.Extensions.Logging;
 using NUTRIBITE.Models;
+=======
+using NUTRIBITE.Models; // Ensure ErrorViewModel is defined in this namespace
+
+>>>>>>> a3e94a9be3432f1bdc5b9216859999546b8d6383
 
 namespace NUTRIBITE.Controllers
 {
@@ -23,6 +28,10 @@ namespace NUTRIBITE.Controllers
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+        public IActionResult About()
         {
             return View();
         }

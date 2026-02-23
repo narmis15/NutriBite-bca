@@ -1,0 +1,77 @@
+﻿@model List<NUTRIBITE.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Your Cart";
+        Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 fw-bold">🛒 Your Cart</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <h4>Your cart is empty</h4>
+            <a href="/Menu" class="btn btn-success mt-3">Explore Menu</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+
+                @foreach (var item in Model)
+                {
+                    <div class="card mb-3 shadow-sm border-0 rounded-4">
+                        <div class="row g-0 align-items-center">
+                            <div class="col-md-3">
+                                <img src="@item.ImageUrl"
+                                     class="img-fluid rounded-start"
+                                     style="height:120px; object-fit:cover;">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.Name</h5>
+                                    <p class="card-text text-muted">
+                                        ₹ @item.Price
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="card-body">
+                                    <p>Qty: @item.Quantity</p>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h5 class="fw-bold">Order Summary</h5>
+                    <hr />
+
+                    @{
+                        var total = Model.Sum(x => x.Price * x.Quantity);
+                    }
+
+                    <div class="d-flex justify-content-between">
+                        <span>Total:</span>
+                        <span class="fw-bold">₹ @total</span>
+                    </div>
+
+                    <button class="btn btn-success w-100 mt-4">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>

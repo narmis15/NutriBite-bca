@@ -1,0 +1,112 @@
+﻿/* ===== Reset ===== */
+body {
+    margin: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    font-family: Arial, sans-serif;
+}
+
+/* ===== Layout Container ===== */
+.vendor-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.vendor-sidebar {
+    width: 240px;
+    background: #1b5e20;
+    color: white;
+    padding: 25px 15px;
+    position: fixed;
+    top: 60px; /* Push below navbar */
+    left: 0;
+    height: calc(100vh - 60px); /* Full height minus navbar */
+
+    transition: 0.3s ease;
+    overflow: hidden;
+}
+
+    /* Collapsed sidebar */
+    .vendor-sidebar.collapsed {
+        width: 75px;
+    }
+
+    .vendor-sidebar h4,
+    .vendor-logo {
+        font-weight: 600;
+        margin-bottom: 30px;
+        white-space: nowrap;
+    }
+
+    .vendor-sidebar a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #e8f5e9;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s;
+        white-space: nowrap;
+    }
+
+        .vendor-sidebar a:hover,
+        .vendor-sidebar a.active {
+            background: #2e7d32;
+            color: white;
+        }
+
+    /* Hide text when collapsed */
+    .vendor-sidebar.collapsed a span,
+    .vendor-sidebar.collapsed h4,
+    .vendor-sidebar.collapsed .vendor-logo {
+        display: none;
+    }
+
+/* ===== Main Content ===== */
+.vendor-main {
+    margin-left: 240px; /* Sidebar width */
+    margin-top: 60px; /* Push below navbar */
+    padding: 30px;
+    flex: 1;
+    background: #f4f6f9;
+    transition: 0.3s ease;
+    min-width: 0; /* Prevent overflow */
+}
+
+/* When sidebar collapsed */
+.vendor-sidebar.collapsed ~ .vendor-main {
+    margin-left: 75px;
+}
+
+/* ===== Topbar ===== */
+.vendor-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+/* ===== Cards ===== */
+.vendor-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .vendor-sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        top: 0;
+    }
+
+    .vendor-main {
+        margin-left: 0;
+        margin-top: 0;
+    }
+}

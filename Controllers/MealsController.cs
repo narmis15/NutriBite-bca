@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+
 
 namespace NUTRIBITE.Controllers
 {
@@ -103,6 +105,7 @@ VALUES (@u, @f, @s, @d, GETDATE())", con);
                 });
             }
 
+
             var cs = _configuration.GetConnectionString("DBCS") ?? throw new Exception("DBCS not found");
             var meals = new List<object>();
             int totalCalories = 0;
@@ -178,6 +181,53 @@ ORDER BY m.Slot, m.Id", con);
                     calorieGoal = (int?)null,
                     remaining = (int?)null
                 });
+            }
+        }
+    
+    
+       [HttpGet]
+        public IActionResult Search(string q)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return Json(new object[] { });
+
+            var cs = _configuration.GetConnectionString("DBCS")
+                     ?? throw new Exception("DBCS not found");
+
+            var results = new List<object>();
+
+            try
+            {
+                using var con = new SqlConnection(cs);
+                con.Open();
+
+                using var cmd = new SqlCommand(@"
+SELECT TOP 50 Id, Name, Description, Image, Calories
+FROM Foods
+WHERE Name LIKE @q
+ORDER BY Name", con);
+
+                cmd.Parameters.AddWithValue("@q", "%" + q + "%");
+
+                using var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    results.Add(new
+                    {
+                        id = reader["Id"],
+                        name = reader["Name"]?.ToString() ?? "",
+                        description = reader["Description"]?.ToString() ?? "",
+                        image = reader["Image"]?.ToString() ?? "/images/placeholder.png",
+                        calories = reader["Calories"] ?? 0
+                    });
+                }
+
+                return Json(results);
+            }
+            catch
+            {
+                return Json(new object[] { });
             }
         }
     }

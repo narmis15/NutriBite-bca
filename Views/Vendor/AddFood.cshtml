@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "Add Food";
+    Layout = "~/Views/Shared/_VendorLayout.cshtml";
+}
+
+<div class="vendor-card">
+    <div class="form-header">
+        <h2>Add New Food Item</h2>
+        <p>Fill in the details to list a new homemade meal.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="add-food-form">
+
+        <div class="row g-4">
+
+            <!-- LEFT SIDE -->
+            <div class="col-lg-7">
+
+                <div class="form-group">
+                    <label>Food Name</label>
+                    <input type="text" class="form-control" placeholder="e.g. Paneer Thali">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" rows="4" placeholder="Write short description..."></textarea>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Price (₹)</label>
+                            <input type="number" class="form-control" placeholder="199">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select class="form-control">
+                                <option>Select Category</option>
+                                <option>Standard Thali</option>
+                                <option>High Protein</option>
+                                <option>Low Carb</option>
+                                <option>Weight Loss</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Calories</label>
+                            <input type="number" class="form-control" placeholder="450 kcal">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Preparation Time</label>
+                            <input type="text" class="form-control" placeholder="30 mins">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="col-lg-5">
+
+                <div class="image-upload-card">
+                    <label>Upload Food Image</label>
+                    <div class="upload-box">
+                        <span>Click to upload</span>
+                        <input type="file">
+                    </div>
+                </div>
+
+                <div class="preview-card mt-4">
+                    <h6>Preview</h6>
+                    <div class="preview-box">
+                        🍽️ Image Preview
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="form-actions mt-4">
+            <button type="submit" class="btn-vendor-primary">Save Food Item</button>
+        </div>
+
+    </form>
+</div>

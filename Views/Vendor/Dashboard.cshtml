@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_VendorLayout.cshtml";
+}
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div>
+        <h2>Dashboard Overview</h2>
+        <p>Welcome back! Here's what's happening with your store.</p>
+    </div>
+</div>
+
+<!-- KPI CARDS -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-value">--</div>
+            <div class="kpi-label">Total Orders</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-value">--</div>
+            <div class="kpi-label">Total Revenue</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">🍽️</div>
+            <div class="kpi-value">--</div>
+            <div class="kpi-label">Total Food Items</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">⏳</div>
+            <div class="kpi-value">--</div>
+            <div class="kpi-label">Pending Orders</div>
+        </div>
+    </div>
+</div>
+
+<!-- REVENUE FULL WIDTH -->
+<div class="vendor-card mb-4">
+    <h5 class="fw-bold mb-1" style="font-size:16px;">Revenue Overview</h5>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+        Monthly revenue chart
+    </p>
+
+    <div class="text-center py-5"
+         style="color:var(--text-muted);
+                background:#f8fdf8;
+                border-radius:12px;
+                border: 1.5px dashed #c8e6c9;">
+        📈 Chart will appear here after database integration.
+    </div>
+</div>
+
+<!-- RECENT ORDERS -->
+<div class="vendor-card">
+    <h5 class="fw-bold mb-1" style="font-size:16px;">Recent Orders</h5>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+        Latest customer orders
+    </p>
+
+    <div class="text-center py-5"
+         style="color:var(--text-muted);
+                background:#f8fdf8;
+                border-radius:12px;
+                border: 1.5px dashed #c8e6c9;">
+        🧾 Orders will appear here after database connection.
+    </div>
+</div>

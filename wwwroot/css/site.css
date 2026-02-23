@@ -1,4 +1,9 @@
-﻿/* Order action buttons (used by _OrderActions partial) */
+﻿
+html, body {
+    margin: 0;
+    padding: 0;
+}
+/* Order action buttons (used by _OrderActions partial) */
 .order-action-group {
     display: inline-flex;
     gap: 6px;

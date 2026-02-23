@@ -1,54 +1,76 @@
-@{
+﻿@{
     ViewData["Title"] = "Sign Up - NutriBite";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6 col-lg-6">
-        <div class="card p-4 shadow-sm">
-            <h4 class="mb-3">Create an Account</h4>
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" />
+}
+
+
+<div class="register-wrapper">
+    <div class="register-container">
+
+        <!-- LEFT PANEL -->
+        <div class="register-left">
+            <h2>Join NutriBite 🥗</h2>
+            <p>
+                Create your account and start discovering healthy
+                homemade meals prepared with love.
+                Your journey to better nutrition starts here.
+            </p>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="register-right">
+
+            <h4 class="brand">NutriBite</h4>
+            <h5 class="mb-4">Create Account</h5>
 
             <div id="signupError" class="alert alert-danger small" style="display:none;"></div>
             <div id="signupSuccess" class="alert alert-success small" style="display:none;"></div>
 
-            <form id="signupForm" method="post" action="javascript:void(0);">
+            <form asp-controller="Auth" asp-action="Register" method="post" id="signupForm">
                 @Html.AntiForgeryToken()
 
                 <div class="mb-3">
-                    <label for="name" class="form-label small">Name</label>
-                    <input id="name" name="name" type="text" class="form-control" required />
+                    <label for="name" class="form-label small">Full Name</label>
+                    <input id="name" name="name" type="text" class="form-control custom-input" required />
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label small">Email</label>
-                    <input id="email" name="email" type="email" class="form-control" required />
+                    <input id="email" name="email" type="email" class="form-control custom-input" required />
                 </div>
 
                 <div class="mb-3">
                     <label for="password" class="form-label small">Password</label>
                     <div class="input-group">
-                        <input id="password" name="password" type="password" class="form-control" required />
-                        <button id="togglePasswordReg" class="btn btn-outline-secondary" type="button" tabindex="-1" aria-label="Show password">Show</button>
+                        <input id="password" name="password" type="password" class="form-control custom-input" required />
+                        <button id="togglePasswordReg" class="btn btn-outline-secondary" type="button">Show</button>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label small">Confirm Password</label>
                     <div class="input-group">
-                        <input id="confirmPassword" name="confirmPassword" type="password" class="form-control" required />
-                        <button id="toggleConfirmReg" class="btn btn-outline-secondary" type="button" tabindex="-1" aria-label="Show confirm password">Show</button>
+                        <input id="confirmPassword" name="confirmPassword" type="password" class="form-control custom-input" required />
+                        <button id="toggleConfirmReg" class="btn btn-outline-secondary" type="button">Show</button>
                     </div>
                 </div>
 
                 <div class="d-grid">
-                    <button id="signupBtn" class="btn btn-success">Sign Up</button>
+                    <button id="signupBtn" class="btn btn-success custom-btn">Sign Up</button>
                 </div>
 
                 <div class="mt-3 small text-center">
-                    Already have an account? <a href="/login">Login</a>
+                    Already have an account?
+                    <a href="/login" class="link-success">Login here</a>
                 </div>
+
             </form>
         </div>
+
     </div>
 </div>
 
@@ -56,7 +78,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         (function () {
-            // If already authenticated, redirect to account/dashboard
+
             $.getJSON('/Auth/IsAuthenticated').done(function (res) {
                 if (res && res.authenticated) {
                     window.location.href = '/Users/Account';
@@ -67,13 +89,14 @@
                 const $pwd = $('#password');
                 const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
                 $pwd.attr('type', type);
-                $(this).text(type === 'password' ? 'Show' : 'Hide').attr('aria-label', type === 'password' ? 'Show password' : 'Hide password');
+                $(this).text(type === 'password' ? 'Show' : 'Hide');
             });
+
             $('#toggleConfirmReg').on('click', function () {
                 const $pwd = $('#confirmPassword');
                 const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
                 $pwd.attr('type', type);
-                $(this).text(type === 'password' ? 'Show' : 'Hide').attr('aria-label', type === 'password' ? 'Show confirm password' : 'Hide confirm password');
+                $(this).text(type === 'password' ? 'Show' : 'Hide');
             });
 
             $('#signupForm').on('submit', function (e) {
@@ -90,6 +113,7 @@
                     $('#signupError').text('All fields are required.').show();
                     return;
                 }
+
                 if (password !== confirm) {
                     $('#signupError').text('Passwords do not match.').show();
                     return;
@@ -97,18 +121,24 @@
 
                 var token = $('input[name="__RequestVerificationToken"]').first().val() || '';
 
-                $.post('/Auth/Register', { name: name, email: email, password: password, __RequestVerificationToken: token })
-                    .done(function (res) {
-                        if (res && res.success) {
-                            // redirect to login per requirement
-                            window.location.href = '/login';
-                        } else {
-                            $('#signupError').text(res && res.message ? res.message : 'Registration failed.').show();
-                        }
-                    }).fail(function () {
-                        $('#signupError').text('Unable to reach server. Please try again.').show();
-                    });
+                $.post('/Auth/Register', {
+                    name: name,
+                    email: email,
+                    password: password,
+                    __RequestVerificationToken: token
+                })
+                .done(function (res) {
+                    if (res && res.success) {
+                        window.location.href = '/login';
+                    } else {
+                        $('#signupError').text(res && res.message ? res.message : 'Registration failed.').show();
+                    }
+                })
+                .fail(function () {
+                    $('#signupError').text('Unable to reach server. Please try again.').show();
+                });
             });
+
         })();
     </script>
 }

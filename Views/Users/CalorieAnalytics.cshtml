@@ -1,59 +1,73 @@
 ﻿@{
-    ViewData["Title"] = "Calorie Analytics";
-    var uid = ViewBag.UserId ?? Context.Request.Query["userId"].ToString();
+    ViewData["Title"] = "My Calorie Dashboard";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/Users.css" />
-<link rel="stylesheet" href="~/css/users-calorie.css" />
-
-<div class="users-page">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-            <h3 class="page-title">Calorie Consumption Analytics</h3>
-            <small class="text-muted">Average intake, trend and comparison against recommended levels</small>
+            <h2 class="mb-1">My Calorie Dashboard</h2>
+            <small class="text-muted" id="userLabel">Loading…</small>
         </div>
 
         <div class="d-flex gap-2 align-items-center">
-            <label class="mb-0 small">From</label>
-            <input id="fromDate" type="date" class="form-control form-control-sm" />
-            <label class="mb-0 small ms-2">To</label>
-            <input id="toDate" type="date" class="form-control form-control-sm" />
-            <button id="applyBtn" class="btn btn-sm btn-primary ms-2">Apply</button>
+            <label class="m-0 me-2 text-muted">From</label>
+            <input type="date" id="fromDate" class="form-control form-control-sm" />
+            <label class="m-0 ms-3 me-2 text-muted">To</label>
+            <input type="date" id="toDate" class="form-control form-control-sm" />
+            <button id="refreshBtn" class="btn btn-success btn-sm ms-3">Refresh</button>
         </div>
     </div>
 
-    <div class="row g-3 mb-3">
-        <div class="col-md-4">
-            <div class="summary-card p-3">
-                <div class="title">Avg Daily Intake</div>
-                <div id="avgDaily" class="value">- kcal</div>
-                <div class="sub text-muted">Average calories per day</div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <div class="small text-muted">Average / day</div>
+                <div class="h4 mt-2" id="avgDaily">— kcal</div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="summary-card p-3">
-                <div class="title">Peak Day</div>
-                <div id="peakDaily" class="value">- kcal</div>
-                <div class="sub text-muted">Highest single-day intake</div>
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <div class="small text-muted">Peak (day)</div>
+                <div class="h4 mt-2" id="peakDaily">— kcal</div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="summary-card p-3">
-                <div class="title">Compared to Recommended</div>
-                <div id="compPercent" class="value">- %</div>
-                <div class="sub text-muted">Percentage of recommended intake</div>
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <div class="small text-muted">Recommended</div>
+                <div class="h4 mt-2" id="recommendedDaily">— kcal</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <div class="small text-muted">Comparison</div>
+                <div class="h4 mt-2" id="comparisonPct">— %</div>
             </div>
         </div>
     </div>
 
-    <div class="card p-3 mb-3">
-        <div class="card-header mb-2"><h5 class="mb-0">Calories Over Time</h5></div>
-        <canvas id="calorieTrend" height="160"></canvas>
-    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card p-3 shadow-sm mb-3">
+                <canvas id="calorieChart" height="220" aria-label="Calorie trend chart" role="img"></canvas>
+            </div>
 
-    <div id="alerts" class="mb-3"></div>
+            <div id="alertsContainer" class="mb-4"></div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card p-3 shadow-sm">
+                <h5 class="mb-3">Summary</h5>
+                <div id="summaryContent">
+                    <p class="text-muted mb-1">Use the date selectors above to filter the analytics.</p>
+                    <ul class="list-unstyled" id="trendList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -61,84 +75,128 @@
 
     <script>
         (function () {
-            const uid = '@uid';
-            const api = '/Users/GetCalorieAnalyticsData';
-
-            function iso(d) { return d.toISOString().slice(0,10); }
-
-            function initDates() {
-                const to = new Date();
-                const from = new Date(); from.setDate(to.getDate() - 13);
-                $('#fromDate').val(iso(from));
-                $('#toDate').val(iso(to));
-            }
-
-            function renderAlerts(alerts) {
-                const $a = $('#alerts').empty();
-                if (!alerts || !alerts.length) return;
-                alerts.forEach(al => {
-                    const cls = al.level === 'warning' ? 'alert-warning' : 'alert-info';
-                    $a.append('<div class="alert ' + cls + ' small mb-1" role="alert">' + (al.message || al.Message) + '</div>');
-                });
-            }
+            const $avg = document.getElementById('avgDaily');
+            const $peak = document.getElementById('peakDaily');
+            const $rec = document.getElementById('recommendedDaily');
+            const $cmp = document.getElementById('comparisonPct');
+            const $userLabel = document.getElementById('userLabel');
+            const $alerts = document.getElementById('alertsContainer');
+            const $trendList = document.getElementById('trendList');
+            const ctx = document.getElementById('calorieChart').getContext('2d');
 
             let chart = null;
-            function renderChart(points) {
-                const labels = points.map(p => p.label || p.Label);
-                const data = points.map(p => p.calories ?? p.Calories);
 
-                const ctx = document.getElementById('calorieTrend').getContext('2d');
-                if (chart) {
-                    chart.data.labels = labels;
-                    chart.data.datasets[0].data = data;
-                    chart.update();
-                    return;
-                }
+            // set default dates: last 14 days
+            function toIsoDate(d) {
+                const tzOff = d.getTimezoneOffset() * 60000;
+                return new Date(d - tzOff).toISOString().slice(0, 10);
+            }
+            const today = new Date();
+            const twoWeeksAgo = new Date(); twoWeeksAgo.setDate(today.getDate() - 13);
 
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Calories',
-                            data: data,
-                            borderColor: '#16a34a',
-                            backgroundColor: 'rgba(22,163,74,0.08)',
-                            pointRadius: 3,
-                            tension: 0.3,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,   // keep stable sizing to avoid resize loops
-                        animation: false,            // render statically (no continuous animation)
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true } }
-                    }
+            document.getElementById('fromDate').value = toIsoDate(twoWeeksAgo);
+            document.getElementById('toDate').value = toIsoDate(today);
+
+            function renderAlerts(alerts) {
+                $alerts.innerHTML = '';
+                if (!alerts || !alerts.length) return;
+                alerts.forEach(a => {
+                    const level = (a.level || a.Level || 'info').toLowerCase();
+                    const cls = level === 'warning' ? 'alert-warning' : (level === 'danger' || level === 'error' ? 'alert-danger' : 'alert-info');
+                    const div = document.createElement('div');
+                    div.className = 'alert ' + cls + ' py-2';
+                    div.textContent = a.message || a.Message || '';
+                    $alerts.appendChild(div);
                 });
             }
 
-            function renderSummary(m) {
-                $('#avgDaily').text((m.averageDaily ?? m.AverageDaily ?? 0) + ' kcal');
-                $('#peakDaily').text((m.peakDaily ?? m.PeakDaily ?? 0) + ' kcal');
-                $('#compPercent').text((m.comparisonPercent ?? m.ComparisonPercent ?? 0) + ' %');
+            function renderTrendList(trend) {
+                $trendList.innerHTML = '';
+                if (!trend || !trend.length) return;
+                trend.slice().reverse().forEach(pt => {
+                    const li = document.createElement('li');
+                    li.className = 'mb-2';
+                    li.innerHTML = `<strong>${pt.Label || pt.label}</strong> — ${(pt.Calories ?? pt.calories ?? pt.cal) } kcal`;
+                    $trendList.appendChild(li);
+                });
             }
 
-            function load() {
-                const from = $('#fromDate').val();
-                const to = $('#toDate').val();
-                $.getJSON(api, { userId: uid || 0, from: from, to: to })
-                    .done(function (res) {
-                        renderSummary(res);
-                        renderChart(res.trend || res.Trend || []);
-                        renderAlerts(res.alerts || res.Alerts || []);
-                    }).fail(function () {
-                        alert('Failed to load analytics data');
+            function fetchData() {
+                const from = document.getElementById('fromDate').value;
+                const to = document.getElementById('toDate').value;
+
+                $.getJSON('/Users/GetCalorieAnalyticsData', { from: from || null, to: to || null })
+                    .done(function (model) {
+                        if (!model) return;
+
+                        $userLabel.textContent = model.UserName || model.userName || '';
+
+                        $avg.textContent = (model.AverageDaily ?? model.averageDaily ?? '—') + ' kcal';
+                        $peak.textContent = (model.PeakDaily ?? model.peakDaily ?? '—') + ' kcal';
+                        $rec.textContent = (model.RecommendedDaily ?? model.recommendedDaily ?? '—') + ' kcal';
+                        $cmp.textContent = (model.ComparisonPercent ?? model.comparisonPercent ?? '—') + ' %';
+
+                        renderAlerts(model.Alerts || model.alerts || []);
+                        renderTrendList(model.Trend || model.trend || []);
+
+                        // prepare chart data
+                        const trend = model.Trend || model.trend || [];
+                        const labels = trend.map(x => x.Label || x.label);
+                        const data = trend.map(x => x.Calories ?? x.calories ?? x.cal ?? 0);
+
+                        if (chart) {
+                            chart.data.labels = labels;
+                            chart.data.datasets[0].data = data;
+                            chart.update();
+                        } else {
+                            chart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Calories',
+                                        data: data,
+                                        borderColor: '#16a34a',
+                                        backgroundColor: 'rgba(22,163,74,0.08)',
+                                        fill: true,
+                                        tension: 0.25,
+                                        pointRadius: 3
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: { mode: 'index', intersect: false }
+                                    },
+                                    scales: {
+                                        x: { display: true },
+                                        y: {
+                                            beginAtZero: true,
+                                            title: { display: true, text: 'kcal' }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    })
+                    .fail(function () {
+                        $userLabel.textContent = '';
+                        $avg.textContent = '— kcal';
+                        $peak.textContent = '— kcal';
+                        $rec.textContent = '— kcal';
+                        $cmp.textContent = '— %';
+                        $alerts.innerHTML = '<div class="alert alert-danger py-2">Unable to load analytics. Try again.</div>';
                     });
             }
 
-            $(function () { initDates(); load(); $('#applyBtn').on('click', load); });
+            document.getElementById('refreshBtn').addEventListener('click', function () {
+                fetchData();
+            });
+
+            // initial load
+            fetchData();
         })();
     </script>
 }

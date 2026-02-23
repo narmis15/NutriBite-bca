@@ -1,0 +1,104 @@
+﻿/* ===== CLEAN VENDOR AUTH PAGE ===== */
+
+.vendor-auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* THIS FIXES NAVBAR CUT ISSUE */
+    padding: 120px 15px 60px;
+    background: linear-gradient(135deg, #e8f5e9, #f5f5f5);
+}
+
+.vendor-auth-card {
+    width: 900px;
+    max-width: 95%;
+    display: flex;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    background: #ffffff;
+}
+
+/* LEFT PANEL */
+.vendor-left {
+    flex: 1;
+    background: #2e7d32;
+    color: white;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+    .vendor-left h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .vendor-left p {
+        font-size: 14px;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+
+/* RIGHT PANEL */
+.vendor-right {
+    flex: 1;
+    padding: 50px 40px;
+}
+
+.brand {
+    color: #2e7d32;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* FORM STYLING */
+.vendor-right .form-control {
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.vendor-right .mb-3 {
+    margin-bottom: 16px !important;
+}
+
+.vendor-right .btn-success {
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 8px;
+}
+
+.auth-links {
+    margin-top: 15px;
+}
+
+    .auth-links a {
+        font-size: 14px;
+        color: #2e7d32;
+        text-decoration: none;
+    }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+/* MOBILE FIX */
+@media (max-width: 768px) {
+    .vendor-auth-card {
+        flex-direction: column;
+    }
+
+    .vendor-left,
+    .vendor-right {
+        width: 100%;
+        padding: 40px 25px;
+    }
+
+    .vendor-left {
+        text-align: center;
+    }
+}
