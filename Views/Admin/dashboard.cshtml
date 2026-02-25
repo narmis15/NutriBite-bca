@@ -1,46 +1,58 @@
-﻿@{
-    ViewData["Title"] = "Nutribite Admin Dashboard";
-    // Use the same shared admin layout used by other admin pages
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+﻿ @{
+ViewData["Title"] = "Nutribite Admin Dashboard";
+// Use the same shared admin layout used by other admin pages
+    //Layout = "~/Views/Shared/_Layout.cshtml";link rel="stylesheet" href="~/css/admin-dashboard.css" />
 
-<link rel="stylesheet" href="~/css/admin-dashboard.css" />
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+}
 
 <div class="dashboard-main">
     <div class="dashboard-header">
         <h2>Admin Dashboard</h2>
-        <div class="dashboard-breadcrumb">Admin / Home</div>
+        <div class="dashboard-breadcrumb"></div>
     </div>
 
-    <div class="dashboard-cards">
-        <div class="db-card">
-            <h3>@ViewBag.Users</h3>
+    <div class="row g-4 mt-3">
+        <div class="col-md-4">
+            <div class="db-card">
+                <h3>@ViewBag.Users</h3>
             <p>No of Users</p>
         </div>
+        </div>
 
-        <div class="db-card green">
-            <h3>@ViewBag.Vendors</h3>
+            <div class="col-md-4">
+                <div class="db-card">
+                    <h3>@ViewBag.Vendors</h3>
             <p>No of Vendors</p>
         </div>
+        </div>
 
-        <div class="db-card orange">
-            <h3>@ViewBag.Orders</h3>
+        <div class="col-md-4">
+            <div class="db-card">
+                <h3>@ViewBag.Orders</h3>
             <p>No of Orders</p>
         </div>
-
-        <div class="db-card red">
-            <h3>@ViewBag.Products</h3>
+        </div>
+        <div class="col-md-4">
+            <div class="db-card">
+                <h3>@ViewBag.Products</h3>
             <p>Products Sold</p>
         </div>
-
-        <div class="db-card purple">
+        </div>
+        <div class="col-md-4">
+            <div class="db-card">
             <h3>₹ @ViewBag.TotalAmount</h3>
             <p>Total Amount</p>
         </div>
+        </div>
 
-        <div class="db-card dark">
+            <div class="col-md-4">
+                <div class="db-card">
             <h3>₹ @ViewBag.Profit</h3>
             <p>Profit Share</p>
+        </div>
         </div>
     </div>
 </div>

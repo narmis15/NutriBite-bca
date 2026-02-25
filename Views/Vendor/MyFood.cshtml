@@ -1,198 +1,66 @@
-﻿@{
-    ViewData["Title"] = "Vendor";
+﻿@model List<NUTRIBITE.Models.Food>
+
+@{
+    ViewData["Title"] = "My Foods";
     Layout = "~/Views/Shared/_VendorLayout.cshtml";
 }
+
 @section Styles {
-    <link rel="stylesheet" href="~/css/vendor-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/vendor-myfoods.css" asp-append-version="true" />
 }
-<style>
-    body {
-        margin: 0;
-        background: #f3faef;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .page-wrapper {
-        max-width: 1200px;
-        margin: 30px auto;
-        padding: 0 20px;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-
-        .page-header h2 {
-            color: #63B34E;
-            margin: 0;
-        }
-
-    .add-btn {
-        background: #63B34E;
-        color: white;
-        padding: 10px 18px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 14px;
-    }
-
-    .food-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
-    }
-
-    .food-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        transition: transform 0.2s;
-    }
-
-        .food-card:hover {
-            transform: translateY(-4px);
-        }
-
-    .food-image {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
-    }
-
-    .food-body {
-        padding: 18px;
-    }
-
-        .food-body h4 {
-            margin: 0 0 6px;
-            color: #333;
-        }
-
-    .food-meta {
-        font-size: 14px;
-        color: #777;
-        margin-bottom: 10px;
-    }
-
-    .tag {
-        display: inline-block;
-        background: #e6f5e1;
-        color: #2e7d32;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        margin-bottom: 12px;
-    }
-
-    .actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 12px;
-    }
-
-    .btn {
-        flex: 1;
-        padding: 10px;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        font-size: 14px;
-        text-align: center;
-        text-decoration: none;
-    }
-
-    .edit {
-        background: #63B34E;
-        color: white;
-    }
-
-    .delete {
-        background: #ffe6e6;
-        color: #c62828;
-    }
-</style>
 
 <div class="page-wrapper">
 
     <div class="page-header">
         <h2>My Foods</h2>
-        <a href="/Vendor/AddFood" class="add-btn">+ Add New Food</a>
+        <a asp-action="AddFood" class="add-btn">+ Add New Food</a>
     </div>
 
     <div class="food-grid">
-        <div class="food-card">
-            <img class="food-image"
-                 src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c"
-                 alt="Food">
 
-            <div class="food-body">
-                <h4>Healthy Veg Bowl</h4>
-                <div class="food-meta">350 Calories · ₹199</div>
-                <div class="tag">Vegetarian</div>
+        @if (Model == null || Model.Count == 0)
+        {
+            <p>No food items added yet.</p>
+        }
+        else
+        {
+            @foreach (var food in Model)
+            {
+                <div class="food-card">
 
-                <div class="actions">
-                    <button class="btn edit">Edit</button>
-                    <button class="btn delete">Delete</button>
+                    <img class="food-image"
+                         src="@food.ImagePath"
+                         alt="Food">
+
+                    <div class="food-body">
+                        <h4>@food.Name</h4>
+
+                        <div class="food-meta">
+                            @food.Calories Calories · ₹@food.Price
+                        </div>
+
+                        <div class="tag">
+                            @food.CategoryId
+                        </div>
+
+                        <div class="actions">
+                            <a asp-action="EditFood"
+                               asp-route-id="@food.Id"
+                               class="btn edit">
+                                Edit
+                            </a>
+
+                            <a asp-action="DeleteFood"
+                               asp-route-id="@food.Id"
+                               class="btn delete">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
-        </div>
-
-        <div class="food-card">
-            <img class="food-image"
-                 src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1"
-                 alt="Food">
-
-            <div class="food-body">
-                <h4>Protein Salad</h4>
-                <div class="food-meta">420 Calories · ₹249</div>
-                <div class="tag">High Protein</div>
-
-                <div class="actions">
-                    <a href="/Vendor/EditFood" class="btn edit">Edit</a>
-                    <button class="btn delete" type="button" onclick="openModal()">Delete</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="food-card">
-            <img class="food-image"
-                 src="https://images.unsplash.com/photo-1504674900247-0877df9cc836"
-                 alt="Food">
-
-            <div class="food-body">
-                <h4>Fruit Smoothie</h4>
-                <div class="food-meta">180 Calories · ₹149</div>
-                <div class="tag">Vegan</div>
-
-                <div class="actions">
-                    <a href="/Vendor/EditFood" class="btn edit">Edit</a>
-                    <button class="btn delete" type="button" onclick="openModal()">Delete</button>
-                </div>
-            </div>
-        </div>
+            }
+        }
 
     </div>
 </div>
-
-<div id="deleteModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4);">
-    <div style="background:white; width:360px; margin:200px auto; padding:25px; border-radius:12px; text-align:center;">
-        <h3>Delete Food?</h3>
-        <p>This action cannot be undone.</p>
-
-        <button onclick="closeModal()" style="padding:10px 18px; margin-right:10px;">Cancel</button>
-        <button style="padding:10px 18px; background:#d9534f; color:white;">Delete</button>
-    </div>
-</div>
-
-<script>
-    function openModal() {
-        document.getElementById("deleteModal").style.display = "block";
-    }
-    function closeModal() {
-        document.getElementById("deleteModal").style.display = "none";
-    }
-</script>

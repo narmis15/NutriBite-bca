@@ -1,112 +1,328 @@
-﻿/* ===== Reset ===== */
-body {
-    margin: 0;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-    font-family: Arial, sans-serif;
+﻿/* ================= ROOT VARIABLES ================= */
+:root {
+    --green-dark: #1b5e20;
+    --green-mid: #2e7d32;
+    --green-light: #43a047;
+    --sidebar-w: 250px;
+    --sidebar-col: 70px;
+    --bg: #f4f6f9;
+    --shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
 
-/* ===== Layout Container ===== */
-.vendor-container {
+/* ================= RESET ================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+}
+
+/* ================= LAYOUT ================= */
+.vendor-wrapper {
     display: flex;
     min-height: 100vh;
 }
 
-/* ===== Sidebar ===== */
+/* ================= SIDEBAR ================= */
 .vendor-sidebar {
-    width: 240px;
-    background: #1b5e20;
-    color: white;
-    padding: 25px 15px;
     position: fixed;
-    top: 60px; /* Push below navbar */
+    top: 0;
     left: 0;
-    height: calc(100vh - 60px); /* Full height minus navbar */
-
-    transition: 0.3s ease;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: linear-gradient(180deg, var(--green-dark), #154a19);
+    display: flex;
+    flex-direction: column;
+    padding: 25px 15px;
+    transition: width 0.3s ease;
     overflow: hidden;
+    z-index: 900;
 }
 
-    /* Collapsed sidebar */
     .vendor-sidebar.collapsed {
-        width: 75px;
-    }
-
-    .vendor-sidebar h4,
-    .vendor-logo {
-        font-weight: 600;
-        margin-bottom: 30px;
-        white-space: nowrap;
+        width: var(--sidebar-col);
     }
 
     .vendor-sidebar a {
         display: flex;
         align-items: center;
         gap: 10px;
-        color: #e8f5e9;
         padding: 10px 12px;
         margin-bottom: 8px;
         border-radius: 8px;
         text-decoration: none;
+        color: #e8f5e9;
+        font-size: 14px;
         transition: 0.3s;
-        white-space: nowrap;
     }
 
         .vendor-sidebar a:hover,
         .vendor-sidebar a.active {
-            background: #2e7d32;
+            background: var(--green-mid);
             color: white;
         }
 
-    /* Hide text when collapsed */
-    .vendor-sidebar.collapsed a span,
-    .vendor-sidebar.collapsed h4,
-    .vendor-sidebar.collapsed .vendor-logo {
+    .vendor-sidebar.collapsed .nav-label {
         display: none;
     }
 
-/* ===== Main Content ===== */
+.sidebar-toggle {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    font-size: 18px;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+    .sidebar-toggle:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+/* ================= MAIN CONTENT ================= */
 .vendor-main {
-    margin-left: 240px; /* Sidebar width */
-    margin-top: 60px; /* Push below navbar */
+    margin-left: var(--sidebar-w);
     padding: 30px;
     flex: 1;
-    background: #f4f6f9;
-    transition: 0.3s ease;
-    min-width: 0; /* Prevent overflow */
+    transition: margin-left 0.3s ease;
 }
 
-/* When sidebar collapsed */
-.vendor-sidebar.collapsed ~ .vendor-main {
-    margin-left: 75px;
+    .vendor-main.collapsed {
+        margin-left: var(--sidebar-col);
+    }
+
+/* ================= PAGE HEADER ================= */
+.page-header {
+    margin-bottom: 28px;
 }
 
-/* ===== Topbar ===== */
-.vendor-topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
+    .page-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+    }
 
-/* ===== Cards ===== */
+    .page-header p {
+        font-size: 14px;
+        color: #6b7c6d;
+        margin-top: 5px;
+    }
+
+/* ================= CARDS ================= */
 .vendor-card {
     background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
 }
 
-/* ===== Responsive ===== */
+.kpi-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    transition: 0.2s;
+}
+
+    .kpi-card:hover {
+        transform: translateY(-3px);
+    }
+
+.kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #e8f5e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.kpi-label {
+    font-size: 13px;
+    color: #6b7c6d;
+}
+
+/* ================= BUTTONS ================= */
+.btn-vendor-primary {
+    background: var(--green-dark);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .btn-vendor-primary:hover {
+        background: var(--green-mid);
+    }
+
+.btn-vendor-outline {
+    background: white;
+    border: 1px solid var(--green-mid);
+    color: var(--green-dark);
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+    .btn-vendor-outline:hover {
+        background: #e8f5e9;
+    }
+
+/* ================= ADD FOOD FORM ================= */
+.add-food-form .form-group {
+    margin-bottom: 20px;
+}
+
+.add-food-form label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.add-food-form .form-control {
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #dce9dd;
+    transition: 0.2s;
+}
+
+    .add-food-form .form-control:focus {
+        border-color: var(--green-mid);
+        box-shadow: 0 0 0 3px rgba(46,125,50,0.1);
+    }
+
+.image-upload-card {
+    background: #f8fdf8;
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px dashed #c8e6c9;
+}
+
+.upload-box {
+    background: white;
+    padding: 40px;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px solid #e8f0e9;
+    position: relative;
+    cursor: pointer;
+}
+
+    .upload-box input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+.preview-card {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.preview-box {
+    height: 200px;
+    background: #f0f4f1;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7c6d;
+}
+
+/* ================= ORDERS TABLE ================= */
+.vendor-orders-table thead {
+    background: #f8fdf8;
+}
+
+.vendor-orders-table th {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5b4c;
+}
+
+.vendor-orders-table td {
+    font-size: 14px;
+}
+
+/* ================= STATUS BADGES ================= */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+    .status-badge.pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-badge.completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+/* ================= PROFILE ================= */
+.profile-summary {
+    padding: 30px 20px;
+}
+
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: var(--green-dark);
+    color: white;
+    font-size: 32px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.profile-status {
+    display: inline-block;
+    background: #e8f5e9;
+    color: var(--green-dark);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
     .vendor-sidebar {
-        position: relative;
-        width: 100%;
-        height: auto;
-        top: 0;
+        width: var(--sidebar-col);
     }
 
     .vendor-main {
-        margin-left: 0;
-        margin-top: 0;
+        margin-left: var(--sidebar-col);
+        padding: 16px;
     }
 }

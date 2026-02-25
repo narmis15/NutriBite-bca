@@ -1,143 +1,40 @@
-﻿@{
-    ViewData["Title"] = "Manage Vendors";
-}
+﻿<h2 class="page-title">Manage Vendors</h2>
 
-<div class="page-header">
-    <h2>Manage Vendors</h2>
+<div class="admin-card">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vendor Name</th>
+                <th>Email</th>
+                <th>Created</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vendor in Model)
+            {
+                <tr>
+                    <td>@vendor.VendorId</td>
+                    <td>@vendor.VendorName</td>
+                    <td>@vendor.Email</td>
+                    <td>@vendor.CreatedAt.ToString("dd MMM yyyy")</td>
+                    <td>
+                        @if (vendor.IsApproved)
+                        {
+                            <span class="status-approved">Approved</span>
+                        }
+                        else if (vendor.IsRejected)
+                        {
+                            <span class="status-rejected">Rejected</span>
+                        }
+                        else
+                        {
+                            <span class="status-pending">Pending</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
-
-<div class="top-bar">
-    <div>
-        Show
-        <select class="entries">
-            <option>5</option>
-            <option selected>10</option>
-            <option>25</option>
-        </select>
-        entries
-    </div>
-
-    <input type="text" placeholder="Search..." class="search-box" />
-</div>
-
-<table class="vendor-table">
-    <thead>
-        <tr>
-            <th>
-                Vendor Shop Name
-                <span class="sort-btn">⇅</span>
-            </th>
-            <th>Locality</th>
-            <th>Region</th>
-            <th>City</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr>
-            <td>Kamlesh Foods</td>
-            <td>16, Ram Nagar</td>
-            <td>Alambagh</td>
-            <td>Lucknow</td>
-            <td>vijaysinha2304@gmail.com</td>
-            <td>8854238899</td>
-            <td class="action-cell">
-                <a class="btn-action btn-edit" href="#">
-                    <span class="icon">✏</span>
-                    <span class="label">Edit</span>
-                </a>
-
-                <a class="btn-action btn-delete" href="#">
-                    <span class="icon">🗑</span>
-                    <span class="label">Delete</span>
-                </a>
-            </td>
-
-        </tr>
-
-        <tr>
-            <td>Rahul Kitchen</td>
-            <td>Flat 6, Nijin Apartments</td>
-            <td>Court Road</td>
-            <td>Patna</td>
-            <td>rahul12@gmail.com</td>
-            <td>7896543215</td>
-            <td class="action-cell">
-                <a class="btn-action btn-edit" href="#">
-                    <span class="icon">✏</span>
-                    <span class="label">Edit</span>
-                </a>
-
-                <a class="btn-action btn-delete" href="#">
-                    <span class="icon">🗑</span>
-                    <span class="label">Delete</span>
-                </a>
-            </td>
-
-        </tr>
-        <tr>
-            <td>Priya Sharma</td>
-            <td>House 24, Green View</td>
-            <td>MG Road</td>
-            <td>Bangaluru</td>
-            <td>priya.sharma99@gmail.com</td>
-            <td>9876543210</td>
-            <td class="action-cell">
-                <a class="btn-action btn-edit" href="#">
-                    <span class="icon">✏</span>
-                    <span class="label">Edit</span>
-                </a>
-
-                <a class="btn-action btn-delete" href="#">
-                    <span class="icon">🗑</span>
-                    <span class="label">Delete</span>
-                </a>
-            </td>
-
-        </tr>
-        <tr>
-            <td>Amit Verma</td>
-            <td>Sector 15, Block C</td>
-            <td>Rohini</td>
-            <td>Delhi</td>
-            <td>amit.verma85@yahoo.com</td>
-            <td>9123456789</td>
-            <td class="action-cell">
-                <a class="btn-action btn-edit" href="#">
-                    <span class="icon">✏</span>
-                    <span class="label">Edit</span>
-                </a>
-
-                <a class="btn-action btn-delete" href="#">
-                    <span class="icon">🗑</span>
-                    <span class="label">Delete</span>
-                </a>
-            </td>
-
-        </tr>
-        <tr>
-            <td>Anjali Nair</td>
-            <td>Flat 402, Lotus Residency</td>
-            <td>Marine Drive</td>
-            <td>Mumbai</td>
-            <td>nair.anjali@outlook.com</td>
-            <td>8877665544</td>
-            <td class="action-cell">
-                <a class="btn-action btn-edit" href="#">
-                    <span class="icon">✏</span>
-                    <span class="label">Edit</span>
-                </a>
-
-                <a class="btn-action btn-delete" href="#">
-                    <span class="icon">🗑</span>
-                    <span class="label">Delete</span>
-                </a>
-            </td>
-
-        </tr>
-    </tbody>
-</table>
-

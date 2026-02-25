@@ -1,149 +1,40 @@
-﻿<h2>New Vendor Requests</h2>
+﻿@model List<object>
 
-<div class="top-bar">
-    <div>
-        Show
-        <select>
-            <option>5</option>
-            <option>10</option>
-            <option>25</option>
-        </select>
-        entries
-    </div>
+<h2>New Vendor Requests</h2>
 
-    <input type="text" placeholder="Search..." />
-</div>
-
-<table class="admin-table">
+<table class="table table-bordered">
     <thead>
         <tr>
-            <th>
-                Vendor Shop Name
-                <span class="sort-btn">⇅</span>
-            </th>
-            <th>Locality</th>
-            <th>Region</th>
-            <th>City</th>
+            <th>Vendor Name</th>
             <th>Email</th>
-            <th>Contact</th>
+            <th>Registered On</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>Sachin Foods</td>
-            <td>Near Sabzi Mandi</td>
-            <td>Clock Tower</td>
-            <td>Raipur</td>
-            <td>sachin100@yahoo.com</td>
-            <td>9876543210</td>
-            <td class="action-cell">
-                <a href="#"
-                   class="btn-action btn-approve"
-                   title="Approve Vendor">
-                    ✔ Approve
-                </a>
+        @foreach (dynamic vendor in Model)
+        {
+            <tr>
+                <td>@vendor.VendorName</td>
+                <td>@vendor.Email</td>
+                <td>@vendor.CreatedAt</td>
+                <td>
 
-                <a href="#"
-                   class="btn-action btn-reject"
-                   title="Reject Vendor">
-                    ✖ Reject
-                </a>
-            </td>
+                    <form asp-action="ApproveVendor" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@vendor.VendorId" />
+                        <button type="submit" class="btn btn-success">
+                            Approve
+                        </button>
+                    </form>
 
-        </tr>
-
-        <tr>
-            <td>Satyam Tiffin Service</td>
-            <td>Near Hanuman Temple</td>
-            <td>Civil Lines</td>
-            <td>Kanpur</td>
-            <td>satyam11@gmail.com</td>
-            <td>7896520780</td>
-            <td class="action-cell">
-                <a href="#"
-                   class="btn-action btn-approve"
-                   title="Approve Vendor">
-                    ✔ Approve
-                </a>
-
-                <a href="#"
-                   class="btn-action btn-reject"
-                   title="Reject Vendor">
-                    ✖ Reject
-                </a>
-            </td>
-
-        </tr>
-
-        <tr>
-            <td>Sharma Bhojanalaya</td>
-            <td>Main Bazaar Road</td>
-            <td>MG Road</td>
-            <td>Indore</td>
-            <td>sharmafood@gmail.com</td>
-            <td>9123456780</td>
-            <td class="action-cell">
-                <a href="#"
-                   class="btn-action btn-approve"
-                   title="Approve Vendor">
-                    ✔ Approve
-                </a>
-
-                <a href="#"
-                   class="btn-action btn-reject"
-                   title="Reject Vendor">
-                    ✖ Reject
-                </a>
-            </td>
-
-        </tr>
-
-        <tr>
-            <td>Gupta Snacks Corner</td>
-            <td>Near Railway Station</td>
-            <td>Charbagh</td>
-            <td>Lucknow</td>
-            <td>guptasnacks@gmail.com</td>
-            <td>9988776655</td>
-            <td class="action-cell">
-                <a href="#"
-                   class="btn-action btn-approve"
-                   title="Approve Vendor">
-                    ✔ Approve
-                </a>
-
-                <a href="#"
-                   class="btn-action btn-reject"
-                   title="Reject Vendor">
-                    ✖ Reject
-                </a>
-            </td>
-
-        </tr>
-
-        <tr>
-            <td>Patel Home Kitchen</td>
-            <td>Sector 15</td>
-            <td>Vashi</td>
-            <td>Navi Mumbai</td>
-            <td>patelkitchen@gmail.com</td>
-            <td>9012345678</td>
-            <td class="action-cell">
-                <a href="#"
-                   class="btn-action btn-approve"
-                   title="Approve Vendor">
-                    ✔ Approve
-                </a>
-
-                <a href="#"
-                   class="btn-action btn-reject"
-                   title="Reject Vendor">
-                    ✖ Reject
-                </a>
-            </td>
-
-        </tr>
+                    <form asp-action="RejectVendor" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@vendor.VendorId" />
+                        <button type="submit" class="btn btn-danger">
+                            Reject
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
-

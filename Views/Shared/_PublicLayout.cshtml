@@ -31,9 +31,12 @@
     <link rel="preload" href="~/images/hero/slide 2.png" as="image" />
 
     <style>
-        /* ===== PROFESSIONAL NAVBAR ===== */
+        /* ============================= */
+        /* PROFESSIONAL FIXED NAVBAR */
+        /* ============================= */
+
         .navbar {
-            height: 64px;
+            height: 72px;
             padding: 0;
             background: #ffffff !important;
             border-bottom: 1px solid #e8f0e9;
@@ -47,14 +50,16 @@
         }
 
         main {
-            margin-top: 64px;
+            margin-top: 72px;
         }
 
-        
+        .navbar.scrolled {
+            box-shadow: 0 6px 22px rgba(0,0,0,0.1);
+        }
 
-            .navbar.scrolled {
-                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            }
+        /* ============================= */
+        /* BRAND */
+        /* ============================= */
 
         .navbar-brand {
             font-size: 22px;
@@ -67,6 +72,10 @@
             .navbar-brand span {
                 color: #43a047;
             }
+
+        /* ============================= */
+        /* NAV LINKS */
+        /* ============================= */
 
         .navbar-nav .nav-link {
             font-size: 14px;
@@ -87,7 +96,73 @@
                 font-weight: 600;
             }
 
-        /* Join Us button */
+        /* ============================= */
+        /* PREMIUM EXPANDING SEARCH */
+        /* ============================= */
+
+        /* ===== RIGHT SIDE SEARCH POSITION ===== */
+
+        .nav-search-wrapper {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        
+
+            
+
+        .premium-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 240px;
+            transition: all 0.4s cubic-bezier(.4,0,.2,1);
+            background: #f5f8f6;
+            border-radius: 50px;
+            overflow: hidden;
+            border: 1px solid #e0e8e2;
+        }
+
+            .premium-search input {
+                border: none;
+                outline: none;
+                background: transparent;
+                padding: 10px 18px;
+                width: 100%;
+                font-size: 14px;
+                color: #374151;
+            }
+
+                .premium-search input::placeholder {
+                    color: #9ca3af;
+                }
+
+            .premium-search button {
+                border: none;
+                background: linear-gradient(135deg, #1b5e20, #43a047);
+                color: white;
+                padding: 8px 18px;
+                border-radius: 50px;
+                cursor: pointer;
+                transition: 0.3s ease;
+            }
+
+                .premium-search button:hover {
+                    transform: scale(1.05);
+                }
+
+            /* EXPAND ON HOVER OR FOCUS */
+            .premium-search:hover,
+            .premium-search:focus-within {
+                width: 420px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            }
+
+        /* ============================= */
+        /* JOIN BUTTON */
+        /* ============================= */
+
         .btn-join {
             background: none;
             border: 1.5px solid #1b5e20;
@@ -105,7 +180,10 @@
                 color: white !important;
             }
 
-        /* Cart */
+        /* ============================= */
+        /* CART */
+        /* ============================= */
+
         .cart-icon {
             font-size: 20px;
             text-decoration: none;
@@ -118,7 +196,10 @@
                 background: #f0f4f1;
             }
 
-        /* Profile button */
+        /* ============================= */
+        /* PROFILE */
+        /* ============================= */
+
         .profile-btn {
             background: none;
             border: none;
@@ -126,25 +207,28 @@
             cursor: pointer;
         }
 
-        .profile-avatar {
+        /* NAVBAR PROFILE AVATAR (SMALL) */
+        .navbar .profile-avatar {
             width: 36px;
             height: 36px;
+            border-radius: 50%;
             background: linear-gradient(135deg, #1b5e20, #43a047);
             color: white;
-            border-radius: 50%;
+            font-size: 14px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            transition: box-shadow 0.2s;
         }
 
             .profile-avatar:hover {
                 box-shadow: 0 0 0 3px #c8e6c9;
             }
 
-        /* Dropdown */
+        /* ============================= */
+        /* DROPDOWN */
+        /* ============================= */
+
         .premium-dropdown {
             border: 1px solid #e8f0e9;
             border-radius: 12px;
@@ -172,7 +256,10 @@
                     color: #e53e3e !important;
                 }
 
-        /* Login / Signup buttons */
+        /* ============================= */
+        /* LOGIN & SIGNUP */
+        /* ============================= */
+
         .btn-login {
             background: none;
             border: 1.5px solid #e2e8f0;
@@ -204,24 +291,8 @@
 
             .btn-signup:hover {
                 background: #2e7d32;
-                color: white !important;
                 transform: translateY(-1px);
             }
-
-        .page-container {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-
-            .page-container main {
-                margin-top: 0 !important;
-                padding-top: 0 !important;
-            }
-
-        .container-fluid.px-0 {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
     </style>
 </head>
 <body>
@@ -254,14 +325,18 @@
                         </li>
                     </ul>
                     <!-- CENTER BIG SEARCH -->
-                    <div class="nav-search-wrapper d-none d-lg-flex">
-                        <form class="nav-search" role="search">
-                            <input type="text"
-                                   placeholder="Search healthy meals, categories..."
-                                   aria-label="Search" />
-                            <button type="submit">Search</button>
-                        </form>
-                    </div>
+                    @if (userId != null)
+                    {
+                        <div class="nav-search-wrapper d-none d-lg-flex">
+                            <form class="premium-search" asp-controller="Home" asp-action="Search" method="get">
+                                <input type="text" name="query" placeholder="Search healthy meals..." />
+                                <button type="submit">
+                                    🔍
+                                </button>
+                            </form>
+                        </div>
+                       
+                    }
                     <!-- Right Side -->
                     <div class="d-flex align-items-center gap-3">
 

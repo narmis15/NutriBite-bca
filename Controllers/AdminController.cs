@@ -50,14 +50,66 @@ namespace NUTRIBITE.Controllers
         [AdminAuthorize]
         public IActionResult ManageVendor()
         {
-            return View();
+            List<Vendor> vendors = new List<Vendor>();
+
+            using (SqlConnection con = new SqlConnection(_configuration.GetConnectionString("DBCS")))
+            {
+                string query = "SELECT * FROM VendorSignup";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    vendors.Add(new Vendor
+                    {
+                        VendorId = Convert.ToInt32(reader["VendorId"]),
+                        VendorName = reader["VendorName"].ToString(),
+                        Email = reader["Email"].ToString(),
+                        IsApproved = Convert.ToBoolean(reader["IsApproved"]),
+                        IsRejected = Convert.ToBoolean(reader["IsRejected"]),
+                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                    });
+                }
+            }
+
+            return View(vendors);
         }
-        // 🔒 Admin only
         [AdminAuthorize]
+        [HttpGet]
         public IActionResult NewVendorRequest()
         {
-            return View();
+            List<object> vendors = new List<object>();
+
+            string cs = _configuration.GetConnectionString("DBCS");
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                con.Open();
+
+                string query = @"SELECT VendorId, VendorName, Email, CreatedAt 
+                         FROM VendorSignup 
+                         WHERE IsApproved = 0 AND IsRejected = 0";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    vendors.Add(new
+                    {
+                        VendorId = Convert.ToInt32(dr["VendorId"]),
+                        VendorName = dr["VendorName"].ToString(),
+                        Email = dr["Email"].ToString(),
+                        CreatedAt = Convert.ToDateTime(dr["CreatedAt"])
+                    });
+                }
+            }
+
+            return View(vendors);
         }
+
         // 🔒 Admin only
         [AdminAuthorize]
         [HttpGet]
@@ -1261,6 +1313,46 @@ namespace NUTRIBITE.Controllers
         {
             // Returns the OrderManagement view (Views/Admin/OrderManagement.cshtml)
             return View();
+        }
+        [AdminAuthorize]
+        [HttpPost]
+        public IActionResult ApproveVendor(int id)
+        {
+            string cs = _configuration.GetConnectionString("DBCS");
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                con.Open();
+
+                string query = "UPDATE VendorSignup SET IsApproved = 1 WHERE VendorId = @id";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            return RedirectToAction("NewVendorRequest");
+        }
+
+        [AdminAuthorize]
+        [HttpPost]
+        public IActionResult RejectVendor(int id)
+        {
+            string cs = _configuration.GetConnectionString("DBCS");
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                con.Open();
+                string query = @"UPDATE VendorSignup 
+                         SET IsRejected = 1, IsApproved = 0 
+                         WHERE VendorId = @id";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
+            }
+
+            return RedirectToAction("NewVendorRequest");
         }
     }
 }

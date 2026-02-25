@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+    var userName = Context.Session.GetString("UserName") ?? "User";
+    var userEmail = Context.Session.GetString("UserEmail") ?? "Not Available";
+    var userPhone = Context.Session.GetString("UserPhone") ?? "Not Available";
+}
+<style>
+
+    .profile-container {
+        max-width: 950px;
+        margin: 110px auto 80px;
+        padding: 0 20px;
+    }
+
+    /* Glass Card */
+    .profile-card {
+        background: rgba(255,255,255,0.75);
+        backdrop-filter: blur(18px);
+        border-radius: 24px;
+        padding: 50px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* Top Section */
+    .profile-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Avatar */
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#16a34a,#15803d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 44px;
+        font-weight: 700;
+        color: white;
+        box-shadow: 0 15px 40px rgba(22,163,74,0.4);
+    }
+
+    /* Info */
+    .profile-info h2 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #064e3b;
+    }
+
+    .profile-info p {
+        margin: 6px 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    /* Edit Button */
+    .edit-btn {
+        background: #16a34a;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+        .edit-btn:hover {
+            background: #15803d;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(22,163,74,0.4);
+        }
+
+    /* Divider */
+    .divider {
+        margin: 40px 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* Stats */
+    .profile-stats {
+        display: flex;
+        gap: 25px;
+    }
+
+    .stat-box {
+        flex: 1;
+        background: #f8fafc;
+        padding: 30px;
+        border-radius: 16px;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        }
+
+        .stat-box h3 {
+            margin: 0;
+            font-size: 24px;
+            color: #16a34a;
+        }
+
+        .stat-box span {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+    /* Address Section */
+    .address-section {
+        margin-top: 50px;
+    }
+
+        .address-section h4 {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #064e3b;
+        }
+
+    .address-box {
+        background: #f1f5f9;
+        padding: 20px;
+        border-radius: 14px;
+        font-size: 14px;
+        color: #475569;
+    }
+
+</style>
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <div class="profile-top">
+
+            <div style="display:flex; gap:30px; align-items:center;">
+                <div class="profile-avatar">
+                    @userName.Substring(0, 1).ToUpper()
+                </div>
+
+                <div class="profile-info">
+                    <h2>@userName</h2>
+                    <p>@userEmail</p>
+                    <p>@userPhone</p>
+                    <p>Member since: @DateTime.Now.Year</p>
+                </div>
+            </div>
+
+            <button class="edit-btn">
+                Edit Profile
+            </button>
+
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="profile-stats">
+            <div class="stat-box">
+                <h3>--</h3>
+                <span>Total Orders</span>
+            </div>
+
+            <div class="stat-box">
+                <h3>--</h3>
+                <span>Calorie Goal</span>
+            </div>
+
+            <div class="stat-box">
+                <h3>Active</h3>
+                <span>Status</span>
+            </div>
+        </div>
+
+        <div class="address-section">
+            <h4>Saved Address</h4>
+            <div class="address-box">
+                No address added yet.
+            </div>
+        </div>
+
+    </div>
+
+</div>

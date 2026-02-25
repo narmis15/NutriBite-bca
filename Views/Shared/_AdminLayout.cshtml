@@ -1,187 +1,135 @@
-﻿@*
-  Explicit admin layout. Keeps admin sidebar / menus and admin JS/CSS.
-  This is a new layout so admin views can switch to it explicitly without breaking existing references.
-*@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>@ViewData["Title"] - NUTRIBITE Admin</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Bootstrap -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <!-- Site CSS -->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 
-    <!-- Auth modal styles (user-side) -->
-    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        .admin-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 240px;
-            background: #1f2937;
-            color: white;
-            padding: 20px;
-        }
-
-            .sidebar h4 {
-                color: #63B34E;
-                margin-bottom: 30px;
-            }
-
-            .sidebar a {
-                display: block;
-                color: #d1d5db;
-                padding: 10px 0;
-                text-decoration: none;
-            }
-
-                .sidebar a:hover {
-                    color: #63B34E;
-                }
-
-        .submenu {
-            display: none;
-            padding-left: 15px;
-        }
-
-        .menu-item.open > .submenu {
-            display: block;
-        }
-
-        .menu-arrow {
-            transition: transform 0.2s ease;
-        }
-
-        .menu-item.open .menu-arrow {
-            transform: rotate(180deg);
-        }
-
-        /* Content */
-        .content {
-            flex: 1;
-            background: #f3f4f6;
-            padding: 25px;
-        }
-
-        .topbar {
-            background: white;
-            padding: 10px 20px;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 20px;
-        }
-    </style>
+    @RenderSection("Styles", required: false)
 </head>
 
 <body>
-    <div class="admin-wrapper">
 
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <h4>NUTRIBITE</h4>
+<div class="admin-wrapper">
 
-            <a asp-controller="Admin" asp-action="Dashboard">Admin Home</a>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+            
+            <!--</><div class="admin-logo">
+                <span class="logo-green">Nutri</span><span class="logo-dark">Bite</span>
+            </div>-->
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-            <!-- Orders menu -->
-            @{
-                var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
-                var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        <a asp-controller="Admin" asp-action="Dashboard">Admin Home</a>
 
-                var ordersActions = new[] { "OrderManagement", "OrderDetails", "FlaggedOrders", "PickupSlots", "CancelledOrders", "GetActiveOrders" };
-                var ordersOpen = currentController == "Admin" && ordersActions.Contains(currentAction);
-            }
-            <div class="menu-item has-submenu @(ordersOpen ? "open" : "")">
-                <div class="menu-link">
-                    <span class="menu-text">Orders</span>
-                    <span class="menu-arrow">&#9662;</span>
-                </div>
-
-                <div class="submenu">
-                    <a asp-controller="Admin" asp-action="OrderManagement">Order Management</a>
-                    <a asp-controller="Admin" asp-action="OrderDetails">Order Details</a>
-                    <a asp-controller="Admin" asp-action="FlaggedOrders">
-                        Flagged Orders <span id="flaggedCount" class="badge bg-danger ms-1" style="display:none;">0</span>
-                    </a>
-                    <a asp-controller="Admin" asp-action="PickupSlots">
-                        Pickup Slots <span id="fullSlotsCount" class="badge bg-warning ms-1" style="display:none;">0</span>
-                    </a>
-                    <a asp-controller="Admin" asp-action="CancelledOrders">
-                        Cancelled Orders <span id="cancelledPendingCount" class="badge bg-danger ms-1" style="display:none;">0</span>
-                    </a>
-                </div>
+        <!-- Orders -->
+        <div class="menu-item">
+            <div class="menu-link">
+                <span class="menu-text">Orders</span>
+                <span class="menu-arrow">&#9662;</span>
             </div>
-
-            <!-- Parent toggle (NOT an anchor) -->
-            <div id="vendorToggle" style="cursor:pointer;padding:10px 0;color:#d1d5db;">
-                Manage Vendors ▾
+            <div class="submenu">
+                <a asp-controller="Admin" asp-action="OrderManagement">Order Management</a>
+                <a asp-controller="Admin" asp-action="OrderDetails">Order Details</a>
+                <a asp-controller="Admin" asp-action="FlaggedOrders">Flagged Orders</a>
+                <a asp-controller="Admin" asp-action="PickupSlots">Pickup Slots</a>
+                <a asp-controller="Admin" asp-action="CancelledOrders">Cancelled Orders</a>
             </div>
-
-            <!-- Submenu -->
-            <div id="vendorMenu" class="submenu">
-                <a asp-controller="Admin" asp-action="NewVendorRequest">
-                    New Vendor Requests
-                </a>
-                <a asp-controller="Admin" asp-action="ManageVendor">
-                    Manage Vendors
-                </a>
-            </div>
-
-            <!-- remaining admin menu sections (unchanged) -->
-            @* Reports, Users, etc. — kept as in original admin layout *@
-
-            <a asp-controller="Admin" asp-action="Logout">Logout</a>
         </div>
 
-        <!-- MAIN CONTENT -->
-        <div class="content">
-            <div class="topbar d-flex justify-content-between align-items-center">
-                <strong>Admin Panel</strong>
-
-                <!-- User / Auth area (site-wide) -->
-                <div id="siteAuthArea" class="d-flex align-items-center">
-                    <button id="authBtn" class="btn btn-sm btn-outline-secondary me-2" type="button">Login</button>
-                    <a id="cartBtn" class="btn btn-sm btn-outline-secondary me-2 d-none" href="/Cart">Cart</a>
-
-                    <div id="profileDropdown" class="dropdown d-none">
-                        <a class="d-flex align-items-center" href="#" id="profileToggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img id="profileAvatar" src="~/images/avatar.png" alt="Profile" class="rounded-circle" width="32" height="32" />
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileToggle">
-                            <li><a class="dropdown-item" href="/Users/Profile">My Profile</a></li>
-                            <li><a class="dropdown-item" href="/Users/UserOrders">My Meals</a></li>
-                            <li><a class="dropdown-item" href="/Users/Favorites">Favorites</a></li>
-                            <li><hr class="dropdown-divider" /></li>
-                            <li><a class="dropdown-item" id="logoutLink" href="/Auth/Logout">Logout</a></li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- Vendors -->
+        <div class="menu-item">
+            <div class="menu-link">
+                <span class="menu-text">Manage Vendors</span>
+                <span class="menu-arrow">&#9662;</span>
             </div>
-
-            @RenderBody()
+            <div class="submenu">
+                <a asp-controller="Admin" asp-action="NewVendorRequest">New Vendor Requests</a>
+                <a asp-controller="Admin" asp-action="ManageVendor">Manage Vendors</a>
+            </div>
         </div>
 
+        <!-- Food Category -->
+        <div class="menu-item">
+            <div class="menu-link">
+                <span class="menu-text">Food Category</span>
+                <span class="menu-arrow">&#9662;</span>
+            </div>
+            <div class="submenu">
+                <a asp-controller="Admin" asp-action="AddFoodCategory">Add Category</a>
+                <a asp-controller="Admin" asp-action="ViewCategory">View Category</a>
+                <a asp-controller="Admin" asp-action="ViewMealCategory">View Meal Category</a>
+            </div>
+        </div>
+
+        <!-- Coupons -->
+        <div class="menu-item">
+            <div class="menu-link">
+                <span>Coupons</span>
+                <span class="menu-arrow">&#9662;</span>
+            </div>
+            <div class="submenu">
+                <a asp-controller="Admin" asp-action="AddCoupon">Add Coupon</a>
+            </div>
+        </div>
+
+        <!-- Reports -->
+        <div class="menu-item">
+            <div class="menu-link">
+                <span>Reports & Analytics</span>
+                <span class="menu-arrow">&#9662;</span>
+            </div>
+            <div class="submenu">
+                <a asp-controller="Reports" asp-action="Dashboard">Dashboard</a>
+                <a asp-controller="Reports" asp-action="OrderReports">Order Reports</a>
+                <a asp-controller="Reports" asp-action="SalesAnalytics">Sales Analytics</a>
+            </div>
+        </div>
+
+        <!-- Users -->
+        <div class="menu-item">
+            <div class="menu-link">
+                <span>Users & Customers</span>
+                <span class="menu-arrow">&#9662;</span>
+            </div>
+            <div class="submenu">
+                <a asp-controller="Users" asp-action="Index">All Users</a>
+                <a asp-controller="Users" asp-action="BlockedUsers">Blocked Users</a>
+            </div>
+        </div>
+
+        <a asp-controller="Admin" asp-action="Logout">Logout</a>
     </div>
 
-    <!-- Scripts -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- CONTENT -->
+    <div class="content">
+        <div class="topbar">
+           
+        </div>
 
-    @RenderSection("Scripts", required: false)
+        @RenderBody()
+    </div>
+
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.querySelectorAll('.menu-link').forEach(item => {
+        item.addEventListener('click', function () {
+            this.parentElement.classList.toggle('open');
+        });
+    });
+
+    function toggleSidebar(){
+        document.querySelector('.sidebar').classList.toggle('collapsed');
+    }
+</script>
+
+@RenderSection("Scripts", required: false)
+
 </body>
 </html>

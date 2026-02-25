@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Settings";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<style>
+    .settings-wrapper {
+        max-width: 700px;
+        margin: 80px auto 40px;
+    }
+
+    .settings-card {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(6,95,70,0.08);
+    }
+
+        .settings-card h4 {
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #065f46;
+        }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 12px;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg,#16a34a,#15803d);
+        border: none;
+        padding: 10px 22px;
+        border-radius: 10px;
+        font-weight: 600;
+        color: white;
+        transition: 0.3s ease;
+    }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(22,163,74,0.25);
+        }
+</style>
+
+<div class="settings-wrapper">
+
+    <div class="settings-card">
+        <h4>⚙ Account Settings</h4>
+
+        <form>
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control"
+                       value="@Context.Session.GetString("UserName")" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">New Password</label>
+                <input type="password" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn-save">Save Changes</button>
+        </form>
+    </div>
+
+</div>

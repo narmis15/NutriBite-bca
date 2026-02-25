@@ -112,5 +112,39 @@ ORDER BY MealDay DESC, m.Slot, m.Id", con);
                 return Json(new { authenticated = true, history = new object[] { } });
             }
         }
+        // ================= MY PROFILE =================
+        [HttpGet]
+        public IActionResult MyProfile()
+        {
+            var uid = HttpContext.Session.GetInt32("UserId");
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            ViewBag.UserId = uid.Value;
+            return View();
+        }
+
+        // ================= MY ORDERS =================
+        [HttpGet]
+        public IActionResult MyOrders()
+        {
+            var uid = HttpContext.Session.GetInt32("UserId");
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            ViewBag.UserId = uid.Value;
+            return View();
+        }
+
+        // ================= SETTINGS =================
+        [HttpGet]
+        public IActionResult Settings()
+        {
+            var uid = HttpContext.Session.GetInt32("UserId");
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            return View();
+        }
     }
 }

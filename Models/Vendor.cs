@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
 
 namespace NUTRIBITE.Models
 {
-    public class Vendor : IdentityUser
+    public class Vendor
     {
-        public string BusinessName { get; set; }
-        public string Address { get; set; }
-        public string PhoneNumber { get; set; }
-        // Add more fields as needed, e.g., cuisine type
+        public int VendorId { get; set; }
+        public string VendorName { get; set; }
+        public string Email { get; set; }
+        public bool IsApproved { get; set; }
+        public bool IsRejected { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

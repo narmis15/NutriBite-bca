@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "My Orders";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<style>
+    .orders-wrapper {
+        max-width: 1000px;
+        margin: 80px auto 40px;
+    }
+
+    .order-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 10px 28px rgba(6,95,70,0.06);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .order-info h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #065f46;
+    }
+
+    .order-info span {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .order-status {
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .status-picked {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+</style>
+
+<div class="orders-wrapper">
+
+    <h2 class="mb-4">📦 My Orders</h2>
+
+    <div class="order-card">
+        <div class="order-info">
+            <h5>Protein Meal</h5>
+            <span>Ordered on: 22 Feb 2026</span>
+        </div>
+        <div class="order-status status-picked">Picked</div>
+    </div>
+
+    <div class="order-card">
+        <div class="order-info">
+            <h5>Classic Thali</h5>
+            <span>Ordered on: 20 Feb 2026</span>
+        </div>
+        <div class="order-status status-cancelled">Cancelled</div>
+    </div>
+
+</div>
