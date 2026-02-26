@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NUTRIBITE.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,12 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Register services
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+// Register Health calculation service (service layer)
+builder.Services.AddScoped<NUTRIBITE.Services.IHealthCalculationService, NUTRIBITE.Services.HealthCalculationService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -31,12 +38,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// 🔥 MUST be before Authorization
 app.UseSession();
 
 app.UseAuthorization();
 
-// Map short-friendly routes for public auth pages (/login, /signup)
 app.MapControllerRoute(
     name: "login",
     pattern: "login",
@@ -47,7 +52,6 @@ app.MapControllerRoute(
     pattern: "signup",
     defaults: new { controller = "Auth", action = "Register" });
 
-// 🔥 DEFAULT ROUTE CHANGED TO HOME INDEX (opens homepage at app start)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

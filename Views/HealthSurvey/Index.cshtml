@@ -1,0 +1,320 @@
+﻿@model NUTRIBITE.ViewModels.HealthSurveyViewModel
+
+@{
+    ViewData["Title"] = "Health Survey";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+    // Parse existing model strings to javascript-friendly JSON (comma separated stored server-side)
+    var existingChronic = (Model?.ChronicDiseases ?? "").Replace("\"", "\\\""); // simple escape
+    var existingAllergies = (Model?.FoodAllergies ?? "").Replace("\"", "\\\"");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/health-survey.css" />
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11">
+            <div class="card hs-card shadow-sm overflow-hidden">
+                <div class="hs-card-header px-4 py-3 d-flex align-items-center">
+                    <div class="me-3 hs-header-icon">🍃</div>
+                    <div>
+                        <h3 class="mb-0">Health Survey</h3>
+                        <small class="text-muted">Provide basic information to get personalized recommendations</small>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("Index", "HealthSurvey", FormMethod.Post, new { @id = "healthSurveyForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-2">
+                                <label class="form-label small">Age</label>
+                                @Html.TextBoxFor(m => m.Age, new { @class = "form-control hs-input", type = "number", min = "10", max = "120" })
+                                @Html.ValidationMessageFor(m => m.Age, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label small">Gender</label>
+                                @Html.DropDownListFor(m => m.Gender, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] { "Male", "Female", "Other" }, Model?.Gender), new { @class = "form-select hs-select" })
+                                @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small">Height (cm)</label>
+                                @Html.TextBoxFor(m => m.HeightCm, new { @class = "form-control hs-input", type = "number", step = "0.1" })
+                                @Html.ValidationMessageFor(m => m.HeightCm, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small">Weight (kg)</label>
+                                @Html.TextBoxFor(m => m.WeightKg, new { @class = "form-control hs-input", type = "number", step = "0.1" })
+                                @Html.ValidationMessageFor(m => m.WeightKg, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+
+                        <hr class="my-3" />
+
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-6">
+                                <label class="form-label small">Activity Level</label>
+                                @Html.DropDownListFor(m => m.ActivityLevel, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] {
+                                    "Sedentary",
+                                    "Lightly Active",
+                                    "Moderately Active",
+                                    "Very Active"
+                                }, Model?.ActivityLevel), new { @class = "form-select hs-select" })
+                                @Html.ValidationMessageFor(m => m.ActivityLevel, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small">Goal</label>
+                                @{
+                                    var goals = new[]
+                                    {
+                                        new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Weight Loss","Weight Loss", Model?.Goal == "Weight Loss"),
+                                        new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Weight Gain","Weight Gain", Model?.Goal == "Weight Gain"),
+                                        // value remains "Maintain" to keep model default while label shows "Maintain Weight"
+                                        new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Maintain Weight","Maintain", Model?.Goal == "Maintain"),
+                                        new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Muscle Gain","Muscle Gain", Model?.Goal == "Muscle Gain")
+                                    };
+                                }
+                                @Html.DropDownListFor(m => m.Goal, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(goals, "Value", "Text", Model?.Goal), new { @class = "form-select hs-select" })
+                                @Html.ValidationMessageFor(m => m.Goal, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+
+                        <div class="row gx-4 gy-3 mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label small">Dietary Preference</label>
+                                @Html.DropDownListFor(m => m.DietaryPreference, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] {
+                                    "Vegetarian", "Vegan", "Eggetarian", "Non-Vegetarian"
+                                }, Model?.DietaryPreference), new { @class = "form-select hs-select" })
+                                @Html.ValidationMessageFor(m => m.DietaryPreference, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <div class="col-md-6 d-flex align-items-end justify-content-end">
+                                <!-- placeholder for future controls -->
+                            </div>
+                        </div>
+
+                        <hr class="my-3" />
+
+                        <!-- Chronic Diseases (multi-select checkboxes) -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <h6 class="mb-0 me-2"><span class="me-2">⚕️</span>Chronic Diseases</h6>
+                                <small class="text-muted">select all that apply</small>
+                            </div>
+
+                            <div class="row gx-2 gy-2 hs-multi">
+                                @{
+                                    var chronicOptions = new[] { "Diabetes", "Hypertension", "Thyroid", "Heart Disease", "PCOS", "Asthma", "None", "Other" };
+                                }
+                                @* Hidden field bound to ViewModel.ChronicDiseases (server expects single string) *@
+                                @Html.HiddenFor(m => m.ChronicDiseases, new { @id = "chronicHidden" })
+
+                                <div class="col-12">
+                                    <div class="card hs-subcard p-3">
+                                        <div class="row gx-2 gy-2">
+                                            @foreach (var opt in chronicOptions)
+                                            {
+                                                <div class="col-6 col-sm-4 col-md-3">
+                                                    <div class="form-check hs-check">
+                                                        <input class="form-check-input chronic-checkbox" type="checkbox" data-value="@opt" id="chronic_@opt" />
+                                                        <label class="form-check-label small" for="chronic_@opt">@opt</label>
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div class="col-12 mt-2" id="chronicOtherWrap" style="display:none;">
+                                                <input id="chronicOtherText" class="form-control hs-input" placeholder="Please specify" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Food Allergies (multi-select checkboxes) -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <h6 class="mb-0 me-2"><span class="me-2">🥗</span>Food Allergies</h6>
+                                <small class="text-muted">select all that apply</small>
+                            </div>
+
+                            <div class="row gx-2 gy-2 hs-multi">
+                                @{
+                                    var allergyOptions = new[] { "Nuts", "Dairy", "Gluten", "Shellfish", "Soy", "Eggs", "None", "Other" };
+                                }
+                                @Html.HiddenFor(m => m.FoodAllergies, new { @id = "allergyHidden" })
+
+                                <div class="col-12">
+                                    <div class="card hs-subcard p-3">
+                                        <div class="row gx-2 gy-2">
+                                            @foreach (var opt in allergyOptions)
+                                            {
+                                                <div class="col-6 col-sm-4 col-md-3">
+                                                    <div class="form-check hs-check">
+                                                        <input class="form-check-input allergy-checkbox" type="checkbox" data-value="@opt" id="allergy_@opt" />
+                                                        <label class="form-check-label small" for="allergy_@opt">@opt</label>
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div class="col-12 mt-2" id="allergyOtherWrap" style="display:none;">
+                                                <input id="allergyOtherText" class="form-control hs-input" placeholder="Please specify allergy" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row gx-4 gy-3 mt-2">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    @Html.CheckBoxFor(m => m.Smoking, new { @class = "form-check-input", id = "smoking" })
+                                    <label class="form-check-label small" for="smoking">I smoke</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    @Html.CheckBoxFor(m => m.Alcohol, new { @class = "form-check-input", id = "alcohol" })
+                                    <label class="form-check-label small" for="alcohol">I consume alcohol</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-success btn-lg hs-submit">Submit Survey</button>
+                        </div>
+
+                        <div class="mt-3 small text-muted">
+                            <em>Note: You can fill this survey only once. If you already submitted, you will be redirected to your profile.</em>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        (function () {
+            // Initialize checkboxes from server-provided comma-separated strings
+            var existingChronic = "@existingChronic";
+            var existingAllergies = "@existingAllergies";
+
+            function splitServerValue(val) {
+                if (!val) return [];
+                return val.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+            }
+
+            var chronicSelected = splitServerValue(existingChronic);
+            var allergySelected = splitServerValue(existingAllergies);
+
+            // mark chronic checkboxes
+            $('.chronic-checkbox').each(function () {
+                var v = $(this).data('value');
+                if (chronicSelected.indexOf(v) >= 0) {
+                    $(this).prop('checked', true);
+                    if (v === 'Other') {
+                        $('#chronicOtherWrap').show();
+                        // if server has "Other: foo" style, attempt to extract text after colon
+                        var otherText = chronicSelected.find(function (x) { return x.indexOf('Other:') === 0; });
+                        if (otherText) $('#chronicOtherText').val(otherText.split(':').slice(1).join(':').trim());
+                    }
+                }
+            });
+
+            // mark allergies checkboxes
+            $('.allergy-checkbox').each(function () {
+                var v = $(this).data('value');
+                if (allergySelected.indexOf(v) >= 0) {
+                    $(this).prop('checked', true);
+                    if (v === 'Other') {
+                        $('#allergyOtherWrap').show();
+                        var otherText = allergySelected.find(function (x) { return x.indexOf('Other:') === 0; });
+                        if (otherText) $('#allergyOtherText').val(otherText.split(':').slice(1).join(':').trim());
+                    }
+                }
+            });
+
+            // toggle other input visibility
+            $('.chronic-checkbox').on('change', function () {
+                if ($(this).data('value') === 'Other') {
+                    $('#chronicOtherWrap').toggle(this.checked);
+                }
+            });
+
+            $('.allergy-checkbox').on('change', function () {
+                if ($(this).data('value') === 'Other') {
+                    $('#allergyOtherWrap').toggle(this.checked);
+                }
+            });
+
+            // Build hidden inputs on submit
+            $('#healthSurveyForm').on('submit', function (e) {
+                // build chronic string
+                var chronicArr = [];
+                $('.chronic-checkbox:checked').each(function () {
+                    var v = $(this).data('value');
+                    if (v === 'Other') {
+                        var txt = $('#chronicOtherText').val().trim();
+                        if (txt) chronicArr.push('Other:' + txt);
+                        else chronicArr.push('Other');
+                    } else {
+                        chronicArr.push(v);
+                    }
+                });
+                $('#chronicHidden').val(chronicArr.join(', '));
+
+                // build allergy string
+                var allergyArr = [];
+                $('.allergy-checkbox:checked').each(function () {
+                    var v = $(this).data('value');
+                    if (v === 'Other') {
+                        var txt = $('#allergyOtherText').val().trim();
+                        if (txt) allergyArr.push('Other:' + txt);
+                        else allergyArr.push('Other');
+                    } else {
+                        allergyArr.push(v);
+                    }
+                });
+                $('#allergyHidden').val(allergyArr.join(', '));
+
+                // allow normal submit to continue
+            });
+        })();
+    </script>
+
+    <script>
+        (function () {
+            let _redirectToLoginGuard = false;
+
+            function showLoginModal() {
+                // Prefer site auth modal if available; otherwise perform a single replace navigation to login.
+                if (typeof showAuthModal === 'function') {
+                    showAuthModal('login');
+                    return;
+                }
+
+                if (_redirectToLoginGuard) return; // already redirecting
+
+                _redirectToLoginGuard = true;
+
+                // Redirect to login page with returnUrl using replace so history doesn't stack and avoid loops.
+                const returnUrl = encodeURIComponent('/Users/Account');
+                window.location.replace('/login?returnUrl=' + returnUrl);
+            }
+
+            // existing loadProfileAndHealth and other code unchanged...
+        })();
+    </script>
+}

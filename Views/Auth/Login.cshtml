@@ -62,12 +62,16 @@
 
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script>
         (function () {
 
+            // Update UI only; do NOT auto-redirect to /Users/Account
+            // Prevents client-driven loops when server session is intermittent.
             $.getJSON('/Auth/IsAuthenticated').done(function (res) {
                 if (res && res.authenticated) {
-                    window.location.href = '/Users/Account';
+                    // Update UI (no navigation)
+                    $('#loginError').hide();
                 }
             });
 
@@ -98,7 +102,12 @@
                             if (res.isAdmin) {
                                 window.location.href = '/Admin/Dashboard';
                             } else {
-                                window.location.href = '/';
+                                // server decides where to go after login
+                                if (res.requiresSurvey) {
+                                    window.location.href = '/HealthSurvey';
+                                } else {
+                                    window.location.href = '/';
+                                }
                             }
                         } else {
                             $('#loginError').text(res && res.message ? res.message : 'Invalid login credentials.').show();

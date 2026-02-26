@@ -1,49 +1,156 @@
-@{
+﻿@{
     ViewData["Title"] = "My Account";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
     var uid = ViewBag.UserId ?? 0;
 }
 
 <link rel="stylesheet" href="~/css/home.css" />
 
-<div class="container mt-3">
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card p-3 mb-3">
-                <h4 class="mb-2">Account</h4>
-                <div id="userInfo" class="mb-3">
-                    <div><strong id="userName">�</strong></div>
-                    <div class="text-muted" id="userEmail">�</div>
+<style>
+    /* Small, non-invasive UI polish */
+    .fade-in {
+        animation: fadeIn 320ms ease both;
+    }
+    keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-smooth {
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(6, 16, 10, 0.06);
+        transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    .card-smooth:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 40px rgba(6, 16, 10, 0.08);
+    }
+
+    .danger-zone {
+        background: linear-gradient(180deg, rgba(255,240,240,0.6), rgba(255,248,248,0.9));
+    }
+
+    /* Smooth progress animation */
+    .progress-bar {
+        transition: width 700ms cubic-bezier(.2,.9,.2,1), background-color 300ms ease;
+    }
+</style>
+
+<div class="container mt-3 fade-in">
+    <div class="row g-3">
+        <!-- (A) Account Information -->
+        <div class="col-lg-6">
+            <div class="card p-3 card-smooth">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5>Account Information</h5>
+                        <small class="text-muted">Basic account details</small>
+                    </div>
+                    <div>
+                        <a class="btn btn-sm btn-outline-primary" href="/Users/Edit">Edit Profile</a>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label small">Daily Calorie Goal</label>
-                    <div class="d-flex gap-2 align-items-center">
-                        <input id="calGoal" type="number" min="0" class="form-control form-control-sm" style="max-width:160px;" />
-                        <button id="saveGoal" class="btn btn-cta btn-sm">Save</button>
-                        <div id="goalMsg" class="text-success small ms-2" style="display:none;">Saved</div>
-                    </div>
-                    <div class="form-text text-muted mt-1">Set your daily calorie target (used in meal summaries).</div>
+                <hr />
+
+                <div>
+                    <div><strong id="userName">—</strong></div>
+                    <div class="text-muted" id="userEmail">—</div>
+                    <div class="text-muted" id="userPhone">—</div>
                 </div>
             </div>
 
-            <div class="card p-3">
-                <h5 class="mb-2">Recent Meal History</h5>
-                <div class="mb-2 small text-muted">Showing last 7 days. Use meal history to track daily calories.</div>
-                <div id="mealHistory" class="mt-2"></div>
+            <!-- (B) Health Summary -->
+            <div class="card p-3 mt-3 card-smooth">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5>Health Summary</h5>
+                        <small class="text-muted">Survey snapshot</small>
+                    </div>
+                    <div>
+                        <a id="editHealthBtn" class="btn btn-sm btn-outline-primary" href="/HealthSurvey/Edit" style="display:none">Edit Health Information</a>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div id="healthSummary">
+                    <div id="noSurveyMsg" class="text-muted">Loading...</div>
+
+                    <div id="surveyFields" style="display:none">
+                        <div class="row">
+                            <div class="col-6"><small class="text-muted">Age</small><div id="s-age">—</div></div>
+                            <div class="col-6"><small class="text-muted">Gender</small><div id="s-gender">—</div></div>
+                            <div class="col-6"><small class="text-muted">Height (cm)</small><div id="s-height">—</div></div>
+                            <div class="col-6"><small class="text-muted">Weight (kg)</small><div id="s-weight">—</div></div>
+                            <div class="col-6"><small class="text-muted">Activity</small><div id="s-activity">—</div></div>
+                            <div class="col-6"><small class="text-muted">Goal</small><div id="s-goal">—</div></div>
+                            <div class="col-12"><small class="text-muted">Chronic Diseases</small><div id="s-chronic">—</div></div>
+                            <div class="col-12"><small class="text-muted">Dietary Preference</small><div id="s-diet">—</div></div>
+                            <div class="col-6"><small class="text-muted">BMI</small><div id="s-bmi">—</div></div>
+                            <div class="col-6"><small class="text-muted">Recommended Calories</small><div id="s-cal">—</div></div>
+                            <div class="col-6"><small class="text-muted">Recommended Protein (g)</small><div id="s-protein">—</div></div>
+                        </div>
+
+                        <div class="mt-2">
+                            <a id="completeSurveyBtn" class="btn btn-sm btn-outline-success" href="/HealthSurvey" style="display:none">Complete Survey</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <aside class="card p-3">
-                <h6 class="mb-2">Quick Summary</h6>
-                <div class="mb-2"><strong>Today's calories:</strong> <span id="todayCalories">0</span> kcal</div>
-                <div class="mb-2"><strong>Goal:</strong> <span id="summaryGoal">�</span></div>
-                <div class="mb-2"><strong>Remaining:</strong> <span id="summaryRemaining">�</span></div>
-                <div class="mt-3">
-                    <button id="openMealsPanel" class="btn btn-primary-ghost btn-sm">Open Meal Panel</button>
+        <!-- (C) Actions & Calorie Tracker -->
+        <div class="col-lg-6">
+            <div class="card p-3 card-smooth">
+                <h5>Calorie Tracker</h5>
+                <small class="text-muted">Daily progress</small>
+                <hr />
+                <div>
+                    <div><strong>Today's calories:</strong> <span id="todayCalories">0</span> kcal</div>
+                    <div><strong>Recommended:</strong> <span id="recommendedCalories">—</span> kcal</div>
+                    <div class="progress mt-2" style="height:14px;">
+                        <div id="calProgress" class="progress-bar" role="progressbar" style="width:0%"></div>
+                    </div>
+                    <div class="mt-2"><strong>Remaining:</strong> <span id="remainingCalories">—</span> kcal</div>
+
+                    <div class="mt-3">
+                        <a href="/CalorieTracker" class="btn btn-sm btn-outline-info">Open Calorie Tracker</a>
+                    </div>
                 </div>
-            </aside>
+            </div>
+
+            <!-- (D) Danger Zone -->
+            <div class="card p-3 mt-3 border-danger card-smooth danger-zone">
+                <h5 class="text-danger">Danger Zone</h5>
+                <small class="text-muted">Delete your account permanently</small>
+                <hr />
+                <p class="small text-muted">This will remove your account and related data (Health survey, calorie entries).</p>
+                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Delete Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @using (Html.BeginForm("DeleteAccount", "Users", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Confirm Delete Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Delete Account</button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -53,150 +160,133 @@
 
     <script>
         (function () {
-            const uid = '@uid';
+            // parse uid safely
+            const uid = parseInt('@uid', 10) || 0;
             const $userName = $('#userName');
             const $userEmail = $('#userEmail');
-            const $calGoal = $('#calGoal');
-            const $saveGoal = $('#saveGoal');
-            const $goalMsg = $('#goalMsg');
-            const $mealHistory = $('#mealHistory');
+            const $userPhone = $('#userPhone');
+
             const $todayCalories = $('#todayCalories');
-            const $summaryGoal = $('#summaryGoal');
-            const $summaryRemaining = $('#summaryRemaining');
+            const $recommendedCalories = $('#recommendedCalories');
+            const $remainingCalories = $('#remainingCalories');
+            const $calProgress = $('#calProgress');
+
+            const $noSurveyMsg = $('#noSurveyMsg');
+            const $surveyFields = $('#surveyFields');
+            const $completeSurveyBtn = $('#completeSurveyBtn');
+            const $editHealthBtn = $('#editHealthBtn');
+
+            // guard to avoid multiple navigations from JS
+            let _redirectingToLogin = false;
 
             function showLoginModal() {
-                if (typeof showAuthModal === 'function') showAuthModal('login');
-                else window.location.href = '/';
+                if (_redirectingToLogin) return;
+                // Prefer site auth modal if available; otherwise redirect to explicit login page
+                if (typeof showAuthModal === 'function') {
+                    showAuthModal('login');
+                    return;
+                }
+
+                _redirectingToLogin = true;
+                // Redirect using replace to avoid history stacking
+                const returnUrl = encodeURIComponent('/Users/Account');
+                window.location.replace('/login?returnUrl=' + returnUrl);
             }
 
-            function loadProfile() {
-                $.getJSON('/Auth/IsAuthenticated').done(function (au) {
-                    if (!(au && au.authenticated)) {
-                        // secure: redirect to home/view login
+            function loadProfileAndHealth() {
+                // if no uid available (server rendered 0), double-check auth endpoint before redirecting.
+                if (!uid || uid <= 0) {
+                    // verify server-side session to avoid false redirect due to timing/race
+                    $.getJSON('/Auth/IsAuthenticated').done(function (res) {
+                        if (res && res.authenticated) {
+                            // session exists but ViewBag wasn't set during render — reload to let server render correct data
+                            window.location.reload();
+                        } else {
+                            // genuinely unauthenticated -> show login modal / redirect
+                            showLoginModal();
+                        }
+                    }).fail(function () {
+                        // network error -> show login modal as fallback
                         showLoginModal();
-                        return;
+                    });
+                    return;
+                }
+
+                $.getJSON('/Users/GetUserProfileData').done(function (res) {
+                    if (!res || !res.authenticated) { showLoginModal(); return; }
+
+
+                    const user = res.user || {};
+                    const s = res.survey;
+
+                    $userName.text(user.Name || '—');
+                    $userEmail.text(user.Email || '—');
+                    $userPhone.text(user.Phone || '—');
+
+                    if (s) {
+                        $noSurveyMsg.hide();
+                        $surveyFields.show();
+                        $('#s-age').text(s.Age || '—');
+                        $('#s-gender').text(s.Gender || '—');
+                        $('#s-height').text(s.HeightCm || '—');
+                        $('#s-weight').text(s.WeightKg || '—');
+                        $('#s-activity').text(s.ActivityLevel || '—');
+                        $('#s-goal').text(s.Goal || '—');
+                        $('#s-chronic').text(s.ChronicDiseases || '—');
+                        $('#s-diet').text(s.DietaryPreference || '—');
+                        $('#s-bmi').text(s.BMI || '—');
+                        $('#s-cal').text(s.RecommendedCalories || '—');
+                        $('#s-protein').text(s.RecommendedProtein || '—');
+
+                        $completeSurveyBtn.hide();
+                        $editHealthBtn.show();
+                    } else {
+                        $surveyFields.hide();
+                        $noSurveyMsg.text("You have not completed your health survey yet.");
+                        $noSurveyMsg.show();
+                        $completeSurveyBtn.show();
+                        $editHealthBtn.hide();
                     }
 
-                    // re-use existing Users/GetUserProfileData if available
-                    $.getJSON('/Users/GetUserProfileData', { userId: uid })
-                        .done(function (res) {
-                            if (!res) return;
-                            $userName.text(res.Name || res.name || res.UserName || '�');
-                            $userEmail.text(res.Email || res.email || '�');
-                            const goal = res.CalorieGoal ?? res.calorieGoal ?? res.CalorieGoal ?? null;
-                            if (goal !== null && goal !== undefined) {
-                                $calGoal.val(goal);
-                                $summaryGoal.text(goal);
-                            } else {
-                                $calGoal.val('');
-                                $summaryGoal.text('�');
-                            }
-                            // today's calories if available
-                            if (res.TodayCalories !== undefined && res.TodayCalories !== null) {
-                                $todayCalories.text(res.TodayCalories);
-                                if (goal) $summaryRemaining.text(goal - res.TodayCalories);
-                            }
-                        })
-                        .fail(function () {
-                            // fallback: call Meals/Today for today's totals
-                            $.getJSON('/Meals/Today').done(function (mres) {
-                                if (mres && mres.authenticated) {
-                                    $todayCalories.text(mres.totalCalories || 0);
-                                    if (mres.calorieGoal !== null) {
-                                        $summaryGoal.text(mres.calorieGoal);
-                                        $summaryRemaining.text((mres.calorieGoal || 0) - (mres.totalCalories || 0));
-                                        $calGoal.val(mres.calorieGoal || '');
-                                    }
-                                }
-                            });
-                        });
-                }).fail(function () { showLoginModal(); });
-            }
+                    // After we know recommended calories, get today's entries to compute progress
+                    const recommended = (s && s.RecommendedCalories) ? parseInt(s.RecommendedCalories) : null;
+                    if (recommended) {
+                        $recommendedCalories.text(recommended);
+                    } else {
+                        $recommendedCalories.text('—');
+                    }
 
-            function loadMealHistory() {
-                $.getJSON('/Users/GetMealHistory', { days: 7 })
-                    .done(function (res) {
-                        if (!res || !res.authenticated) {
-                            showLoginModal(); return;
-                        }
-                        const rows = res.history || [];
-                        if (!rows.length) {
-                            $mealHistory.html('<div class="text-muted small">No meals in the past week.</div>');
-                            return;
-                        }
+                    $.getJSON('/CalorieTracker/GetTodayEntries').done(function (cres) {
+                        if (!cres || !cres.authenticated) return;
+                        const items = cres.items || [];
+                        const total = items.reduce((acc, it) => acc + (it.calories || 0), 0);
+                        $todayCalories.text(total);
 
-                        // group by date then by slot
-                        const byDate = {};
-                        rows.forEach(r => {
-                            byDate[r.date] = byDate[r.date] || [];
-                            byDate[r.date].push(r);
-                        });
-
-                        let html = '';
-                        Object.keys(byDate).sort((a,b)=>b.localeCompare(a)).forEach(d => {
-                            html += `<div class="mb-2"><div class="fw-bold">${d}</div>`;
-                            const items = byDate[d];
-                            const bySlot = {};
-                            items.forEach(i => { bySlot[i.slot] = bySlot[i.slot] || []; bySlot[i.slot].push(i); });
-                            ['Breakfast','Lunch','Dinner','Snacks'].forEach(slot => {
-                                if (!bySlot[slot] || !bySlot[slot].length) return;
-                                html += `<div class="mt-1"><small class="text-muted">${slot}</small>`;
-                                bySlot[slot].forEach(it => {
-                                    html += `<div class="d-flex justify-content-between align-items-center py-1"><div>${it.name}</div><div class="text-muted small">${it.calories} kcal</div></div>`;
-                                });
-                                html += `</div>`;
-                            });
-                            // other slots
-                            Object.keys(bySlot).forEach(s => {
-                                if (['Breakfast','Lunch','Dinner','Snacks'].includes(s)) return;
-                                html += `<div class="mt-1"><small class="text-muted">${s}</small>`;
-                                bySlot[s].forEach(it => {
-                                    html += `<div class="d-flex justify-content-between align-items-center py-1"><div>${it.name}</div><div class="text-muted small">${it.calories} kcal</div></div>`;
-                                });
-                                html += `</div>`;
-                            });
-
-                            html += `</div>`;
-                        });
-
-                        $mealHistory.html(html);
-                    })
-                    .fail(function () {
-                        $mealHistory.html('<div class="text-muted small">Failed to load meal history.</div>');
-                    });
-            }
-
-            $saveGoal.on('click', function () {
-                const v = Number($calGoal.val() || 0);
-                if (isNaN(v) || v < 0) { alert('Enter a valid calorie goal'); return; }
-                $.post('/Users/UpdateCalorieGoal', { goal: v })
-                    .done(function (res) {
-                        if (res && res.success) {
-                            $goalMsg.show().fadeOut(1600);
-                            $summaryGoal.text(v);
-                            // refresh today's numbers (remaining)
-                            $.getJSON('/Meals/Today').done(function (mres) {
-                                if (mres && mres.authenticated && mres.totalCalories !== undefined) {
-                                    $todayCalories.text(mres.totalCalories);
-                                    if (mres.calorieGoal !== null) $summaryRemaining.text((mres.calorieGoal || v) - (mres.totalCalories || 0));
-                                    else $summaryRemaining.text(v - (mres.totalCalories || 0));
-                                }
-                            });
+                        if (recommended) {
+                            const remaining = Math.max(0, recommended - total);
+                            $remainingCalories.text(remaining);
+                            const pct = Math.min(100, Math.round((total / recommended) * 100));
+                            $calProgress.css('width', pct + '%');
+                            $calProgress.text(pct + '%');
+                            $calProgress.removeClass('bg-danger bg-success bg-warning');
+                            if (pct >= 100) $calProgress.addClass('bg-danger');
+                            else if (pct >= 75) $calProgress.addClass('bg-warning');
+                            else $calProgress.addClass('bg-success');
                         } else {
-                            alert(res && res.message ? res.message : 'Failed to save goal.');
+                            $remainingCalories.text('—');
+                            $calProgress.css('width', '0%').text('');
                         }
-                    })
-                    .fail(function () { alert('Failed to save goal.'); });
-            });
-
-            $('#openMealsPanel').on('click', function () {
-                // navigate to home where the daily panel is available
-                window.location.href = '/';
-            });
+                    }).fail(function () {
+                        // silently ignore tracker errors
+                    });
+                }).fail(function () {
+                    // network failure -> show login modal as fallback (no immediate redirect to Home)
+                    showLoginModal();
+                });
+            }
 
             $(function () {
-                loadProfile();
-                loadMealHistory();
+                loadProfileAndHealth();
             });
         })();
     </script>

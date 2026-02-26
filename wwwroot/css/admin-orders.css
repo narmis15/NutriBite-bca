@@ -1,0 +1,73 @@
+:root{
+  --primary:#2E7D32;
+  --glow:#4CAF50;
+  --accent:#81C784;
+  --dark:#1B1B1B;
+  --soft:#F1F8E9;
+  --card:#ffffffcc;
+}
+
+/* glass card */
+.card-glass{
+  background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(245,250,245,0.7));
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(30,60,30,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+  border: 1px solid rgba(130,200,150,0.12);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.card-glass:hover{ transform: translateY(-6px); box-shadow: 0 18px 48px rgba(30,60,30,0.12); }
+
+/* glowing buttons */
+.btn.glow{
+  border-radius: 12px;
+  padding: .35rem .6rem;
+  box-shadow: 0 6px 18px rgba(76,175,80,0.12);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.btn.glow:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(76,175,80,0.22);
+  outline: 0;
+}
+
+/* table */
+.admin-table{
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 8px 30px rgba(10,20,10,0.04);
+  transition: all .22s ease;
+}
+.admin-table thead th{
+  background: linear-gradient(90deg,var(--soft),#fff);
+  color: var(--dark);
+  font-weight:700;
+  border-bottom: 0;
+  padding: .9rem;
+}
+.admin-table tbody tr{
+  transition: background .18s ease, transform .12s ease;
+}
+.admin-table tbody tr:hover{
+  background: linear-gradient(90deg, rgba(200,245,200,0.14), rgba(255,255,255,0.6));
+  transform: translateY(-2px);
+}
+
+/* status badges */
+.badge.status-new{ background:#FFF9C4; color:#8a6d00; }
+.badge.status-accepted{ background:#FFF3E0; color:#7a4a00; }
+.badge.status-ready{ background:#E8F5E9; color:#1b5e20; }
+.badge.status-picked{ background:#E3F2FD; color:#0d47a1; }
+.badge.status-flagged{ background:#FFF3E0; color:#a84b00; }
+.badge.status-cancelled{ background:#FFEBEE; color:#b71c1c; }
+
+/* small utilities */
+.no-records{ text-align:center; color:#666; padding:2rem; }
+.order-warning{ color: #e65100; font-weight:700; }
+
+/* responsive tweaks */
+@media (max-width:900px){
+  .admin-table thead{ display:none; }
+  .admin-table tbody td{ display:block; padding:.6rem; border-bottom:1px solid rgba(0,0,0,0.04); }
+  .admin-table tbody tr{ margin-bottom: .6rem; background: #fff; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.03); }
+}

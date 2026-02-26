@@ -79,6 +79,7 @@
     <script>
         (function () {
 
+            // If already signed in (session-based endpoint) redirect to account
             $.getJSON('/Auth/IsAuthenticated').done(function (res) {
                 if (res && res.authenticated) {
                     window.location.href = '/Users/Account';
@@ -99,10 +100,11 @@
                 $(this).text(type === 'password' ? 'Show' : 'Hide');
             });
 
+            // Use explicit AJAX with antiforgery header and improved error handling.
             $('#signupForm').on('submit', function (e) {
                 e.preventDefault();
-                $('#signupError').hide();
-                $('#signupSuccess').hide();
+                $('#signupError').hide().text('');
+                $('#signupSuccess').hide().text('');
 
                 var name = $('#name').val().trim();
                 var email = $('#email').val().trim();
@@ -119,23 +121,54 @@
                     return;
                 }
 
+                // read antiforgery token value from rendered hidden input
                 var token = $('input[name="__RequestVerificationToken"]').first().val() || '';
 
-                $.post('/Auth/Register', {
+                // send as form-encoded data and also set header used by antiforgery validation
+                var postData = {
                     name: name,
                     email: email,
                     password: password,
                     __RequestVerificationToken: token
-                })
-                .done(function (res) {
-                    if (res && res.success) {
-                        window.location.href = '/login';
-                    } else {
-                        $('#signupError').text(res && res.message ? res.message : 'Registration failed.').show();
+                };
+
+                $.ajax({
+                    url: '/Auth/Register',
+                    method: 'POST',
+                    data: postData,
+                    // ensure default contentType (application/x-www-form-urlencoded) so MVC model binding works
+                    headers: {
+                        // set the antiforgery header as some servers expect it for AJAX posts
+                        'RequestVerificationToken': token
+                    },
+                    success: function (res) {
+                        if (res && res.success) {
+                            // If server returned a redirect URL for non-AJAX flow, handle it
+                            if (res.redirect) {
+                                window.location.href = res.redirect;
+                                return;
+                            }
+                            // otherwise navigate to login page (legacy behavior)
+                            window.location.href = '/login';
+                        } else {
+                            $('#signupError').text(res && res.message ? res.message : 'Registration failed.').show();
+                        }
+                    },
+                    error: function (xhr, status, err) {
+                        // Try to show meaningful message from server response JSON
+                        var msg = 'Unable to reach server. Please try again.';
+                        try {
+                            if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr && xhr.responseText) {
+                                // sometimes antiforgery returns plain 400 text; keep generic but log to console
+                                console.error('Register error response:', xhr.responseText);
+                            }
+                        } catch (ex) {
+                            console.error(ex);
+                        }
+                        $('#signupError').text(msg).show();
                     }
-                })
-                .fail(function () {
-                    $('#signupError').text('Unable to reach server. Please try again.').show();
                 });
             });
 

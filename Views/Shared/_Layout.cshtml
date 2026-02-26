@@ -184,7 +184,7 @@
                             <img id="profileAvatar" src="~/images/avatar.png" alt="Profile" class="rounded-circle" width="32" height="32" />
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileToggle">
-                            <li><a class="dropdown-item" href="/Users/Profile">My Profile</a></li>
+                            <li><a class="dropdown-item" href="/Users/Profile">MyProfile</a></li>
                             <li><a class="dropdown-item" href="/Users/UserOrders">My Meals</a></li>
                             <li><a class="dropdown-item" href="/Users/Favorites">Favorites</a></li>
                             <li><hr class="dropdown-divider" /></li>
@@ -343,18 +343,24 @@
                     if (typeof showAuthModal === 'function') showAuthModal('login');
                 });
 
-                // close profile dropdown when clicking outside (Bootstrap handles normally, added guard)
+                // Robust close handler: treat clicks on the toggle or any of its children
+                // (avatar <img>, inner nodes) as inside clicks so dropdown won't close immediately.
                 document.addEventListener('click', function (e) {
                     var dropdown = document.getElementById('profileDropdown');
                     var toggle = document.getElementById('profileToggle');
                     if (!dropdown || !toggle) return;
-                    if (!dropdown.contains(e.target) && e.target !== toggle) {
-                        var dd = bootstrap.Dropdown.getInstance(toggle);
-                        if (dd) dd.hide();
+
+                    var clickedInsideToggle = toggle.contains(e.target);
+                    var clickedInsideDropdown = dropdown.contains(e.target);
+
+                    if (!clickedInsideDropdown && !clickedInsideToggle) {
+                        // use getOrCreateInstance for Bootstrap 5
+                        var dd = bootstrap.Dropdown.getOrCreateInstance(toggle);
+                        dd.hide();
                     }
                 });
 
-                // listen for login event (emitted by modal script) to update UI and resume actions
+                // update UI after login event
                 document.addEventListener('user:login', function (e) {
                     updateAuthUI();
                 });

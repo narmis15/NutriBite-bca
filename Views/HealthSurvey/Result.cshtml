@@ -1,0 +1,107 @@
+@model NUTRIBITE.Models.HealthSurvey
+
+@{
+    ViewData["Title"] = "Health Survey Results";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    var suggestions = ViewBag.FoodSuggestions as string[] ?? new string[0];
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/health-survey.css" />
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Your Health Summary</h4>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="stat-card p-3 text-center">
+                                <div class="stat-label small text-muted">BMI</div>
+                                <div class="stat-value h4">@Model.BMI</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card p-3 text-center">
+                                <div class="stat-label small text-muted">BMR</div>
+                                <div class="stat-value h4">@Model.BMR</div>
+                                <div class="small text-muted">kcal/day</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card p-3 text-center">
+                                <div class="stat-label small text-muted">Calories</div>
+                                <div class="stat-value h4">@Model.RecommendedCalories</div>
+                                <div class="small text-muted">kcal/day</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card p-3 text-center">
+                                <div class="stat-label small text-muted">Protein</div>
+                                <div class="stat-value h4">@Model.RecommendedProtein g</div>
+                                <div class="small text-muted">grams/day</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6>Profile</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Age:</strong> @Model.Age</div>
+                        <div class="col-md-4"><strong>Gender:</strong> @Model.Gender</div>
+                        <div class="col-md-4"><strong>Diet:</strong> @Model.DietaryPreference</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Height:</strong> @Model.HeightCm cm</div>
+                        <div class="col-md-4"><strong>Weight:</strong> @Model.WeightKg kg</div>
+                        <div class="col-md-4"><strong>Activity:</strong> @Model.ActivityLevel</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Health Notes</h6>
+                        <div><strong>Chronic Conditions:</strong> @Model.ChronicDiseases</div>
+                        <div><strong>Food Allergies:</strong> @Model.FoodAllergies</div>
+                        <div><strong>Smoking:</strong> @(Model.Smoking ? "Yes" : "No")</div>
+                        <div><strong>Alcohol:</strong> @(Model.Alcohol ? "Yes" : "No")</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Macro Distribution</h6>
+                        <div class="p-3 bg-light rounded">
+                            <div><strong>Carbs:</strong> 50% (@(ViewBag.CarbsGr ?? "—") g)</div>
+                            <div><strong>Protein:</strong> 20% (@Model.RecommendedProtein g)</div>
+                            <div><strong>Fats:</strong> 30% (@(ViewBag.FatsGr ?? "—") g)</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Food Suggestions</h6>
+                        <div class="p-3 bg-white">
+                            <ul>
+                                @foreach (var item in suggestions)
+                                {
+                                    <li>@item</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="/" class="btn btn-outline-secondary">Back to Dashboard</a>
+                        <a href="/Users/Account" class="btn btn-primary">View Profile</a>
+                    </div>
+
+                    <hr />
+                    <div class="small text-muted">
+                        These recommendations are generated based on the information provided and are intended for general guidance only.
+                        Please consult a qualified healthcare professional before making significant dietary or lifestyle changes.
+                        Follow these suggestions at your own discretion.
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

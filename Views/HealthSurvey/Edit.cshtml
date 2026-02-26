@@ -1,0 +1,93 @@
+@model NUTRIBITE.ViewModels.HealthSurveyViewModel
+
+@{
+    ViewData["Title"] = "Edit Health Information";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/health-survey.css" />
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-3">
+                <h4>Edit Health Information</h4>
+                @using (Html.BeginForm("Edit", "HealthSurvey", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            @Html.LabelFor(m => m.Age, new { @class = "form-label small" })
+                            @Html.TextBoxFor(m => m.Age, new { @class = "form-control", type = "number", min = "10", max = "120" })
+                            @Html.ValidationMessageFor(m => m.Age, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            @Html.LabelFor(m => m.Gender, new { @class = "form-label small" })
+                            @Html.DropDownListFor(m => m.Gender, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] { "Male", "Female", "Other" }), new { @class = "form-select" })
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            @Html.LabelFor(m => m.Goal, new { @class = "form-label small" })
+                            @Html.DropDownListFor(m => m.Goal, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] { "Weight Loss", "Maintain", "Weight Gain", "Muscle Gain" }), new { @class = "form-select" })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.HeightCm, new { @class = "form-label small" })
+                            @Html.TextBoxFor(m => m.HeightCm, new { @class = "form-control", type = "number", step = "0.1" })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.WeightKg, new { @class = "form-label small" })
+                            @Html.TextBoxFor(m => m.WeightKg, new { @class = "form-control", type = "number", step = "0.1" })
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.ActivityLevel, new { @class = "form-label small" })
+                        @Html.DropDownListFor(m => m.ActivityLevel, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] { "Sedentary", "Lightly Active", "Moderately Active", "Very Active" }), new { @class = "form-select" })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.DietaryPreference, new { @class = "form-label small" })
+                        @Html.DropDownListFor(m => m.DietaryPreference, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] { "Vegetarian", "Vegan", "Eggetarian", "Non-Vegetarian" }), new { @class = "form-select" })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.ChronicDiseases, new { @class = "form-label small" })
+                        @Html.TextAreaFor(m => m.ChronicDiseases, new { @class = "form-control", rows = 2 })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.FoodAllergies, new { @class = "form-label small" })
+                        @Html.TextAreaFor(m => m.FoodAllergies, new { @class = "form-control", rows = 2 })
+                    </div>
+
+                    <div class="form-check mb-3">
+                        @Html.CheckBoxFor(m => m.Smoking, new { @class = "form-check-input", id = "smoking" })
+                        <label class="form-check-label small" for="smoking">I smoke</label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        @Html.CheckBoxFor(m => m.Alcohol, new { @class = "form-check-input", id = "alcohol" })
+                        <label class="form-check-label small" for="alcohol">I consume alcohol</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="/HealthSurvey/Result" class="btn btn-outline-secondary btn-sm">Cancel</a>
+                        <button type="submit" class="btn btn-success btn-sm">Save Changes</button>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-2">
+                <a id="completeSurveyBtn" class="btn btn-sm btn-outline-success" href="/HealthSurvey">Complete Survey</a>
+                <a id="editHealthBtn" class="btn btn-sm btn-outline-primary" href="/HealthSurvey/Edit" style="display:none">Edit Health Information</a>
+                <a id="openCalorieTrackerBtn" class="btn btn-sm btn-outline-info" href="/CalorieTracker">Open Calorie Tracker</a>
+            </div>
+        </div>
+    </div>
+</div>
