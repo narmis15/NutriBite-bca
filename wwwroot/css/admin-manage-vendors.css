@@ -1,0 +1,93 @@
+﻿/* FULL PAGE WRAPPER */
+.admin-full-wrapper {
+    width: 100%;
+    padding: 20px 30px;
+}
+
+/* Page Title */
+.page-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1B5E20;
+    margin: 20px 30px;
+}
+
+/* TABLE FULL WIDTH */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+    /* Header */
+    .admin-table thead {
+        background: linear-gradient(90deg,#F1F8E9,#ffffff);
+    }
+
+    .admin-table th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    /* Rows */
+    .admin-table td {
+        padding: 18px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        font-size: 14px;
+    }
+
+    .admin-table tbody tr {
+        transition: 0.2s ease;
+    }
+
+        .admin-table tbody tr:hover {
+            background: rgba(200,245,200,0.18);
+        }
+
+/* Vendor Info */
+.vendor-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.vendor-avatar {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg,#4CAF50,#1B5E20);
+    color: white;
+    font-weight: 600;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vendor-name {
+    font-weight: 600;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+    .status-badge.approved {
+        background: #E8F5E9;
+        color: #1B5E20;
+    }
+
+    .status-badge.pending {
+        background: #FFF8E1;
+        color: #E65100;
+    }
+
+    .status-badge.rejected {
+        background: #FFEBEE;
+        color: #B71C1C;
+    }

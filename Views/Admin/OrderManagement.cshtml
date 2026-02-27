@@ -21,11 +21,15 @@
     </div>
 
     <!-- Submenu -->
-    <nav class="mb-3">
-        <a asp-controller="Admin" asp-action="OrderDetails" class="me-3">Order Details</a>
-        <a asp-controller="Admin" asp-action="FlaggedOrders" class="me-3">Flagged Orders</a>
-        <a asp-controller="Admin" asp-action="PickupSlots" class="me-3">Pickup Slots</a>
-        <a asp-controller="Admin" asp-action="CancelledOrders" class="me-3">Cancelled Orders</a>
+    <nav class="admin-submenu mb-4">
+        <a asp-controller="Admin"
+           asp-action="OrderDetails"
+           class="submenu-link @(ViewContext.RouteData.Values["action"].ToString() == "OrderDetails" ? "active" : "")">
+            Order Details
+        </a>       
+        <a asp-controller="Admin" asp-action="FlaggedOrders" class="submenu-link">Flagged Orders</a>
+        <a asp-controller="Admin" asp-action="PickupSlots" class="submenu-link">Pickup Slots</a>
+        <a asp-controller="Admin" asp-action="CancelledOrders" class="submenu-link">Cancelled Orders</a>
     </nav>
 
     <!-- Status tabs -->

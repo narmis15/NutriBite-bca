@@ -209,3 +209,40 @@ body {
         padding: .5rem;
     }
 }
+
+/* =========================================
+   ADMIN SUBMENU STYLE (No Blue Links)
+========================================= */
+
+.admin-submenu {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.submenu-link {
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 14px;
+    background: #f1f5f9;
+    color: #1B5E20;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+}
+
+    /* Hover effect */
+    .submenu-link:hover {
+        background: linear-gradient(135deg,#4CAF50,#1B5E20);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(76,175,80,0.25);
+    }
+
+    /* Active page highlight */
+    .submenu-link.active {
+        background: linear-gradient(135deg,#2E7D32,#1B5E20);
+        color: white;
+        box-shadow: 0 6px 18px rgba(46,125,50,0.25);
+    }

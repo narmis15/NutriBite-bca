@@ -1,40 +1,92 @@
 ﻿@model List<object>
 
-<h2>New Vendor Requests</h2>
+@{
+    ViewData["Title"] = "New Vendor Requests";
+}
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Vendor Name</th>
-            <th>Email</th>
-            <th>Registered On</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (dynamic vendor in Model)
-        {
-            <tr>
-                <td>@vendor.VendorName</td>
-                <td>@vendor.Email</td>
-                <td>@vendor.CreatedAt</td>
-                <td>
+@section Styles {
+    <link rel="stylesheet" href="~/css/New-vendor-request.css" asp-append-version="true" />
+}
 
-                    <form asp-action="ApproveVendor" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="@vendor.VendorId" />
-                        <button type="submit" class="btn btn-success">
-                            Approve
-                        </button>
-                    </form>
+<div class="vendor-wrapper">
 
-                    <form asp-action="RejectVendor" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="@vendor.VendorId" />
-                        <button type="submit" class="btn btn-danger">
-                            Reject
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="vendor-header">
+        <h2>New Vendor Requests</h2>
+        <span class="vendor-count">@Model.Count Pending</span>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="no-vendors">
+            <h4>No Pending Vendor Requests</h4>
+            <p>All vendor applications are reviewed.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="vendor-table">
+                <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>Email</th>
+                        <th>Registered On</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (dynamic vendor in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <div class="vendor-info">
+                                    <div class="vendor-avatar">
+                                        @vendor.VendorName.ToString().Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div>
+                                        <div class="vendor-name">@vendor.VendorName</div>
+                                        <div class="vendor-id">ID: #@vendor.VendorId</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>@vendor.Email</td>
+
+                            <td>
+                                <div class="date-box">
+                                    @Convert.ToDateTime(vendor.CreatedAt).ToString("dd MMM yyyy")
+                                    <small>
+                                        @Convert.ToDateTime(vendor.CreatedAt).ToString("hh:mm tt")
+                                    </small>
+                                </div>
+                            </td>
+
+                            <td class="text-center">
+
+                                <form asp-action="ApproveVendor" method="post" class="inline-form">
+                                    <input type="hidden" name="id" value="@vendor.VendorId" />
+                                    <button type="submit" class="btn-approve">
+                                        Approve
+                                    </button>
+                                </form>
+
+                                <form asp-action="RejectVendor" method="post" class="inline-form">
+                                    <input type="hidden" name="id" value="@vendor.VendorId" />
+                                    <button type="submit" class="btn-reject">
+                                        Reject
+                                    </button>
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>
