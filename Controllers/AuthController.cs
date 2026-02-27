@@ -11,10 +11,6 @@ namespace NUTRIBITE.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        // 🔥 Hardcoded Admin (Dev Only)
-        private const string DevAdminEmail = "Nutribite123@gmail.com";
-        private const string DevAdminPassword = "NutriBite//26";
-
         public AuthController(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -117,17 +113,6 @@ namespace NUTRIBITE.Controllers
                 return Json(new { success = false, message = "Email and password are required." });
 
             string trimmedEmail = email.Trim();
-
-            // 🔥 ADMIN CHECK (dev)
-            if (string.Equals(trimmedEmail, DevAdminEmail, StringComparison.OrdinalIgnoreCase)
-                && password == DevAdminPassword)
-            {
-                HttpContext.Session.SetString("Admin", trimmedEmail);
-                HttpContext.Session.SetInt32("UserId", -1);
-                HttpContext.Session.SetString("UserName", "Administrator");
-
-                return Json(new { success = true, isAdmin = true });
-            }
 
             // NORMAL USER
             string cs = _configuration.GetConnectionString("DBCS");

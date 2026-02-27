@@ -19,7 +19,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Register services
+// Register services (use ADO.NET-based services)
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Register Health calculation service (service layer)
