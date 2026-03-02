@@ -1,0 +1,148 @@
+﻿/* =========================================
+   VENDOR REQUEST PAGE
+========================================= */
+
+.vendor-wrapper {
+    background: rgba(255,255,255,0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.05);
+}
+
+/* Header */
+.vendor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+    .vendor-header h2 {
+        font-weight: 700;
+        color: #1B5E20;
+    }
+
+.vendor-count {
+    background: linear-gradient(135deg,#4CAF50,#1B5E20);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+}
+
+/* Table */
+.vendor-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+    .vendor-table thead {
+        background: linear-gradient(90deg,#F1F8E9,#ffffff);
+    }
+
+        .vendor-table thead th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+    .vendor-table tbody td {
+        padding: 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .vendor-table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+        .vendor-table tbody tr:hover {
+            background: rgba(200,245,200,0.18);
+            transform: translateY(-3px);
+        }
+
+/* Vendor Info */
+.vendor-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.vendor-avatar {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg,#4CAF50,#1B5E20);
+    color: white;
+    font-weight: 600;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vendor-name {
+    font-weight: 600;
+}
+
+.vendor-id {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Date */
+.date-box small {
+    display: block;
+    font-size: 12px;
+    color: #777;
+}
+
+/* Buttons */
+.inline-form {
+    display: inline;
+}
+
+.btn-approve {
+    background: linear-gradient(135deg,#4CAF50,#1B5E20);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 12px;
+    margin-right: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-approve:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(76,175,80,0.3);
+    }
+
+.btn-reject {
+    background: linear-gradient(135deg,#EF5350,#B71C1C);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-reject:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239,83,80,0.3);
+    }
+
+/* Empty State */
+.no-vendors {
+    text-align: center;
+    padding: 50px 0;
+    color: #777;
+}
+
+    .no-vendors h4 {
+        font-weight: 600;
+        margin-bottom: 10px;
+    }

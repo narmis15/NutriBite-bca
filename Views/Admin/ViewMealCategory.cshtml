@@ -1,7 +1,11 @@
 ﻿@using NUTRIBITE.Models
 @model IEnumerable<FoodCategory>
 
-<h3>View Meal Categories</h3>
+@{
+    ViewData["Title"] = "View Meal Categories";
+}
+
+<h3 class="page-title">View Meal Categories</h3>
 
 <div class="table-wrapper">
     <table class="admin-table">
@@ -23,13 +27,9 @@
                     </a>
                 </th>
 
-                <th>
-                    <span class="sortable">Meal Image</span>
-                </th>
+                <th>Meal Image</th>
 
-                <th>
-                    <span class="sortable">Action</span>
-                </th>
+                <th style="text-align:center;">Action</th>
             </tr>
         </thead>
 
@@ -45,36 +45,34 @@
                         <!-- Meal Category -->
                         <td>@item.MealCategory</td>
 
-                        <!-- Image -->
+                        <!-- Meal Image -->
                         <td class="image-cell">
-                            <div class="image-box">
-                                @if (!string.IsNullOrEmpty(item.MealPic))
-                                {
-                                    <img src="~/images/Meals/@item.MealPic"
-                                         alt="@item.MealCategory"
-                                         onerror="this.onerror=null;this.src='/images/Meals/default.jpg';"/>
-                                }
-                                else
-                                {
-                                    <img src="~/images/Meals/default.jpg"
-                                         alt="No Image" />
-                                }
-                            </div>
+                            @if (!string.IsNullOrEmpty(item.MealPic))
+                            {
+                                <img src="~/images/Meals/@item.MealPic"
+                                     alt="@item.MealCategory"
+                                     class="meal-thumb"
+                                     onerror="this.onerror=null;this.src='/images/Meals/default.jpg';" />
+                            }
+                            else
+                            {
+                                <img src="~/images/Meals/default.jpg"
+                                     alt="No Image"
+                                     class="meal-thumb" />
+                            }
                         </td>
-                       
-
 
                         <!-- Actions -->
-                        <td>
+                        <td class="action-cell">
                             <a asp-action="EditMealCategory"
                                asp-route-id="@item.cid"
-                               class="btn btn-edit">
+                               class="btn-action btn-approve">
                                 Edit
                             </a>
 
                             <a asp-action="DeleteMealCategory"
                                asp-route-id="@item.cid"
-                               class="btn btn-delete"
+                               class="btn-action btn-reject"
                                onclick="return confirm('Are you sure you want to delete this meal category?');">
                                 Delete
                             </a>

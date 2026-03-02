@@ -277,7 +277,7 @@ ORDER BY MealDay DESC, m.Slot, m.Id", con);
                 return Json(new { authenticated = true, history = new object[] { } });
             }
         }
-
+    
         // ================= MY PROFILE =================
         [HttpGet]
         public IActionResult MyProfile(int? userId = null)

@@ -1,73 +1,248 @@
-:root{
-  --primary:#2E7D32;
-  --glow:#4CAF50;
-  --accent:#81C784;
-  --dark:#1B1B1B;
-  --soft:#F1F8E9;
-  --card:#ffffffcc;
+/* =========================================
+   ROOT VARIABLES
+========================================= */
+:root {
+    --primary: #1B5E20;
+    --primary-light: #2E7D32;
+    --glow: #4CAF50;
+    --accent: #A5D6A7;
+    --dark: #1B1B1B;
+    --soft: #F1F8E9;
+    --card: #ffffffcc;
+    --border: rgba(30, 90, 50, 0.12);
 }
 
-/* glass card */
-.card-glass{
-  background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(245,250,245,0.7));
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(30,60,30,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
-  border: 1px solid rgba(130,200,150,0.12);
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-.card-glass:hover{ transform: translateY(-6px); box-shadow: 0 18px 48px rgba(30,60,30,0.12); }
-
-/* glowing buttons */
-.btn.glow{
-  border-radius: 12px;
-  padding: .35rem .6rem;
-  box-shadow: 0 6px 18px rgba(76,175,80,0.12);
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-.btn.glow:hover{
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(76,175,80,0.22);
-  outline: 0;
+/* =========================================
+   GLOBAL SMOOTHNESS
+========================================= */
+* {
+    transition: all .18s ease-in-out;
 }
 
-/* table */
-.admin-table{
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 8px 30px rgba(10,20,10,0.04);
-  transition: all .22s ease;
-}
-.admin-table thead th{
-  background: linear-gradient(90deg,var(--soft),#fff);
-  color: var(--dark);
-  font-weight:700;
-  border-bottom: 0;
-  padding: .9rem;
-}
-.admin-table tbody tr{
-  transition: background .18s ease, transform .12s ease;
-}
-.admin-table tbody tr:hover{
-  background: linear-gradient(90deg, rgba(200,245,200,0.14), rgba(255,255,255,0.6));
-  transform: translateY(-2px);
+body {
+    background: linear-gradient(135deg,#eef6f0,#f9fdf9);
+    font-family: 'Poppins', sans-serif;
 }
 
-/* status badges */
-.badge.status-new{ background:#FFF9C4; color:#8a6d00; }
-.badge.status-accepted{ background:#FFF3E0; color:#7a4a00; }
-.badge.status-ready{ background:#E8F5E9; color:#1b5e20; }
-.badge.status-picked{ background:#E3F2FD; color:#0d47a1; }
-.badge.status-flagged{ background:#FFF3E0; color:#a84b00; }
-.badge.status-cancelled{ background:#FFEBEE; color:#b71c1c; }
-
-/* small utilities */
-.no-records{ text-align:center; color:#666; padding:2rem; }
-.order-warning{ color: #e65100; font-weight:700; }
-
-/* responsive tweaks */
-@media (max-width:900px){
-  .admin-table thead{ display:none; }
-  .admin-table tbody td{ display:block; padding:.6rem; border-bottom:1px solid rgba(0,0,0,0.04); }
-  .admin-table tbody tr{ margin-bottom: .6rem; background: #fff; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.03); }
+/* =========================================
+   PREMIUM GLASS CARD
+========================================= */
+.card-glass {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 1.4rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.7);
+    border: 1px solid var(--border);
 }
+
+    .card-glass:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(30,60,30,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+/* =========================================
+   GLOW BUTTONS
+========================================= */
+.btn.glow {
+    border-radius: 14px;
+    padding: .45rem .8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg,var(--primary-light),var(--primary));
+    color: white;
+    border: none;
+    box-shadow: 0 6px 18px rgba(76,175,80,0.18);
+}
+
+    .btn.glow:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 35px rgba(76,175,80,0.3);
+    }
+
+.btn-outline-success {
+    border-radius: 12px;
+}
+
+/* =========================================
+   ADMIN TABLE UPGRADE
+========================================= */
+.admin-table {
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 10px 30px rgba(10,20,10,0.05);
+    border: 1px solid var(--border);
+}
+
+    /* Table Head */
+    .admin-table thead th {
+        background: linear-gradient(90deg,var(--soft),#ffffff);
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 14px;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* Table Rows */
+    .admin-table tbody tr {
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+        .admin-table tbody tr:hover {
+            background: linear-gradient( 90deg, rgba(200,245,200,0.18), rgba(255,255,255,0.8) );
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+
+    /* Table Cells */
+    .admin-table tbody td {
+        padding: .9rem;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+/* =========================================
+   STATUS BADGES (PREMIUM STYLE)
+========================================= */
+.badge {
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .3px;
+}
+
+    .badge.status-new {
+        background: #FFF9C4;
+        color: #8a6d00;
+    }
+
+    .badge.status-accepted {
+        background: #FFF3E0;
+        color: #7a4a00;
+    }
+
+    .badge.status-ready {
+        background: #E8F5E9;
+        color: #1b5e20;
+    }
+
+    .badge.status-picked {
+        background: #E3F2FD;
+        color: #0d47a1;
+    }
+
+    .badge.status-flagged {
+        background: #FFF3E0;
+        color: #a84b00;
+    }
+
+    .badge.status-cancelled {
+        background: #FFEBEE;
+        color: #b71c1c;
+    }
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+.no-records {
+    text-align: center;
+    color: #777;
+    padding: 3rem;
+    font-size: 15px;
+}
+
+/* Warning Text */
+.order-warning {
+    color: #e65100;
+    font-weight: 700;
+}
+
+/* =========================================
+   LIVE PULSE EFFECT (Optional)
+========================================= */
+.live-badge {
+    background: var(--primary-light);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    animation: pulseLive 1.5s infinite;
+}
+
+@keyframes pulseLive {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76,175,80,0.5);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(76,175,80,0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(76,175,80,0);
+    }
+}
+
+/* =========================================
+   RESPONSIVE MOBILE TABLE
+========================================= */
+@media (max-width:900px) {
+
+    .admin-table thead {
+        display: none;
+    }
+
+    .admin-table tbody td {
+        display: block;
+        padding: .7rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .admin-table tbody tr {
+        margin-bottom: 1rem;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        padding: .5rem;
+    }
+}
+
+/* =========================================
+   ADMIN SUBMENU STYLE (No Blue Links)
+========================================= */
+
+.admin-submenu {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.submenu-link {
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 14px;
+    background: #f1f5f9;
+    color: #1B5E20;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+}
+
+    /* Hover effect */
+    .submenu-link:hover {
+        background: linear-gradient(135deg,#4CAF50,#1B5E20);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(76,175,80,0.25);
+    }
+
+    /* Active page highlight */
+    .submenu-link.active {
+        background: linear-gradient(135deg,#2E7D32,#1B5E20);
+        color: white;
+        box-shadow: 0 6px 18px rgba(46,125,50,0.25);
+    }

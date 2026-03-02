@@ -1,27 +1,109 @@
-﻿/* =========================
-   DASHBOARD CARD STYLE
-========================= */
+﻿/* =====================================
+   GLOBAL DASHBOARD LAYOUT
+===================================== */
+
+.dashboard-wrapper {
+    padding: 40px;
+    background: linear-gradient(135deg, #f4f6f8, #eef3f1);
+    min-height: 100vh;
+}
+
+.dashboard-title {
+    font-size: 34px;
+    font-weight: 700;
+    color: #0f3d2e;
+    margin-bottom: 35px;
+}
+
+
+/* =====================================
+   GRID LAYOUT
+===================================== */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+
+/* =====================================
+   MODERN CARD DESIGN
+===================================== */
 
 .db-card {
     background: #ffffff;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    border-left: 6px solid #22c55e;
-    transition: 0.3s ease;
+    padding: 30px;
+    border-radius: 22px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+    transition: all 0.35s ease;
 }
 
+    /* Left gradient accent */
+    .db-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 6px;
+        background: linear-gradient(180deg, #22c55e, #0f3d2e);
+        transition: 0.3s ease;
+    }
+
+    /* Hover effect */
     .db-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(34,197,94,0.25);
+        transform: translateY(-10px);
+        box-shadow: 0 25px 55px rgba(34, 197, 94, 0.25);
     }
 
-    .db-card h3 {
-        font-size: 28px;
-        margin-bottom: 10px;
+        /* Accent animation on hover */
+        .db-card:hover::before {
+            width: 10px;
+        }
+
+
+/* =====================================
+   CARD CONTENT
+===================================== */
+
+.db-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: #0f3d2e;
+    margin-bottom: 8px;
+}
+
+.db-label {
+    font-size: 14px;
+    color: #6b7280;
+    letter-spacing: 0.5px;
+}
+
+
+/* =====================================
+   OPTIONAL ICON STYLE
+===================================== */
+
+.db-icon {
+    font-size: 26px;
+    margin-bottom: 12px;
+    opacity: 0.8;
+}
+
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        padding: 20px;
     }
 
-    .db-card p {
-        margin: 0;
-        color: #6b7280;
+    .dashboard-title {
+        font-size: 26px;
     }
+}

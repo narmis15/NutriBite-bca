@@ -1,40 +1,69 @@
-﻿<h2 class="page-title">Manage Vendors</h2>
+﻿@{
+    ViewData["Title"] = "Manage Vendors";
+}
 
-<div class="admin-card">
-    <table class="admin-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Vendor Name</th>
-                <th>Email</th>
-                <th>Created</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var vendor in Model)
-            {
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-manage-vendors.css" asp-append-version="true" />
+}
+<h2 class="page-title">Manage Vendors</h2>
+
+<div class="admin-full-wrapper">
+
+    <div class="table-responsive">
+        <table class="admin-table">
+
+            <thead>
                 <tr>
-                    <td>@vendor.VendorId</td>
-                    <td>@vendor.VendorName</td>
-                    <td>@vendor.Email</td>
-                    <td>@vendor.CreatedAt.ToString("dd MMM yyyy")</td>
-                    <td>
-                        @if (vendor.IsApproved)
-                        {
-                            <span class="status-approved">Approved</span>
-                        }
-                        else if (vendor.IsRejected)
-                        {
-                            <span class="status-rejected">Rejected</span>
-                        }
-                        else
-                        {
-                            <span class="status-pending">Pending</span>
-                        }
-                    </td>
+                    <th>ID</th>
+                    <th>Vendor</th>
+                    <th>Email</th>
+                    <th>Created</th>
+                    <th>Status</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                @foreach (var vendor in Model)
+                {
+                    <tr>
+
+                        <td>#@vendor.VendorId</td>
+
+                        <td>
+                            <div class="vendor-info">
+                                <div class="vendor-avatar">
+                                    @vendor.VendorName.Substring(0, 1).ToUpper()
+                                </div>
+                                <div class="vendor-name">
+                                    @vendor.VendorName
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>@vendor.Email</td>
+
+                        <td>@vendor.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <td>
+                            @if (vendor.IsApproved)
+                            {
+                                <span class="status-badge approved">Approved</span>
+                            }
+                            else if (vendor.IsRejected)
+                            {
+                                <span class="status-badge rejected">Rejected</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge pending">Pending</span>
+                            }
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+
 </div>

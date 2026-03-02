@@ -13,72 +13,56 @@
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/vendor-dashboard.css" asp-append-version="true" />
-   <!-- <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />-->
 
     @RenderSection("Styles", required: false)
-
-   
 </head>
 <body>
 
-    <!-- ===== EXACT SAME NAVBAR FROM PUBLIC LAYOUT ===== -->
-    
+    <!-- NAVBAR: same simple public navbar (text logo) -->
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand" href="/">Nutri<span>Bite</span></a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#vendorNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="vendorNav">
+                    <div class="ms-auto d-flex gap-2">
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-secondary">Login</a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-success">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
 
     <!-- ===== VENDOR WRAPPER (sidebar + content) ===== -->
     <div class="vendor-wrapper">
-
-        <!-- Sidebar -->
         <div class="vendor-sidebar" id="vendorSidebar">
-            
-
-
             <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
 
-            <div class="sidebar-section-label"></div>
-
-            <a href="/Vendor/Dashboard">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Dashboard</span>
-            </a>
-            <a href="/Vendor/MyFood">
-                <span class="nav-icon">🍽️</span>
-                <span class="nav-label">My Foods</span>
-            </a>
-            <a href="/Vendor/AddFood">
-                <span class="nav-icon">➕</span>
-                <span class="nav-label">Add Food</span>
-            </a>
-            <a href="/Vendor/Order">
-                <span class="nav-icon">📦</span>
-                <span class="nav-label">Orders</span>
-            </a>
+            <a href="/Vendor/Dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></a>
+            <a href="/Vendor/MyFood"><span class="nav-icon">🍽️</span><span class="nav-label">My Foods</span></a>
+            <a href="/Vendor/AddFood"><span class="nav-icon">➕</span><span class="nav-label">Add Food</span></a>
+            <a href="/Vendor/Order"><span class="nav-icon">📦</span><span class="nav-label">Orders</span></a>
 
             <div class="sidebar-divider"></div>
-            <div class="sidebar-section-label"></div>
 
-            <a href="/Vendor/Profile">
-                <span class="nav-icon">👤</span>
-                <span class="nav-label">Profile</span>
-            </a>
-            <a href="/Vendor/Logout" class="logout-link">
-                <span class="nav-icon">🚪</span>
-                <span class="nav-label">Logout</span>
-            </a>
+            <a href="/Vendor/Profile"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+            <a href="/Vendor/Logout" class="logout-link"><span class="nav-icon">🚪</span><span class="nav-label">Logout</span></a>
         </div>
 
-        <!-- Main Content -->
         <div class="vendor-main" id="vendorMain">
             @RenderBody()
         </div>
-
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     @await Html.PartialAsync("_AuthModal")
-
     @RenderSection("Scripts", required: false)
 
     <script>
@@ -86,16 +70,6 @@
             document.getElementById('vendorSidebar').classList.toggle('collapsed');
             document.getElementById('vendorMain').classList.toggle('collapsed');
         }
-
-        // Highlight active sidebar link
-        const links = document.querySelectorAll('.vendor-sidebar a');
-        links.forEach(link => {
-            if (window.location.pathname === new URL(link.href).pathname) {
-                link.classList.add('active');
-            }
-        });
-
-        
     </script>
 
 </body>

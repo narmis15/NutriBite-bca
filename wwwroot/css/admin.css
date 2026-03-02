@@ -7,7 +7,7 @@
     /* Use a light header so report views and other pages show readable headings */
     .admin-table thead {
         background: #f3f4f6; /* pale neutral so headers remain visible */
-        color: #111827;      /* dark text for contrast */
+        color: #111827; /* dark text for contrast */
     }
 
     .admin-table th,
@@ -51,6 +51,7 @@
 .btn-action:hover {
     opacity: 0.9;
 }
+
 .page-title {
     font-size: 26px;
     font-weight: 600;
@@ -298,3 +299,36 @@
     font-size: 12px;
     font-weight: 500;
 }
+.image-cell {
+    width: 140px;
+}
+
+.category-thumb {
+    width: 110px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 3px;
+    transition: 0.2s ease;
+}
+
+    .category-thumb:hover {
+        transform: scale(1.05);
+    }
+/* Meal thumbnail styling */
+.meal-thumb {
+    width: 120px;
+    height: 85px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 3px;
+    transition: 0.2s ease;
+}
+
+    .meal-thumb:hover {
+        transform: scale(1.05);
+    }

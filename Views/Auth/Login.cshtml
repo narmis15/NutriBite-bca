@@ -106,8 +106,7 @@
                                 if (res.requiresSurvey) {
                                     window.location.href = '/HealthSurvey';
                                 } else {
-                                    window.location.href = '/';
-                                }
+                                         window.location.href = '/Home/Index';                                }
                             }
                         } else {
                             $('#loginError').text(res && res.message ? res.message : 'Invalid login credentials.').show();

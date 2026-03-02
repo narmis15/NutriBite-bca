@@ -1,231 +1,50 @@
 ﻿@{
     ViewData["Title"] = "Order Details";
-    var orderId = ViewBag.OrderId ?? Context.Request.Query["orderId"].ToString();
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
 }
 
-@Html.AntiForgeryToken()
+<div class="card-glass p-4">
+    <h3>Order Details</h3>
 
-<div class="table-wrapper">
-    <div class="d-flex justify-content-between align-items-start mb-3">
-        <h3>Order Details <small class="text-muted">#@orderId</small></h3>
-
-        <div>
-            <button id="btnRefresh" class="btn btn-sm btn-outline-secondary">Refresh</button>
-        </div>
-    </div>
-
-    <div id="orderSummary" class="mb-3">
-        <!-- filled by script -->
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="card p-3">
-                    <h5 class="mb-2">Order Summary</h5>
-                    <div><strong>Order Id:</strong> <span id="od-id">-</span></div>
-                    <div><strong>Date / Time:</strong> <span id="od-datetime">-</span></div>
-                    <div><strong>Current Status:</strong> <span id="od-status"></span></div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card p-3">
-                    <h5 class="mb-2">Customer</h5>
-                    <div><strong>Name:</strong> <span id="cust-name">-</span></div>
-                    <div><strong>Phone:</strong> <span id="cust-phone">-</span></div>
-                    <div><strong>Order history:</strong> <a id="cust-history" href="#">0 orders</a></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-3">
-        <div class="col-lg-8">
-            <div class="card p-3 mb-3">
-                <h5 class="mb-2">Item Details</h5>
-                <div class="table-responsive">
-                    <table class="table admin-table" id="itemsTable">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Qty</th>
-                                <th>Instructions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- injected -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card p-3 mb-3">
-                <h5 class="mb-2">Nutrition Summary</h5>
-                <div><strong>Total Calories:</strong> <span id="nut-cal">-</span></div>
-                <div><strong>Diet Type:</strong> <span id="nut-diet">-</span></div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card p-3 mb-3">
-                <h5 class="mb-2">Pickup Details</h5>
-                <div><strong>Selected slot:</strong> <span id="pickup-slot">-</span></div>
-                <div><strong>Slot status:</strong> <span id="pickup-status" class="badge bg-secondary">-</span></div>
-
-                <hr />
-
-                <h6>All pickup statuses</h6>
-                <ul>
-                    <li><strong>On-time</strong> — Expected pickup within window</li>
-                    <li><strong>Delayed</strong> — Customer late or vendor delayed</li>
-                    <li><strong>Missed</strong> — Pickup window missed</li>
-                </ul>
-            </div>
-
-            <div class="card p-3 mb-3">
-                <h5 class="mb-2">Payment</h5>
-                <div><strong>Mode:</strong> <span id="pay-mode">-</span></div>
-                <div><strong>Amount:</strong> ₹<span id="pay-amount">0.00</span></div>
-                <div><strong>Refund status:</strong> <span id="pay-refund" class="text-muted">-</span></div>
-            </div>
-
-            <div class="card p-3 mb-3">
-                <h5 class="mb-2">Admin Actions</h5>
-
-                <div class="d-grid gap-2">
-                    <button id="btnCancel" class="btn btn-sm btn-danger">Cancel Order</button>
-                    <button id="btnRefund" class="btn btn-sm btn-outline-danger">Trigger Refund</button>
-                    <button id="btnToggleFlag" class="btn btn-sm btn-outline-warning">Flag / Unflag</button>
-                </div>
-
-                <div id="actionResult" class="mt-2"></div>
-            </div>
-        </div>
+    <div id="orderDetailsContainer">
+        <p class="text-muted">Select an order from Order Management or refresh this page with ?id={orderId}.</p>
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    (function() {
+        const orderId = '@(ViewBag.OrderId ?? "")';
+        if (!orderId) return;
 
-    <script>
-        (function () {
-            const orderId = '@orderId';
-            const token = $('input[name="__RequestVerificationToken"]').first().val();
+        fetch(`@Url.Action("GetOrderDetails","Admin")?orderId=${orderId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('orderDetailsContainer').innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    return;
+                }
+                let html = `<dl class="row">
+                    <dt class="col-sm-3">Order ID</dt><dd class="col-sm-9">${data.OrderId}</dd>
+                    <dt class="col-sm-3">Customer</dt><dd class="col-sm-9">${data.CustomerName} (${data.CustomerPhone})</dd>
+                    <dt class="col-sm-3">Status</dt><dd class="col-sm-9">${data.Status}</dd>
+                    <dt class="col-sm-3">Pickup Slot</dt><dd class="col-sm-9">${data.PickupSlot}</dd>
+                    <dt class="col-sm-3">Total Amount</dt><dd class="col-sm-9">${data.Amount}</dd>
+                    <dt class="col-sm-3">Created</dt><dd class="col-sm-9">${data.OrderDateTime}</dd>
+                </dl>`;
 
-            function setStatusBadge(target, status) {
-                const map = {
-                    "New": "badge bg-success",
-                    "Accepted": "badge bg-warning text-dark",
-                    "Ready for Pickup": "badge bg-info text-dark",
-                    "Picked": "badge bg-primary",
-                    "Cancelled": "badge bg-danger",
-                    "Flagged": "badge bg-danger"
-                };
-                const cls = map[status] || "badge bg-secondary";
-                $(target).html('<span class="' + cls + '">' + (status || '-') + '</span>');
-            }
-
-            function fetchDetails() {
-                $.ajax({
-                    url: '/Admin/GetOrderDetails',
-                    method: 'GET',
-                    data: { orderId: orderId },
-                    dataType: 'json'
-                }).done(function (res) {
-                    if (!res || res.error) {
-                        $('#actionResult').html('<div class="form-error">Unable to load order details.</div>');
-                        return;
-                    }
-
-                    // expected response shape (single object)
-                    const data = res;
-
-                    $('#od-id').text(data.OrderId ?? '-');
-                    $('#od-datetime').text(data.OrderDateTime ? new Date(data.OrderDateTime).toLocaleString() : '-');
-                    setStatusBadge('#od-status', data.Status);
-
-                    $('#cust-name').text(data.CustomerName ?? '-');
-                    $('#cust-phone').text(data.CustomerPhone ?? '-');
-                    $('#cust-history').attr('href', '/Admin/OrderHistory?customerPhone=' + encodeURIComponent(data.CustomerPhone ?? ''))
-                                       .text((data.CustomerOrderCount ?? 0) + ' orders');
-
-                    // items
-                    const $items = $('#itemsTable tbody').empty();
-                    if (data.Items && data.Items.length) {
-                        data.Items.forEach(i => {
-                            $items.append(
-                                $('<tr>').append(
-                                    $('<td>').text(i.Name || '-'),
-                                    $('<td>').text(i.Quantity || '-'),
-                                    $('<td>').text(i.Instructions || '-')
-                                )
-                            );
-                        });
-                    } else {
-                        $items.append($('<tr>').append($('<td colspan="3">').text('No items')));
-                    }
-
-                    // nutrition
-                    $('#nut-cal').text(data.TotalCalories ?? 0);
-                    $('#nut-diet').text(data.DietType ?? '-');
-
-                    // pickup
-                    $('#pickup-slot').text(data.PickupSlot ?? '-');
-                    $('#pickup-status').removeClass().addClass('badge').text(data.PickupStatus ?? '-');
-                    if (data.PickupStatus === 'On-time') $('#pickup-status').addClass('bg-success');
-                    else if (data.PickupStatus === 'Delayed') $('#pickup-status').addClass('bg-warning text-dark');
-                    else if (data.PickupStatus === 'Missed') $('#pickup-status').addClass('bg-danger');
-
-                    // payment
-                    $('#pay-mode').text(data.PaymentMode ?? '-');
-                    $('#pay-amount').text((data.Amount ?? 0).toFixed(2));
-                    $('#pay-refund').text(data.RefundStatus ?? (data.IsRefunded ? 'Refunded' : 'Not refunded'));
-
-                    // actions: adjust label for flag button
-                    $('#btnToggleFlag').text(data.IsFlagged ? 'Unflag Order' : 'Flag Order');
-
-                    $('#actionResult').empty();
-                }).fail(function () {
-                    $('#actionResult').html('<div class="form-error">Server error while loading order details.</div>');
+                html += '<h5>Items</h5><ul>';
+                (data.Items || []).forEach(i => {
+                    html += `<li>${i.Name} x ${i.Quantity} <small>${i.Instructions || ''}</small></li>`;
                 });
-            }
+                html += '</ul>';
 
-            function postAction(url, payload, successMessage) {
-                payload.__RequestVerificationToken = token;
-                $.post({
-                    url: url,
-                    data: payload,
-                    dataType: 'json'
-                }).done(function (res) {
-                    if (res && res.success) {
-                        $('#actionResult').html('<div class="form-success">' + (successMessage || 'Action completed') + '</div>');
-                        fetchDetails();
-                    } else {
-                        $('#actionResult').html('<div class="form-error">' + (res?.message || 'Action failed') + '</div>');
-                    }
-                }).fail(function () {
-                    $('#actionResult').html('<div class="form-error">Server error performing action.</div>');
-                });
-            }
-
-            // wire buttons
-            $(function () {
-                fetchDetails();
-
-                $('#btnRefresh').on('click', function () { fetchDetails(); });
-
-                $('#btnCancel').on('click', function () {
-                    if (!confirm('Cancel this order? This will mark the order as Cancelled.')) return;
-                    postAction('/Admin/CancelOrder', { orderId: orderId }, 'Order cancelled');
-                });
-
-                $('#btnRefund').on('click', function () {
-                    if (!confirm('Trigger refund for this order?')) return;
-                    postAction('/Admin/TriggerRefund', { orderId: orderId }, 'Refund triggered');
-                });
-
-                $('#btnToggleFlag').on('click', function () {
-                    postAction('/Admin/ToggleFlag', { orderId: orderId }, 'Flag toggled');
-                });
+                document.getElementById('orderDetailsContainer').innerHTML = html;
+            }).catch(err => {
+                document.getElementById('orderDetailsContainer').innerHTML = `<div class="alert alert-danger">Error loading order: ${err}</div>`;
             });
-        })();
-    </script>
+    })();
+</script>
 }

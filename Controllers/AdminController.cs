@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NUTRIBITE.Controllers
 {
-    public class AdminController : Controller
+    public partial class AdminController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IOrderService _orderService;
@@ -28,18 +28,19 @@ namespace NUTRIBITE.Controllers
 
         // 🔓 PUBLIC
         [HttpPost]
-        public IActionResult Login(string UserId, string Password)
+        public IActionResult Login(string email, string Password)
         {
-            if (UserId == "Nutribite123@gmail.com" &&
+            if (email== "Nutribite123@gmail.com" &&
                 Password == "NutriBite//26")
             {
-                HttpContext.Session.SetString("Admin", UserId);
+                HttpContext.Session.SetString("Admin", email);
                 return RedirectToAction("Dashboard");
             }
 
-            ViewBag.Error = "Invalid UserId or Password";
+            ViewBag.Error = "Invalid email or Password";
             return View();
         }
+
 
         // 🔒 PROTECTED (ONLY THIS)
         [AdminAuthorize]
@@ -354,7 +355,7 @@ namespace NUTRIBITE.Controllers
             ViewBag.Users = GetValue(con, "SELECT COUNT(*) FROM UserSignup");
             ViewBag.Vendors = GetValue(con, "SELECT COUNT(*) FROM VendorSignup");
             ViewBag.Orders = GetValue(con, "SELECT COUNT(*) FROM OrderTable");
-            ViewBag.Products = GetValue(con, "SELECT ISNULL(SUM(Qty),0) FROM OrderTable");
+            ViewBag.Products = GetValue(con, "SELECT ISNULL(SUM(TotalItems),0) FROM OrderTable");
             ViewBag.TotalAmount = GetValue(con, "SELECT ISNULL(SUM(Amount),0) FROM Payment");
             ViewBag.Profit = GetValue(con, "SELECT ISNULL(SUM(Amount),0) * 0.10 FROM Payment");
         }
@@ -599,7 +600,22 @@ namespace NUTRIBITE.Controllers
             return Json(new { success = ok });
         }
 
-        // other non-order admin methods (unchanged) remain here...
+        // Render Order Management view (uses existing AJAX JSON endpoints)
+        [AdminAuthorize]
+        [HttpGet]
+        public IActionResult OrderManagement()
+        {
+            return View();
+        }
+
+        // Render Order Details view (page will request JSON /GetOrderDetails)
+        [AdminAuthorize]
+        [HttpGet]
+        public IActionResult OrderDetails(int? id = null)
+        {
+            ViewBag.OrderId = id;
+            return View();
+        }
     }
 }
 

@@ -1,212 +1,39 @@
-/* Small modal tweaks to match NutriBite theme */
-#authModal .modal-content { border-radius: 10px; }
-#authModal .modal-title { color: #134e2a; font-weight:700; }
+/* ==============================
+   AUTH PAGES (LOGIN + REGISTER)
+   Landing Style UI
+============================== */
 
-/*login user*/
-
-.login-wrapper {
-    min-height: 90vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #e8f5e9, #f5f5f5);
+body {
+    font-family: 'Poppins', sans-serif;
 }
 
-.login-container {
-    display: flex;
-    width: 900px;
-    max-width: 95%;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-    background: white;
-}
-
-.login-left {
-    width: 50%;
-    background-color: #2e7d32;
-    color: white;
-    padding: 60px 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-    .login-left h2 {
-        font-weight: 600;
-        margin-bottom: 20px;
-    }
-
-    .login-left p {
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-.leaf-icon {
-    font-size: 32px;
-    margin-bottom: 15px;
-}
-
-.login-right {
-    width: 50%;
-    padding: 50px 40px;
-    background: #ffffff;
-}
-
-.brand {
-    color: #2e7d32;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.custom-input {
-    border-radius: 10px;
-    padding: 10px;
-}
-
-.custom-btn {
-    border-radius: 10px;
-    padding: 10px;
-    background-color: #2e7d32;
-    border: none;
-    font-weight: 500;
-}
-
-    .custom-btn:hover {
-        background-color: #1b5e20;
-    }
-
-@@media (max-width: 768px) {
-    .login-container {
-        flex-direction: column;
-    }
-
-    .login-left,
-    .login-right {
-        width: 100%;
-    }
-
-    .login-left {
-        text-align: center;
-    }
-}/*losin user*/
-
- /*register*/
+/* Wrapper */
+.login-wrapper,
 .register-wrapper {
     min-height: 85vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #e8f5e9, #f5f5f5);
-    padding: 30px 15px;
+    padding: 60px 20px;
 }
 
+/* Main Container */
+.login-container,
 .register-container {
-    display: flex;
-    width: 820px; /* reduced width */
+    width: 950px;
     max-width: 95%;
-    border-radius: 18px;
+    background: #f6fff9;
+    border-radius: 25px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+    display: flex;
     overflow: hidden;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    background: white;
 }
 
+/* LEFT PANEL */
+.login-left,
 .register-left {
-    width: 45%; /* slightly smaller */
-    background-color: #2e7d32;
-    color: white;
-    padding: 50px 35px; /* reduced padding */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-    .register-left h2 {
-        font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 18px;
-    }
-
-    .register-left p {
-        font-size: 13px;
-        line-height: 1.6;
-        opacity: 0.9;
-    }
-
-.register-right {
-    width: 55%;
-    padding: 40px 35px; /* reduced padding */
-    background: #ffffff;
-}
-
-.brand {
-    color: #2e7d32;
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 18px;
-}
-
-.custom-input {
-    border-radius: 8px;
-    padding: 8px 10px; /* smaller inputs */
-    font-size: 14px;
-}
-
-.custom-btn {
-    border-radius: 8px;
-    padding: 8px;
-    background-color: #2e7d32;
-    border: none;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-    .custom-btn:hover {
-        background-color: #1b5e20;
-    }
-
-.mb-3 {
-    margin-bottom: 12px !important; /* less spacing */
-}
-
-@@media (max-width: 768px) {
-    .register-container {
-        flex-direction: column;
-        width: 95%;
-    }
-
-    .register-left,
-    .register-right {
-        width: 100%;
-    }
-
-    .register-left {
-        text-align: center;
-        padding: 30px;
-    }
-}/**/
- /*forgot password*/
-.forgot-wrapper {
-    min-height: 90vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #e8f5e9, #f5f5f5);
-}
-
-.forgot-container {
-    display: flex;
-    width: 900px;
-    max-width: 95%;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-    background: white;
-}
-
-.forgot-left {
-    width: 50%;
-    background-color: #2e7d32;
+    flex: 1;
+    background: linear-gradient(135deg, #2d6a4f, #1b4332);
     color: white;
     padding: 70px 45px;
     display: flex;
@@ -214,57 +41,96 @@
     justify-content: center;
 }
 
-    .forgot-left h2 {
-        font-weight: 600;
+    .login-left h2,
+    .register-left h2 {
+        font-weight: 700;
         margin-bottom: 20px;
     }
 
-    .forgot-left p {
-        font-size: 14px;
-        line-height: 1.6;
+    .login-left p,
+    .register-left p {
         opacity: 0.9;
+        line-height: 1.6;
     }
 
-.forgot-right {
-    width: 50%;
-    padding: 60px 45px;
+/* RIGHT PANEL */
+.login-right,
+.register-right {
+    flex: 1;
+    padding: 70px 50px;
     background: #ffffff;
 }
 
 .brand {
-    color: #2e7d32;
-    font-weight: 600;
-    margin-bottom: 15px;
+    font-weight: 700;
+    color: #2d6a4f;
+    margin-bottom: 5px;
 }
 
+/* Inputs */
 .custom-input {
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: 12px !important;
+    padding: 12px;
+    border: 1px solid #d8f3dc;
+    transition: 0.3s ease;
 }
 
+    .custom-input:focus {
+        border-color: #52b788;
+        box-shadow: 0 0 0 3px rgba(82,183,136,0.2);
+    }
+
+/* Buttons */
 .custom-btn {
-    border-radius: 10px;
-    padding: 10px;
-    background-color: #2e7d32;
+    border-radius: 14px !important;
+    padding: 12px;
+    font-weight: 600;
+    transition: 0.3s;
+    background: #2d6a4f;
     border: none;
-    font-weight: 500;
 }
 
     .custom-btn:hover {
-        background-color: #1b5e20;
+        background: #1b4332;
+        transform: translateY(-2px);
     }
 
-@@media (max-width: 768px) {
-    .forgot-container {
+/* Input group button (Show password) */
+.input-group .btn {
+    border-radius: 0 12px 12px 0 !important;
+}
+
+/* Links */
+.register-right a,
+.login-right a {
+    text-decoration: none;
+}
+
+    .register-right a:hover,
+    .login-right a:hover {
+        text-decoration: underline;
+    }
+
+/* Alerts */
+.alert {
+    border-radius: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-container,
+    .register-container {
         flex-direction: column;
     }
 
-    .forgot-left,
-    .forgot-right {
-        width: 100%;
+    .login-left,
+    .register-left {
+        padding: 40px;
+        text-align: center;
     }
 
-    .forgot-left {
-        text-align: center;
+    .login-right,
+    .register-right {
+        padding: 40px;
     }
 }

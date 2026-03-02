@@ -89,8 +89,11 @@
                     </div>
 
                     <div class="mt-4 d-flex justify-content-between">
-                        <a href="/" class="btn btn-outline-secondary">Back to Dashboard</a>
-                        <a href="/Users/Account" class="btn btn-primary">View Profile</a>
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Go to Home
+                        </a>                        <a href="/Users/Account" class="btn btn-primary">View Profile</a>
                     </div>
 
                     <hr />

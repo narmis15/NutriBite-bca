@@ -1,16 +1,18 @@
 ﻿@using NUTRIBITE.Models
 @model IEnumerable<FoodCategory>
 
-<h3>View Food Categories</h3>
+@{
+    ViewData["Title"] = "View Food Categories";
+}
+
+<h3 class="page-title">View Food Categories</h3>
 
 <div class="table-wrapper">
     <table class="admin-table">
         <thead>
             <tr>
                 <!-- SERIAL NUMBER -->
-                <th>
-                    Sr No.
-                </th>
+                <th>Sr No.</th>
 
                 <!-- PRODUCT CATEGORY -->
                 <th>
@@ -22,65 +24,62 @@
                 </th>
 
                 <!-- PRODUCT IMAGE -->
-                <th>
-                    Product Image
-                </th>
+                <th>Product Image</th>
 
                 <!-- ACTION -->
-                <th>
-                    Action
-                </th>
+                <th style="text-align:center;">Action</th>
             </tr>
         </thead>
 
         <tbody>
             @if (Model != null && Model.Any())
             {
-                int sr = 1;   // 🔹 SERIAL NUMBER START
+                int sr = 1;
 
                 foreach (var item in Model)
                 {
                     <tr>
-                        <!-- SERIAL NO -->
+                        <!-- SERIAL NUMBER -->
                         <td>@sr</td>
 
-                        <!-- PRODUCT CATEGORY -->
+                        <!-- CATEGORY NAME -->
                         <td>@item.ProductCategory</td>
 
-                        <!-- PRODUCT IMAGE -->
+                        <!-- CATEGORY IMAGE -->
                         <td class="image-cell">
-                            <div class="image-box">
-                                @if (!string.IsNullOrEmpty(item.ProductPic))
-                                {
-                                    <img src="~/images/Product/@item.ProductPic"
-                                         alt="@item.ProductCategory"
-                                         onerror="this.onerror=null;this.src='/images/Product/default.jpg';" />
-                                }
-                                else
-                                {
-                                    <img src="~/images/Product/default.jpg" alt="No Image" />
-                                }
-                            </div>
+                            @if (!string.IsNullOrEmpty(item.ProductPic))
+                            {
+                                <img src="~/images/Product/@item.ProductPic"
+                                     alt="@item.ProductCategory"
+                                     class="category-thumb"
+                                     onerror="this.onerror=null;this.src='/images/Product/default.jpg';" />
+                            }
+                            else
+                            {
+                                <img src="~/images/Product/default.jpg"
+                                     alt="No Image"
+                                     class="category-thumb" />
+                            }
                         </td>
 
-                        <!-- ACTIONS -->
-                        <td>
+                        <!-- ACTION BUTTONS -->
+                        <td class="action-cell">
                             <a asp-action="EditCategory"
                                asp-route-id="@item.cid"
-                               class="btn btn-edit">
+                               class="btn-action btn-approve">
                                 Edit
                             </a>
 
                             <a asp-action="DeleteCategory"
                                asp-route-id="@item.cid"
-                               class="btn btn-delete"
+                               class="btn-action btn-reject"
                                onclick="return confirm('Are you sure you want to delete this category?');">
                                 Delete
                             </a>
                         </td>
                     </tr>
 
-                    sr++;  // 🔹 SERIAL NUMBER INCREMENT
+                    sr++;
                 }
             }
             else

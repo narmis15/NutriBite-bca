@@ -1,718 +1,192 @@
 ﻿@{
     ViewData["Title"] = "NutriBite — Home";
-    Layout = "~/Views/Shared/_PublicLayout.cshtml";
-}
-@section Styles {
-    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    Layout = null;
 }
 
-<link rel="stylesheet" href="~/css/home.css" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 
+<div class="page-wrapper">
 
-
-<main>
-  <!-- New modern hero -->
-  <section class="nb-hero" role="region" aria-label="NutriBite hero">
-    
-    <div class="hero-inner">
-      <div class="hero-copy fade-in">
-        <div class="badge bg-success text-white px-3 py-1 mb-3" style="border-radius:999px; display:inline-block;">100% Homemade</div>
-                <h1>Discover Balanced Homemade Meals for a Healthier Lifestyle</h1>
-                <p class="lead">Fresh, calorie-counted meals prepared by verified home chefs. Flexible subscriptions, daily deliveries and meals tailored to your needs.</p>
-                <div class="cta-buttons">
-                    <a href="/Menu" class="btn-primary-hero">
-                        🍽 Start Ordering
-                    </a>
-
-                    <a href="/Menu" class="btn-secondary-hero">
-                        Browse Meals →
-                    </a>
-                </div>
-                
-
-        <div class="mt-3 d-flex gap-3 align-items-center">
-          
-          <div class="d-flex gap-2 align-items-center">
-            <img src="~/images/partners/partner1.png" alt="" style="height:28px; opacity:.9;" loading="lazy" />
-            <img src="~/images/partners/partner2.png" alt="" style="height:28px; opacity:.9;" loading="lazy" />
-          </div>
+    <!-- NAVBAR -->
+    <div class="public-navbar">
+        <div class="brand">
+            <a asp-controller="User" asp-action="Index">
+                <img src="~/images/hero/Nutribitelogo.png" class="logo-img" />
+            </a>
         </div>
-      </div>
 
-      <div class="hero-media fade-in delay" aria-hidden="true">
-        <img src="~/images/hero/hero-food.png" alt="Fresh homemade meals" loading="lazy" />
-      </div>
+        <div class="nav-center">
+            <a asp-controller="User" asp-action="Index">Home</a>
+            <a asp-controller="User" asp-action="Location">Location</a>
+            <a asp-controller="User" asp-action="About">About</a>
+            <a asp-controller="User" asp-action="MyProfile">My Profile</a>
+        </div>
+
+        <div class="nav-actions">
+            <span class="welcome-text">
+                Welcome, @ViewBag.UserName
+            </span>
+
+            <a asp-controller="Auth" asp-action="Logout" class="login-btn">
+                Logout
+            </a>
+        </div>
     </div>
-  </section>
 
-  <!-- Why choose us -->
-  <section class="nb-why" aria-labelledby="whyChooseHeading">
-    <div class="container">
-      <div id="whyChooseHeading" class="special-header mb-4" role="heading" aria-level="2">
-        <span>Why Choose NutriBite</span>
-      </div>
-
-      <div class="grid">
-        <div class="card fade-in">
-          <div class="icon green">🔥</div>
-          <div>
-            <h4>Calorie Counted</h4>
-            <p>Clear nutritional info so you can track your intake without guesswork.</p>
-          </div>
-        </div>
-
-        <div class="card fade-in">
-          <div class="icon orange">🧼</div>
-          <div>
-            <h4>Hygienic Preparation</h4>
-            <p>All meals prepared in verified kitchens following strict hygiene checks.</p>
-          </div>
-        </div>
-
-        <div class="card fade-in">
-          <div class="icon green">🥗</div>
-          <div>
-            <h4>Fresh Daily</h4>
-            <p>Meals are cooked fresh every day and dispatched for same-day delivery.</p>
-          </div>
-        </div>
-
-        <div class="card fade-in">
-          <div class="icon orange">🏡</div>
-          <div>
-            <h4>No Restaurant Food</h4>
-            <p>We partner with home chefs — authentic, homemade meals with love.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Preserve original site content below (hero removed to avoid duplicated image) -->
-</main>
-
-<!-- ORIGINAL CONTENT START - preserved (hero image section removed to prevent duplication) -->
-
-
-    <!-- NEW: Hero Carousel (insert this BELOW the existing hero section) -->
-    <section class="hero-carousel-wrap" aria-label="Showcase carousel">
-        <div class="hero-carousel" data-interval="7000" tabindex="0">
-            <div class="carousel-slides" role="list">
-                <div class="carousel-slide active" role="listitem">
-                    <img src="~/images/hero/slide%201.png" alt="Showcase 1" loading="lazy" />
-                </div>
-                <div class="carousel-slide" role="listitem">
-                    <img src="~/images/hero/slide%202.png" alt="Showcase 2" loading="lazy" />
-                </div>
-                <div class="carousel-slide" role="listitem">
-                    <img src="~/images/hero/slide%203.png" alt="Showcase 3" loading="lazy" />
-                </div>
-                <div class="carousel-slide" role="listitem">
-                    <img src="~/images/hero/slide%204.png" alt="Showcase 4" loading="lazy" />
-                </div>
-                <div class="carousel-slide" role="listitem">
-                    <img src="~/images/hero/slide%205.png" alt="Showcase 5" loading="lazy" />
-                </div>
-                <div class="carousel-slide" role="listitem">
-                    <img src="~/images/hero/slide%206.png" alt="Showcase 6" loading="lazy" />
-                </div>
+    <!-- HERO -->
+    <div class="hero-section">
+        <div class="hero-top">
+            <div class="hero-left">
+                <div class="eyebrow">100% Homemade</div>
+                <h1>Discover Balanced Homemade Meals</h1>
+                <p>
+                    Fresh, calorie-counted meals prepared by verified home chefs.
+                    Flexible subscriptions and daily deliveries tailored to your goals.
+                </p>
+                <a asp-controller="Meals" asp-action="Index" class="cta-btn">
+                    Start Ordering
+                </a>
             </div>
 
-            <button class="carousel-nav carousel-prev" aria-label="Previous slide" type="button">&lsaquo;</button>
-            <button class="carousel-nav carousel-next" aria-label="Next slide" type="button">&rsaquo;</button>
-
-            <div class="carousel-dots" role="tablist" aria-label="Carousel indicators"></div>
+            <div class="hero-right">
+                <div class="food-circle">
+                    <img src="~/images/hero/hero-food.png" />
+                </div>
+            </div>
         </div>
-    </section>
 
-
-
-<!-- HOW IT WORKS (new) -->
-<section class="how-it-works py-5" aria-labelledby="howItWorksHeading">
-    <div class="container text-center">
-        <h3 id="howItWorksHeading">How NutriBite Works</h3>
-        <p class="text-muted mb-4">Healthy meals in 4 simple steps</p>
-
-        <div class="row g-3">
-            <div class="col-sm-6 col-md-3">
-                <div class="how-step card-soft">
-                    <div class="step-icon">
-                        <img src="images/icons/choose-meal.jpeg" alt="Choose Meal" class="icon-fix-1">
-                    </div>
-                    <div class="step-title">Choose Your Meal</div>
-                </div>
+        <!-- FEATURES -->
+        <div class="features">
+            <div class="feature-card">
+                <h4>🔥 Calorie Counted</h4>
+                <p>Clear nutritional info for every meal.</p>
             </div>
 
-            <div class="col-sm-6 col-md-3">
-                <div class="how-step card-soft">
-                    <div class="step-icon">
-                        <img src="images/icons/time-slot.jpeg" alt="Select Time">
-                    </div>
-                    <div class="step-title">Select Time Slot</div>
-                </div>
+            <div class="feature-card">
+                <h4>🥗 Fresh Daily</h4>
+                <p>Cooked fresh and delivered same day.</p>
             </div>
 
-            <div class="col-sm-6 col-md-3">
-                <div class="how-step card-soft">
-                    <div class="step-icon">
-                        <img src="images/icons/cal.jpeg" alt="Track Calories">
-                    </div>
-                    <div class="step-title">Track Your Calories</div>
-                </div>
-            </div>
-
-            <div class="col-sm-6 col-md-3">
-                <div class="how-step card-soft">
-                    <div class="step-icon">
-                        <img src="images/icons/fresh-meal.jpeg" alt="Fresh Homemade Food">
-                    </div>
-                    <div class="step-title">Enjoy Fresh Homemade Food</div>
-                </div>
+            <div class="feature-card">
+                <h4>🏡 Homemade</h4>
+                <p>Prepared by verified home chefs.</p>
             </div>
         </div>
     </div>
-</section>
 
-    <!-- 2) Meal Categories / Meal Subscription Grid (comes AFTER Specially For You) -->
-    <section class="meals-grid-section py-5" aria-labelledby="mealsGridHeading">
-        <div class="meals-grid-header text-center mb-3">
-            <h3 id="mealsGridHeading" class="m-0">Meal Categories</h3>
-            <p class="text-muted small">Choose a meal plan or browse by category</p>
-        </div>
-
-        <div class="meals-grid" role="list">
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=StandardThali" aria-label="Standard Thali">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/Standard_Thali.jpeg" alt="Standard Thali" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Standard Thali</div>
-            </a>
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=SpecialThali" aria-label="Special Thali">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/Special_Thali.jpeg" alt="Special Thali" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Special Thali</div>
-            </a>
-
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=DeluxeThali" aria-label="Deluxe Thali">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/Deluxe_Thali.jpeg" alt="Deluxe Thali" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Deluxe Thali</div>
-            </a>
-
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=ClassicalThali" aria-label="Classical Thali">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/Classical_Thali.jpeg" alt="Classical Thali" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Classical Thali</div>
-            </a>
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=ComfortThali" aria-label="Comfort Thali">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/Comfort_Thali.jpeg" alt="Comfort Thali" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Comfort Thali</div>
-            </a>
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=Jain_Thali" aria-label="Jain Thali">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/Jain_Thali.jpeg" alt="Jain Thali" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Jain Thali</div>
-            </a>
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=RiceCombo" aria-label="Rice Combo">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/Rice_Combo.jpeg" alt="Rice Combo" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Rice Combo</div>
-            </a>
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=LowCalorie" aria-label="Low Calorie">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/low-calorie.jpg" alt="Low Calorie" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Low Calorie</div>
-            </a>
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=ProteinMeal" aria-label="Protein Meal">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/protein.jpg" alt="Protein Meal" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Protein Meal</div>
-            </a>
-
-            <a class="meal-card" role="listitem" href="/Meals/Category?name=SaladBowl" aria-label="Salad Bowl">
-                <div class="meal-img-wrap">
-                    <img src="~/images/meals/salads.jpeg" alt="Salad Bowl" class="meal-img" loading="lazy" />
-                </div>
-                <div class="meal-label">Salad Bowl</div>
-            </a>
-        </div>
-    </section>
-
-    <!-- NEW: Food Categories (insert above "Specially For You") -->
-    <section class="food-categories py-5" aria-labelledby="foodCategoriesHeading">
+    <!-- MEAL CATEGORIES -->
+    <!-- =========================
+         MEAL CATEGORIES SECTION
+    ========================= -->
+    <section class="meals-grid-section soft-section" aria-labelledby="mealsGridHeading">
         <div class="container">
-            <div id="foodCategoriesHeading" class="special-header mb-4" role="heading" aria-level="2">
-                <span>Food Categories</span>
+
+            <div class="text-center mb-5">
+                <h2 id="mealsGridHeading" class="section-title">
+                    Meal Categories
+                </h2>
+                <p class="text-muted">
+                    Choose a meal plan or browse by category
+                </p>
             </div>
 
-            <div class="special-grid" role="list">
-                <!-- Veg -->
-                <div class="category-card" role="listitem" aria-label="Veg">
-                    <div class="category-imgwrap">
-                        <img src="~/images/Product/Veg.jpeg" alt="Veg" class="category-img" loading="lazy" />
-                    </div>
-                    <div class="category-body">
-                        <a class="category-btn" href="/Meals/Category?name=Veg" role="button">Veg</a>
-                    </div>
-                </div>
+            <div class="meals-grid">
 
-                <!-- Non-Veg -->
-                <div class="category-card" role="listitem" aria-label="Non-Veg">
-                    <div class="category-imgwrap">
-                        <img src="~/images/Product/Nonveg.jpeg" alt="Non-Veg" class="category-img" loading="lazy" />
+                <a class="meal-card"
+                   href="/Meals/Category?name=StandardThali">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/Standard_Thali.jpeg"
+                             alt="Standard Thali" />
                     </div>
-                    <div class="category-body">
-                        <a class="category-btn" href="/Meals/Category?name=NonVeg" role="button">Non-Veg</a>
+                    <div class="meal-label">Standard Thali</div>
+                </a>
+
+                <a class="meal-card"
+                   href="/Meals/Category?name=SpecialThali">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/Special_Thali.jpeg"
+                             alt="Special Thali" />
                     </div>
-                </div>
+                    <div class="meal-label">Special Thali</div>
+                </a>
 
-                <!-- Eggitarian -->
-                <div class="category-card" role="listitem" aria-label="Eggitarian">
-                    <div class="category-imgwrap">
-                        <img src="~/images/Product/Eggitarian.jpeg" alt="Eggitarian" class="category-img" loading="lazy" />
+                <a class="meal-card"
+                   href="/Meals/Category?name=DeluxeThali">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/Deluxe_Thali.jpeg"
+                             alt="Deluxe Thali" />
                     </div>
-                    <div class="category-body">
-                        <a class="category-btn" href="/Meals/Category?name=Eggitarian" role="button">Eggitarian</a>
+                    <div class="meal-label">Deluxe Thali</div>
+                </a>
+
+                <a class="meal-card"
+                   href="/Meals/Category?name=ClassicalThali">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/Classical_Thali.jpeg"
+                             alt="Classical Thali" />
                     </div>
-                </div>
+                    <div class="meal-label">Classical Thali</div>
+                </a>
 
-                <!-- Jain -->
-                <div class="category-card" role="listitem" aria-label="Jain">
-                    <div class="category-imgwrap">
-                        <img src="~/images/Product/JainFood.jpeg" alt="Jain" class="category-img" loading="lazy" />
+                <a class="meal-card"
+                   href="/Meals/Category?name=ComfortThali">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/Comfort_Thali.jpeg"
+                             alt="Comfort Thali" />
                     </div>
-                    <div class="category-body">
-                        <a class="category-btn" href="/Meals/Category?name=Jain" role="button">Jain</a>
+                    <div class="meal-label">Comfort Thali</div>
+                </a>
+
+                <a class="meal-card"
+                   href="/Meals/Category?name=Jain_Thali">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/Jain_Thali.jpeg"
+                             alt="Jain Thali" />
                     </div>
-                </div>
+                    <div class="meal-label">Jain Thali</div>
+                </a>
 
-                <!-- Vegan -->
-                <div class="category-card" role="listitem" aria-label="Vegan">
-                    <div class="category-imgwrap">
-                        <img src="~/images/Product/Vegan.jpeg" alt="Vegan" class="category-img" loading="lazy" />
+                <a class="meal-card"
+                   href="/Meals/Category?name=RiceCombo">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/Rice_Combo.jpeg"
+                             alt="Rice Combo" />
                     </div>
-                    <div class="category-body">
-                        <a class="category-btn" href="/Meals/Category?name=Vegan" role="button">Vegan</a>
+                    <div class="meal-label">Rice Combo</div>
+                </a>
+
+                <a class="meal-card"
+                   href="/Meals/Category?name=LowCalorie">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/low-calorie.jpg"
+                             alt="Low Calorie" />
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- End food categories -->
-<!-- 1) SPECIALLY FOR YOU (Students, Elderly, Corporate) -->
-<section class="specially-for-you py-5" aria-labelledby="specialForYouHeading">
-    <div class="container">
-        <div id="specialForYouHeading" class="special-header mb-4" role="heading" aria-level="2">
-            <span>SPECIALLY FOR YOU</span>
-        </div>
+                    <div class="meal-label">Low Calorie</div>
+                </a>
 
-        <div class="special-grid" role="list">
-
-            <!-- Student -->
-            <div class="category-card" role="listitem" aria-label="Students">
-                <div class="category-imgwrap">
-                    <img src="~/images/categories/student.jpeg"
-                         alt="Students meal"
-                         class="category-img"
-                         loading="lazy" />
-                </div>
-                <div class="category-body">
-                    <a asp-controller="Students"
-                       asp-action="Index"
-                       class="category-btn"
-                       aria-label="Students category">
-                        STUDENTS
-                    </a>
-                </div>
-            </div>
-
-            <!-- Elderly -->
-            <div class="category-card" role="listitem" aria-label="Elderly">
-                <div class="category-imgwrap">
-                    <img src="~/images/categories/elderly.jpeg"
-                         alt="Elderly meal"
-                         class="category-img"
-                         loading="lazy" />
-                </div>
-                <div class="category-body">
-                    <a asp-controller="Elderly"
-                       asp-action="Index"
-                       class="category-btn"
-                       aria-label="Elderly category">
-                        ELDERLY
-                    </a>
-                </div>
-            </div>
-
-            <!-- Corporate -->
-            <div class="category-card" role="listitem" aria-label="Corporate">
-                <div class="category-imgwrap">
-                    <img src="~/images/categories/corporate.jpeg"
-                         alt="Corporate meal"
-                         class="category-img"
-                         loading="lazy" />
-                </div>
-                <div class="category-body">
-                    <a asp-controller="Corporate"
-                       asp-action="Index"
-                       class="category-btn"
-                       aria-label="Corporate category">
-                        CORPORATE
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-    
-
-    <!-- FAQ (new) -->
-    <section class="faq-section py-5" aria-labelledby="faqHeading">
-        <div class="container">
-            <h3 id="faqHeading">Frequently Asked Questions</h3>
-            <div class="accordion mt-3" id="faqAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="faqOne">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                            Is the food really homemade?
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Yes — every meal is prepared by verified home chefs; we do not serve restaurant food.
-                        </div>
+                <a class="meal-card"
+                   href="/Meals/Category?name=ProteinMeal">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/protein.jpg"
+                             alt="Protein Meal" />
                     </div>
-                </div>
+                    <div class="meal-label">Protein Meal</div>
+                </a>
 
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="faqTwo">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            How do you calculate calories?
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Our chefs follow standard portioning and use calorie databases to label meals accurately.
-                        </div>
+                <a class="meal-card"
+                   href="/Meals/Category?name=SaladBowl">
+                    <div class="meal-img-wrap">
+                        <img src="~/images/meals/salads.jpeg"
+                             alt="Salad Bowl" />
                     </div>
-                </div>
+                    <div class="meal-label">Salad Bowl</div>
+                </a>
 
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="faqThree">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                            Do you deliver daily?
-                        </button>
-                    </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Yes — we deliver daily across our service areas (check delivery availability during checkout).
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="faqFour">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                            Is Jain food prepared separately?
-                        </button>
-                    </h2>
-                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Yes — Jain meals follow separate preparation guidelines to avoid root vegetables, and we ensure separation where required.
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
-<!-- snackbar / toast -->
-<div id="snackbar" class="snackbar" aria-live="polite" aria-atomic="true" hidden></div>
 
-@section Scripts {
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script>
-        /**
-         * Geolocation request on page load (HTML5 Geolocation API)
-         *
-         * - Triggers the browser's permission prompt automatically on DOMContentLoaded.
-         * - Stores latitude/longitude in localStorage as 'user_latitude' and 'user_longitude' on success.
-         * - Logs location to console for debugging.
-         * - Shows fallback alerts on denial, timeout, unavailable or unsupported browsers.
-         *
-         * Notes:
-         * - No backend calls, non-blocking, minimal and self-contained.
-         * - Works on Chrome, Edge and modern mobile browsers supporting navigator.geolocation.
-         */
-        (function () {
-            // Run as soon as DOM is ready
-            window.addEventListener('DOMContentLoaded', function () {
-                try {
-                    // Feature detection
-                    if (!('geolocation' in navigator)) {
-                        // Browser does not support geolocation
-                        alert('Geolocation is not supported by your browser.');
-                        return;
-                    }
+   
 
-                    // Request current position; this triggers the browser permission popup.
-                    navigator.geolocation.getCurrentPosition(
-                        function success(position) {
-                            // Successfully obtained position
-                            var lat = position.coords.latitude;
-                            var lon = position.coords.longitude;
-
-                            // Store values in localStorage for later use
-                            try {
-                                localStorage.setItem('user_latitude', String(lat));
-                                localStorage.setItem('user_longitude', String(lon));
-                            } catch (storageErr) {
-                                // Storage may be unavailable in some privacy modes; just log
-                                console.warn('Unable to store location in localStorage', storageErr);
-                            }
-
-                            // Log for debugging (do not leak to external systems)
-                            console.log('Geolocation success:', { latitude: lat, longitude: lon });
-                        },
-                        function error(err) {
-                            // Handle errors gracefully with user-friendly messages
-                            // err.code: 1=PERMISSION_DENIED, 2=POSITION_UNAVAILABLE, 3=TIMEOUT
-                            switch (err.code) {
-                                case 1:
-                                    alert('Location permission denied. Some features may be limited.');
-                                    break;
-                                case 2:
-                                    alert('Unable to determine your location. Please try again later.');
-                                    break;
-                                case 3:
-                                    alert('Location request timed out. Try again.');
-                                    break;
-                                default:
-                                    alert('Unable to obtain your location.');
-                                    break;
-                            }
-                            console.warn('Geolocation error', err);
-                        },
-                        {
-                            // Options: non-blocking, reasonable timeout
-                            enableHighAccuracy: false,
-                            timeout: 8000,       // 8 seconds
-                            maximumAge: 10 * 60 * 1000 // accept cached position up to 10 minutes
-                        }
-                    );
-                } catch (ex) {
-                    // Unexpected error — log silently and fail gracefully
-                    console.error('Geolocation initialization failed', ex);
-                }
-            }, { passive: true });
-        })();
-    </script>
-
-    <script>
-        (function () {
-            const categories = ["All", "Breakfast", "Lunch", "Dinner", "Snacks", "Drinks"];
-            const $cats = $('#categories');
-            const $grid = $('#foodGrid');
-            const $loading = $('#loading');
-            const $no = $('#noResults');
-            const $sn = $('#snackbar');
-            const $panel = $('#dailyPanel');
-
-            let selectedSlot = 'Breakfast';
-
-            function showSnack(msg) {
-                $sn.text(msg).attr('hidden', null).addClass('show');
-                setTimeout(() => { $sn.removeClass('show'); setTimeout(()=> $sn.attr('hidden', 'hidden'), 300); }, 2200);
-            }
-
-            function renderCategoryTiles() {
-                $cats.empty();
-                categories.forEach((c, idx) => {
-                    const tile = $('<div>').addClass('cat-tile').attr('data-cat', c).attr('role','button').attr('tabindex',0).text(c);
-                    if (idx === 0) tile.addClass('active');
-                    $cats.append(tile);
-                });
-            }
-
-            function buildCard(f) {
-                const id = f.id || f.Id;
-                const name = f.name || f.Name || '';
-                const desc = f.description || f.Description || '';
-                const img = f.image || f.Image || '/images/placeholder.png';
-                const calories = (f.calories || f.Calories || f.cal || '').toString();
-                const diet = (f.diet || f.Diet || f.dietTag || '').toString();
-
-                const card = $('<div>').addClass('food-card').attr('data-id', id);
-
-                const imgWrap = $('<div>').addClass('food-img-wrap');
-                imgWrap.append($('<img>').attr('src', img).attr('alt', name));
-
-                if (diet) imgWrap.append($('<span>').addClass('diet-tag').text(diet));
-                if (calories) imgWrap.append($('<span>').addClass('cal-badge').text(calories + ' kcal'));
-
-                // favorite button
-                const fav = $('<button>').addClass('fav-btn').attr('type','button').attr('aria-pressed','false').attr('data-id', id)
-                    .html('<svg class="fav-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 21s-7.5-4.5-10-7.4C-1 8.4 4.2 3 8.6 5.3 10.8 6.6 12 9 12 9s1.2-2.4 3.4-3.7C19.8 3 25 8.4 22 13.6 19.5 16.5 12 21 12 21z"/></svg>');
-                imgWrap.append(fav);
-
-                card.append(imgWrap);
-                card.append($('<strong>').addClass('food-title').text(name));
-                if (desc) card.append($('<div>').addClass('meta').text(desc));
-
-                const btnRow = $('<div>').addClass('btn-row');
-                btnRow.append($('<a>').addClass('btn-primary-ghost').attr('href', '/Food/Details/' + id).text('View Details'));
-
-                const addBtn = $('<button>').addClass('btn-cta add-btn').attr('data-id', id).attr('type','button');
-                addBtn.append($('<span>').addClass('btn-label').text('Add'));
-                addBtn.append($('<span>').addClass('btn-spinner').hide().html('&nbsp;<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'));
-                addBtn.append($('<span>').addClass('btn-success').hide().text('✓ Added'));
-                btnRow.append(addBtn);
-
-                card.append(btnRow);
-                return card;
-            }
-
-            function fetchFoods(category) {
-                $loading.show();
-                $no.hide();
-                $grid.empty();
-
-                $.getJSON('/Foods/GetFoods', { category: category === 'All' ? '' : category })
-                    .done(function (list) {
-                        $loading.hide();
-                        if (!list || list.length === 0) {
-                            $no.show();
-                            return;
-                        }
-
-                        list.forEach(f => { $grid.append(buildCard(f)); });
-
-                        // refresh daily panel and favorites state after rendering cards
-                        loadDailyPanel();
-                        $.getJSON('/Auth/IsAuthenticated').done(function (au) {
-                            if (au && au.authenticated) {
-                                $.getJSON('/Favorites/UserFavorites').done(function (res) {
-                                    if (res && res.ids) {
-                                        const ids = new Set(res.ids.map(x => Number(x)));
-                                        $grid.find('.fav-btn').each(function () {
-                                            const fid = Number($(this).data('id'));
-                                            if (ids.has(fid)) $(this).addClass('active').attr('aria-pressed', 'true').attr('title','Remove from favorites');
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    })
-                    .fail(function () {
-                        $loading.hide();
-                        $no.html('<div class="empty-card"><div class="empty-icon">🍽️</div><div class="empty-title">Unable to load foods</div><div class="empty-desc text-muted">Please check your connection or try again.</div><div class="mt-2"><button class="retry-btn btn btn-outline-success btn-sm">Retry</button></div></div>').show();
-                    });
-            }
-
-            // retry button handler for empty state (keeps existing fetch logic)
-            $(document).on('click', '#noResults .retry-btn', function () {
-                const cat = $('#categories .cat-tile.active').data('cat') || 'All';
-                fetchFoods(cat);
-            });
-
-            // daily panel rendering
-            function renderPanel(data) {
-                $('#panelDate').text(data.date || '');
-                const $body = $panel.find('.panel-body');
-                if (!data.authenticated) {
-                    $body.html('<div class="panel-empty text-center text-muted"><div>Sign in to save & track your meals.</div><div class="mt-2"><button id="panelLoginBtn" class="btn btn-cta btn-sm">Login</button></div></div>');
-                    $panel.find('.totalCalories').text('0');
-                    $panel.find('.calorieGoal').text('—');
-                    $panel.find('.remainingCalories').text('—');
-                    $body.find('#panelLoginBtn').on('click', function () { if (typeof showAuthModal === 'function') showAuthModal('login'); });
-                    return;
-                }
-
-                const meals = data.meals || [];
-                if (!meals.length) {
-                    $body.html('<div class="panel-empty text-center text-muted">No meals added for today.</div>');
-                } else {
-                    let html = '<div class="daily-list">';
-                    // group by slot
-                    const groups = {};
-                    meals.forEach(m => {
-                        const s = (m.slot || 'Other');
-                        groups[s] = groups[s] || [];
-                        groups[s].push(m);
-                    });
-                    const slotOrder = ['Breakfast','Lunch','Dinner','Snacks'];
-                    slotOrder.forEach(slot => {
-                        if (!groups[slot]) return;
-                        html += `<div class="slot-block"><div class="slot-title">${slot}</div>`;
-                        groups[slot].forEach(m => {
-                            const fid = m.foodId || m.food_id;
-                            const calories = m.calories || m.cal || 0;
-                            html += `<div class="meal-item" data-id="${fid}" tabindex="0">
-                                        <div class="meal-info">
-                                            <div class="meal-name">${m.foodName || ''}</div>
-                                            <div class="meal-desc text-muted">${m.description || ''}</div>
-                                        </div>
-                                        <div class="meal-actions">
-                                            <div class="calories fw-bold">${calories} kcal</div>
-                                            <button class="btn btn-success btn-sm add-btn" data-id="${fid}" type="button">
-                                                <span class="btn-label">Add</span>
-                                                <span class="btn-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                <span class="btn-success">✓ Added</span>
-                                            </button>
-                                        </div>
-                                    </div>`;
-                        });
-                        html += `</div>`; // close slot-block
-                    });
-                    html += `</div>`; // close daily-list
-                    $body.html(html);
-
-                    // attach add button handlers
-                    $body.find('.add-btn').on('click', function () {
-                        const btn = $(this);
-                        const id = btn.data('id');
-
-                        // optimistic UI update
-                        btn.attr('disabled', true).addClass('adding');
-                        setTimeout(() => {
-                            btn.removeClass('adding').addClass('added').html('✓ Added').attr('disabled', true);
-                            showSnack('Meal added to your selection.');
-                        }, 500);
-
-                        // TODO: actual add to meal plan logic here
-                    });
-                }
-            }
-
-            function loadDailyPanel() {
-                $.getJSON('/Users/CalorieAnalytics')
-                    .done(function (data) {
-                        if (data && data.date) {
-                            renderPanel(data);
-                        } else {
-                            $('#dailyPanel .panel-body').html('<div class="text-muted">No data available. Sign in to track your meals.</div>');
-                        }
-                    })
-                    .fail(function () {
-                        $('#dailyPanel .panel-body').html('<div class="text-muted">Error loading data. Please try again later.</div>');
-                    });
-            }
-
-            // initial loads
-            renderCategoryTiles();
-            fetchFoods('All');
-            loadDailyPanel();
-        })();
-    </script>
-    }
+</div>

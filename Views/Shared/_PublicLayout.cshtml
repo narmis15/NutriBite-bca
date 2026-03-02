@@ -11,506 +11,260 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/students.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/elderly.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/corporate.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/students.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/elderly.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/corporate.css" asp-append-version="true" />
-
-    @RenderSection("HeadExtras", required: false)
     @RenderSection("Styles", required: false)
 
-    <link rel="preconnect" href="https://your-cdn.example.com" crossorigin />
-    <link rel="preload" href="~/images/hero/hero-food.png" as="image" />
-    <link rel="preload" href="~/images/hero/slide 1.png" as="image" />
-    <link rel="preload" href="~/images/hero/slide 2.png" as="image" />
-
     <style>
-        /* ============================= */
-        /* PROFESSIONAL FIXED NAVBAR */
-        /* ============================= */
-
-        .navbar {
-            height: 72px;
-            padding: 0;
-            background: #ffffff !important;
-            border-bottom: 1px solid #e8f0e9;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            position: fixed;
-            width: 100%;
-            left: 0;
-            top: 0;
-            z-index: 1000;
-            transition: box-shadow 0.3s ease;
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e6f7f0, #c8f1df, #a8e6cf);
+            margin: 0;
         }
 
-        main {
-            margin-top: 72px;
-        }
-
-        .navbar.scrolled {
-            box-shadow: 0 6px 22px rgba(0,0,0,0.1);
-        }
-
-        /* ============================= */
-        /* BRAND */
-        /* ============================= */
-
-        .navbar-brand {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1b5e20 !important;
-            letter-spacing: -0.5px;
-            text-decoration: none;
-        }
-
-            .navbar-brand span {
-                color: #43a047;
-            }
-
-        /* ============================= */
-        /* NAV LINKS */
-        /* ============================= */
-
-        .navbar-nav .nav-link {
-            font-size: 14px;
-            font-weight: 500;
-            color: #4a5568 !important;
-            padding: 6px 14px !important;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-            .navbar-nav .nav-link:hover {
-                background: #f0f4f1;
-                color: #1b5e20 !important;
-            }
-
-            .navbar-nav .nav-link.active {
-                color: #1b5e20 !important;
-                font-weight: 600;
-            }
-
-        /* ============================= */
-        /* PREMIUM EXPANDING SEARCH */
-        /* ============================= */
-
-        /* ===== RIGHT SIDE SEARCH POSITION ===== */
-
-        .nav-search-wrapper {
-            display: flex;
-            align-items: center;
-            margin-right: 15px;
-        }
-
-        
-
-            
-
-        .premium-search {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 240px;
-            transition: all 0.4s cubic-bezier(.4,0,.2,1);
-            background: #f5f8f6;
-            border-radius: 50px;
+        /* ===== PAGE WRAPPER (Landing Style Card) ===== */
+        .page-wrapper {
+            width: 92%;
+            max-width: 1300px;
+            margin: 50px auto;
+            background: #f6fff9;
+            border-radius: 25px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
             overflow: hidden;
-            border: 1px solid #e0e8e2;
         }
 
-            .premium-search input {
-                border: none;
-                outline: none;
-                background: transparent;
-                padding: 10px 18px;
-                width: 100%;
-                font-size: 14px;
-                color: #374151;
-            }
-
-                .premium-search input::placeholder {
-                    color: #9ca3af;
-                }
-
-            .premium-search button {
-                border: none;
-                background: linear-gradient(135deg, #1b5e20, #43a047);
-                color: white;
-                padding: 8px 18px;
-                border-radius: 50px;
-                cursor: pointer;
-                transition: 0.3s ease;
-            }
-
-                .premium-search button:hover {
-                    transform: scale(1.05);
-                }
-
-            /* EXPAND ON HOVER OR FOCUS */
-            .premium-search:hover,
-            .premium-search:focus-within {
-                width: 420px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-            }
-
-        /* ============================= */
-        /* JOIN BUTTON */
-        /* ============================= */
-
-        .btn-join {
-            background: none;
-            border: 1.5px solid #1b5e20;
-            color: #1b5e20 !important;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 7px 18px;
-            border-radius: 20px;
-            text-decoration: none;
-            transition: all 0.2s;
+        /* ===== NAVBAR ===== */
+        .public-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 40px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
-            .btn-join:hover {
-                background: #1b5e20;
-                color: white !important;
+        .logo-img {
+            height: 55px;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 30px;
+        }
+
+            .nav-center a {
+                text-decoration: none;
+                font-weight: 600;
+                color: #1b4332;
+                transition: 0.3s;
             }
 
-        /* ============================= */
-        /* CART */
-        /* ============================= */
+                .nav-center a:hover {
+                    color: #40916c;
+                }
 
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        /* Cart */
         .cart-icon {
-            font-size: 20px;
+            position: relative;
             text-decoration: none;
-            padding: 6px 10px;
-            border-radius: 8px;
-            transition: background 0.2s;
+            font-size: 22px;
         }
 
-            .cart-icon:hover {
-                background: #f0f4f1;
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background: #2d6a4f;
+            color: white;
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 50%;
+        }
+
+        /* Buttons */
+        .login-btn {
+            padding: 8px 20px;
+            border-radius: 25px;
+            background: #2d6a4f;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-btn {
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: 2px solid #2d6a4f;
+            color: #2d6a4f;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .signup-btn:hover {
+                background: #2d6a4f;
+                color: white;
             }
 
-        /* ============================= */
-        /* PROFILE */
-        /* ============================= */
-
-        .profile-btn {
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-        }
-
-        /* NAVBAR PROFILE AVATAR (SMALL) */
-        .navbar .profile-avatar {
-            width: 36px;
-            height: 36px;
+        /* Profile */
+        .profile-avatar {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #1b5e20, #43a047);
+            background: #2d6a4f;
             color: white;
-            font-size: 14px;
-            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
         }
 
-            .profile-avatar:hover {
-                box-shadow: 0 0 0 3px #c8e6c9;
-            }
-
-        /* ============================= */
-        /* DROPDOWN */
-        /* ============================= */
-
-        .premium-dropdown {
-            border: 1px solid #e8f0e9;
-            border-radius: 12px;
-            padding: 8px;
-            min-width: 200px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+        /* ===== FOOTER ===== */
+        .nb-footer {
+            background: #ffffff;
+            padding: 50px 40px;
+            border-top: 1px solid rgba(0,0,0,0.05);
         }
 
-            .premium-dropdown .dropdown-item {
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                padding: 9px 14px;
-                color: #2d3748;
-                transition: background 0.2s;
+        .nb-footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+
+        .nb-heading {
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .nb-links {
+            list-style: none;
+            padding: 0;
+        }
+
+            .nb-links li {
+                margin-bottom: 8px;
             }
 
-                .premium-dropdown .dropdown-item:hover {
-                    background: #f0f4f1;
-                    color: #1b5e20;
+            .nb-links a {
+                text-decoration: none;
+                color: #1b4332;
+            }
+
+                .nb-links a:hover {
+                    color: #40916c;
                 }
 
-                .premium-dropdown .dropdown-item.text-danger:hover {
-                    background: #fff5f5;
-                    color: #e53e3e !important;
-                }
-
-        /* ============================= */
-        /* LOGIN & SIGNUP */
-        /* ============================= */
-
-        .btn-login {
-            background: none;
-            border: 1.5px solid #e2e8f0;
+        .nb-desc {
+            font-size: 14px;
             color: #4a5568;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 7px 18px;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: all 0.2s;
+            line-height: 1.6;
         }
 
-            .btn-login:hover {
-                border-color: #1b5e20;
-                color: #1b5e20;
-            }
-
-        .btn-signup {
-            background: #1b5e20;
-            color: white !important;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 7px 18px;
-            border-radius: 8px;
+        .nb-logo {
+            font-weight: 800;
+            font-size: 22px;
             text-decoration: none;
-            border: none;
-            transition: all 0.2s;
+            color: #1b4332;
         }
-
-            .btn-signup:hover {
-                background: #2e7d32;
-                transform: translateY(-1px);
-            }
     </style>
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid px-4">
 
-                <!-- Logo -->
-                <a class="navbar-brand" href="/">Nutri<span>Bite</span></a>
+    <div class="page-wrapper">
 
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#publicNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+        <!-- NAVBAR -->
+        <div class="public-navbar">
 
-                <div class="collapse navbar-collapse" id="publicNav">
+            <div>
+                <a asp-controller="Users" asp-action="Index">
+                    <img src="~/images/hero/Nutribitelogo.png"
+                         class="logo-img"
+                         alt="NutriBite Logo" />
+                </a>
+            </div>
 
-                    <!-- Left Links -->
-                    <ul class="navbar-nav me-auto align-items-center">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Location">Location</a>
-                        </li>
-                    </ul>
-                    <!-- CENTER BIG SEARCH -->
-                    @if (userId != null)
-                    {
-                        <div class="nav-search-wrapper d-none d-lg-flex">
-                            <form class="premium-search" asp-controller="Home" asp-action="Search" method="get">
-                                <input type="text" name="query" placeholder="Search healthy meals..." />
-                                <button type="submit">
-                                    🔍
-                                </button>
-                            </form>
-                        </div>
-                       
-                    }
-                    <!-- Right Side -->
-                    <div class="d-flex align-items-center gap-3">
+            <div class="nav-center">
+                <a asp-controller="Users" asp-action="Index">Home</a>
+                <a asp-controller="Users" asp-action="Location">Location</a>
+                <a asp-controller="Users" asp-action="About">About</a>
+                <a asp-controller="Users" asp-action="MyProfile">My Profile</a>
+            </div>
 
-                        <a class="btn-join"
-                           asp-controller="Vendor"
-                           asp-action="Register">
-                            Join Us
-                        </a>
+            <div class="nav-actions">
 
-                        @if (userId != null)
-                        {
-                            <a asp-controller="Cart" asp-action="Index" class="cart-icon">
-                                🛒
-                            </a>
+                <a asp-controller="Cart" asp-action="Index" class="cart-icon">
+                    🛒
+                    <span class="cart-badge">0</span>
+                </a>
 
-                            <div class="dropdown">
-                                <button class="profile-btn"
-                                        type="button"
-                                        data-bs-toggle="dropdown">
-                                    <div class="profile-avatar">
-                                        @userName?.Substring(0, 1).ToUpper()
-                                    </div>
-                                </button>
-
-                                <ul class="dropdown-menu dropdown-menu-end premium-dropdown shadow">
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Users" asp-action="Account" id="navMyProfile">
-                                            👤 My Profile
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Users" asp-action="MyOrders">
-                                            📦 My Orders
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Users" asp-action="Settings">
-                                            ⚙ Settings
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="/Auth/Logout">
-                                            🚪 Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        }
-                        else
-                        {
-                            <a class="btn-login" href="/Auth/Login">Login</a>
-                            <a class="btn-signup" href="/Auth/Register">Sign Up</a>
-                        }
-
+                @if (userId != null)
+                {
+                    <div class="profile-avatar">
+                        @userName?.Substring(0, 1).ToUpper()
                     </div>
-                </div>
-            </div>
-        </nav>
-    </header>
+                }
+                else
+                {
+                    <a class="login-btn" href="/Auth/Login">Login</a>
+                    <a class="signup-btn" href="/Auth/Register">Sign Up</a>
+                }
 
-    <div class="page-container">
-        <main role="main">
-            <div class="container-fluid px-0">
-                @RenderBody()
             </div>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <main>
+            @RenderBody()
         </main>
 
+        <!-- FOOTER -->
         <footer class="nb-footer">
-            <div class="container">
-                <div class="nb-footer-grid">
-                    <div class="nb-col nb-col-1">
-                        <a class="nb-logo" href="/">NutriBite</a>
-                        <p class="nb-desc">
-                            We at NutriBite use smart nutrition technology to help you eat better every day.
-                            Our calorie-focused meals are thoughtfully crafted to match your health goals—without compromising on taste or flexibility.
-                        </p>
-                        <div class="nb-social">
-                            <a href="#" class="nb-social-link" aria-label="Facebook">f</a>
-                            <a href="#" class="nb-social-link" aria-label="Instagram">i</a>
-                            <a href="#" class="nb-social-link" aria-label="YouTube">y</a>
-                            <a href="#" class="nb-social-link" aria-label="LinkedIn">in</a>
-                        </div>
-                    </div>
+            <div class="nb-footer-grid">
 
-                    <div class="nb-col">
-                        <h4 class="nb-heading">Company</h4>
-                        <ul class="nb-links">
-                            <li><a href="/Home/About">About Us</a></li>
-                            <li><a href="/Home/WhyUs">Why Us</a></li>
-                            <li><a href="/Home/Careers">Careers</a></li>
-                            <li><a href="/Home/Contact">Contact Us</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="nb-col">
-                        <h4 class="nb-heading">Information</h4>
-                        <ul class="nb-links">
-                            <li><a href="/Home/Privacy">Privacy Policy</a></li>
-                            <li><a href="/Home/Terms">Terms &amp; Conditions</a></li>
-                            <li><a href="/Home/Refund">Cancellation &amp; Refunds</a></li>
-                            <li><a href="/Home/Blog">Blogs</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="nb-col">
-                        <h4 class="nb-heading">Contact us</h4>
-                        <p class="nb-contact"><a href="tel:9026775653">Phone: 9026775653</a></p>
-                        <p class="nb-contact"><a href="mailto:help@nutribite.com">Email: help@nutribite.com</a></p>
-                    </div>
+                <div>
+                    <a class="nb-logo" href="/">NutriBite</a>
+                    <p class="nb-desc">
+                        Smart nutrition technology helping you eat better every day.
+                    </p>
                 </div>
+
+                <div>
+                    <h4 class="nb-heading">Company</h4>
+                    <ul class="nb-links">
+                        <li><a href="/Users/About">About</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="nb-heading">Information</h4>
+                    <ul class="nb-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="nb-heading">Contact</h4>
+                    <p class="nb-desc">help@nutribite.com</p>
+                </div>
+
             </div>
         </footer>
+
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-    @await Html.PartialAsync("_AuthModal")
-
-    <script>
-        (function () {
-            function updateAuthUI() {
-                $.getJSON('/Auth/IsAuthenticated')
-                    .done(function (res) {
-                        var authItems = document.querySelectorAll('.auth-only');
-                        var guestItems = document.querySelectorAll('.guest-only');
-                        var circle = document.getElementById('profileCircle');
-
-                        if (res && res.authenticated) {
-                            authItems.forEach(x => x.classList.remove('d-none'));
-                            guestItems.forEach(x => x.classList.add('d-none'));
-                            if (res.profileImage && res.profileImage !== "") {
-                                circle.innerHTML = '<img src="' + res.profileImage + '" />';
-                            } else if (res.userName) {
-                                circle.textContent = res.userName.charAt(0).toUpperCase();
-                            }
-                        } else {
-                            authItems.forEach(x => x.classList.add('d-none'));
-                            guestItems.forEach(x => x.classList.remove('d-none'));
-                            circle.textContent = "U";
-                        }
-                    })
-                    .fail(function () { });
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                updateAuthUI();
-                document.addEventListener('user:login', function () { updateAuthUI(); });
-            });
-        })();
-    </script>
-
-    <script>
-        window.addEventListener("scroll", function () {
-            const navbar = document.querySelector(".navbar");
-            if (!navbar) return;
-            if (window.scrollY > 20) {
-                navbar.classList.add("scrolled");
-            } else {
-                navbar.classList.remove("scrolled");
-            }
-        });
-
-        // Highlight active nav link
-        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-        navLinks.forEach(link => {
-            if (window.location.pathname === new URL(link.href).pathname) {
-                link.classList.add('active');
-            }
-        });
-    </script>
-
     @RenderSection("Scripts", required: false)
+
 </body>
 </html>

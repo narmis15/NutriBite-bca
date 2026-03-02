@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Mvc.ViewEngines
+@{
+    Layout = null;   
+    ViewData["Title"] = "Admin Login";
+}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/admin-login.css" asp-append-version="true" />
+
+<div class="admin-login-page" role="application">
+    <div class="bg-animated" aria-hidden="true"></div>
+    
+    <div class="side-decor left-decor">
+        <span>🥦</span>
+        <span>🥕</span>
+        <span>🍅</span>
+    </div>
+
+    <div class="side-decor right-decor">
+        <span>🌽</span>
+        <span>🥑</span>
+        <span>🍋</span>
+    </div>
+    <main class="login-card" role="main" aria-labelledby="adminLoginTitle">
+        <header class="login-header">
+            <h1 id="adminLoginTitle" class="title">NutriBite Admin</h1>
+        </header>
+
+        <form asp-action="Login" asp-controller="Admin" method="post" class="login-form" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="username" required placeholder="admin@nutribite.com" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Sign in</button>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert" role="alert">@ViewBag.Error</div>
+            }
+        </form>
+
+        <footer class="login-footer" aria-hidden="true">
+            <small>Managed access — keep credentials secure.</small>
+        </footer>
+    </main>
+</div>

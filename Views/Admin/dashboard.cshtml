@@ -7,8 +7,52 @@ ViewData["Title"] = "Nutribite Admin Dashboard";
 @section Styles {
     <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
 }
+<div class="dashboard-wrapper">
 
-<div class="dashboard-main">
+    <h2 class="dashboard-title">Admin Dashboard</h2>
+
+    <div class="dashboard-grid">
+
+        <div class="db-card">
+            <div class="db-icon">👥</div>
+            <div class="db-number">@ViewBag.Users</div>
+            <div class="db-label">Total Users</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">🏪</div>
+            <div class="db-number">@ViewBag.Vendors</div>
+            <div class="db-label">Total Vendors</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">📦</div>
+            <div class="db-number">@ViewBag.Orders</div>
+            <div class="db-label">Total Orders</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">🛒</div>
+            <div class="db-number">@ViewBag.Products</div>
+            <div class="db-label">Products Sold</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">💰</div>
+            <div class="db-number">₹ @ViewBag.TotalAmount</div>
+            <div class="db-label">Total Revenue</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">📊</div>
+            <div class="db-number">₹ @ViewBag.Profit</div>
+            <div class="db-label">Profit Share</div>
+        </div>
+
+    </div>
+
+</div>
+<!--<div class="dashboard-main">
     <div class="dashboard-header">
         <h2>Admin Dashboard</h2>
         <div class="dashboard-breadcrumb"></div>
@@ -55,4 +99,4 @@ ViewData["Title"] = "Nutribite Admin Dashboard";
         </div>
         </div>
     </div>
-</div>
+</div>-->
