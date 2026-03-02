@@ -12,5 +12,6 @@ namespace NUTRIBITE.ViewModels
         [EmailAddress]
         [StringLength(200)]
         public string Email { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
     }
 }

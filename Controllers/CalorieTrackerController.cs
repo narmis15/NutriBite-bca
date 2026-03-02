@@ -45,7 +45,7 @@ namespace NUTRIBITE.Controllers
             var entry = new DailyCalorieEntry
             {
                 UserId = uid.Value,
-                Date = DateOnly.FromDateTime(DateTime.Today),
+                Date = DateTime.Today,
                 FoodName = foodName.Trim(),
                 Calories = calories,
                 Protein = protein,
@@ -69,7 +69,7 @@ namespace NUTRIBITE.Controllers
             if (!uid.HasValue)
                 return Json(new { authenticated = false });
 
-            var today = DateOnly.FromDateTime(DateTime.Today);
+            var today = DateTime.Today;
 
             var items = _context.DailyCalorieEntries
                 .Where(d => d.UserId == uid.Value && d.Date == today)

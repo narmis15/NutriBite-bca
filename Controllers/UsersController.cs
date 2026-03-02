@@ -20,7 +20,7 @@ namespace NUTRIBITE.Controllers
         [HttpGet]
         public IActionResult GetUsersData(string q = "", string status = "All")
         {
-            var query = _context.UserSignup.AsQueryable();
+            var query = _context.UserSignups.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(q))
             {
@@ -43,9 +43,9 @@ namespace NUTRIBITE.Controllers
                     Name = u.Name,
                     Email = u.Email,
                     Phone = u.Phone,
-                    OrdersCount = _context.OrderTable.Count(o => o.UserId == u.Id),
+                    OrdersCount = _context.OrderTables.Count(o => o.UserId == u.Id),
                     Status = u.Status,
-                    RegisteredAt = u.CreatedAt
+                    RegisteredAt = u.CreatedAt??DateTime.MinValue
                 })
                 .ToList();
 
@@ -111,7 +111,7 @@ namespace NUTRIBITE.Controllers
             DateTime end = to?.Date ?? DateTime.Today;
             DateTime start = from?.Date ?? end.AddDays(-13);
 
-            var entries = _context.DailyCalorieEntry
+            var entries = _context.DailyCalorieEntries
                 .Where(e => e.UserId == userId &&
                             e.Date >= start &&
                             e.Date <= end)

@@ -57,11 +57,10 @@ namespace NUTRIBITE.Controllers
 
             // 🔹 Get today's nutrition
             var today = DateTime.Today;
-            var todayDateOnly = DateOnly.FromDateTime(today);
 
             var todayEntries = _context.DailyCalorieEntries
                 .Where(d => d.UserId == uid.Value &&
-                            d.Date == todayDateOnly)
+            d.Date.Date == today)
                 .ToList();
 
             totalCalories = todayEntries.Sum(d => d.Calories);
