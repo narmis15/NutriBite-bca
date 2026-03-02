@@ -1,33 +1,43 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 
-namespace NUTRIBITE.Models
+namespace NUTRIBITE.Models;
+
+public partial class HealthSurvey
 {
-    public class HealthSurvey
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        // Using numeric UserId (matches your session-based UserSignup.Id)
-        public int UserId { get; set; }
+    public int UserId { get; set; }
 
-        // Inputs
-        public int Age { get; set; }
-        public string Gender { get; set; } = "";
-        public decimal HeightCm { get; set; }
-        public decimal WeightKg { get; set; }
-        public string ActivityLevel { get; set; } = "";
-        public string Goal { get; set; } = "";
-        public string ChronicDiseases { get; set; } = "";
-        public string FoodAllergies { get; set; } = "";
-        public string DietaryPreference { get; set; } = "";
-        public bool Smoking { get; set; }
-        public bool Alcohol { get; set; }
+    public int Age { get; set; }
 
-        // Calculated
-        public decimal BMI { get; set; }
-        public decimal BMR { get; set; }
-        public int RecommendedCalories { get; set; }
-        public int RecommendedProtein { get; set; } // grams
+    public string? Gender { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    }
+    public decimal? HeightCm { get; set; }
+
+    public decimal? WeightKg { get; set; }
+
+    public string? ActivityLevel { get; set; }
+
+    public string? Goal { get; set; }
+
+    public decimal? Bmi { get; set; }
+
+    public decimal? Bmr { get; set; }
+
+    public int? RecommendedCalories { get; set; }
+
+    public int? RecommendedProtein { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public string? ChronicDiseases { get; set; }
+
+    public string? FoodAllergies { get; set; }
+
+    public string? DietaryPreference { get; set; }
+
+    public bool Smoking { get; set; }
+
+    public bool Alcohol { get; set; }
 }

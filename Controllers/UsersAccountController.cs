@@ -1,420 +1,231 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+using NUTRIBITE.Models;
 using NUTRIBITE.ViewModels;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace NUTRIBITE.Controllers
 {
     public partial class UsersController : Controller
     {
-        private readonly IConfiguration _configuration;
-        public UsersController(IConfiguration configuration) => _configuration = configuration;
+        private readonly UserManager<IdentityUser>? _userManager;
+        private readonly SignInManager<IdentityUser>? _signInManager;
 
-        // Simplified ResolveUserId: session-only (no claims/cookie fallbacks).
-        private int? ResolveUserId()
+        public UsersController(
+            ApplicationDbContext context,
+            UserManager<IdentityUser>? userManager = null,
+            SignInManager<IdentityUser>? signInManager = null)
         {
-            return HttpContext?.Session?.GetInt32("UserId");
+            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        // GET: /Users/Account
+        private int? ResolveUserId()
+        {
+            return HttpContext.Session.GetInt32("UserId");
+        }
+
+        // ================= ACCOUNT =================
         [HttpGet]
         public IActionResult Account()
         {
             var uid = ResolveUserId();
             if (!uid.HasValue)
-            {
                 return RedirectToAction("Login", "Auth");
-            }
 
             ViewBag.UserId = uid.Value;
             return View();
         }
 
-        // NEW: GET: /Users/GetUserProfileData
+        // ================= GET PROFILE DATA =================
         [HttpGet]
         public IActionResult GetUserProfileData()
         {
             var uid = ResolveUserId();
-            if (!uid.HasValue) return Json(new { authenticated = false });
+            if (!uid.HasValue)
+                return Json(new { authenticated = false });
 
-            var cs = _configuration.GetConnectionString("DBCS");
-            object? userRow = null;
-            object? surveyObj = null;
-
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-
-                using var cmd = new SqlCommand("SELECT TOP 1 Id, Name, Email, Phone FROM UserSignup WHERE Id = @u", con);
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                using var r = cmd.ExecuteReader();
-                if (r.Read())
+            var user = _context.UserSignups
+                .Where(u => u.Id == uid.Value)
+                .Select(u => new
                 {
-                    userRow = new
-                    {
-                        Id = Convert.ToInt32(r["Id"]),
-                        Name = r["Name"] as string ?? "",
-                        Email = r["Email"] as string ?? "",
-                        Phone = r["Phone"] as string ?? ""
-                    };
-                }
-                r.Close();
+                    u.Id,
+                    u.Name,
+                    u.Email,
+                    u.Phone
+                })
+                .FirstOrDefault();
 
-                using var cmd2 = new SqlCommand("SELECT TOP 1 * FROM HealthSurveys WHERE UserId = @u ORDER BY CreatedAt DESC", con);
-                cmd2.Parameters.AddWithValue("@u", uid.Value);
-                using var r2 = cmd2.ExecuteReader();
-                if (r2.Read())
+            var survey = _context.HealthSurveys
+                .Where(h => h.UserId == uid.Value)
+                .OrderByDescending(h => h.CreatedAt)
+                .Select(h => new
                 {
-                    surveyObj = new
-                    {
-                        Id = Convert.ToInt32(r2["Id"]),
-                        Age = r2["Age"] == DBNull.Value ? 0 : Convert.ToInt32(r2["Age"]),
-                        Gender = r2["Gender"]?.ToString() ?? "",
-                        HeightCm = r2["HeightCm"] == DBNull.Value ? 0m : Convert.ToDecimal(r2["HeightCm"]),
-                        WeightKg = r2["WeightKg"] == DBNull.Value ? 0m : Convert.ToDecimal(r2["WeightKg"]),
-                        ActivityLevel = r2["ActivityLevel"]?.ToString() ?? "",
-                        Goal = r2["Goal"]?.ToString() ?? "",
-                        ChronicDiseases = r2["ChronicDiseases"]?.ToString() ?? "",
-                        DietaryPreference = r2["DietaryPreference"]?.ToString() ?? "",
-                        BMI = r2["BMI"] == DBNull.Value ? 0m : Convert.ToDecimal(r2["BMI"]),
-                        RecommendedCalories = r2["RecommendedCalories"] == DBNull.Value ? 0 : Convert.ToInt32(r2["RecommendedCalories"]),
-                        RecommendedProtein = r2["RecommendedProtein"] == DBNull.Value ? 0 : Convert.ToInt32(r2["RecommendedProtein"])
-                    };
-                }
-            }
-            catch
-            {
-                // fail-open: return what we have
-            }
+                    h.Id,
+                    h.Age,
+                    h.Gender,
+                    h.HeightCm,
+                    h.WeightKg,
+                    h.ActivityLevel,
+                    h.Goal,
+                    h.ChronicDiseases,
+                    h.DietaryPreference,
+                    BMI = h.Bmi,
+                    h.RecommendedCalories,
+                    h.RecommendedProtein
+                })
+                .FirstOrDefault();
 
-            return Json(new { authenticated = true, user = userRow, survey = surveyObj });
+            return Json(new { authenticated = true, user, survey });
         }
 
-        // NEW: GET: /Users/Edit
+        // ================= EDIT PROFILE =================
         [HttpGet]
         public IActionResult Edit()
         {
             var uid = ResolveUserId();
-            if (!uid.HasValue) return RedirectToAction("Login", "Auth");
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
 
-            var cs = _configuration.GetConnectionString("DBCS");
-            var vm = new UserProfileEditViewModel();
-
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-                using var cmd = new SqlCommand("SELECT TOP 1 Name, Email FROM UserSignup WHERE Id = @u", con);
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                using var r = cmd.ExecuteReader();
-                if (r.Read())
+            var user = _context.UserSignups
+                .Where(u => u.Id == uid.Value)
+                .Select(u => new UserProfileEditViewModel
                 {
-                    vm.Name = r["Name"] as string ?? "";
-                    vm.Email = r["Email"] as string ?? "";
-                }
-            }
-            catch
-            {
-                // ignore, return empty vm
-            }
+                    Name = u.Name,
+                    Email = u.Email
+                })
+                .FirstOrDefault();
 
-            return View(vm);
+            return View(user ?? new UserProfileEditViewModel());
         }
 
-        // NEW: POST: /Users/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(UserProfileEditViewModel model)
         {
             var uid = ResolveUserId();
-            if (!uid.HasValue) return RedirectToAction("Login", "Auth");
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
 
-            if (!ModelState.IsValid) return View(model);
-
-            var cs = _configuration.GetConnectionString("DBCS");
-
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-                using var cmd = new SqlCommand("UPDATE UserSignup SET Name = @n, Email = @e WHERE Id = @u", con);
-                cmd.Parameters.AddWithValue("@n", model.Name.Trim());
-                cmd.Parameters.AddWithValue("@e", model.Email.Trim());
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                cmd.ExecuteNonQuery();
-            }
-            catch
-            {
-                ModelState.AddModelError("", "Unable to update profile. Please try again later.");
+            if (!ModelState.IsValid)
                 return View(model);
-            }
 
-            // If ASP.NET Identity user exists with same email, attempt safe email update
-            try
+            var user = _context.UserSignups.FirstOrDefault(u => u.Id == uid.Value);
+            if (user == null)
+                return RedirectToAction("Login", "Auth");
+
+            user.Name = model.Name.Trim();
+            user.Email = model.Email.Trim();
+
+            _context.SaveChanges();
+
+            HttpContext.Session.SetString("UserName", user.Name);
+
+            // Optional Identity update
+            if (_userManager != null)
             {
-                var userManager = HttpContext.RequestServices.GetService(typeof(UserManager<Microsoft.AspNetCore.Identity.IdentityUser>))
-                    as UserManager<Microsoft.AspNetCore.Identity.IdentityUser>;
-                if (userManager != null)
+                var idUser = await _userManager.FindByEmailAsync(model.Email);
+                if (idUser != null)
                 {
-                    var idUser = await userManager.FindByEmailAsync(model.Email.Trim());
-                    if (idUser != null)
-                    {
-                        idUser.UserName = model.Name?.Trim();
-                        idUser.Email = model.Email?.Trim();
-                        await userManager.UpdateAsync(idUser);
-                    }
+                    idUser.UserName = model.Name;
+                    idUser.Email = model.Email;
+                    await _userManager.UpdateAsync(idUser);
                 }
-            }
-            catch
-            {
-                // ignore identity update errors
-            }
-
-            // update session
-            try
-            {
-                var session = HttpContext?.Session;
-                if (session != null) session.SetString("UserName", model.Name ?? "");
-            }
-            catch
-            {
-                // ignore
             }
 
             return RedirectToAction("Account");
         }
 
-        // POST: /Users/UpdateCalorieGoal
-        // body: goal (int)
+        // ================= UPDATE CALORIE GOAL =================
         [HttpPost]
         public IActionResult UpdateCalorieGoal(int goal)
         {
             var uid = ResolveUserId();
-            if (!uid.HasValue) return Json(new { success = false, authenticated = false, message = "Not authenticated." });
+            if (!uid.HasValue)
+                return Json(new { success = false, authenticated = false });
 
-            if (goal < 0 || goal > 20000) return Json(new { success = false, message = "Invalid goal value." });
+            var user = _context.UserSignups.FirstOrDefault(u => u.Id == uid.Value);
+            if (user == null)
+                return Json(new { success = false });
 
-            try
-            {
-                var cs = _configuration.GetConnectionString("DBCS") ?? throw new Exception("DBCS not found");
-                using var con = new SqlConnection(cs);
-                con.Open();
+            user.CalorieGoal = goal;
+            _context.SaveChanges();
 
-                // Best-effort: update CalorieGoal column if present. If column missing, fail gracefully.
-                using var cmd = new SqlCommand("UPDATE [Users] SET CalorieGoal = @g WHERE Id = @u", con);
-                cmd.Parameters.AddWithValue("@g", goal);
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                var rows = cmd.ExecuteNonQuery();
-
-                if (rows > 0)
-                    return Json(new { success = true, goal });
-                else
-                    return Json(new { success = false, message = "Unable to update goal (column may not exist)." });
-            }
-            catch
-            {
-                return Json(new { success = false, message = "Server error while updating goal." });
-            }
+            return Json(new { success = true, goal });
         }
 
-        // GET: /Users/GetMealHistory?days=7
-        // Returns user's meals for the last N days (default 7). Guests receive authenticated=false.
+        // ================= MEAL HISTORY =================
         [HttpGet]
         public IActionResult GetMealHistory(int days = 7)
         {
             var uid = ResolveUserId();
-            DateTime end = DateTime.Now.Date;
+            if (!uid.HasValue)
+                return Json(new { authenticated = false });
+
+            DateTime end = DateTime.Today;
             DateTime start = end.AddDays(-(Math.Max(1, days) - 1));
 
-            if (!uid.HasValue)
-            {
-                return Json(new { authenticated = false, history = new object[] { } });
-            }
+            var history = _context.Meals
+                .Where(m => m.UserId == uid.Value &&
+                            m.MealDate >= start &&
+                            m.MealDate <= end)
+                .Join(_context.Foods,
+                      m => m.FoodId,
+                      f => f.Id,
+                      (m, f) => new
+                      {
+                          id = m.Id,
+                          foodId = f.Id,
+                          name = f.Name,
+                          calories = f.Calories ?? 0,
+                          slot = m.Slot,
+                          date = m.MealDate.ToString("yyyy-MM-dd")
+                      })
+                .OrderByDescending(x => x.date)
+                .ToList();
 
-            var cs = _configuration.GetConnectionString("DBCS") ?? throw new Exception("DBCS not found");
-            var rowsList = new List<object>();
-
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-
-                using var cmd = new SqlCommand(@"
-SELECT m.Id, m.FoodId, ISNULL(f.Name,'') AS FoodName, ISNULL(f.Calories,0) AS Calories, m.Slot, CONVERT(date,m.MealDate) AS MealDay
-FROM Meals m
-LEFT JOIN Foods f ON f.Id = m.FoodId
-WHERE m.UserId = @u AND CONVERT(date,m.MealDate) BETWEEN @start AND @end
-ORDER BY MealDay DESC, m.Slot, m.Id", con);
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                cmd.Parameters.AddWithValue("@start", start);
-                cmd.Parameters.AddWithValue("@end", end);
-
-                using var r = cmd.ExecuteReader();
-                while (r.Read())
-                {
-                    rowsList.Add(new
-                    {
-                        id = r["Id"],
-                        foodId = r["FoodId"],
-                        name = r["FoodName"] as string ?? "",
-                        calories = r["Calories"] != null ? Convert.ToInt32(r["Calories"]) : 0,
-                        slot = r["Slot"] as string ?? "",
-                        date = ((DateTime)r["MealDay"]).ToString("yyyy-MM-dd")
-                    });
-                }
-
-                return Json(new { authenticated = true, history = rowsList });
-            }
-            catch
-            {
-                return Json(new { authenticated = true, history = new object[] { } });
-            }
-        }
-    
-        // ================= MY PROFILE =================
-        [HttpGet]
-        public IActionResult MyProfile(int? userId = null)
-        {
-            // If user is logged in, show their profile
-            var uid = ResolveUserId();
-            if (uid.HasValue)
-            {
-                ViewBag.UserId = uid.Value;
-                return View("MyProfile");
-            }
-
-            // If caller provided a userId query (public profile view), show that profile without session
-            if (userId.HasValue)
-            {
-                ViewBag.UserId = userId.Value;
-                return View("MyProfile"); // or return View("MyProfile") if that view expects only ViewBag.UserId
-            }
-
-            // No session and no userId -> redirect to Login
-            return RedirectToAction("Login", "Auth");
-        }
-
-        // ================= MY ORDERS =================
-        [HttpGet]
-        public IActionResult MyOrders()
-        {
-            var uid = ResolveUserId();
-            if (!uid.HasValue)
-                return RedirectToAction("Login", "Auth");
-
-            ViewBag.UserId = uid.Value;
-            return View();
-        }
-
-        // ================= SETTINGS =================
-        [HttpGet]
-        public IActionResult Settings()
-        {
-            var uid = ResolveUserId();
-            if (!uid.HasValue)
-                return RedirectToAction("Login", "Auth");
-
-            return View();
+            return Json(new { authenticated = true, history });
         }
 
         // ================= DELETE ACCOUNT =================
-        // POST: /Users/DeleteAccount
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccount()
         {
             var uid = ResolveUserId();
-            if (!uid.HasValue) return RedirectToAction("Login", "Auth");
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
 
-            var cs = _configuration.GetConnectionString("DBCS");
-            string? userEmail = null;
+            var user = _context.UserSignups.FirstOrDefault(u => u.Id == uid.Value);
+            if (user == null)
+                return RedirectToAction("Login", "Auth");
 
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-                using var cmd = new SqlCommand("SELECT Email FROM UserSignup WHERE Id = @u", con);
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                userEmail = cmd.ExecuteScalar() as string;
-            }
-            catch
-            {
-                // ignore
-            }
+            var surveys = _context.HealthSurveys.Where(h => h.UserId == uid.Value);
+            var entries = _context.DailyCalorieEntries.Where(d => d.UserId == uid.Value);
+            var meals = _context.Meals.Where(m => m.UserId == uid.Value);
 
-            // Try delete Identity user if present
-            try
-            {
-                var userManager = HttpContext.RequestServices.GetService(typeof(UserManager<Microsoft.AspNetCore.Identity.IdentityUser>)) as UserManager<Microsoft.AspNetCore.Identity.IdentityUser>;
-                if (userManager != null && !string.IsNullOrWhiteSpace(userEmail))
-                {
-                    var idUser = await userManager.FindByEmailAsync(userEmail);
-                    if (idUser != null)
-                    {
-                        await userManager.DeleteAsync(idUser);
-                    }
-                }
-            }
-            catch
-            {
-                // ignore identity deletion errors
-            }
+            _context.HealthSurveys.RemoveRange(surveys);
+            _context.DailyCalorieEntries.RemoveRange(entries);
+            _context.Meals.RemoveRange(meals);
+            _context.UserSignups.Remove(user);
 
-            // Delete related records in app DB (HealthSurveys, WeightProgress, DailyCalorieEntry and UserSignup)
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-                using var tx = con.BeginTransaction();
-                try
-                {
-                    using var cmd1 = new SqlCommand("DELETE FROM HealthSurveys WHERE UserId = @u", con, tx);
-                    cmd1.Parameters.AddWithValue("@u", uid.Value);
-                    cmd1.ExecuteNonQuery();
+            await _context.SaveChangesAsync();
 
-                    using var cmd2 = new SqlCommand("DELETE FROM WeightProgress WHERE UserId = @u", con, tx);
-                    cmd2.Parameters.AddWithValue("@u", uid.Value);
-                    cmd2.ExecuteNonQuery();
-
-                    using var cmd3 = new SqlCommand("DELETE FROM DailyCalorieEntry WHERE UserId = @u", con, tx);
-                    cmd3.Parameters.AddWithValue("@u", uid.Value);
-                    cmd3.ExecuteNonQuery();
-
-                    using var cmd4 = new SqlCommand("DELETE FROM UserSignup WHERE Id = @u", con, tx);
-                    cmd4.Parameters.AddWithValue("@u", uid.Value);
-                    cmd4.ExecuteNonQuery();
-
-                    tx.Commit();
-                }
-                catch
-                {
-                    tx.Rollback();
-                }
-            }
-            catch
-            {
-                // ignore
-            }
-
-            // Sign out / clear session
-            try
-            {
-                var signInMgr = HttpContext.RequestServices.GetService(typeof(SignInManager<Microsoft.AspNetCore.Identity.IdentityUser>)) as SignInManager<Microsoft.AspNetCore.Identity.IdentityUser>;
-                if (signInMgr != null) await signInMgr.SignOutAsync();
-            }
-            catch { }
+            if (_signInManager != null)
+                await _signInManager.SignOutAsync();
 
             HttpContext.Session.Clear();
+
             return RedirectToAction("Index", "Home");
         }
 
-        // existing actions remain unchanged...
+        // ================= STATIC VIEWS =================
+        public IActionResult MyProfile() => View();
+        public IActionResult MyOrders() => View();
+        public IActionResult Settings() => View();
     }
 }

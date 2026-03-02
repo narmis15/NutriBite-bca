@@ -2,8 +2,7 @@
 
 @{
     ViewData["Title"] = "Your Cart";
-        Layout = "~/Views/Shared/_PublicLayout.cshtml";
-
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
 <div class="container py-5">
@@ -13,7 +12,7 @@
     {
         <div class="text-center py-5">
             <h4>Your cart is empty</h4>
-            <a href="/Menu" class="btn btn-success mt-3">Explore Menu</a>
+            <a href="/Users/Index" class="btn btn-success mt-3">Explore Menu</a>
         </div>
     }
     else
@@ -30,21 +29,32 @@
                                      class="img-fluid rounded-start"
                                      style="height:120px; object-fit:cover;">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-5">
                                 <div class="card-body">
-                                    <h5 class="card-title">@item.Name</h5>
-                                    <p class="card-text text-muted">
-                                        ₹ @item.Price
-                                    </p>
+                                    <h5>@item.Name</h5>
+                                    <p class="text-muted">₹ @item.Price</p>
                                 </div>
                             </div>
-                            <div class="col-md-3 text-center">
-                                <div class="card-body">
-                                    <p>Qty: @item.Quantity</p>
-                                    <button class="btn btn-sm btn-outline-danger">
+                            <div class="col-md-4 text-center">
+                                <form method="post" asp-action="UpdateQuantity">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="number" name="qty"
+                                           value="@item.Quantity"
+                                           min="1"
+                                           class="form-control mb-2 text-center" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-success w-100">
+                                        Update
+                                    </button>
+                                </form>
+
+                                <form method="post" asp-action="Remove" class="mt-2">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger w-100">
                                         Remove
                                     </button>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -66,9 +76,11 @@
                         <span class="fw-bold">₹ @total</span>
                     </div>
 
-                    <button class="btn btn-success w-100 mt-4">
-                        Proceed to Checkout
-                    </button>
+                    <form method="post" asp-action="Checkout">
+                        <button type="submit" class="btn btn-success w-100 mt-4">
+                            Proceed to Checkout
+                        </button>
+                    </form>
                 </div>
             </div>
 

@@ -2,6 +2,11 @@
 @{
     var userId = Context.Session.GetInt32("UserId");
     var userName = Context.Session.GetString("UserName");
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isHomePage = currentController == "Users" && currentAction == "Index";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +27,6 @@
             margin: 0;
         }
 
-        /* ===== PAGE WRAPPER (Landing Style Card) ===== */
         .page-wrapper {
             width: 92%;
             max-width: 1300px;
@@ -33,7 +37,6 @@
             overflow: hidden;
         }
 
-        /* ===== NAVBAR ===== */
         .public-navbar {
             display: flex;
             justify-content: space-between;
@@ -68,12 +71,16 @@
             gap: 18px;
         }
 
-        /* Cart */
         .cart-icon {
             position: relative;
             text-decoration: none;
             font-size: 22px;
+            transition: 0.3s ease;
         }
+
+            .cart-icon:hover {
+                transform: scale(1.1);
+            }
 
         .cart-badge {
             position: absolute;
@@ -86,7 +93,6 @@
             border-radius: 50%;
         }
 
-        /* Buttons */
         .login-btn {
             padding: 8px 20px;
             border-radius: 25px;
@@ -110,7 +116,6 @@
                 color: white;
             }
 
-        /* Profile */
         .profile-avatar {
             width: 38px;
             height: 38px;
@@ -121,10 +126,8 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            cursor: pointer;
         }
 
-        /* ===== FOOTER ===== */
         .nb-footer {
             background: #ffffff;
             padding: 50px 40px;
@@ -176,7 +179,6 @@
 </head>
 
 <body>
-
     <div class="page-wrapper">
 
         <!-- NAVBAR -->
@@ -194,15 +196,23 @@
                 <a asp-controller="Users" asp-action="Index">Home</a>
                 <a asp-controller="Users" asp-action="Location">Location</a>
                 <a asp-controller="Users" asp-action="About">About</a>
-                <a asp-controller="Users" asp-action="MyProfile">My Profile</a>
+
+                @if (userId != null)
+                {
+                    <a asp-controller="Users" asp-action="MyProfile">My Profile</a>
+                }
             </div>
 
             <div class="nav-actions">
 
-                <a asp-controller="Cart" asp-action="Index" class="cart-icon">
-                    🛒
-                    <span class="cart-badge">0</span>
-                </a>
+                @* CART — Only Home Page + Logged In *@
+                @if (userId != null && isHomePage)
+                {
+                    <a asp-controller="Cart" asp-action="Index" class="cart-icon">
+                        🛒
+                        <span id="cartCount" class="cart-badge">0</span>
+                    </a>
+                }
 
                 @if (userId != null)
                 {
@@ -217,7 +227,6 @@
                 }
 
             </div>
-
         </div>
 
         <!-- MAIN CONTENT -->
@@ -228,7 +237,6 @@
         <!-- FOOTER -->
         <footer class="nb-footer">
             <div class="nb-footer-grid">
-
                 <div>
                     <a class="nb-logo" href="/">NutriBite</a>
                     <p class="nb-desc">
@@ -240,7 +248,6 @@
                     <h4 class="nb-heading">Company</h4>
                     <ul class="nb-links">
                         <li><a href="/Users/About">About</a></li>
-                        <li><a href="#">Careers</a></li>
                     </ul>
                 </div>
 
@@ -256,13 +263,26 @@
                     <h4 class="nb-heading">Contact</h4>
                     <p class="nb-desc">help@nutribite.com</p>
                 </div>
-
             </div>
         </footer>
 
     </div>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @* Load cart count ONLY on Home page *@
+    @if (userId != null && isHomePage)
+    {
+        <script>
+            fetch('/Cart/GetCartCount')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("cartCount").innerText = data.count;
+                    }
+                });
+        </script>
+    }
 
     @RenderSection("Scripts", required: false)
 

@@ -1,25 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
+using System;
+using System.Linq;
 using NUTRIBITE.ViewModels;
 using NUTRIBITE.Services;
-using System;
 using NUTRIBITE.Models;
 
 namespace NUTRIBITE.Controllers
 {
     public class HealthSurveyController : Controller
     {
-        private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _context;
         private readonly IHealthCalculationService _calc;
 
-        public HealthSurveyController(IConfiguration configuration, IHealthCalculationService calc)
+        public HealthSurveyController(ApplicationDbContext context,
+                                      IHealthCalculationService calc)
         {
-            _configuration = configuration;
+            _context = context;
             _calc = calc;
         }
 
+        // =========================
         // GET: /HealthSurvey
+        // =========================
         [HttpGet]
         public IActionResult Index()
         {
@@ -28,21 +30,11 @@ namespace NUTRIBITE.Controllers
                 return RedirectToAction("Login", "Auth");
 
             // Prevent revisiting if survey exists
-            string cs = _configuration.GetConnectionString("DBCS");
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-                using var cmd = new SqlCommand("SELECT TOP 1 Id FROM HealthSurveys WHERE UserId = @u", con);
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                var existing = cmd.ExecuteScalar();
-                if (existing != null)
-                    return RedirectToAction("Result");
-            }
-            catch
-            {
-                // fail-open
-            }
+            bool exists = _context.HealthSurveys
+                .Any(h => h.UserId == uid.Value);
+
+            if (exists)
+                return RedirectToAction("Result");
 
             var vm = new HealthSurveyViewModel
             {
@@ -58,7 +50,9 @@ namespace NUTRIBITE.Controllers
             return View(vm);
         }
 
+        // =========================
         // POST: /HealthSurvey
+        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Index(HealthSurveyViewModel model)
@@ -70,68 +64,46 @@ namespace NUTRIBITE.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            string cs = _configuration.GetConnectionString("DBCS");
-
             // Prevent duplicate
-            try
-            {
-                using var conCheck = new SqlConnection(cs);
-                conCheck.Open();
-                using var cmdCheck = new SqlCommand("SELECT COUNT(1) FROM HealthSurveys WHERE UserId = @u", conCheck);
-                cmdCheck.Parameters.AddWithValue("@u", uid.Value);
-                int exists = Convert.ToInt32(cmdCheck.ExecuteScalar());
-                if (exists > 0)
-                    return RedirectToAction("Result");
-            }
-            catch
-            {
-                // ignore
-            }
+            bool exists = _context.HealthSurveys
+                .Any(h => h.UserId == uid.Value);
+
+            if (exists)
+                return RedirectToAction("Result");
 
             // Run calculations
             var calcResult = _calc.Calculate(model);
 
-            // Persist all fields
-            try
+            var survey = new HealthSurvey
             {
-                using var con = new SqlConnection(cs);
-                con.Open();
-                using var cmd = new SqlCommand(@"
-                    INSERT INTO HealthSurveys
-                    (UserId, Age, Gender, HeightCm, WeightKg, ActivityLevel, Goal, ChronicDiseases, FoodAllergies, DietaryPreference, Smoking, Alcohol, BMI, BMR, RecommendedCalories, RecommendedProtein, CreatedAt)
-                    VALUES
-                    (@UserId, @Age, @Gender, @HeightCm, @WeightKg, @ActivityLevel, @Goal, @ChronicDiseases, @FoodAllergies, @DietaryPreference, @Smoking, @Alcohol, @BMI, @BMR, @RecommendedCalories, @RecommendedProtein, GETUTCDATE());
-                ", con);
+                UserId = uid.Value,
+                Age = model.Age,
+                Gender = model.Gender ?? "",
+                HeightCm = model.HeightCm,
+                WeightKg = model.WeightKg,
+                ActivityLevel = model.ActivityLevel ?? "",
+                Goal = model.Goal ?? "",
+                ChronicDiseases = model.ChronicDiseases ?? "",
+                FoodAllergies = model.FoodAllergies ?? "",
+                DietaryPreference = model.DietaryPreference ?? "",
+                Smoking = model.Smoking,
+                Alcohol = model.Alcohol,
+                Bmi = calcResult.BMI,
+                Bmr = calcResult.BMR,
+                RecommendedCalories = calcResult.RecommendedCalories,
+                RecommendedProtein = calcResult.RecommendedProtein,
+                CreatedAt = DateTime.UtcNow
+            };
 
-                cmd.Parameters.AddWithValue("@UserId", uid.Value);
-                cmd.Parameters.AddWithValue("@Age", model.Age);
-                cmd.Parameters.AddWithValue("@Gender", model.Gender ?? "");
-                cmd.Parameters.AddWithValue("@HeightCm", model.HeightCm);
-                cmd.Parameters.AddWithValue("@WeightKg", model.WeightKg);
-                cmd.Parameters.AddWithValue("@ActivityLevel", model.ActivityLevel ?? "");
-                cmd.Parameters.AddWithValue("@Goal", model.Goal ?? "");
-                cmd.Parameters.AddWithValue("@ChronicDiseases", model.ChronicDiseases ?? "");
-                cmd.Parameters.AddWithValue("@FoodAllergies", model.FoodAllergies ?? "");
-                cmd.Parameters.AddWithValue("@DietaryPreference", model.DietaryPreference ?? "");
-                cmd.Parameters.AddWithValue("@Smoking", model.Smoking);
-                cmd.Parameters.AddWithValue("@Alcohol", model.Alcohol);
-                cmd.Parameters.AddWithValue("@BMI", calcResult.BMI);
-                cmd.Parameters.AddWithValue("@BMR", calcResult.BMR);
-                cmd.Parameters.AddWithValue("@RecommendedCalories", calcResult.RecommendedCalories);
-                cmd.Parameters.AddWithValue("@RecommendedProtein", calcResult.RecommendedProtein);
-
-                cmd.ExecuteNonQuery();
-            }
-            catch
-            {
-                ModelState.AddModelError("", "Unable to save survey. Please try again later.");
-                return View(model);
-            }
+            _context.HealthSurveys.Add(survey);
+            _context.SaveChanges();
 
             return RedirectToAction("Result");
         }
 
+        // =========================
         // GET: /HealthSurvey/Result
+        // =========================
         [HttpGet]
         public IActionResult Result()
         {
@@ -139,50 +111,14 @@ namespace NUTRIBITE.Controllers
             if (!uid.HasValue)
                 return RedirectToAction("Login", "Auth");
 
-            string cs = _configuration.GetConnectionString("DBCS");
-            HealthSurvey survey = null;
-
-            try
-            {
-                using var con = new SqlConnection(cs);
-                con.Open();
-                using var cmd = new SqlCommand("SELECT TOP 1 * FROM HealthSurveys WHERE UserId = @u ORDER BY CreatedAt DESC", con);
-                cmd.Parameters.AddWithValue("@u", uid.Value);
-                using var reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    survey = new HealthSurvey
-                    {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        UserId = Convert.ToInt32(reader["UserId"]),
-                        Age = Convert.ToInt32(reader["Age"]),
-                        Gender = reader["Gender"].ToString(),
-                        HeightCm = Convert.ToDecimal(reader["HeightCm"]),
-                        WeightKg = Convert.ToDecimal(reader["WeightKg"]),
-                        ActivityLevel = reader["ActivityLevel"].ToString(),
-                        Goal = reader["Goal"].ToString(),
-                        ChronicDiseases = reader["ChronicDiseases"].ToString(),
-                        FoodAllergies = reader["FoodAllergies"].ToString(),
-                        DietaryPreference = reader["DietaryPreference"].ToString(),
-                        Smoking = Convert.ToBoolean(reader["Smoking"]),
-                        Alcohol = Convert.ToBoolean(reader["Alcohol"]),
-                        BMI = reader["BMI"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["BMI"]),
-                        BMR = reader["BMR"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["BMR"]),
-                        RecommendedCalories = reader["RecommendedCalories"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RecommendedCalories"]),
-                        RecommendedProtein = reader["RecommendedProtein"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RecommendedProtein"]),
-                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
-                    };
-                }
-            }
-            catch
-            {
-                // ignore
-            }
+            var survey = _context.HealthSurveys
+                .Where(h => h.UserId == uid.Value)
+                .OrderByDescending(h => h.CreatedAt)
+                .FirstOrDefault();
 
             if (survey == null)
                 return RedirectToAction("Index");
 
-            // Suggest foods using service
             var suggestions = _calc.SuggestFoods(survey.DietaryPreference ?? "");
 
             ViewBag.FoodSuggestions = suggestions;
