@@ -1,0 +1,148 @@
+@{
+    ViewData["Title"] = "Bulk — NutriBite";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    // ViewBag.HeroCards may contain an IEnumerable of objects with:
+    // Title, Description, ButtonText, ButtonLink, ImageSrc
+    var heroCards = ViewBag.HeroCards as IEnumerable<dynamic>;
+    var heroList = (heroCards != null) ? heroCards.ToList() : new List<dynamic>();
+    // default banner images placed in wwwroot/images/bulk/
+    var defaultBanners = new[]
+    {
+        Url.Content("~/images/bulk/banner1.png"),
+        Url.Content("~/images/bulk/banner2.png"),
+        Url.Content("~/images/bulk/banner3.png"),
+        Url.Content("~/images/bulk/banner4.png"),
+        Url.Content("~/images/bulk/banner5.png"),
+        Url.Content("~/images/bulk/banner6.png")
+    };
+}
+
+<link rel="stylesheet" href="~/css/bulk.css" />
+
+<div class="bulk-page container-fluid">
+    <div class="bulk-inner container bulk-container py-4">
+
+        <!-- HERO CAROUSEL -->
+        <section class="bulk-hero mb-4" aria-label="Bulk hero">
+            <div id="bulkCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#bulkCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#bulkCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                </div>
+
+                <div class="carousel-inner">
+
+                    @* Slide 1: cards 0..2 *@
+                    <div class="carousel-item active">
+                        <div class="row gx-3">
+                            @for (int i = 0; i < 3; i++)
+                            {
+                                var c = (heroList.Count > i) ? heroList[i] : null;
+                                var title = c != null && c.Title != null ? (string)c.Title : "";
+                                var desc = c != null && c.Description != null ? (string)c.Description : "";
+                                var btnText = c != null && c.ButtonText != null ? (string)c.ButtonText : "";
+                                var btnLink = c != null && c.ButtonLink != null ? (string)c.ButtonLink : "#";
+                                var imgSrc = c != null && c.ImageSrc != null && !string.IsNullOrWhiteSpace((string)c.ImageSrc)
+                                             ? (string)c.ImageSrc
+                                             : defaultBanners.Length > i ? defaultBanners[i] : "";
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="hb-card d-flex">
+                                    <div class="hb-left">
+                                        <h3 class="hb-title">@title</h3>
+                                        <p class="hb-desc">@desc</p>
+                                        <a class="btn bulk-cta" href="@btnLink">@btnText</a>
+                                    </div>
+                                    <div class="hb-right">
+                                        <img class="hb-img" src="@imgSrc" alt="Banner image" loading="lazy" />
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    @* Slide 2: cards 3..5 *@
+                    <div class="carousel-item">
+                        <div class="row gx-3">
+                            @for (int i = 3; i < 6; i++)
+                            {
+                                var idx = i;
+                                var c = (heroList.Count > idx) ? heroList[idx] : null;
+                                var title = c != null && c.Title != null ? (string)c.Title : "";
+                                var desc = c != null && c.Description != null ? (string)c.Description : "";
+                                var btnText = c != null && c.ButtonText != null ? (string)c.ButtonText : "";
+                                var btnLink = c != null && c.ButtonLink != null ? (string)c.ButtonLink : "#";
+                                var imgSrc = c != null && c.ImageSrc != null && !string.IsNullOrWhiteSpace((string)c.ImageSrc)
+                                             ? (string)c.ImageSrc
+                                             : defaultBanners.Length > idx ? defaultBanners[idx] : "";
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="hb-card d-flex">
+                                    <div class="hb-left">
+                                        <h3 class="hb-title">@title</h3>
+                                        <p class="hb-desc">@desc</p>
+                                        <a class="btn bulk-cta" href="@btnLink">@btnText</a>
+                                    </div>
+                                    <div class="hb-right">
+                                        <img class="hb-img" src="@imgSrc" alt="Banner image" loading="lazy" />
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#bulkCarousel" data-bs-slide="prev" aria-label="Previous">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#bulkCarousel" data-bs-slide="next" aria-label="Next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+        </section>
+
+        <!-- CATEGORY CARDS -->
+        <section class="bulk-categories mb-5" aria-label="Bulk categories">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <a class="cat-card cat-meals" href="/Bulk/Meals" role="button" aria-label="Meals category">
+                        <div class="cat-overlay"></div>
+                        <div class="cat-text">Meals</div>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <a class="cat-card cat-snacks" href="/Bulk/Snacks" role="button" aria-label="Snacks category">
+                        <div class="cat-overlay"></div>
+                        <div class="cat-text">Snacks</div>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <a class="cat-card cat-foodbox" href="/Bulk/FoodBox" role="button" aria-label="FoodBox category">
+                        <div class="cat-overlay"></div>
+                        <div class="cat-text">FoodBox</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Highlight Bulk nav item (adds .active to matching nav link)
+            try {
+                var navLinks = document.querySelectorAll('nav a, .navbar-nav a');
+                navLinks.forEach(function (a) {
+                    var href = (a.getAttribute('href') || '').replace(/\/+$/, '');
+                    if (href.toLowerCase() === '/bulk') {
+                        a.classList.add('active');
+                    }
+                });
+            } catch (e) { /* silent */ }
+        })();
+    </script>
+}

@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+@model List<NUTRIBITE.Models.AddCategory>
+
+<h2 class="text-center mb-4">Meal Categories</h2>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm text-center p-3 h-100">
+
+                <img src="@item.MealPic"
+                     class="img-fluid mb-3"
+                     style="height:180px; object-fit:contain;" />
+
+                <h5>@item.MealCategory</h5>
+
+                <a asp-controller="Menu"
+                   asp-action="Category"
+                   asp-route-name="@item.MealCategory"
+                   class="btn btn-success mt-2">
+                    View Meals
+                </a>
+
+            </div>
+        </div>
+    }
+</div>

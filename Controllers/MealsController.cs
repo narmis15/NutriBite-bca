@@ -123,7 +123,7 @@ namespace NUTRIBITE.Controllers
                 .OrderBy(m => m.slot)
                 .ToList();
 
-            int totalCalories = meals.Sum(m => m.calories ?? 0);
+            int totalCalories = meals.Sum(m => m.calories);
 
             return Json(new
             {

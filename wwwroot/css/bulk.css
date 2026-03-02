@@ -1,0 +1,114 @@
+/* bulk.css - styles for Bulk page (NutriBite) */
+
+/* Container constraint */
+.bulk-container { max-width: 1200px; margin: 0 auto; }
+
+/* HERO CARDS */
+.bulk-hero .hb-card {
+    background: linear-gradient(180deg, rgba(76,175,80,0.06), #ffffff);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(6,95,70,0.06);
+    min-height: 160px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* left (text) / right (image) */
+.hb-left { flex: 1 1 55%; min-width: 0; }
+.hb-right { flex: 0 0 40%; display:flex; align-items:center; justify-content:center; }
+.hb-img { max-width: 100%; height: 120px; object-fit:contain; border-radius:12px; }
+
+/* Typography */
+.hb-title { margin: 0 0 8px; font-size: 1.05rem; color: #0b2b20; font-weight:700; }
+.hb-desc { margin: 0 0 12px; color: #3b4b45; font-size: .95rem; }
+
+/* CTA button */
+.bulk-cta {
+    background-color: #4CAF50;
+    color: #fff;
+    border-radius: 25px;
+    padding: 10px 20px;
+    display: inline-block;
+    text-decoration: none;
+    font-weight:700;
+    border: none;
+}
+
+/* Make carousel cards responsive spacing */
+@media (max-width: 991px) {
+    .hb-img { height: 100px; }
+    .hb-card { min-height: 150px; }
+}
+@media (max-width: 575px) {
+    .hb-right { display: none; } /* stack for small screens, show only text */
+    .hb-card { padding: 16px; }
+}
+
+/* CATEGORY CARDS */
+.cat-card {
+    position: relative;
+    display: block;
+    height: 240px;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #fff;
+    transition: transform .28s ease, box-shadow .28s ease;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 10px 30px rgba(6,95,70,0.06);
+}
+
+/* Background images (use images saved in wwwroot/images/bulk/) */
+.cat-meals { background-image: url('/images/bulk/bulk-meal1.webp'); }
+.cat-snacks { background-image: url('/images/bulk/bulk-meal2.webp'); }
+.cat-foodbox { background-image: url('/images/bulk/bulk-meal3.webp'); }
+
+/* overlay for contrast */
+.cat-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(4,85,38,0.08), rgba(4,85,38,0.12));
+    transition: background .24s ease;
+}
+
+/* centered bottom text */
+.cat-text {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 14px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: .2px;
+    color: #ffffff;
+    z-index: 2;
+    text-shadow: 0 6px 18px rgba(2,6,2,0.28);
+}
+
+/* hover */
+.cat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 60px rgba(6,95,70,0.12);
+}
+.cat-card:hover .cat-overlay {
+    background: linear-gradient(180deg, rgba(76,175,80,0.18), rgba(76,175,80,0.22));
+}
+
+/* Accessibility focus */
+.cat-card:focus-visible {
+    outline: 3px solid rgba(76,175,80,0.12);
+    outline-offset: 2px;
+}
+
+/* small screens adjust height */
+@media (max-width: 768px) {
+    .cat-card { height: 180px; }
+}
+
+/* Utility spacing */
+.bulk-inner { padding-left: 12px; padding-right: 12px; }
