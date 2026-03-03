@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    var user = ViewBag.User;
+    var survey = ViewBag.Survey;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-profile.css" />
+}
+
+<div class="profile-wrapper">
+
+    <!-- HEADER -->
+    <div class="profile-header">
+        <div class="profile-avatar-large">
+            @user.Name.Substring(0, 1).ToUpper()
+        </div>
+
+        <div class="profile-info">
+            <h2>@user.Name</h2>
+            <p>@user.Email</p>
+            <p>Member since @user.CreatedAt.ToString("yyyy")</p>
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- HEALTH SUMMARY -->
+    <h4 class="section-title">Health Summary</h4>
+
+    @if (survey != null)
+    {
+        <div class="info-grid">
+            <div class="info-box">
+                <strong>Fitness Goal</strong>
+                @survey.Goal
+            </div>
+
+            <div class="info-box">
+                <strong>Daily Calorie Goal</strong>
+                @survey.RecommendedCalories kcal
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>No health survey completed yet.</p>
+    }
+
+    <hr />
+
+   <div class="quick-actions">
+
+    <a asp-controller="HealthSurvey" asp-action="Index" class="action-card">
+        <span>📝</span>
+        <div>
+            <h5>Edit Health Survey</h5>
+            <small>Update your fitness details</small>
+        </div>
+    </a>
+
+    <a asp-controller="CalorieTracker" asp-action="Index" class="action-card">
+        <span>📊</span>
+        <div>
+            <h5>Calorie Dashboard</h5>
+            <small>Track daily calories</small>
+        </div>
+    </a>
+
+    <a asp-controller="Home" asp-action="MyOrders" class="action-card">
+        <span>📦</span>
+        <div>
+            <h5>My Orders</h5>
+            <small>View order history</small>
+        </div>
+    </a>
+
+    <a asp-controller="Home" asp-action="EditProfile" class="action-card">
+        <span>⚙️</span>
+        <div>
+            <h5>Edit Profile</h5>
+            <small>Update email & personal info</small>
+        </div>
+    </a>
+
+</div>
+</div>

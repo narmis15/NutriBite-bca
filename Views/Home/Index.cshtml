@@ -1,261 +1,136 @@
 ﻿@{
     ViewData["Title"] = "NutriBite — Home";
-    Layout = null;
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
 
-<div class="page-wrapper">
-
-    <!-- NAVBAR -->
-    <div class="public-navbar">
-
-        <!-- LEFT LOGO -->
-        <div class="brand">
-            <a asp-controller="User" asp-action="Index">
-                <img src="~/images/hero/Nutribitelogo.png" class="logo-img" />
+<!-- HERO -->
+<div class="hero-section">
+    <div class="hero-top">
+        <div class="hero-left">
+            <div class="eyebrow">100% Homemade</div>
+            <h1>Discover Balanced Homemade Meals</h1>
+            <p>
+                Fresh, calorie-counted meals prepared by verified home chefs.
+                Daily deliveries tailored to your goals.
+            </p>
+            <a asp-controller="Meals" asp-action="Index" class="cta-btn">
+                Start Ordering
             </a>
         </div>
 
-        <!-- CENTER LINKS -->
-        <div class="nav-center">
-            <a asp-controller="User" asp-action="Index">Home</a>
-            <a asp-controller="User" asp-action="Location">Location</a>
-            <a asp-controller="User" asp-action="About">About</a>
-        </div>
-
-        <!-- RIGHT SIDE -->
-        @if (ViewBag.UserName != null)
-        {
-            <div class="nav-actions d-flex align-items-center gap-3">
-
-                <!-- 🛒 CART (Before Profile Circle) -->
-                <a asp-controller="Cart"
-                   asp-action="Index"
-                   class="cart-icon">
-                    🛒
-                </a>
-
-                <!-- 👤 PROFILE DROPDOWN -->
-                <div class="dropdown">
-                    <div class="profile-circle dropdown-toggle"
-                         data-bs-toggle="dropdown"
-                         aria-expanded="false">
-                        @ViewBag.UserName.Substring(0, 1).ToUpper()
-                    </div>
-
-                    <ul class="dropdown-menu dropdown-menu-end profile-dropdown">
-
-                        <li>
-                            <h6 class="dropdown-header">
-                                Hello, @ViewBag.UserName
-                            </h6>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"
-                               asp-controller="User"
-                               asp-action="MyProfile">
-                                My Profile
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"
-                               asp-controller="User"
-                               asp-action="HealthSurveyDetails">
-                                Health Survey
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"
-                               asp-controller="User"
-                               asp-action="CalorieTracking">
-                                Calorie Tracking
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"
-                               asp-controller="Orders"
-                               asp-action="MyOrders">
-                                My Orders
-                            </a>
-                        </li>
-
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <a class="dropdown-item text-danger"
-                               asp-controller="Auth"
-                               asp-action="Logout">
-                                Logout
-                            </a>
-                        </li>
-
-                    </ul>
-                </div>
-
-            </div>
-        }
-    </div>
-
-    <!-- HERO -->
-    <div class="hero-section">
-        <div class="hero-top">
-            <div class="hero-left">
-                <div class="eyebrow">100% Homemade</div>
-                <h1>Discover Balanced Homemade Meals</h1>
-                <p>
-                    Fresh, calorie-counted meals prepared by verified home chefs.
-                    Daily deliveries tailored to your goals.
-                </p>
-                <a asp-controller="Meals" asp-action="Index" class="cta-btn">
-                    Start Ordering
-                </a>
-            </div>
-
-            <div class="hero-right">
-                <div class="food-circle">
-                    <img src="~/images/hero/hero-food.png" />
-                </div>
-            </div>
-        </div>
-
-        <!-- FEATURES -->
-        <div class="features">
-            <div class="feature-card">
-                <h4>🔥 Calorie Counted</h4>
-                <p>Clear nutritional info for every meal.</p>
-            </div>
-
-            <div class="feature-card">
-                <h4>🥗 Fresh Daily</h4>
-                <p>Cooked fresh and delivered same day.</p>
-            </div>
-
-            <div class="feature-card">
-                <h4>🏡 Homemade</h4>
-                <p>Prepared by verified home chefs.</p>
+        <div class="hero-right">
+            <div class="food-circle">
+                <img src="~/images/hero/hero-food.png" />
             </div>
         </div>
     </div>
 
-    <!-- MEAL CATEGORIES -->
-    <!-- =========================
-         MEAL CATEGORIES SECTION
-    ========================= -->
-    <section class="meals-grid-section soft-section" aria-labelledby="mealsGridHeading">
-        <div class="container">
-
-            <div class="text-center mb-5">
-                <h2 id="mealsGridHeading" class="section-title">
-                    Meal Categories
-                </h2>
-                <p class="text-muted">
-                    Choose a meal plan or browse by category
-                </p>
-            </div>
-
-            <div class="meals-grid">
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Standard Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Standard_Thali.jpeg"
-                             alt="Standard Thali" />
-                    </div>
-                    <div class="meal-label">Standard Thali</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Special Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Special_Thali.jpeg"
-                             alt="Special Thali" />
-                    </div>
-                    <div class="meal-label">Special Thali</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Deluxe Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Deluxe_Thali.jpeg"
-                             alt="Deluxe Thali" />
-                    </div>
-                    <div class="meal-label">Deluxe Thali</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Classical Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Classical_Thali.jpeg"
-                             alt="Classical Thali" />
-                    </div>
-                    <div class="meal-label">Classical Thali</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Comfort Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Comfort_Thali.jpeg"
-                             alt="Comfort Thali" />
-                    </div>
-                    <div class="meal-label">Comfort Thali</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Jain Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Jain_Thali.jpeg"
-                             alt="Jain Thali" />
-                    </div>
-                    <div class="meal-label">Jain Thali</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Rice Combo">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Rice_Combo.jpeg"
-                             alt="Rice Combo" />
-                    </div>
-                    <div class="meal-label">Rice Combo</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Low Calorie Meal">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/low-calorie.jpg"
-                             alt="Low Calorie" />
-                    </div>
-                    <div class="meal-label">Low Calorie</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Protein Meal">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/protein.jpg"
-                             alt="Protein Meal" />
-                    </div>
-                    <div class="meal-label">Protein Meal</div>
-                </a>
-
-                <a class="meal-card"
-                   href="/Menu/Category?name=Salads">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/salads.jpeg"
-                             alt="Salad Bowl" />
-                    </div>
-                    <div class="meal-label">Salad Bowl</div>
-                </a>
-
-            </div>
+    <!-- FEATURES -->
+    <div class="features">
+        <div class="feature-card">
+            <h4>🔥 Calorie Counted</h4>
+            <p>Clear nutritional info for every meal.</p>
         </div>
-    </section>
 
-   
+        <div class="feature-card">
+            <h4>🥗 Fresh Daily</h4>
+            <p>Cooked fresh and delivered same day.</p>
+        </div>
 
+        <div class="feature-card">
+            <h4>🏡 Homemade</h4>
+            <p>Prepared by verified home chefs.</p>
+        </div>
+    </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- MEAL CATEGORIES -->
+<section class="meals-grid-section soft-section">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <h2 class="section-title">Meal Categories</h2>
+            <p class="text-muted">
+                Choose a meal plan or browse by category
+            </p>
+        </div>
+
+        <div class="meals-grid">
+
+            <a class="meal-card" href="/Menu/Category?name=Standard Thali">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/Standard_Thali.jpeg" />
+                </div>
+                <div class="meal-label">Standard Thali</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Special Thali">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/Special_Thali.jpeg" />
+                </div>
+                <div class="meal-label">Special Thali</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Deluxe Thali">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/Deluxe_Thali.jpeg" />
+                </div>
+                <div class="meal-label">Deluxe Thali</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Classical Thali">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/Classical_Thali.jpeg" />
+                </div>
+                <div class="meal-label">Classical Thali</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Comfort Thali">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/Comfort_Thali.jpeg" />
+                </div>
+                <div class="meal-label">Comfort Thali</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Jain Thali">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/Jain_Thali.jpeg" />
+                </div>
+                <div class="meal-label">Jain Thali</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Rice Combo">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/Rice_Combo.jpeg" />
+                </div>
+                <div class="meal-label">Rice Combo</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Low Calorie Meal">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/low-calorie.jpg" />
+                </div>
+                <div class="meal-label">Low Calorie</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Protein Meal">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/protein.jpg" />
+                </div>
+                <div class="meal-label">Protein Meal</div>
+            </a>
+
+            <a class="meal-card" href="/Menu/Category?name=Salads">
+                <div class="meal-img-wrap">
+                    <img src="~/images/meals/salads.jpeg" />
+                </div>
+                <div class="meal-label">Salad Bowl</div>
+            </a>
+
+        </div>
+    </div>
+</section>

@@ -1,0 +1,30 @@
+﻿@model NUTRIBITE.Models.UserSignup
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<div class="profile-wrapper">
+
+    <h3>Edit Profile</h3>
+
+    <form asp-action="EditProfile" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label>Name</label>
+            <input asp-for="Name" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input asp-for="Email" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Save Changes
+        </button>
+    </form>
+
+</div>

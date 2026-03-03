@@ -57,7 +57,8 @@ namespace NUTRIBITE.Controllers
             {
                 Name = name.Trim(),
                 Email = email.Trim(),
-                Password = password,   // ⚠ Later we can hash this
+                Password = password,
+                Role = "User", // ⭐ DEFAULT ROLE
                 CreatedAt = DateTime.Now
             };
 
@@ -67,6 +68,7 @@ namespace NUTRIBITE.Controllers
             // Set session
             HttpContext.Session.SetInt32("UserId", user.Id);
             HttpContext.Session.SetString("UserName", user.Name);
+            HttpContext.Session.SetString("UserRole", user.Role);
 
             var redirectUrl = Url.Action("Index", "HealthSurvey") ?? "/HealthSurvey";
             return Json(new { success = true, redirect = redirectUrl });
@@ -84,8 +86,9 @@ namespace NUTRIBITE.Controllers
                 return Json(new { authenticated = false });
 
             var userName = HttpContext.Session.GetString("UserName") ?? "";
+            var role = HttpContext.Session.GetString("UserRole") ?? "User";
 
-            return Json(new { authenticated = true, userName });
+            return Json(new { authenticated = true, userName, role });
         }
 
         // =========================
@@ -109,18 +112,20 @@ namespace NUTRIBITE.Controllers
             if (user == null)
                 return Json(new { success = false, message = "Invalid email or password." });
 
-            // Set session
+            // ⭐ STORE ROLE IN SESSION
             HttpContext.Session.SetInt32("UserId", user.Id);
             HttpContext.Session.SetString("UserName", user.Name ?? "");
+            HttpContext.Session.SetString("UserRole", user.Role ?? "User");
 
-            // Check if health survey exists
+
             bool requiresSurvey = !_context.HealthSurveys
                 .Any(h => h.UserId == user.Id);
 
             return Json(new
             {
                 success = true,
-                isAdmin = false,
+                isAdmin = user.Role == "Admin",
+                isVendor = user.Role == "Vendor",
                 requiresSurvey,
                 userName = user.Name
             });

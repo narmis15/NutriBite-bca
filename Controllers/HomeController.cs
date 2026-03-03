@@ -10,7 +10,6 @@ using NUTRIBITE.Filters;
 
 namespace NUTRIBITE.Controllers
 {
-    [SessionAuthorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -25,6 +24,10 @@ namespace NUTRIBITE.Controllers
             _context = context;
         }
 
+        // =========================
+        // ✅ PUBLIC HOME PAGE
+        // =========================
+        [AllowAnonymous]
         public IActionResult Index()
         {
             var uid = HttpContext.Session.GetInt32("UserId");
@@ -43,8 +46,6 @@ namespace NUTRIBITE.Controllers
                 return View();
 
             int calorieGoal = 1450;
-            int totalCalories = 0;
-            int totalProtein = 0;
 
             // 🔹 Get latest recommended calories
             var survey = _context.HealthSurveys
@@ -53,40 +54,52 @@ namespace NUTRIBITE.Controllers
                 .FirstOrDefault();
 
             if (survey != null)
-                calorieGoal =(int) survey.RecommendedCalories;
+                calorieGoal = (int)survey.RecommendedCalories;
 
-            // 🔹 Get today's nutrition
             var today = DateTime.Today;
 
             var todayEntries = _context.DailyCalorieEntries
-                .Where(d => d.UserId == uid.Value &&
-            d.Date.Date == today)
+                .Where(d => d.UserId == uid.Value && d.Date.Date == today)
                 .ToList();
 
-            totalCalories = todayEntries.Sum(d => d.Calories);
-            totalProtein = (int)todayEntries.Sum(d => d.Protein);
+            int totalCalories = todayEntries.Sum(d => d.Calories);
+            int totalProtein = (int)todayEntries.Sum(d => d.Protein);
 
             ViewBag.CalorieGoal = calorieGoal;
             ViewBag.TotalCalories = totalCalories;
             ViewBag.TotalProtein = totalProtein;
             ViewBag.RemainingCalories = calorieGoal - totalCalories;
 
-            double progress = (double)totalCalories / calorieGoal * 100;
+            double progress = calorieGoal > 0
+                ? (double)totalCalories / calorieGoal * 100
+                : 0;
+
             ViewBag.Progress = progress > 100 ? 100 : progress;
 
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
+        // =========================
+        // ✅ PUBLIC ABOUT PAGE
+        // =========================
+        [AllowAnonymous]
         public IActionResult About()
         {
             return View();
         }
 
+        // =========================
+        // ✅ PUBLIC LOCATION PAGE
+        // =========================
+        [AllowAnonymous]
+        public IActionResult Location()
+        {
+            return View();
+        }
+
+        // =========================
+        // ADMIN LOGIN (Optional)
+        // =========================
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
@@ -102,10 +115,10 @@ namespace NUTRIBITE.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var email = (model.Email ?? string.Empty).Trim();
+            var email = (model.Email ?? "").Trim();
 
             if (string.Equals(email, AdminEmail, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(model.Password ?? string.Empty, AdminPassword, StringComparison.Ordinal))
+                && string.Equals(model.Password ?? "", AdminPassword, StringComparison.Ordinal))
             {
                 _logger.LogInformation("Admin login succeeded for {Email}", email);
                 return Redirect("/Admin/Dashboard");
@@ -113,9 +126,13 @@ namespace NUTRIBITE.Controllers
 
             _logger.LogWarning("Invalid login attempt for {Email}", email);
             ModelState.AddModelError(string.Empty, "Invalid email or password");
+
             return View(model);
         }
 
+        // =========================
+        // ERROR PAGE
+        // =========================
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -124,5 +141,70 @@ namespace NUTRIBITE.Controllers
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
         }
+        [SessionAuthorize]
+        public IActionResult MyProfile()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            var user = _context.UserSignups
+                .FirstOrDefault(u => u.Id == userId.Value);
+
+            if (user == null)
+                return RedirectToAction("Login", "Auth");
+
+            // Latest Health Survey
+            var survey = _context.HealthSurveys
+                .Where(h => h.UserId == userId.Value)
+                .OrderByDescending(h => h.CreatedAt)
+                .FirstOrDefault();
+
+            ViewBag.User = user;
+            ViewBag.Survey = survey;
+
+            return View();
+        }
+
+        [SessionAuthorize]
+        public IActionResult MyOrders()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult EditProfile()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            var user = _context.UserSignups
+                .FirstOrDefault(u => u.Id == userId.Value);
+
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditProfile(UserSignup model)
+        {
+            var user = _context.UserSignups
+                .FirstOrDefault(u => u.Id == model.Id);
+
+            if (user == null)
+                return RedirectToAction("MyProfile");
+
+            user.Name = model.Name;
+            user.Email = model.Email;
+
+            _context.SaveChanges();
+
+            HttpContext.Session.SetString("UserName", user.Name);
+
+            return RedirectToAction("MyProfile");
+        }
+
     }
+
+
 }

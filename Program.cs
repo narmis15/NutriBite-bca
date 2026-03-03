@@ -29,7 +29,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Register Health calculation service (service layer)
 builder.Services.AddScoped<NUTRIBITE.Services.IHealthCalculationService, NUTRIBITE.Services.HealthCalculationService>();
-
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

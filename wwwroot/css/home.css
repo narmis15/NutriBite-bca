@@ -5,71 +5,6 @@
 }
 
 /* =========================
-   MAIN WRAPPER
-========================= */
-.page-wrapper {
-    width: 90%;
-    max-width: 1300px;
-    margin: 60px auto;
-    background: #f6fff9;
-    border-radius: 20px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.15);
-    overflow: hidden;
-}
-
-/* =========================
-   NAVBAR
-========================= */
-.public-navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 40px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    background: white;
-}
-
-.logo-img {
-    height: 60px;
-}
-
-.nav-center {
-    display: flex;
-    gap: 30px;
-}
-
-    .nav-center a {
-        text-decoration: none;
-        font-weight: 600;
-        color: #1b4332;
-        transition: 0.3s;
-    }
-
-        .nav-center a:hover {
-            color: #40916c;
-        }
-
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.login-btn {
-    padding: 10px 20px;
-    border-radius: 25px;
-    background: #2d6a4f;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-    .login-btn:hover {
-        background: #1b4332;
-    }
-
-/* =========================
    HERO SECTION
 ========================= */
 .hero-section {
@@ -194,56 +129,11 @@
     }
 
 /* =========================
-   SECTION SPACING
+   MEAL SECTION
 ========================= */
 .soft-section {
     padding: 90px 60px;
 }
-
-.special-header span {
-    font-weight: 700;
-    font-size: 1.8rem;
-    color: #2d6a4f;
-}
-
-/* =========================
-   MEAL CARDS
-========================= */
-.meals-grid {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    flex-wrap: wrap;
-}
-
-.meal-card {
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    text-align: center;
-    text-decoration: none;
-    color: #1b4332;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-    transition: 0.3s;
-    width: 250px;
-}
-
-    .meal-card img {
-        width: 100%;
-        border-radius: 15px;
-        margin-bottom: 15px;
-    }
-
-    .meal-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(34,197,94,0.25);
-    }
-
-
-
-/* =========================
-   MEAL CATEGORY POLISHED
-========================= */
 
 .section-title {
     font-size: 2rem;
@@ -292,79 +182,4 @@
     margin-top: 15px;
     font-weight: 600;
     font-size: 1.05rem;
-}
-.profile-circle {
-    width: 45px;
-    height: 45px;
-    background: #2e7d32;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-    .profile-circle:hover {
-        transform: scale(1.05);
-        background: #256b2a;
-    }
-
-.profile-dropdown {
-    border-radius: 12px;
-    padding: 10px 0;
-    min-width: 220px;
-}
-
-    .profile-dropdown .dropdown-item {
-        padding: 10px 20px;
-        transition: 0.2s;
-    }
-
-        .profile-dropdown .dropdown-item:hover {
-            background-color: #f1f8f4;
-        }
-.cart-icon {
-    font-size: 22px;
-    margin-right: 20px;
-    text-decoration: none;
-    color: #16a34a;
-}
-.public-navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 40px;
-}
-
-.nav-actions {
-    display: flex;
-    align-items: center;
-}
-
-.cart-icon {
-    font-size: 22px;
-    text-decoration: none;
-    color: #16a34a;
-    transition: 0.3s;
-}
-
-    .cart-icon:hover {
-        transform: scale(1.1);
-    }
-
-.profile-circle {
-    width: 45px;
-    height: 45px;
-    background: #16a34a;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    cursor: pointer;
 }
