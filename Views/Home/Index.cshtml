@@ -254,7 +254,80 @@
             </div>
         </div>
     </section>
+    <!-- ===============================
+       AUDIENCE MEALS SECTION
+    ================================= -->
 
+    <section id="studentMeals">
+
+        <div class="container">
+
+            <div class="audience-title text-center mb-5">
+                <span></span>
+                <h4>SPECIALLY FOR YOU</h4>
+                <span></span>
+            </div>
+
+            <div class="combos-grid">
+
+                <!-- ===============================
+                     STUDENTS
+                ================================ -->
+                <div class="combo-card text-center">
+
+                    <div class="combo-image">
+                        <img src="~/images/categories/student.jpeg" alt="Students">
+                    </div>
+
+                    <a asp-controller="Students"
+                       asp-action="Index"
+                       class="btn add-cart">
+                        STUDENTS
+                    </a>
+
+                </div>
+
+
+                <!-- ===============================
+                     ELDERLY
+                ================================ -->
+                <div class="combo-card text-center">
+
+                    <div class="combo-image">
+                        <img src="~/images/categories/elderly.jpeg" alt="Elderly">
+                    </div>
+
+                    <a asp-controller="Elderly"
+                       asp-action="Index"
+                       class="btn add-cart">
+                        ELDERLY
+                    </a>
+
+                </div>
+
+
+                <!-- ===============================
+                     CORPORATE
+                ================================ -->
+                <div class="combo-card text-center">
+
+                    <div class="combo-image">
+                        <img src="~/images/categories/corporate.jpeg" alt="Corporate">
+                    </div>
+
+                    <a asp-controller="Corporate"
+                       asp-action="Index"
+                       class="btn add-cart">
+                        CORPORATE
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
    
 
 </div>
