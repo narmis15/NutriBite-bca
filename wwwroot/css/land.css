@@ -1,93 +1,12 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #e6f7f0, #c8f1df, #a8e6cf);
-    overflow-x: hidden;
-}
-
-/* MAIN WRAPPER */
-.page-wrapper {
-    width: 90%;
-    max-width: 1300px;
-    margin: 60px auto;
-    background: #f6fff9;
-    border-radius: 20px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
-}
-
-/* NAVBAR */
-
-
-.public-navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 40px; /* ↓ reduced vertical padding */
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-/* BIG LOGO */
-
-.logo-img {
-    height: 60px; /* PERFECT BALANCE SIZE */
-    width: auto;
-}
-
-/* NAV BUTTONS */
-.nav-actions {
-    display: flex;
-    gap: 15px;
-}
-
-.vendor-btn {
-    padding: 10px 18px;
-    border-radius: 25px;
-    border: 2px solid #52b788;
-    color: #1b4332;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-    .vendor-btn:hover {
-        background: #52b788;
-        color: white;
-    }
-
-.login-btn {
-    padding: 10px 20px;
-    border-radius: 25px;
-    background: #2d6a4f;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.signup-btn {
-    padding: 10px 20px;
-    border-radius: 25px;
-    border: 2px solid #2d6a4f;
-    color: #2d6a4f;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-/* HERO SECTION */
+﻿/* =========================
+   HERO SECTION
+========================= */
 .hero-section {
     padding: 60px;
     display: flex;
     flex-direction: column;
 }
 
-/* TOP HERO ROW */
 .hero-top {
     display: flex;
     align-items: center;
@@ -155,7 +74,6 @@ body {
     }
 
 /* CIRCLE IMAGE */
-
 .food-circle {
     width: 380px;
     height: 380px;
@@ -169,7 +87,6 @@ body {
     animation: floatAnimation 4s ease-in-out infinite;
 }
 
-
     .food-circle img {
         width: 140%;
         height: 140%;
@@ -180,6 +97,7 @@ body {
         left: 50%;
         transform: translate(-50%, -50%);
     }
+
 /* FLOAT ANIMATION */
 @keyframes floatAnimation {
     0% {
@@ -201,6 +119,7 @@ body {
     justify-content: center;
     gap: 40px;
     margin-top: 80px;
+    flex-wrap: wrap;
 }
 
 .feature-card {
