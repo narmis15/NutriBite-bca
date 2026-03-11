@@ -30,12 +30,11 @@ namespace NUTRIBITE.Controllers
                 .Select(b => new {
                     b.Id,
                     b.Name,
-                    ShortDesc = b.ShortDescription,      // alias expected by views
-                    LongDesc = b.LongDescription,        // alias used in views if needed
+                    Description =b.Description,       
                     b.Price,
                     b.IsVeg,
-                    ImagePath = b.ImagePath ?? "/images/bulk/default.jpg",
-                    MOQ = b.MOQ ?? 0
+                    b.ImagePath,
+                    b.MOQ 
                 })
                 .ToList();
 
@@ -54,12 +53,11 @@ namespace NUTRIBITE.Controllers
                 .Select(b => new {
                     b.Id,
                     b.Name,
-                    ShortDesc = b.ShortDescription,
-                    LongDesc = b.LongDescription,
+                    Description = b.Description,
                     b.Price,
                     b.IsVeg,
-                    ImagePath = b.ImagePath ?? "/images/bulk/default.jpg",
-                    MOQ = b.MOQ ?? 0
+                    b.ImagePath,
+                    b.MOQ
                 })
                 .ToList();
 
@@ -78,8 +76,8 @@ namespace NUTRIBITE.Controllers
                 .Select(b => new {
                     b.Id,
                     b.Name,
-                    ShortDesc = b.ShortDescription,
-                    LongDesc = b.LongDescription,
+                    ShortDesc = b.Description,
+                    LongDesc = b.Description,
                     b.Price,
                     b.IsVeg,
                     ImagePath = b.ImagePath ?? "/images/bulk/default.jpg",

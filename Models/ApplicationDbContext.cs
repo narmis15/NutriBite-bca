@@ -426,11 +426,11 @@ public partial class ApplicationDbContext : DbContext
         // Mapping for BulkItem (table created by SQL script)
         modelBuilder.Entity<BulkItem>(entity =>
         {
-            entity.ToTable("BulkItem");
+            entity.ToTable("BulkItems");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
-            entity.Property(e => e.ShortDescription).HasMaxLength(500);
-            entity.Property(e => e.LongDescription);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Description);
             entity.Property(e => e.Price).HasColumnType("decimal(10,2)");
             entity.Property(e => e.IsVeg).HasDefaultValue(true);
             entity.Property(e => e.Category).HasMaxLength(50).IsRequired();

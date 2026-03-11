@@ -7,129 +7,238 @@
 
 <link rel="stylesheet" href="~/css/bulk.css" />
 
-<div class="bulk-category container bulk-container py-4">
-    <div class="page-header">
-        <h2 class="page-title">Snacks</h2>
+<div class="container py-4">
+
+    <!-- Page Title -->
+    <div class="mb-4">
+        <h2 class="fw-bold">Snacks</h2>
     </div>
 
-    <section class="mb-4">
-        <div class="row g-3">
-            <div class="col-12 col-md-8">
-                <div class="pkg-selector">
-                    <label class="pkg-option">
-                        <div class="title"><input type="radio" name="packaging" value="individual" checked /> Individual Packaging</div>
-                        <div class="helper">Each snack packed separately</div>
-                        <div class="moq">MOQ: 1</div>
-                    </label>
 
-                    <label class="pkg-option">
-                        <div class="title"><input type="radio" name="packaging" value="bulk" /> Bulk Packaging</div>
-                        <div class="helper">Snacks packed together for large orders</div>
-                        <div class="moq">MOQ: 30</div>
-                    </label>
-                </div>
-            </div>
+    <!-- Packaging Options -->
+    <div class="row mb-4">
 
-            <div class="col-12 col-md-4">
-                <div class="diet-pills">
-                    <div class="pill pill-veg active" data-val="veg" role="button" tabindex="0"><span class="dot"></span> Veg</div>
-                    <div class="pill pill-nonveg" data-val="nonveg" role="button" tabindex="0"><span class="dot"></span> Non Veg</div>
-                </div>
-            </div>
-        </div>
-    </section>
+        <div class="col-md-8">
 
-    <section>
-        <div class="row g-3">
-            @foreach (var it in items)
-            {
-                var isVeg = (it.IsVeg ? "veg" : "nonveg");
-                var img = (it.ImagePath ?? "/images/bulk/default.jpg").ToString();
-            <div class="col-12">
-                <div class="meal-card" data-veg="@isVeg">
-                    <div class="row gx-3">
-                        <div class="col-12 col-md-9">
-                            <h3 class="title">@it.Name</h3>
-                            <div class="price">₹@it.Price</div>
-                            <div class="desc">@((it.ShortDesc ?? it.ShortDescription) ?? "")</div>
-                            <a href="@Url.Action("Details", "Menu", new { id = it.Id })" class="details-link">View Details →</a>
-                        </div>
+            <div class="d-flex gap-5">
 
-                        <div class="col-12 col-md-3 text-end">
-                            <div class="meal-image">
-                                <img src="@img" alt="@it.Name" onerror="this.onerror=null;this.src='/images/bulk/default.jpg';" />
-                            </div>
-
-                            <div class="qty-add mt-2">
-                                <div class="qty" data-id="@it.Id">
-                                    <button class="qty-decrease" type="button">−</button>
-                                    <input type="text" class="qty-input" value="1" />
-                                    <button class="qty-increase" type="button">+</button>
-                                </div>
-
-                                <button class="btn-add-cart" data-id="@it.Id">Add to Cart</button>
-                            </div>
-                        </div>
+                <label>
+                    <input type="radio" name="packaging" checked />
+                    <strong>Individual Packaging</strong>
+                    <div class="text-muted small">
+                        Each snack packed separately
                     </div>
-                </div>
+                    <div class="small">MOQ: 1</div>
+                </label>
+
+
+                <label>
+                    <input type="radio" name="packaging" />
+                    <strong>Bulk Packaging</strong>
+                    <div class="text-muted small">
+                        Snacks packed together
+                    </div>
+                    <div class="small">MOQ: 30</div>
+                </label>
+
             </div>
-            }
+
         </div>
-    </section>
+
+
+        <!-- Veg Filter -->
+        <div class="col-md-4 text-end">
+
+            <span class="diet-pill active" data-val="veg">
+                🟢 Veg
+            </span>
+
+            <span class="diet-pill" data-val="nonveg">
+                🔴 Non Veg
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Snack List -->
+    <div class="row">
+        @foreach (var it in items)
+        {
+            var isVeg = (it.IsVeg ? "veg" : "nonveg");
+            var img = (it.ImagePath ?? "/images/bulk/default.jpg").ToString();
+
+            <div class="col-12 mb-3">
+
+                <div class="meal-card card shadow-sm p-3"
+                     data-veg="@isVeg">
+
+                    <div class="row align-items-center">
+
+                        <!-- LEFT CONTENT -->
+                        <div class="col-md-8">
+
+                            <div class="veg-indicator">
+                                @(it.IsVeg ? "🟢" : "🔴")
+                            </div>
+
+                            <h5>@it.Name</h5>
+
+                            <div class="price">
+                                ₹@it.Price
+                            </div>
+
+                            <p class="desc">
+                                @(it.Description ?? "")
+                            </p>
+
+                        </div>
+
+
+                        <!-- RIGHT CONTENT -->
+                        <div class="col-md-4 text-end">
+                        <div class="meal-img-box">
+                            <img src="@img"
+                                 class="meal-img"
+                                 onerror="this.src='/images/bulk/default.jpg'" />
+                                 </div>
+
+                            <div class="qty mt-2">
+
+                                <button class="qty-decrease">−</button>
+
+                                <input type="text"
+                                       class="qty-input"
+                                       value="1" />
+
+                                <button class="qty-increase">+</button>
+
+                            </div>
+
+                            <button class="btn-add-cart mt-2"
+                                    data-id="@it.Id">
+                                ADD
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    </div>
+
 </div>
 
+
+
 @section Scripts {
-<script>
-(function(){
-    // reuse same behavior as Meals page
-    const pills = document.querySelectorAll('.pill');
-    function setActivePill(val) {
-        pills.forEach(p => p.classList.toggle('active', p.dataset.val === val));
-        document.querySelectorAll('[data-veg]').forEach(el => {
-            const veg = el.getAttribute('data-veg');
-            el.style.display = (val === 'veg' && veg !== 'veg') || (val === 'nonveg' && veg !== 'nonveg') ? 'none' : '';
-        });
-    }
-    pills.forEach(p => {
-        p.addEventListener('click', () => setActivePill(p.dataset.val));
-        p.addEventListener('keypress', (e) => { if(e.key === 'Enter') setActivePill(p.dataset.val); });
-    });
 
-    document.querySelectorAll('.meal-card .qty').forEach(function(container){
-        const input = container.querySelector('.qty-input');
-        container.querySelector('.qty-decrease').addEventListener('click', function(){ 
-            let v = Math.max(1, parseInt(input.value || '1') - 1); input.value = v;
-        });
-        container.querySelector('.qty-increase').addEventListener('click', function(){ 
-            let v = Math.max(1, parseInt(input.value || '1') + 1); input.value = v;
-        });
-        input.addEventListener('input', function(){ if(!/^\d+$/.test(this.value)) this.value = '1'; });
-    });
+    <script>
 
-    document.querySelectorAll('.btn-add-cart').forEach(function(btn){
-        btn.addEventListener('click', function(){
-            const id = parseInt(this.dataset.id);
-            const container = this.closest('.meal-card');
-            const qtyInput = container.querySelector('.qty-input');
-            const qty = Math.max(1, parseInt(qtyInput.value || '1'));
+        document.addEventListener("DOMContentLoaded", function(){
 
-            fetch('/Cart/AddToCart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId: id, quantity: qty })
-            })
-            .then(r => r.json())
-            .then(res => {
-                if(res && res.success) {
-                    this.innerText = 'Added ✓';
-                    setTimeout(()=> this.innerText = 'Add to Cart', 1200);
-                } else {
-                    alert(res?.message || 'Please login or try again');
-                }
-            }).catch(()=> alert('Server error'));
+            /* Veg / Nonveg filter */
+
+            document.querySelectorAll(".diet-pill").forEach(function(pill){
+
+                pill.addEventListener("click", function(){
+
+                    document.querySelectorAll(".diet-pill")
+                        .forEach(p=>p.classList.remove("active"));
+
+                    this.classList.add("active");
+
+                    let val = this.dataset.val;
+
+                    document.querySelectorAll("[data-veg]").forEach(function(card){
+
+                        let type = card.getAttribute("data-veg");
+
+                        card.style.display = (type === val) ? "" : "none";
+
+                    });
+
+                });
+
+            });
+
+
+
+            /* Quantity buttons */
+
+            document.querySelectorAll(".qty").forEach(function(box){
+
+                let input = box.querySelector(".qty-input");
+
+                box.querySelector(".qty-decrease")
+                .addEventListener("click", function(){
+
+                    let v = Math.max(1, parseInt(input.value) - 1);
+                    input.value = v;
+
+                });
+
+                box.querySelector(".qty-increase")
+                .addEventListener("click", function(){
+
+                    let v = parseInt(input.value) + 1;
+                    input.value = v;
+
+                });
+
+            });
+
+
+
+            /* Add to Cart */
+
+            document.querySelectorAll(".btn-add-cart")
+            .forEach(function(btn){
+
+                btn.addEventListener("click", function(){
+
+                    let id = this.dataset.id;
+
+                    let qty = this.closest(".meal-card")
+                                  .querySelector(".qty-input").value;
+
+                    fetch('/Cart/AddToCart',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({
+                            productId:id,
+                            quantity:qty
+                        })
+                    })
+                    .then(r=>r.json())
+                    .then(res=>{
+
+                        if(res.success){
+
+                            btn.innerText="Added ✓";
+
+                            setTimeout(()=>{
+                                btn.innerText="ADD";
+                            },1200);
+
+                        }
+                        else{
+                            alert("Please login first");
+                        }
+
+                    });
+
+                });
+
+            });
+
         });
-    });
 
-})();
-</script>
-}   
+    </script>
+
+}
