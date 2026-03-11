@@ -34,13 +34,11 @@ namespace NUTRIBITE.Controllers
             var survey = _context.HealthSurveys
                 .FirstOrDefault(h => h.UserId == uid.Value);
 
-            // If survey exists → directly show Result
             if (survey != null)
                 return RedirectToAction("Result");
 
             return View(new HealthSurveyViewModel());
         }
-
 
         // =========================
         // GET: /HealthSurvey/Edit
@@ -77,7 +75,6 @@ namespace NUTRIBITE.Controllers
             return View("Index", vm);
         }
 
-
         // =========================
         // POST: /HealthSurvey
         // =========================
@@ -109,7 +106,6 @@ namespace NUTRIBITE.Controllers
                 _context.HealthSurveys.Add(survey);
             }
 
-            // Update survey values
             survey.Age = model.Age;
             survey.Gender = model.Gender ?? "";
             survey.HeightCm = model.HeightCm;
@@ -122,7 +118,6 @@ namespace NUTRIBITE.Controllers
             survey.Smoking = model.Smoking;
             survey.Alcohol = model.Alcohol;
 
-            // Calculated values
             survey.Bmi = calcResult.BMI;
             survey.Bmr = calcResult.BMR;
             survey.RecommendedCalories = calcResult.RecommendedCalories;
@@ -133,11 +128,9 @@ namespace NUTRIBITE.Controllers
             return RedirectToAction("Result");
         }
 
-
         // =========================
         // GET: /HealthSurvey/Result
         // =========================
-        [HttpGet]
         [HttpGet]
         public IActionResult Result()
         {
@@ -152,34 +145,83 @@ namespace NUTRIBITE.Controllers
             if (survey == null)
                 return RedirectToAction("Index");
 
-            List<Food> foods;
+            // =========================
+            // GET TODAY CALORIES
+            // =========================
+            var today = DateTime.Today;
 
-            // SMART FOOD RECOMMENDATION BASED ON GOAL
-            if (survey.Goal == "Weight Loss")
+            int todayCalories = _context.DailyCalorieEntries
+                .Where(d => d.UserId == uid.Value && d.Date.Date == today)
+                .Sum(d => (int?)d.Calories) ?? 0;
+
+            int recommendedCalories = (int)(survey.RecommendedCalories ?? 2000);
+
+            int remainingCalories = recommendedCalories - todayCalories;
+
+            // =========================
+            // BASE FOOD QUERY
+            // =========================
+            var foodQuery = _context.Foods.AsQueryable();
+
+            // =========================
+            // DIETARY FILTER
+            // =========================
+            if (!string.IsNullOrEmpty(survey.DietaryPreference))
             {
-                foods = _context.Foods
-                    .Where(f => f.Calories <= 450)
-                    .OrderBy(f => f.Calories)
-                    .Take(6)
-                    .ToList();
+                var diet = survey.DietaryPreference.ToLower();
+
+                if (diet == "vegetarian" || diet == "vegan")
+                {
+                    foodQuery = foodQuery.Where(f => f.FoodType == "Vegetarian");
+                }
+                else if (diet == "eggetarian")
+                {
+                    foodQuery = foodQuery.Where(f => f.FoodType == "Vegetarian" || f.FoodType == "Eggetarian");
+                }
+                else if (diet == "non-vegetarian")
+                {
+                    foodQuery = foodQuery.Where(f => f.FoodType == "Non-Vegetarian"
+                                                  || f.FoodType == "Vegetarian"
+                                                  || f.FoodType == "Eggetarian");
+                }
             }
-            else if (survey.Goal == "Muscle Gain")
+
+            // =========================
+            // GOAL BASED FILTER
+            // =========================
+            if (!string.IsNullOrEmpty(survey.Goal))
             {
-                foods = _context.Foods
-                    .Where(f => f.Calories >= 600)
-                    .OrderByDescending(f => f.Calories)
-                    .Take(6)
-                    .ToList();
+                if (survey.Goal == "Weight Loss")
+                {
+                    foodQuery = foodQuery.Where(f => f.Calories <= 450);
+                }
+                else if (survey.Goal == "Muscle Gain")
+                {
+                    foodQuery = foodQuery.Where(f => f.Calories >= 500 && f.Calories <= 900);
+                }
             }
-            else
+
+            // =========================
+            // SMART CALORIE FILTER
+            // =========================
+            if (remainingCalories > 0)
             {
-                foods = _context.Foods
-                    .OrderBy(f => f.Calories)
-                    .Take(6)
-                    .ToList();
+                foodQuery = foodQuery.Where(f => f.Calories <= remainingCalories);
             }
+
+            // =========================
+            // FINAL FOOD LIST
+            // =========================
+            var foods = foodQuery
+                .OrderBy(f => f.Calories)
+                .Take(6)
+                .ToList();
 
             ViewBag.FoodSuggestions = foods;
+
+            ViewBag.TodayCalories = todayCalories;
+            ViewBag.RecommendedCalories = recommendedCalories;
+            ViewBag.RemainingCalories = remainingCalories;
 
             return View(survey);
         }

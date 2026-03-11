@@ -28,4 +28,5 @@ public partial class Food
     public string? Status { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+    public string? FoodType { get; set; }
 }

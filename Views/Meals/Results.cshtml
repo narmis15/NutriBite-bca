@@ -1,10 +1,13 @@
 ﻿@model List<NUTRIBITE.Models.Food>
+
 @{
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
+
 <h2 style="margin-bottom:30px;">
     Search Results for "@ViewBag.Query"
 </h2>
+
 <div class="row">
 
     @foreach (var food in Model)
@@ -29,17 +32,11 @@
 
                     <h6>₹ @food.Price</h6>
 
-
-                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
-
-                        <input type="hidden" name="foodId" value="@food.Id" />
-
-                        <button class="btn btn-success w-100 mt-2 addToCartBtn"
-                                 data-id="@food.Id">
-                            Add To Cart
-                        </button>
-
-                    </form>
+                    <!-- ONLY BUTTON -->
+                    <button class="btn btn-success w-100 mt-2 addToCartBtn"
+                            data-id="@food.Id">
+                        Add To Cart
+                    </button>
 
                 </div>
 
@@ -47,7 +44,6 @@
 
         </div>
     }
-   
 
 </div>
 <script>
@@ -58,21 +54,41 @@
 
             const foodId = this.dataset.id;
 
-            fetch("/Cart/AddToCart?foodId=" + foodId, {
-                method: "POST"
+            fetch("/Cart/AddToCart", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+
+                body: "foodId=" + foodId
+
             })
             .then(response => response.json())
             .then(data => {
 
                 if (data.success) {
+
                     alert("Item added to cart");
+
+                    // Update cart count
+                    fetch("/Cart/GetCartCount")
+                    .then(res => res.json())
+                    .then(countData => {
+
+                        if(countData.success){
+                            document.getElementById("cartCount").innerText = countData.count;
+                        }
+
+                    });
+
                 }
                 else {
-                    alert("Login required");
+                    alert("Please login first");
                 }
 
-            })
-            .catch(error => console.log(error));
+            });
 
         });
 

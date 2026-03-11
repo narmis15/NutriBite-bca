@@ -1,8 +1,12 @@
-﻿<div class="container text-center py-5">
+﻿@{
+    ViewData["Title"] = "NutriBite — Home";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+<div class="container text-center py-5">
     <h2>🎉 Order Placed Successfully!</h2>
     <p>Your food is being prepared 💚</p>
 
-    <a href="/Users/Index" class="btn btn-success mt-4">
+    <a href="/Home/Index" class="btn btn-success mt-4">
         Back to Home
     </a>
 </div>

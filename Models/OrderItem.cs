@@ -17,5 +17,6 @@ public partial class OrderItem
 
     public DateTime? CreatedAt { get; set; }
 
+    public string? SpecialInstruction { get; set; }
     public virtual OrderTable Order { get; set; } = null!;
 }

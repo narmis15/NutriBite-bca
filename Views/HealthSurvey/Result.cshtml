@@ -1,5 +1,6 @@
 ﻿@model NUTRIBITE.Models.HealthSurvey
 
+
 @{
     ViewData["Title"] = "Health Result";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
@@ -147,7 +148,9 @@
                                     ₹@food.Price
                                 </p>
 
-                                <button class="btn btn-success addToCartBtn"
+                               
+                                <button type="button"
+                                        class="btn btn-success addToCartBtn"
                                         data-id="@food.Id">
                                     Add to Cart
                                 </button>
@@ -179,36 +182,42 @@
 
 </div>
 
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 
-    document.querySelectorAll(".addToCartBtn").forEach(btn => {
+    $(document).ready(function () {
 
-        btn.addEventListener("click", function () {
+        $(document).on("click", ".addToCartBtn", function () {
 
-            var productId = this.getAttribute("data-id");
+            var foodId = $(this).data("id");
 
-            fetch("/Cart/AddToCart", {
+            $.ajax({
+                url: "/Cart/AddToCart",
+                type: "POST",
+                data: { foodId: foodId },
 
-                method: "POST",
+                success: function (res) {
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    if (res.success) {
 
-                body: JSON.stringify({
-                    productId: parseInt(productId)
-                })
+                        alert("Food added to cart");
 
-            })
-            .then(res => res.json())
-            .then(data => {
+                        // Update cart icon count
+                        $.get("/Cart/GetCartCount", function (data) {
 
-                if (data.success) {
-                    alert("Item added to cart!");
-                }
-                else {
-                    alert("Failed to add item.");
+                            if (data.success) {
+                                $("#cartCount").text(data.count);
+                            }
+
+                        });
+
+                    }
+                    else {
+
+                        alert(res.message);
+
+                    }
+
                 }
 
             });

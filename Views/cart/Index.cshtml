@@ -18,52 +18,124 @@
     else
     {
         <div class="row">
+
+            <!-- CART ITEMS -->
             <div class="col-lg-8">
 
                 @foreach (var item in Model)
                 {
                     <div class="card mb-3 shadow-sm border-0 rounded-4">
                         <div class="row g-0 align-items-center">
+
+                            <!-- IMAGE -->
                             <div class="col-md-3">
                                 <img src="@item.ImageUrl"
                                      class="img-fluid rounded-start"
                                      style="height:120px; object-fit:cover;">
                             </div>
+
+                            <!-- FOOD INFO -->
                             <div class="col-md-5">
                                 <div class="card-body">
+
                                     <h5>@item.Name</h5>
-                                    <p class="text-muted">₹ @item.Price</p>
+                                    <p class="text-muted mb-2">₹ @item.Price</p>
+
+                                    <!-- COOKING PREFERENCES -->
+                                    <div class="bg-light p-2 rounded small">
+
+                                        <strong class="text-muted">Cooking Preference</strong>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="lessOil_@item.Id"
+                                                   value="Less Oil">
+                                            <label class="form-check-label">Less Oil</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="lessSalt_@item.Id"
+                                                   value="Less Salt">
+                                            <label class="form-check-label">Less Salt</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="lessSpicy_@item.Id"
+                                                   value="Less Spicy">
+                                            <label class="form-check-label">Less Spicy</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="noOnion_@item.Id"
+                                                   value="No Onion">
+                                            <label class="form-check-label">No Onion</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="noGarlic_@item.Id"
+                                                   value="No Garlic">
+                                            <label class="form-check-label">No Garlic</label>
+                                        </div>
+
+                                    </div>
+
                                 </div>
                             </div>
+
+                            <!-- UPDATE / REMOVE -->
                             <div class="col-md-4 text-center">
+
                                 <form method="post" asp-action="UpdateQuantity">
+
                                     <input type="hidden" name="id" value="@item.Id" />
-                                    <input type="number" name="qty"
+
+                                    <input type="number"
+                                           name="qty"
                                            value="@item.Quantity"
                                            min="1"
                                            class="form-control mb-2 text-center" />
+
                                     <button type="submit"
                                             class="btn btn-sm btn-outline-success w-100">
                                         Update
                                     </button>
+
                                 </form>
 
                                 <form method="post" asp-action="Remove" class="mt-2">
+
                                     <input type="hidden" name="id" value="@item.Id" />
+
                                     <button type="submit"
                                             class="btn btn-sm btn-outline-danger w-100">
                                         Remove
                                     </button>
+
                                 </form>
+
                             </div>
+
                         </div>
                     </div>
                 }
 
             </div>
 
+
+            <!-- ORDER SUMMARY -->
             <div class="col-lg-4">
+
                 <div class="card shadow-sm border-0 rounded-4 p-4">
+
                     <h5 class="fw-bold">Order Summary</h5>
                     <hr />
 
@@ -77,11 +149,14 @@
                     </div>
 
                     <form method="post" asp-action="Checkout">
-                        <button type="submit" class="btn btn-success w-100 mt-4">
+                        <button type="submit"
+                                class="btn btn-success w-100 mt-4">
                             Proceed to Checkout
                         </button>
                     </form>
+
                 </div>
+
             </div>
 
         </div>

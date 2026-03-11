@@ -19,6 +19,7 @@ public partial class Carttable
 
     public int? Amount { get; set; }
 
+    public string? SpecialInstruction { get; set; }
     public string? Status { get; set; }
 
     public DateTime? Date { get; set; }
