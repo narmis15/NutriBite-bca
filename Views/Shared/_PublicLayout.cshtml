@@ -274,6 +274,12 @@
 
             <div class="nav-actions">
 
+                @* LOCATION DISPLAY: always visible to encourage selection *@
+                <div id="locationDisplay" style="margin-right:18px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#locationModal" title="Change delivery location">
+                    <span class="small text-muted">📍</span>
+                    <span class="fw-semibold">Detecting location…</span>
+                </div>
+
                 @if (userId == null)
                 {
                     <a class="vendor-btn" asp-controller="Vendor" asp-action="Register">Join as Vendor</a>
@@ -345,6 +351,9 @@
 
             </div>
         </div>
+
+        @* Include the Location Selector modal partial *@
+        @await Html.PartialAsync("~/Views/Shared/_LocationSelector.cshtml")
 
         <main>
             @* Back button (shared) - rendered on most internal pages (not Home or Landing) *@
@@ -481,6 +490,16 @@
                 // silent
             }
         })();
+    </script>
+
+    <!-- Location script (initialize after DOM) -->
+    <script src="~/js/location.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.NutriBiteLocation && typeof window.NutriBiteLocation.init === 'function') {
+                window.NutriBiteLocation.init({ displayId: 'locationDisplay' });
+            }
+        });
     </script>
 </body>
 </html>

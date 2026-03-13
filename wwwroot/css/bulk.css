@@ -257,3 +257,67 @@
 .veg-indicator {
     margin-right: 5px;
 }
+/* FOODBOX IMAGE */
+
+.foodbox-img {
+    width: 120px;
+    height: auto;
+}
+
+
+/* ITEM IMAGE */
+
+.meal-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+
+/* ITEM ROW */
+
+.foodbox-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+
+/* ADD BUTTON */
+
+.btn-add-box {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+}
+.qty-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+    .qty-box button {
+        background: #eee;
+        border: none;
+        padding: 5px 10px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+.qty {
+    font-weight: bold;
+}
+
+.foodbox-img {
+    width: 120px;
+}
+
+.meal-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}

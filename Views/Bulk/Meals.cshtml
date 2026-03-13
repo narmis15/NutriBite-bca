@@ -194,47 +194,40 @@
 
 
 
-            /* Add to Cart */
+                   /* Add to Cart */
 
-            document.querySelectorAll(".btn-add-cart")
-            .forEach(function(btn){
+        document.querySelectorAll(".btn-add-cart")
+        .forEach(function(btn){
 
-                btn.addEventListener("click", function(){
+            btn.addEventListener("click", function(){
 
-                    let id = this.dataset.id;
+                let id = this.dataset.id;
 
-                    let qty = this.closest(".meal-card")
-                                  .querySelector(".qty-input").value;
+                let qty = this.closest(".meal-card")
+                              .querySelector(".qty-input").value;
 
-                    fetch('/Cart/AddToCart',{
-                        method:'POST',
-                        headers:{'Content-Type':'application/json'},
-                        body:JSON.stringify({
-                            productId:id,
-                            quantity:qty
-                        })
+                fetch('/Cart/AddToCart',{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({
+                        productId:id,
+                        quantity:qty
                     })
-                    .then(r=>r.json())
-                    .then(res=>{
+                })
+                .then(r=>r.json())
+                .then(res=>{
 
-                        if(res.success){
+                    btn.innerText="Added ✓";
 
-                            btn.innerText="Added ✓";
-
-                            setTimeout(()=>{
-                                btn.innerText="ADD";
-                            },1200);
-
-                        }
-                        else{
-                            alert("Please login first");
-                        }
-
-                    });
+                    setTimeout(()=>{
+                        btn.innerText="ADD";
+                    },1200);
 
                 });
 
             });
+
+        });
 
         });
 

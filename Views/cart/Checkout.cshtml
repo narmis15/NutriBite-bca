@@ -1,0 +1,218 @@
+﻿@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    ViewData["Title"] = "Checkout — NutriBite";
+    var totalAmount = (ViewBag.TotalAmount as decimal?) ?? 0m;
+    var totalInvariant = totalAmount.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    var totalDisplay = totalAmount.ToString("N2");
+}
+
+<div class="container py-4">
+    <h2 class="mb-3">Checkout</h2>
+
+    <div class="card p-4 mb-3">
+        <h4>Order Summary</h4>
+        <div class="d-flex justify-content-between mt-2">
+            <div>Items total</div>
+            <div>₹@totalDisplay</div>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-between fw-bold">
+            <div>Total</div>
+            <div>₹@totalDisplay</div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <button id="payNowBtn" class="btn btn-primary">
+            Pay ₹@totalDisplay
+        </button>
+        <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-secondary ms-2">Back to Cart</a>
+    </div>
+
+    <div id="paymentAlerts">
+        <!-- Alerts injected here -->
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const amountMajor = parseFloat('@totalInvariant'); // major units
+    const payBtn = document.getElementById('payNowBtn');
+    const alertsRoot = document.getElementById('paymentAlerts');
+
+    function clearAlerts() {
+        alertsRoot.innerHTML = '';
+    }
+
+    function showAlert(type, html, autoHideMs = 0) {
+        clearAlerts();
+        const wrapper = document.createElement('div');
+        wrapper.className = `alert alert-${type} alert-dismissible fade show`;
+        wrapper.setAttribute('role', 'alert');
+        wrapper.innerHTML = html + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        alertsRoot.appendChild(wrapper);
+
+        if (autoHideMs > 0) {
+            setTimeout(() => {
+                try { bootstrap.Alert.getOrCreateInstance(wrapper).close(); } catch {}
+            }, autoHideMs);
+        }
+    }
+
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) return resolve();
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = () => resolve();
+            s.onerror = () => reject(new Error('Failed to load ' + src));
+            document.head.appendChild(s);
+        });
+    }
+
+    async function createRazorpayOrder() {
+        const res = await fetch('/Payment/CreateOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({}) // server computes cart total
+        });
+
+        if (!res.ok) {
+            const payload = await res.json().catch(()=>({}));
+            throw new Error(payload?.message || 'Failed to create order');
+        }
+
+        return res.json();
+    }
+
+    async function verifyPayment(payload) {
+        const res = await fetch('/Payment/VerifyPayment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        return res.json();
+    }
+
+    async function finalizeOrderOnServer() {
+        // Create local order and clear cart using existing flow
+        await fetch('/Cart/Checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ pickupSlot: '12:00 PM' }).toString()
+        });
+    }
+
+    async function startPaymentFlow() {
+        clearAlerts();
+        payBtn.disabled = true;
+        payBtn.innerText = 'Processing...';
+
+        try {
+            if (amountMajor <= 0) {
+                showAlert('danger', 'Cart total invalid. Please add items to cart.');
+                payBtn.disabled = false;
+                payBtn.innerText = 'Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
+                return;
+            }
+
+            const orderResp = await createRazorpayOrder();
+
+            if (!orderResp || !orderResp.success) {
+                throw new Error(orderResp?.message || 'Could not create payment order.');
+            }
+
+            await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+
+            // build options
+            const options = {
+                key: orderResp.keyId,
+                amount: orderResp.amount,
+                currency: orderResp.currency || 'INR',
+                name: 'NutriBite',
+                description: 'Food Order Payment',
+                order_id: orderResp.orderId,
+                handler: async function (response) {
+                    try {
+                        // verify payment on server
+                        const verifyPayload = {
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        };
+
+                        const verifyResult = await verifyPayment(verifyPayload);
+
+                        if (!verifyResult || !verifyResult.success) {
+                            showAlert('danger',
+                                `<strong>Payment verification failed.</strong> ${verifyResult?.message || ''} <div class="mt-2"><button id="retryBtn" class="btn btn-sm btn-warning">Retry Payment</button></div>`
+                            );
+                            attachRetry();
+                            payBtn.disabled = false;
+                            payBtn.innerText = 'Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
+                            return;
+                        }
+
+                        // finalize order on server (creates OrderTable, OrderItems, clears cart)
+                        await finalizeOrderOnServer();
+
+                        // show success message with brief delay, then redirect to confirmation
+                        showAlert('success', `<strong>Payment successful.</strong> Payment ID: <code>${verifyResult.paymentId}</code>. Redirecting to confirmation...`, 4000);
+
+                        setTimeout(() => {
+                            window.location.href = '/Cart/Success';
+                        }, 2000);
+                    } catch (err) {
+                        console.error(err);
+                        showAlert('danger', `<strong>Processing failed.</strong> ${err.message || ''} <div class="mt-2"><button id="retryBtn" class="btn btn-sm btn-warning">Retry Payment</button></div>`);
+                        attachRetry();
+                        payBtn.disabled = false;
+                        payBtn.innerText = 'Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
+                    }
+                },
+                prefill: {
+                    name: '@(User?.Identity?.IsAuthenticated == true ? User.Identity.Name : "")'
+                },
+                theme: { color: '#2d6a4f' }
+            };
+
+            const rzp = new Razorpay(options);
+
+            rzp.on('payment.failed', function (response){
+                // show friendly failure with retry option
+                showAlert('danger', `<strong>Payment failed.</strong> ${response.error?.description || ''} <div class="mt-2"><button id="retryBtn" class="btn btn-sm btn-warning">Retry Payment</button></div>`);
+                attachRetry();
+                payBtn.disabled = false;
+                payBtn.innerText = 'Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
+            });
+
+            rzp.open();
+        } catch (err) {
+            console.error(err);
+            showAlert('danger', `<strong>Error:</strong> ${err.message || 'Unable to initiate payment.'} <div class="mt-2"><button id="retryBtn" class="btn btn-sm btn-warning">Retry Payment</button></div>`);
+            attachRetry();
+            payBtn.disabled = false;
+            payBtn.innerText = 'Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
+        }
+    }
+
+    function attachRetry() {
+        const retry = document.getElementById('retryBtn');
+        if (!retry) return;
+        retry.addEventListener('click', function () {
+            clearAlerts();
+            startPaymentFlow();
+        });
+    }
+
+    // initial button text ensured
+    payBtn.innerText = 'Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
+    payBtn.addEventListener('click', startPaymentFlow);
+})();
+</script>
+}

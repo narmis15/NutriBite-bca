@@ -70,23 +70,48 @@ namespace NUTRIBITE.Controllers
         [HttpGet]
         public IActionResult FoodBox()
         {
-            var list = _context.BulkItems
-                .Where(b => b.Status == "Active" && b.Category == "FoodBox")
-                .OrderBy(b => b.Name)
-                .Select(b => new {
-                    b.Id,
-                    b.Name,
-                    ShortDesc = b.Description,
-                    LongDesc = b.Description,
-                    b.Price,
-                    b.IsVeg,
-                    ImagePath = b.ImagePath ?? "/images/bulk/default.jpg",
-                    MOQ = b.MOQ ?? 0
+            // Predefined Food Boxes
+            var predefined = _context.BulkItems
+                .Where(x => x.Status == "Active" && x.Category == "FoodBox_Predefined")
+                .OrderBy(x => x.Name)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    Description = x.Description,
+                    x.Price,
+                    x.IsVeg,
+                    ImagePath = x.ImagePath ?? "/images/bulk/default.jpg",
+                    MOQ = x.MOQ ?? 0
                 })
                 .ToList();
 
-            ViewBag.Items = list;
-            ViewBag.ActiveCategory = "FoodBox";
+
+            // Custom FoodBox items
+            var custom = _context.BulkItems
+                .Where(x => x.Status == "Active" && x.Category == "FoodBox_Custom")
+                .OrderBy(x => x.SubCategory)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    x.SubCategory,
+                    x.Price,
+                    x.IsVeg,
+                    ImagePath = x.ImagePath ?? "/images/bulk/default.jpg"
+                })
+                .ToList();
+
+
+            // Group custom items by category (Beverages, Cakes etc)
+            var grouped = custom
+                .GroupBy(x => x.SubCategory)
+                .ToList();
+
+
+            ViewBag.Predefined = predefined;
+            ViewBag.CustomGroups = grouped;
+
             return View("FoodBox");
         }
     }

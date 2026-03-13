@@ -1,0 +1,18 @@
+﻿@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    var localOrderId = ViewBag.LocalOrderId as int?;
+}
+
+<div class="container py-5">
+    <div class="text-center">
+        <h2 class="mb-3">Payment Successful</h2>
+        <p class="lead">Thank you. Your payment was processed successfully.</p>
+
+        @if (localOrderId != null)
+        {
+            <p>Order reference: <strong>@localOrderId</strong></p>
+        }
+
+        <a class="btn btn-primary mt-3" href="/">Return to Home</a>
+    </div>
+</div>

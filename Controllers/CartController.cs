@@ -172,6 +172,32 @@ namespace NUTRIBITE.Controllers
 
             return View(cartItems);
         }
+        [HttpGet]
+        public IActionResult Checkout()
+        {
+            var uid = HttpContext.Session.GetInt32("UserId");
+            if (!uid.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            var cartRows = _context.Carttables
+                .Where(c => c.Uid == uid.Value)
+                .ToList();
+
+            if (!cartRows.Any())
+                return RedirectToAction("Index");
+
+            decimal subtotal = 0m;
+
+            foreach (var c in cartRows)
+            {
+                    var food = _context.Foods.FirstOrDefault(f => f.Id == c.Pid);
+                    if (food != null)
+                        subtotal += (food.Price) * c.Qty;
+            }
+
+            ViewBag.TotalAmount = subtotal; // major units (e.g. 499.50)
+            return View();
+        }
 
 
         // ================= CHECKOUT =================

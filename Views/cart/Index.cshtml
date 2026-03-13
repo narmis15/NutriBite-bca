@@ -148,12 +148,11 @@
                         <span class="fw-bold">₹ @total</span>
                     </div>
 
-                    <form method="post" asp-action="Checkout">
-                        <button type="submit"
-                                class="btn btn-success w-100 mt-4">
-                            Proceed to Checkout
-                        </button>
-                    </form>
+                    <!-- Navigate to GET Checkout so Razorpay flow can run -->
+                    <a href="@Url.Action("Checkout", "Cart")"
+                       class="btn btn-success w-100 mt-4">
+                        Proceed to Checkout
+                    </a>
 
                 </div>
 
