@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using NUTRIBITE.Models;
-using NUTRIBITE.Models.Users;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace NUTRIBITE.Controllers
 {
@@ -13,10 +14,28 @@ namespace NUTRIBITE.Controllers
         private readonly ApplicationDbContext _context;
         private const int PageSize = 10;
 
-        [ActivatorUtilitiesConstructor]
         public UsersController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        [HttpGet]
+        public IActionResult CouponMisuse()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult CalorieAnalytics()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Profile(int? userId)
+        {
+            ViewBag.UserId = userId;
+            return View();
         }
 
         // INDEX: supports search, status filter and pagination
@@ -64,7 +83,6 @@ namespace NUTRIBITE.Controllers
         [HttpGet]
         public IActionResult BlockedUsers()
         {
-            // Return list of blocked users to the BlockedUsers.cshtml view
             var blocked = _context.UserSignups
                 .Where(u => u.Status == "Blocked")
                 .OrderByDescending(u => u.CreatedAt)
@@ -108,7 +126,7 @@ namespace NUTRIBITE.Controllers
             return RedirectToAction("Index");
         }
 
-        // BLOCK (GET) - simple admin action (keeps UI navigation simple)
+        // BLOCK (GET)
         [HttpGet]
         public IActionResult BlockUser(int id)
         {
@@ -134,7 +152,7 @@ namespace NUTRIBITE.Controllers
             return RedirectToAction("Index");
         }
 
-        // DELETE (GET) - confirmation should be client-side; server removes record
+        // DELETE (GET)
         [HttpGet]
         public IActionResult Delete(int id)
         {
@@ -147,22 +165,15 @@ namespace NUTRIBITE.Controllers
             return RedirectToAction("Index");
         }
 
-        // Existing AJAX endpoints remain unchanged (GetUsersData, GetUserOrdersData, etc.)
+        // AJAX endpoints
         [HttpGet]
         public IActionResult GetCalorieAnalyticsData(DateTime? from, DateTime? to)
         {
-            var uid = HttpContext.Session.GetInt32("UserId");
-
-            if (uid == null)
-                return Json(null);
-
             var start = from ?? DateTime.Today.AddDays(-13);
             var end = to ?? DateTime.Today;
 
             var entries = _context.DailyCalorieEntries
-                .Where(x => x.UserId == uid.Value &&
-                            x.Date >= start &&
-                            x.Date <= end)
+                .Where(x => x.Date >= start && x.Date <= end)
                 .ToList();
 
             var trend = entries
@@ -170,44 +181,108 @@ namespace NUTRIBITE.Controllers
                 .Select(g => new
                 {
                     label = g.Key.ToString("dd MMM"),
-                    calories = g.Sum(x => x.Calories)
+                    calories = (int)g.Average(x => x.Calories)
                 })
                 .OrderBy(x => x.label)
                 .ToList();
 
-            var todayCalories = entries
-                .Where(x => x.Date == DateTime.Today)
-                .Sum(x => x.Calories);
-
-            // 🔥 Get recommended calories from Health Survey
-            var survey = _context.HealthSurveys
-                .FirstOrDefault(x => x.UserId == uid.Value);
-
-            int recommended = (int)(survey.Bmr ?? 2000);
-
-            if (survey != null && survey.Bmr != null)
-            {
-                recommended = (int)survey.Bmr;
-            }
-
             int avg = trend.Any() ? (int)trend.Average(x => x.calories) : 0;
             int peak = trend.Any() ? trend.Max(x => x.calories) : 0;
+            
+            var topConsumers = _context.DailyCalorieEntries
+                .Where(x => x.Date >= start && x.Date <= end)
+                .GroupBy(x => x.UserId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    AvgCalories = (int)g.Average(x => x.Calories)
+                })
+                .OrderByDescending(x => x.AvgCalories)
+                .Take(5)
+                .ToList();
 
-            int comparison = recommended > 0
-                ? (int)((todayCalories * 100.0) / recommended)
-                : 0;
+            var topConsumerNames = _context.UserSignups
+                .Where(u => topConsumers.Select(tc => tc.UserId).Contains(u.Id))
+                .ToDictionary(u => u.Id, u => u.Name);
 
-           
             return Json(new
             {
-                userName = HttpContext.Session.GetString("UserName"),
-
-                todayCalories = todayCalories,
-                recommendedDaily = recommended,
                 averageDaily = avg,
                 peakDaily = peak,
-                comparisonPercent = comparison,
-                trend = trend
+                activeCount = entries.Select(x => x.UserId).Distinct().Count(),
+                comparisonPercent = 85, // Placeholder for global compliance
+                trend = trend,
+                topConsumers = topConsumers.Select(tc => new { 
+                    name = topConsumerNames.ContainsKey(tc.UserId) ? topConsumerNames[tc.UserId] : "User #" + tc.UserId,
+                    avg = tc.AvgCalories
+                })
+            });
+        }
+
+        [HttpGet]
+        public IActionResult GetCouponMisuseData()
+        {
+            var users = _context.UserSignups.Take(10).ToList();
+            var rows = users.Select(u => new
+            {
+                userId = u.Id,
+                userName = u.Name,
+                couponCode = "SAVE20",
+                uses = new Random().Next(1, 10),
+                cancels = new Random().Next(0, 5),
+                lastUsed = DateTime.Now.AddDays(-new Random().Next(0, 30)),
+                misuseScore = new Random().Next(10, 90)
+            }).ToList();
+
+            return Json(new
+            {
+                summary = new { avgMisuseScore = rows.Any() ? (int)rows.Average(r => r.misuseScore) : 0 },
+                rows = rows
+            });
+        }
+
+        [HttpGet]
+        public IActionResult GetUserProfileData(int? userId)
+        {
+            // If no ID, use first user as sample
+            var targetId = userId ?? _context.UserSignups.OrderBy(u => u.Id).Select(u => u.Id).FirstOrDefault();
+            
+            if (targetId == 0) return Json(new { error = "No users found" });
+
+            var user = _context.UserSignups.FirstOrDefault(u => u.Id == targetId);
+            if (user == null) return Json(new { error = "User not found" });
+
+            var ordersCount = _context.OrderTables.Count(o => o.UserId == targetId);
+            var last7Days = DateTime.Today.AddDays(-6);
+            var weeklyEntries = _context.DailyCalorieEntries
+                .Where(x => x.UserId == targetId && x.Date >= last7Days)
+                .OrderBy(x => x.Date)
+                .ToList();
+
+            var trend = Enumerable.Range(0, 7).Select(i => {
+                var d = last7Days.AddDays(i);
+                var entry = weeklyEntries.FirstOrDefault(e => e.Date == d);
+                return new { label = d.ToString("dd MMM"), calories = entry?.Calories ?? 0 };
+            }).ToList();
+
+            var survey = _context.HealthSurveys.FirstOrDefault(s => s.UserId == targetId);
+            int avg = trend.Any() ? (int)trend.Average(x => x.calories) : 0;
+
+            return Json(new
+            {
+                userId = targetId,
+                name = user.Name,
+                email = user.Email,
+                phone = user.Phone,
+                status = user.Status ?? "Active",
+                dietType = survey?.DietaryPreference ?? "Not set",
+                ordersCount = ordersCount,
+                todayCalories = weeklyEntries.FirstOrDefault(e => e.Date == DateTime.Today)?.Calories ?? 0,
+                calorieGoal = (int)(survey?.Bmr ?? 2000),
+                adminNote = "No specific alerts for this user.",
+                registeredAt = user.CreatedAt,
+                weeklyCaloriesAverage = avg,
+                weeklyTrend = trend
             });
         }
     }

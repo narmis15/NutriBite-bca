@@ -1,0 +1,210 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Admin Delivery Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    .delivery-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    .bg-blue-soft { background: #e0f2fe; color: #0ea5e9; }
+    .bg-orange-soft { background: #fff7ed; color: #f97316; }
+    .bg-green-soft { background: #f0fdf4; color: #22c55e; }
+    .bg-red-soft { background: #fef2f2; color: #ef4444; }
+
+    .delivery-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    .delivery-card:hover { transform: translateY(-5px); }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark">🚚 Delivery Control Panel</h2>
+            <p class="text-muted">Manage active deliveries and track order progress</p>
+        </div>
+        <div class="text-end">
+            <button onclick="location.reload()" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="delivery-stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-blue-soft"><i class="bi bi-box-seam"></i></div>
+            <div>
+                <div class="text-muted small">Total</div>
+                <div class="h4 fw-bold mb-0">@ViewBag.TotalDeliveries</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-orange-soft"><i class="bi bi-clock-history"></i></div>
+            <div>
+                <div class="text-muted small">Pending</div>
+                <div class="h4 fw-bold mb-0">@ViewBag.PendingDeliveries</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-green-soft"><i class="bi bi-check2-circle"></i></div>
+            <div>
+                <div class="text-muted small">Completed</div>
+                <div class="h4 fw-bold mb-0">@ViewBag.CompletedDeliveries</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-red-soft"><i class="bi bi-x-circle"></i></div>
+            <div>
+                <div class="text-muted small">Cancelled</div>
+                <div class="h4 fw-bold mb-0">@ViewBag.CancelledDeliveries</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold mb-4">Active Orders & Assignments</h5>
+                
+                <div class="row g-4">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var order in Model)
+                        {
+                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                <div class="card delivery-card border-start border-4 @(order.DeliveryStatus == "Out for Delivery" ? "border-primary" : "border-warning")">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span class="fw-bold">#@order.OrderId</span>
+                                            <span class="badge @(order.DeliveryStatus == "Out for Delivery" ? "bg-primary" : "bg-warning") status-badge">
+                                                @order.DeliveryStatus
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="mb-2">
+                                            <i class="bi bi-person text-muted me-2"></i><strong>@order.CustomerName</strong>
+                                        </div>
+                                        <div class="mb-3 small text-muted">
+                                            <i class="bi bi-geo-alt me-2"></i>@order.DeliveryAddress
+                                        </div>
+
+                                        <div class="border-top pt-3 mt-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="small text-muted">Agent</span>
+                                                <select class="form-select form-select-sm assign-agent" data-id="@order.OrderId" style="width: 120px;">
+                                                    <option value="">Unassigned</option>
+                                                    @if (order.DeliveryPersonId == 1)
+                                                    {
+                                                        <option value="1" selected>Rahul (ID: 1)</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="1">Rahul (ID: 1)</option>
+                                                    }
+
+                                                    @if (order.DeliveryPersonId == 2)
+                                                    {
+                                                        <option value="2" selected>Amit (ID: 2)</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="2">Amit (ID: 2)</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <a href="/Admin/OrderDetails?orderId=@order.OrderId" class="btn btn-sm btn-light">Details</a>
+                                                @if (order.DeliveryStatus != "Out for Delivery")
+                                                {
+                                                    <button class="btn btn-sm btn-primary update-status" data-id="@order.OrderId" data-status="Out for Delivery">Start Delivery</button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-success update-status" data-id="@order.OrderId" data-status="Delivered">Complete</button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center py-5">
+                            <img src="/images/icons/fresh-meal.jpeg" alt="No orders" style="width: 100px; opacity: 0.5;" class="mb-3">
+                            <h6 class="text-muted">No active deliveries at the moment</h6>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('change', '.assign-agent', function() {
+            const orderId = $(this).data('id');
+            const agentId = $(this).val();
+            
+            $.post('/Admin/AssignDelivery', { orderId, deliveryPersonId: agentId }, function(res) {
+                if (res.success) {
+                    alert('Agent assigned successfully');
+                } else {
+                    alert('Error assigning agent');
+                }
+            });
+        });
+
+        $(document).on('click', '.update-status', function() {
+            const orderId = $(this).data('id');
+            const status = $(this).data('status');
+            
+            $.post('/Admin/UpdateDeliveryStatus', { orderId, status }, function(res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    alert('Error updating status');
+                }
+            });
+        });
+    </script>
+}

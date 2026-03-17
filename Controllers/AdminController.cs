@@ -108,7 +108,7 @@ namespace NUTRIBITE.Controllers
                 MealCategory == "Other" ? CustomMealCategory : MealCategory;
 
             // IMAGE UPLOAD
-            string imagePath = null;
+            string? imagePath = null;
             if (CategoryImage != null)
             {
                 string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
@@ -271,12 +271,33 @@ namespace NUTRIBITE.Controllers
         {
             try
             {
+                var now = DateTime.UtcNow;
+                var sevenDaysAgo = now.AddDays(-7);
+                var firstOfMonth = new DateTime(now.Year, now.Month, 1);
+
                 ViewBag.Users = _context.UserSignups.Count();
                 ViewBag.Vendors = _context.VendorSignups.Count();
                 ViewBag.Orders = _context.OrderTables.Count();
                 ViewBag.Products = _context.OrderTables.Sum(o => (int?)o.TotalItems) ?? 0;
-                ViewBag.TotalAmount = _context.Payments.Sum(p => (decimal?)p.Amount) ?? 0m;
-                ViewBag.Profit = Math.Round((double)((_context.Payments.Sum(p => (decimal?)p.Amount) ?? 0m) * 0.10m), 2);
+                
+                // Total Revenue and Profit (Overall)
+                decimal totalRevenue = _context.Payments.Sum(p => (decimal?)p.Amount) ?? 0m;
+                ViewBag.TotalAmount = totalRevenue;
+                ViewBag.Profit = Math.Round((double)(totalRevenue * 0.15m), 2); // 15% as requested
+
+                // Weekly Analytics (Last 7 Days)
+                decimal weeklyRevenue = _context.Payments
+                    .Where(p => p.CreatedAt >= sevenDaysAgo)
+                    .Sum(p => (decimal?)p.Amount) ?? 0m;
+                ViewBag.WeeklyRevenue = weeklyRevenue;
+                ViewBag.WeeklyProfit = Math.Round((double)(weeklyRevenue * 0.15m), 2);
+
+                // Monthly Analytics (Current Month)
+                decimal monthlyRevenue = _context.Payments
+                    .Where(p => p.CreatedAt >= firstOfMonth)
+                    .Sum(p => (decimal?)p.Amount) ?? 0m;
+                ViewBag.MonthlyRevenue = monthlyRevenue;
+                ViewBag.MonthlyProfit = Math.Round((double)(monthlyRevenue * 0.15m), 2);
             }
             catch
             {
@@ -291,8 +312,17 @@ namespace NUTRIBITE.Controllers
                 ViewBag.Vendors = GetValue(con, "SELECT COUNT(*) FROM VendorSignup");
                 ViewBag.Orders = GetValue(con, "SELECT COUNT(*) FROM OrderTable");
                 ViewBag.Products = GetValue(con, "SELECT ISNULL(SUM(TotalItems),0) FROM OrderTable");
-                ViewBag.TotalAmount = GetValue(con, "SELECT ISNULL(SUM(Amount),0) FROM Payment");
-                ViewBag.Profit = GetValue(con, "SELECT ISNULL(SUM(Amount),0) * 0.10 FROM Payment");
+                
+                string totalAmtStr = GetValue(con, "SELECT ISNULL(SUM(Amount),0) FROM Payment");
+                decimal totalAmt = decimal.Parse(totalAmtStr);
+                ViewBag.TotalAmount = totalAmt;
+                ViewBag.Profit = totalAmt * 0.15m;
+
+                // For fallback, we'll just set these to 0 or implement more SQL if needed, but EF should work.
+                ViewBag.WeeklyRevenue = 0;
+                ViewBag.WeeklyProfit = 0;
+                ViewBag.MonthlyRevenue = 0;
+                ViewBag.MonthlyProfit = 0;
             }
         }
 
@@ -302,22 +332,92 @@ namespace NUTRIBITE.Controllers
             return result?.ToString() ?? "0";
         }
 
-        // Active orders JSON endpoint
+        // Active orders JSON endpoint using EF Core
         [AdminAuthorize]
         [HttpGet]
         public async Task<IActionResult> GetActiveOrders()
         {
-            var list = await _orderService.GetActiveOrdersAsync();
-            return Json(list);
+            try
+            {
+                var list = await _context.OrderTables
+                    .Where(o => (o.Status ?? "").ToLower() != "cancelled")
+                    .OrderByDescending(o => o.CreatedAt)
+                    .Select(o => new
+                    {
+                        OrderId = o.OrderId,
+                        CustomerName = o.CustomerName ?? "",
+                        CustomerPhone = o.CustomerPhone ?? "",
+                        TotalItems = o.TotalItems ?? 0,
+                        PickupSlot = o.PickupSlot ?? "",
+                        TotalCalories = o.TotalCalories ?? 0,
+                        PaymentStatus = o.PaymentStatus ?? "",
+                        Status = o.Status ?? "",
+                        IsFlagged = o.IsFlagged ?? false,
+                        CreatedAt = o.CreatedAt,
+                        Amount = _context.Payments.Where(p => p.OrderId == o.OrderId).Select(p => p.Amount).FirstOrDefault() ?? 0m,
+                        OrderType = o.OrderType ?? "Pickup",
+                        DeliveryStatus = o.DeliveryStatus ?? "",
+                        DeliveryAddress = o.DeliveryAddress ?? "",
+                        DeliveryNotes = o.DeliveryNotes ?? ""
+                    })
+                    .ToListAsync();
+
+                return Json(list);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
         }
 
         [AdminAuthorize]
         [HttpGet]
         public async Task<IActionResult> GetOrderDetails(int orderId)
         {
-            var details = await _orderService.GetOrderDetailsAsync(orderId);
-            if (details == null) return Json(new { error = "Order not found" });
-            return Json(details);
+            try
+            {
+                var o = await _context.OrderTables
+                    .Include(x => x.OrderItems)
+                    .ThenInclude(oi => oi.Food)
+                    .Include(x => x.Payments)
+                    .FirstOrDefaultAsync(x => x.OrderId == orderId);
+
+                if (o == null) return Json(new { error = "Order not found" });
+
+                var payment = o.Payments.FirstOrDefault();
+
+                return Json(new
+                {
+                    OrderId = o.OrderId,
+                    OrderDateTime = o.CreatedAt,
+                    Status = o.Status ?? "",
+                    CustomerName = o.CustomerName ?? "",
+                    CustomerPhone = o.CustomerPhone ?? "",
+                    PickupSlot = o.PickupSlot ?? "",
+                    TotalCalories = o.TotalCalories ?? 0,
+                    PaymentMode = payment?.PaymentMode ?? "",
+                    Amount = payment?.Amount ?? 0m,
+                    IsRefunded = payment?.IsRefunded ?? false,
+                    RefundStatus = payment?.RefundStatus ?? "",
+                    IsFlagged = o.IsFlagged ?? false,
+                    OrderType = o.OrderType ?? "Pickup",
+                    DeliveryAddress = o.DeliveryAddress ?? "",
+                    DeliveryStatus = o.DeliveryStatus ?? "",
+                    DeliveryPersonId = o.DeliveryPersonId,
+                    DeliveryNotes = o.DeliveryNotes ?? "",
+                    Items = o.OrderItems.Select(i => new
+                    {
+                        Name = i.ItemName ?? (i.Food != null ? i.Food.Name : ""),
+                        Quantity = i.Quantity ?? 0,
+                        Instructions = i.Instructions ?? "",
+                        Price = i.Food != null ? i.Food.Price : 0m
+                    }).ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
         }
 
         // Accept / MarkReady / MarkPicked endpoints
@@ -363,7 +463,7 @@ namespace NUTRIBITE.Controllers
 
         [AdminAuthorize]
         [HttpGet]
-        public async Task<IActionResult> FlaggedOrders()
+        public IActionResult FlaggedOrders()
         {
             return View();
         }
@@ -372,13 +472,35 @@ namespace NUTRIBITE.Controllers
         [HttpGet]
         public async Task<IActionResult> GetFlaggedOrders()
         {
-            var list = await _orderService.GetFlaggedOrdersAsync();
-            return Json(list);
+            try
+            {
+                var list = await _context.OrderTables
+                    .Where(o => o.IsFlagged == true)
+                    .OrderByDescending(o => o.UpdatedAt)
+                    .Select(o => new
+                    {
+                        OrderId = o.OrderId,
+                        FlagReason = o.FlagReason ?? "Suspicious",
+                        CustomerName = o.CustomerName ?? "",
+                        CustomerPhone = o.CustomerPhone ?? "",
+                        Amount = _context.Payments.Where(p => p.OrderId == o.OrderId).Select(p => p.Amount).FirstOrDefault() ?? 0m,
+                        TotalCalories = o.TotalCalories ?? 0,
+                        CreatedAt = o.CreatedAt,
+                        IsResolved = o.IsResolved ?? false
+                    })
+                    .ToListAsync();
+
+                return Json(list);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
         }
 
         [AdminAuthorize]
         [HttpGet]
-        public async Task<IActionResult> PickupSlots()
+        public IActionResult PickupSlots()
         {
             return View();
         }
@@ -387,8 +509,42 @@ namespace NUTRIBITE.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPickupSlots(DateTime? date)
         {
-            var list = await _orderService.GetPickupSlotsAsync(date);
-            return Json(list);
+            try
+            {
+                var targetDate = date ?? DateTime.UtcNow.Date;
+                var targetDateOnly = DateOnly.FromDateTime(targetDate);
+
+                var slots = await _context.PickupSlots
+                    .OrderBy(s => s.SlotLabel)
+                    .Select(s => new
+                    {
+                        SlotId = s.SlotId,
+                        SlotLabel = s.SlotLabel ?? "",
+                        Capacity = s.Capacity ?? 0,
+                        IsDisabled = s.IsDisabled ?? false,
+                        // Count bookings for this slot on the target date
+                        CurrentBookings = _context.OrderTables.Count(o => o.PickupSlot == s.SlotLabel && o.CreatedAt.HasValue && o.CreatedAt.Value.Date == targetDate.Date),
+                        IsBlocked = _context.SlotBlocks.Any(b => b.SlotId == s.SlotId && b.BlockDate == targetDateOnly)
+                    })
+                    .ToListAsync();
+
+                var list = slots.Select(s => new
+                {
+                    s.SlotId,
+                    s.SlotLabel,
+                    s.Capacity,
+                    s.IsDisabled,
+                    s.CurrentBookings,
+                    s.IsBlocked,
+                    Status = s.IsDisabled || s.IsBlocked ? "Blocked" : (s.CurrentBookings >= s.Capacity ? "Full" : "Available")
+                }).ToList();
+
+                return Json(list);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
         }
 
         [AdminAuthorize]
@@ -436,7 +592,7 @@ namespace NUTRIBITE.Controllers
 
         [AdminAuthorize]
         [HttpGet]
-        public async Task<IActionResult> CancelledOrders()
+        public IActionResult CancelledOrders()
         {
             return View();
         }
@@ -513,14 +669,14 @@ namespace NUTRIBITE.Controllers
                 new { Key = "Cancelled", Css = "status-cancelled", Icon = "⛔", Tooltip = "Cancelled — order was cancelled" }
             };
 
-            return Json(statuses);
+            return await Task.FromResult<IActionResult>(Json(statuses));
         }
 
         [AdminAuthorize]
         [HttpGet]
         public async Task<IActionResult> GetFlaggedCount()
         {
-            var c = await _orderService.GetFlaggedCountAsync();
+            var c = await _context.OrderTables.CountAsync(o => o.IsFlagged == true);
             return Json(new { count = c });
         }
 
@@ -528,7 +684,7 @@ namespace NUTRIBITE.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCancelledCount()
         {
-            var c = await _orderService.GetCancelledCountAsync();
+            var c = await _context.OrderTables.CountAsync(o => (o.Status ?? "").ToLower() == "cancelled");
             return Json(new { count = c });
         }
 
@@ -586,12 +742,51 @@ namespace NUTRIBITE.Controllers
             return Json(new { success = ok });
         }
 
-        // Render Order Management view (uses existing AJAX JSON endpoints)
         [AdminAuthorize]
         [HttpGet]
         public IActionResult OrderManagement()
         {
             return View();
+        }
+
+        [AdminAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> DeliveryDashboard()
+        {
+            try
+            {
+                // Active deliveries (Assigned or Out for Delivery)
+                var activeDeliveries = await _context.OrderTables
+                    .Where(o => o.OrderType == "Delivery" && 
+                                (o.DeliveryStatus == "Assigned" || o.DeliveryStatus == "Out for Delivery" || o.Status == "Ready for Pickup"))
+                    .OrderByDescending(o => o.CreatedAt)
+                    .Select(o => new
+                    {
+                        o.OrderId,
+                        o.CustomerName,
+                        o.CustomerPhone,
+                        o.DeliveryAddress,
+                        o.DeliveryStatus,
+                        o.Status,
+                        o.CreatedAt,
+                        o.DeliveryNotes,
+                        o.DeliveryPersonId
+                    })
+                    .ToListAsync();
+
+                // Stats
+                ViewBag.TotalDeliveries = await _context.OrderTables.CountAsync(o => o.OrderType == "Delivery");
+                ViewBag.PendingDeliveries = await _context.OrderTables.CountAsync(o => o.OrderType == "Delivery" && (o.DeliveryStatus == "Assigned" || o.DeliveryStatus == "Out for Delivery"));
+                ViewBag.CompletedDeliveries = await _context.OrderTables.CountAsync(o => o.OrderType == "Delivery" && o.DeliveryStatus == "Delivered");
+                ViewBag.CancelledDeliveries = await _context.OrderTables.CountAsync(o => o.OrderType == "Delivery" && o.Status == "Cancelled");
+
+                return View(activeDeliveries);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error loading delivery dashboard: " + ex.Message;
+                return View(new List<object>());
+            }
         }
 
         // Render Order Details view (page will request JSON /GetOrderDetails)

@@ -48,7 +48,9 @@
             <thead>
                 <tr>
                     <th>Order Id</th>
+                    <th>Date</th>
                     <th>Customer</th>
+                    <th>Amount</th>
                     <th>Items</th>
                     <th>Type</th>
                     <th>Details</th>
@@ -176,10 +178,14 @@
 
                     const flaggedIcon = order.IsFlagged ? '<span class="order-warning ms-2" title="Flagged">⚠</span>' : '';
                     const orderLink = '<a href="/Admin/OrderDetails?orderId=' + order.OrderId + '">#' + order.OrderId + '</a>';
+                    const orderDate = order.CreatedAt ? new Date(order.CreatedAt).toLocaleString() : '-';
+                    const orderAmount = '₹' + (order.Amount ?? 0).toFixed(2);
 
                     const $tr = $('<tr>').addClass(cls).attr('data-id', order.OrderId);
                     $tr.append($('<td>').html(orderLink + (order.IsFlagged ? ' <span class="text-danger ms-1">⚑</span>' : '')));
+                    $tr.append($('<td>').text(orderDate));
                     $tr.append($('<td>').text((order.CustomerName || '') + ' • ' + (order.CustomerPhone || '')));
+                    $tr.append($('<td>').text(orderAmount));
                     $tr.append($('<td>').text(order.TotalItems));
                     
                     // Type & Details

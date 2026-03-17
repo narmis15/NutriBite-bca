@@ -206,6 +206,52 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        // Sidebar accordion logic
+        document.querySelectorAll('.menu-link').forEach(item => {
+            item.addEventListener('click', function (e) {
+                const parent = this.parentElement;
+                
+                // If it's a submenu toggle (not a direct link)
+                if (parent.querySelector('.submenu')) {
+                    // Check if it's an actual link with href (like Delivery Dashboard)
+                    if (this.tagName === 'A' && this.getAttribute('href') !== '#') {
+                        return; // Let the link navigation happen
+                    }
+
+                    e.preventDefault();
+                    
+                    // Close other open menus (Accordion behavior)
+                    document.querySelectorAll('.menu-item.open').forEach(openItem => {
+                        if (openItem !== parent) {
+                            openItem.classList.remove('open');
+                        }
+                    });
+
+                    // Toggle current menu
+                    parent.classList.toggle('open');
+                }
+            });
+        });
+
+        // Toggle vendor menu separately if it's outside the standard menu-item structure
+        const vendorToggle = document.getElementById('vendorToggle');
+        const vendorMenu = document.getElementById('vendorMenu');
+        if (vendorToggle && vendorMenu) {
+            vendorToggle.addEventListener('click', function() {
+                vendorMenu.style.display = vendorMenu.style.display === 'block' ? 'none' : 'block';
+                // Close other standard menus when vendor menu is toggled
+                document.querySelectorAll('.menu-item.open').forEach(openItem => {
+                    openItem.classList.remove('open');
+                });
+            });
+        }
+
+        function toggleSidebar(){
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

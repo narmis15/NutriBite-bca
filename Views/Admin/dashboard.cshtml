@@ -1,4 +1,4 @@
-﻿ @{
+ @{
 ViewData["Title"] = "Nutribite Admin Dashboard";
 // Use the same shared admin layout used by other admin pages
     //Layout = "~/Views/Shared/_Layout.cshtml";link rel="stylesheet" href="~/css/admin-dashboard.css" />
@@ -46,7 +46,31 @@ ViewData["Title"] = "Nutribite Admin Dashboard";
         <div class="db-card">
             <div class="db-icon">📊</div>
             <div class="db-number">₹ @ViewBag.Profit</div>
-            <div class="db-label">Profit Share</div>
+            <div class="db-label">Profit Share (15%)</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">📅</div>
+            <div class="db-number">₹ @ViewBag.WeeklyRevenue</div>
+            <div class="db-label">Weekly Revenue (7d)</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">📈</div>
+            <div class="db-number">₹ @ViewBag.WeeklyProfit</div>
+            <div class="db-label">Weekly Profit (15%)</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">🗓️</div>
+            <div class="db-number">₹ @ViewBag.MonthlyRevenue</div>
+            <div class="db-label">Monthly Revenue</div>
+        </div>
+
+        <div class="db-card">
+            <div class="db-icon">💹</div>
+            <div class="db-number">₹ @ViewBag.MonthlyProfit</div>
+            <div class="db-label">Monthly Profit (15%)</div>
         </div>
 
     </div>

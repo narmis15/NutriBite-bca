@@ -1,0 +1,152 @@
+@{
+    ViewData["Title"] = "User Calorie Analytics";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/Users.css" />
+
+<div class="users-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="page-title mb-1">User Calorie Analytics</h2>
+            <p class="text-muted">Monitor and analyze nutritional trends across the user base</p>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center">
+            <label class="text-muted small">From</label>
+            <input type="date" id="fromDate" class="form-control form-control-sm" />
+            <label class="text-muted small ms-2">To</label>
+            <input type="date" id="toDate" class="form-control form-control-sm" />
+            <button id="refreshBtn" class="btn btn-success btn-sm ms-2">Refresh</button>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="summary-card p-3 h-100">
+                <div class="title">Avg Daily Intake</div>
+                <div id="avgDaily" class="value">— kcal</div>
+                <div class="sub text-muted">Across selected period</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="summary-card p-3 h-100">
+                <div class="title">Peak Consumption</div>
+                <div id="peakDaily" class="value">— kcal</div>
+                <div class="sub text-muted">Highest recorded day</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="summary-card p-3 h-100">
+                <div class="title">Compliance Rate</div>
+                <div id="compliancePct" class="value">— %</div>
+                <div class="sub text-muted">Users meeting goals</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="summary-card p-3 h-100">
+                <div class="title">Active Trackers</div>
+                <div id="activeTrackers" class="value">—</div>
+                <div class="sub text-muted">Users with logs</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-sm">
+                <h5 class="mb-3">Global Calorie Trend</h5>
+                <canvas id="globalCalorieChart" height="250"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card p-4 shadow-sm">
+                <h5 class="mb-3">Top Consumers</h5>
+                <div id="topConsumersList" class="list-group list-group-flush">
+                    <div class="text-muted p-3">Loading top consumers...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function () {
+            const ctx = document.getElementById('globalCalorieChart').getContext('2d');
+            let chart = null;
+
+            function fetchData() {
+                const from = $('#fromDate').val();
+                const to = $('#toDate').val();
+
+                $.getJSON('/Users/GetCalorieAnalyticsData', { from, to })
+                    .done(function (data) {
+                        if (!data) return;
+
+                        $('#avgDaily').text(data.averageDaily + ' kcal');
+                        $('#peakDaily').text(data.peakDaily + ' kcal');
+                        $('#compliancePct').text(data.comparisonPercent + ' %');
+                        $('#activeTrackers').text(data.activeCount || '—');
+
+                        const labels = data.trend.map(x => x.label);
+                        const values = data.trend.map(x => x.calories);
+
+                        if (chart) {
+                            chart.data.labels = labels;
+                            chart.data.datasets[0].data = values;
+                            chart.update();
+                        } else {
+                            chart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Avg Calories',
+                                        data: values,
+                                        borderColor: '#22c55e',
+                                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                        fill: true,
+                                        tension: 0.3
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: { legend: { display: false } },
+                                    scales: {
+                                        y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
+                                        x: { grid: { display: false } }
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // Populate top consumers list
+                        const $list = $('#topConsumersList').empty();
+                        (data.topConsumers || []).forEach(c => {
+                            $list.append(`
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span>${c.name}</span>
+                                    <span class="badge bg-light text-dark">${c.avg} kcal/day</span>
+                                </div>
+                            `);
+                        });
+                        if (!data.topConsumers || !data.topConsumers.length) {
+                            $list.html('<div class="text-muted p-3">No data available</div>');
+                        }
+                    });
+            }
+
+            // Set default dates (last 14 days)
+            const end = new Date();
+            const start = new Date();
+            start.setDate(end.getDate() - 13);
+            $('#fromDate').val(start.toISOString().split('T')[0]);
+            $('#toDate').val(end.toISOString().split('T')[0]);
+
+            $('#refreshBtn').on('click', fetchData);
+            fetchData();
+        })();
+    </script>
+}

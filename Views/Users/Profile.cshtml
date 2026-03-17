@@ -1,6 +1,8 @@
-﻿@{
+@{
     ViewData["Title"] = "User Profile";
-    var userId = ViewBag.UserId ?? Context.Request.Query["userId"].ToString();
+    var rawUserId = ViewBag.UserId ?? Context.Request.Query["userId"].ToString();
+    string userId = string.IsNullOrEmpty(rawUserId?.ToString()) ? "1001" : rawUserId.ToString();
+    string avatarInitial = !string.IsNullOrEmpty(userId) ? userId.Substring(0, 1).ToUpper() : "U";
 }
 
 <link rel="stylesheet" href="~/css/Users.css" />
@@ -21,7 +23,7 @@
         <!-- Left: Profile summary -->
         <div class="col-lg-4">
             <div class="user-card">
-                <div class="user-avatar">@((userId ?? "U").ToString().Substring(0,1))</div>
+                <div class="user-avatar">@avatarInitial</div>
                 <div class="user-info">
                     <div class="name" id="u-name">—</div>
                     <div class="meta" id="u-contact">—</div>
@@ -79,7 +81,8 @@
     <script>
         (function () {
             const id = '@userId';
-            const api = '/Users/GetUserProfileData?userId=' + encodeURIComponent(id);
+            // If ID is 1001 (our placeholder), don't pass it so the controller picks the first real user
+            const api = (id && id !== '1001') ? ('/Users/GetUserProfileData?userId=' + encodeURIComponent(id)) : '/Users/GetUserProfileData';
 
             function setStatusBadge(el, status) {
                 const $el = $(el);
@@ -148,9 +151,10 @@
                     const pct = Math.min(100, Math.round((today / goal) * 100));
                     $('#u-cal-fill').css('width', pct + '%');
 
-                    $('#d-userid').text(m.userId || m.UserId);
-                    $('#d-registered').text(new Date(m.registeredAt || m.RegisteredAt).toLocaleDateString());
-                    $('#d-weekly-avg').text((m.weeklyCaloriesAverage || m.WeeklyCaloriesAverage) + ' kcal');
+                    $('#d-userid').text(m.userId || m.UserId || '—');
+                    const regDate = m.registeredAt || m.RegisteredAt;
+                    $('#d-registered').text(regDate ? new Date(regDate).toLocaleDateString() : '—');
+                    $('#d-weekly-avg').text((m.weeklyCaloriesAverage || m.WeeklyCaloriesAverage || 0) + ' kcal');
                     $('#d-orders').text(m.ordersCount || m.OrdersCount);
 
                     renderTrend(m.weeklyTrend || m.WeeklyTrend || []);

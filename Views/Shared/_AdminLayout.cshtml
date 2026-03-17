@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -116,6 +116,20 @@
             <div class="submenu">
                 <a asp-controller="Users" asp-action="Index">All Users</a>
                 <a asp-controller="Users" asp-action="BlockedUsers">Blocked Users</a>
+                <a asp-controller="Users" asp-action="CouponMisuse">Coupon Misuse</a>
+                <a asp-controller="Users" asp-action="CalorieAnalytics">Calorie Analytics</a>
+                <a asp-controller="Users" asp-action="Profile">Sample Profile</a>
+            </div>
+        </div>
+
+        <!-- Delivery -->
+        <div class="menu-item">
+            <div class="menu-link">
+                <span class="menu-text">🚚 Delivery Panel</span>
+                <span class="menu-arrow">&#9662;</span>
+            </div>
+            <div class="submenu">
+                <a asp-controller="Admin" asp-action="DeliveryDashboard">Delivery Dashboard</a>
             </div>
         </div>
 
@@ -140,8 +154,28 @@
 
 <script>
     document.querySelectorAll('.menu-link').forEach(item => {
-        item.addEventListener('click', function () {
-            this.parentElement.classList.toggle('open');
+        item.addEventListener('click', function (e) {
+            const parent = this.parentElement;
+            
+            // If it's a submenu toggle (not a direct link)
+            if (parent.querySelector('.submenu')) {
+                // Check if it's an actual link with href (like Delivery Dashboard)
+                if (this.tagName === 'A' && this.getAttribute('href') !== '#') {
+                    return; // Let the link navigation happen
+                }
+
+                e.preventDefault();
+                
+                // Close other open menus (Accordion behavior)
+                document.querySelectorAll('.menu-item.open').forEach(openItem => {
+                    if (openItem !== parent) {
+                        openItem.classList.remove('open');
+                    }
+                });
+
+                // Toggle current menu
+                parent.classList.toggle('open');
+            }
         });
     });
 

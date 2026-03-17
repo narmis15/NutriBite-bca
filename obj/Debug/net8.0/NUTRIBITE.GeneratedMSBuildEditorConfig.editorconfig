@@ -9,345 +9,353 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = NUTRIBITE
 build_property.RootNamespace = NUTRIBITE
-build_property.ProjectDir = C:\BCA - PROJECT\NUTRIBITE\
+build_property.ProjectDir = C:\BCA_PROJECT\Nutribitee\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\BCA - PROJECT\NUTRIBITE
+build_property.MSBuildProjectDirectory = C:\BCA_PROJECT\Nutribitee
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/AddCoupon.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/AddCoupon.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkQ291cG9uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/AddFeedback.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/AddFeedback.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkRmVlZGJhY2suY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/AddFoodCategory.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/AddFoodCategory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkRm9vZENhdGVnb3J5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/CancelledOrders.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/CancelledOrders.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ2FuY2VsbGVkT3JkZXJzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/dashboard.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cZGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/FlaggedOrders.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/DeliveryDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGVsaXZlcnlEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/FlaggedOrders.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRmxhZ2dlZE9yZGVycy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/Login.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTG9naW4uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/ManageVendor.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/ManageVendor.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlVmVuZG9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/NewVendorRequest.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/NewVendorRequest.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTmV3VmVuZG9yUmVxdWVzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/OrderDetails.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/OrderDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cT3JkZXJEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/OrderManagement.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/OrderManagement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cT3JkZXJNYW5hZ2VtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/PickupSlots.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/PickupSlots.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUGlja3VwU2xvdHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/ViewCategory.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/ViewCategory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVmlld0NhdGVnb3J5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/ViewMealCategory.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/ViewMealCategory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVmlld01lYWxDYXRlZ29yeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/_OrderActions.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/_OrderActions.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cX09yZGVyQWN0aW9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/_OrderStatusBadge.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/_OrderStatusBadge.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cX09yZGVyU3RhdHVzQmFkZ2UuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Admin/_ViewStart.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Admin/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Auth/Forgot.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Auth/Forgot.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxGb3Jnb3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Auth/Login.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Auth/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Auth/Register.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Auth/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Bulk/FoodBox.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Bulk/FoodBox.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVsa1xGb29kQm94LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Bulk/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Bulk/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVsa1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Bulk/Meals.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Bulk/Meals.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVsa1xNZWFscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Bulk/Snacks.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Bulk/Snacks.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVsa1xTbmFja3MuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/CalorieTracker/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/CalorieTracker/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2Fsb3JpZVRyYWNrZXJcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/cart/Checkout.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/cart/Checkout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY2FydFxDaGVja291dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/cart/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/cart/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY2FydFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/cart/success.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/cart/success.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY2FydFxzdWNjZXNzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Corporate/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Corporate/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29ycG9yYXRlXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Delivery/Dashboard.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Delivery/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGVsaXZlcnlcRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Elderly/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Elderly/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWxkZXJseVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/HealthSurvey/Edit.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/HealthSurvey/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGVhbHRoU3VydmV5XEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/HealthSurvey/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/HealthSurvey/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGVhbHRoU3VydmV5XEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/HealthSurvey/Result.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/HealthSurvey/Result.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGVhbHRoU3VydmV5XFJlc3VsdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Home/Contact.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Home/Contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Home/EditProfile.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Home/EditProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxFZGl0UHJvZmlsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Home/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Home/MyOrders.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Home/MyOrders.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxNeU9yZGVycy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Home/MyProfile.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Home/MyProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxNeVByb2ZpbGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Home/TrackOrder.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Home/TrackOrder.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxUcmFja09yZGVyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Location/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Location/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9jYXRpb25cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Meals/Results.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Meals/Results.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVhbHNcUmVzdWx0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Menu/Category.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Menu/Category.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVudVxDYXRlZ29yeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Menu/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Menu/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVudVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Payment/Success.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Payment/Success.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGF5bWVudFxTdWNjZXNzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Public/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Public/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVibGljXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Reports/Dashboard.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Reports/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xEYXNoYm9hcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Reports/LocationAnalytics.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Reports/LocationAnalytics.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xMb2NhdGlvbkFuYWx5dGljcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Reports/OrderReports.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Reports/OrderReports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xPcmRlclJlcG9ydHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Reports/PaymentReports.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Reports/PaymentReports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xQYXltZW50UmVwb3J0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Reports/SalesAnalytics.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Reports/SalesAnalytics.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xTYWxlc0FuYWx5dGljcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Reports/SystemLogs.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Reports/SystemLogs.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xTeXN0ZW1Mb2dzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Reports/VendorPerformance.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Reports/VendorPerformance.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xWZW5kb3JQZXJmb3JtYW5jZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_AdminLayout.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_AdminLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_AuthModal.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_AuthModal.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BdXRoTW9kYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_Layout.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_LocationMap.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_LocationMap.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2NhdGlvbk1hcC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_LocationSelector.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_LocationSelector.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2NhdGlvblNlbGVjdG9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_PublicLayout.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_PublicLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9QdWJsaWNMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Shared/_VendorLayout.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Shared/_VendorLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WZW5kb3JMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Students/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Students/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudHNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/Account.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/Account.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcQWNjb3VudC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/BlockedUsers.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/BlockedUsers.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcQmxvY2tlZFVzZXJzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/CouponMisuse.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/CalorieAnalytics.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcQ2Fsb3JpZUFuYWx5dGljcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/BCA_PROJECT/Nutribitee/Views/Users/CouponMisuse.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcQ291cG9uTWlzdXNlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/Details.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/Edit.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/Index.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/Profile.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/Profile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcUHJvZmlsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/SupportActions.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/SupportActions.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcU3VwcG9ydEFjdGlvbnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Users/UserOrders.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Users/UserOrders.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcVXNlck9yZGVycy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/AddFood.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/AddFood.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXEFkZEZvb2QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/Dashboard.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXERhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/EditFood.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/EditFood.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXEVkaXRGb29kLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/ForgotPassword.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/ForgotPassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXEZvcmdvdFBhc3N3b3JkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/Login.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXExvZ2luLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/MyFood.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/MyFood.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXE15Rm9vZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/Order.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/Order.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXE9yZGVyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/Profile.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/Profile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXFByb2ZpbGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/Register.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXFJlZ2lzdGVyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/Vendor/_ViewStart.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/Vendor/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVuZG9yXF9WaWV3U3RhcnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/_ViewImports.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/BCA - PROJECT/NUTRIBITE/Views/_ViewStart.cshtml]
+[C:/BCA_PROJECT/Nutribitee/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
