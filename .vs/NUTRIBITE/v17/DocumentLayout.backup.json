@@ -1,265 +1,281 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\",
+  "WorkspaceRootPath": "C:\\BCA - PROJECT\\NUTRIBITE\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\services\\ilocationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\ilocationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\locationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\locationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\shared\\_publiclayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_publiclayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\wwwroot\\js\\location.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\js\\location.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\shared\\_locationselector.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_locationselector.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\services\\locationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\locationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\userlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\userlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\bulk\\foodbox.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\foodbox.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\wwwroot\\css\\bulk.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\bulk.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\services\\razorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\razorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\cart\\checkout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\cart\\checkout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\paymentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\paymentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\payment\\success.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\payment\\success.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\bulk\\meals.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\meals.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\bulkcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\bulkcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\services\\irazorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\irazorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\nutribite.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:nutribite.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\bulk\\snacks.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\snacks.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\elderly\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\elderly\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\bulkitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\bulkitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\corporate\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\corporate\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\ordertable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\ordertable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\dailycalorieentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\dailycalorieentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\bulk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\shared\\_adminlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_adminlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\shared\\_vendorlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\shared\\_vendorlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_vendorlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\wwwroot\\css\\land.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\land.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\services\\ilocationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\ilocationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\wwwroot\\css\\home.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\vendorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\vendorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\wwwroot\\js\\location.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\js\\location.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\shared\\_publiclayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_publiclayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\wwwroot\\css\\home.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\home.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\users\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\calorietracker\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\calorietracker\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\healthsurvey\\result.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\healthsurvey\\result.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\shared\\_locationselector.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_locationselector.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\payment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\payment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\ordertable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\ordertable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\locationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\locationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\services\\locationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\locationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\userlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\userlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\bulk\\foodbox.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\foodbox.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\wwwroot\\css\\bulk.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\bulk.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\services\\razorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\razorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\cart\\checkout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\cart\\checkout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\paymentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\paymentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\payment\\success.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\payment\\success.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\bulk\\meals.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\meals.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\bulkcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\bulkcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\services\\irazorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:services\\irazorpayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\nutribite.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:nutribite.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\bulk\\snacks.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\snacks.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\elderly\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\elderly\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\bulkitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\bulkitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\corporate\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\corporate\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\dailycalorieentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\dailycalorieentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\bulk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\bulk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\shared\\_adminlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_adminlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\wwwroot\\css\\land.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\land.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\users\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\users\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\admin\\viewmealcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\admin\\viewmealcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\admin\\viewmealcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\users\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\users\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\users\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\users\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\users\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\users\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\userscontroller.blocked.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\userscontroller.blocked.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\userscontroller.blocked.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\users\\blockedusers.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\users\\blockedusers.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\users\\blockedusers.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\users\\blockedusermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\users\\blockedusermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\users\\blockedusermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\reportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\reportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\reportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\admin\\viewcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\admin\\viewcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\admin\\viewcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\admin\\newvendorrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\admin\\newvendorrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\admin\\newvendorrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\admin\\managevendor.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\admin\\managevendor.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\admin\\managevendor.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\wwwroot\\css\\corporate.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\wwwroot\\css\\corporate.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\corporate.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\wwwroot\\css\\students.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\wwwroot\\css\\students.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\students.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\wwwroot\\css\\elderly.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\wwwroot\\css\\elderly.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:wwwroot\\css\\elderly.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\menu\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\menu\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\menu\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\menucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\menucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\menucontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\mealscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\mealscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\mealscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\usersignup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\usersignup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\usersignup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\usersaccountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\usersaccountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\usersaccountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\viewmodels\\userprofileeditviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\viewmodels\\userprofileeditviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:viewmodels\\userprofileeditviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\models\\meal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\models\\meal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:models\\meal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\calorietrackercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\calorietrackercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\calorietrackercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\auth\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\auth\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\auth\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\elderlycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\elderlycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\elderlycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\controllers\\corporatecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\controllers\\corporatecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:controllers\\corporatecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\sql\\createnutribiteschema.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\sql\\createnutribiteschema.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:sql\\createnutribiteschema.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\users\\hp\\source\\repos\\narmis15\\nutribitee\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|c:\\bca - project\\nutribite\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{CA8DBD64-1636-4073-846F-378A36480FEC}|NUTRIBITE.csproj|solutionrelative:views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
@@ -270,15 +286,23 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 9,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 40,
               "Title": "Edit.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\Edit.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\Edit.cshtml",
               "RelativeDocumentMoniker": "Views\\Users\\Edit.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\Edit.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\Edit.cshtml",
               "RelativeToolTip": "Views\\Users\\Edit.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -287,11 +311,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 39,
               "Title": "land.css",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\land.css",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\land.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\land.css",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\land.css",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\land.css",
               "RelativeToolTip": "wwwroot\\css\\land.css",
               "ViewState": "AgIAAP4AAAAAAAAAAAAUwBgBAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
@@ -300,11 +324,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 20,
               "Title": "bulk.css",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\bulk.css",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\bulk.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\bulk.css",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\bulk.css",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\bulk.css",
               "RelativeToolTip": "wwwroot\\css\\bulk.css",
               "ViewState": "AgIAADEBAAAAAAAAAAAQwEIBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
@@ -312,44 +336,25 @@
               "IsPinned": true
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "_PublicLayout.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_PublicLayout.cshtml",
-              "RelativeDocumentMoniker": "Views\\Shared\\_PublicLayout.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_PublicLayout.cshtml",
-              "RelativeToolTip": "Views\\Shared\\_PublicLayout.cshtml",
-              "ViewState": "AgIAAOoBAAAAAAAAAAAYwBEBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-02-15T08:44:24.889Z"
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAqwCMAAAAAAAAAAAAAAA==",
+              "Title": "VendorController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\VendorController.cs",
+              "RelativeDocumentMoniker": "Controllers\\VendorController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\VendorController.cs",
+              "RelativeToolTip": "Controllers\\VendorController.cs",
+              "ViewState": "AgIAADYBAAAAAAAAAAAgwE8BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T07:39:17.097Z"
+              "WhenOpened": "2026-03-15T15:50:53.058Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ILocationService.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\ILocationService.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\ILocationService.cs",
               "RelativeDocumentMoniker": "Services\\ILocationService.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\ILocationService.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\ILocationService.cs",
               "RelativeToolTip": "Services\\ILocationService.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAADwvxIAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -359,46 +364,170 @@
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "location.js",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\js\\location.js",
+              "RelativeDocumentMoniker": "wwwroot\\js\\location.js",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\js\\location.js",
+              "RelativeToolTip": "wwwroot\\js\\location.js",
+              "ViewState": "AgIAAAQBAAAAAAAAAAAcwBQBAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-03-13T08:04:37.423Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Models\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Models\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAKYBAAAAAAAAAAAUwLwBAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-02T06:26:34.838Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_VendorLayout.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_VendorLayout.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_VendorLayout.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_VendorLayout.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_VendorLayout.cshtml",
+              "ViewState": "AgIAACUAAAAAAAAAAAAcwDEAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-06T12:01:59.905Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AdminController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\AdminController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AdminController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\AdminController.cs",
+              "RelativeToolTip": "Controllers\\AdminController.cs",
+              "ViewState": "AgIAAB8BAAAAAAAAAAAowCwBAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T11:04:57.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "_PublicLayout.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_PublicLayout.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_PublicLayout.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_PublicLayout.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_PublicLayout.cshtml",
+              "ViewState": "AgIAAC0BAAAAAAAAAAAcwD0BAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-15T08:44:24.889Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "home.css",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\home.css",
+              "RelativeDocumentMoniker": "wwwroot\\css\\home.css",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\home.css",
+              "RelativeToolTip": "wwwroot\\css\\home.css",
+              "ViewState": "AgIAAI8BAAAAAAAAAAAAAI8BAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-02-17T02:50:42.624Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CartController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\CartController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CartController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\CartController.cs",
+              "RelativeToolTip": "Controllers\\CartController.cs",
+              "ViewState": "AgIAAPUAAAAAAAAAAAAowAIBAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-13T03:05:18.478Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Result.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\HealthSurvey\\Result.cshtml",
+              "RelativeDocumentMoniker": "Views\\HealthSurvey\\Result.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\HealthSurvey\\Result.cshtml",
+              "RelativeToolTip": "Views\\HealthSurvey\\Result.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-16T07:42:17.603Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "_LocationSelector.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_LocationSelector.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_LocationSelector.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_LocationSelector.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_LocationSelector.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_LocationSelector.cshtml",
               "RelativeToolTip": "Views\\Shared\\_LocationSelector.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-03-13T08:00:54.68Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "LocationController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\LocationController.cs",
-              "RelativeDocumentMoniker": "Controllers\\LocationController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\LocationController.cs",
-              "RelativeToolTip": "Controllers\\LocationController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 8,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\CalorieTracker\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\CalorieTracker\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\CalorieTracker\\Index.cshtml",
+              "RelativeToolTip": "Views\\CalorieTracker\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAH0AAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-16T07:44:38.911Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Payment.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\Payment.cs",
+              "RelativeDocumentMoniker": "Models\\Payment.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\Payment.cs",
+              "RelativeToolTip": "Models\\Payment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T07:58:20.345Z"
+              "WhenOpened": "2026-03-15T18:00:18.646Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "location.js",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\js\\location.js",
-              "RelativeDocumentMoniker": "wwwroot\\js\\location.js",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\js\\location.js",
-              "RelativeToolTip": "wwwroot\\js\\location.js",
-              "ViewState": "AgIAAA0BAAAAAAAAAIBZwA4AAAA1AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2026-03-13T08:04:37.423Z"
+              "DocumentIndex": 13,
+              "Title": "OrderTable.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\OrderTable.cs",
+              "RelativeDocumentMoniker": "Models\\OrderTable.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\OrderTable.cs",
+              "RelativeToolTip": "Models\\OrderTable.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAUwDEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T08:36:47.829Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 14,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-15T09:20:05.808Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
               "Title": "LocationService.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\LocationService.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\LocationService.cs",
               "RelativeDocumentMoniker": "Services\\LocationService.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\LocationService.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\LocationService.cs",
               "RelativeToolTip": "Services\\LocationService.cs",
               "ViewState": "AgIAAJMAAAAAAAAAAEBdwKQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -406,11 +535,35 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 15,
+              "Title": "LocationController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\LocationController.cs",
+              "RelativeDocumentMoniker": "Controllers\\LocationController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\LocationController.cs",
+              "RelativeToolTip": "Controllers\\LocationController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-13T07:58:20.345Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAqwCMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-02T07:39:17.097Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
               "Title": "UserLocation.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\UserLocation.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\UserLocation.cs",
               "RelativeDocumentMoniker": "Models\\UserLocation.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\UserLocation.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\UserLocation.cs",
               "RelativeToolTip": "Models\\UserLocation.cs",
               "ViewState": "AgIAABAAAAAAAAAAAAAQwBEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -418,11 +571,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 25,
               "Title": "Success.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Payment\\Success.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Payment\\Success.cshtml",
               "RelativeDocumentMoniker": "Views\\Payment\\Success.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Payment\\Success.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Payment\\Success.cshtml",
               "RelativeToolTip": "Views\\Payment\\Success.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -430,23 +583,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAgwAsAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-02-15T09:20:05.808Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 21,
               "Title": "RazorpayService.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\RazorpayService.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\RazorpayService.cs",
               "RelativeDocumentMoniker": "Services\\RazorpayService.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\RazorpayService.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\RazorpayService.cs",
               "RelativeToolTip": "Services\\RazorpayService.cs",
               "ViewState": "AgIAAFMAAAAAAAAAAAAcwFsAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -454,11 +595,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 19,
               "Title": "FoodBox.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\FoodBox.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\FoodBox.cshtml",
               "RelativeDocumentMoniker": "Views\\Bulk\\FoodBox.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\FoodBox.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\FoodBox.cshtml",
               "RelativeToolTip": "Views\\Bulk\\FoodBox.cshtml",
               "ViewState": "AgIAAH8BAAAAAAAAAAAiwI8BAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -466,11 +607,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 22,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\cart\\Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\cart\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\cart\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\cart\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\cart\\Index.cshtml",
               "RelativeToolTip": "Views\\cart\\Index.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAKIAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -478,23 +619,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "CartController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\CartController.cs",
-              "RelativeDocumentMoniker": "Controllers\\CartController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\CartController.cs",
-              "RelativeToolTip": "Controllers\\CartController.cs",
-              "ViewState": "AgIAALUAAAAAAAAAAIBZwMIAAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T03:05:18.478Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 23,
               "Title": "Checkout.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\cart\\Checkout.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\cart\\Checkout.cshtml",
               "RelativeDocumentMoniker": "Views\\cart\\Checkout.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\cart\\Checkout.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\cart\\Checkout.cshtml",
               "RelativeToolTip": "Views\\cart\\Checkout.cshtml",
               "ViewState": "AgIAACMAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -502,11 +631,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 24,
               "Title": "PaymentController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\PaymentController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\PaymentController.cs",
               "RelativeDocumentMoniker": "Controllers\\PaymentController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\PaymentController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\PaymentController.cs",
               "RelativeToolTip": "Controllers\\PaymentController.cs",
               "ViewState": "AgIAAOEAAAAAAAAAAIBZwPAAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -514,11 +643,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 29,
               "Title": "NUTRIBITE.csproj",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\NUTRIBITE.csproj",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\NUTRIBITE.csproj",
               "RelativeDocumentMoniker": "NUTRIBITE.csproj",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\NUTRIBITE.csproj",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\NUTRIBITE.csproj",
               "RelativeToolTip": "NUTRIBITE.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
@@ -526,11 +655,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 31,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Elderly\\Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Elderly\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Elderly\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Elderly\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Elderly\\Index.cshtml",
               "RelativeToolTip": "Views\\Elderly\\Index.cshtml",
               "ViewState": "AgIAAEIBAAAAAAAAAIBpwE4BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -538,11 +667,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 26,
               "Title": "Meals.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\Meals.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\Meals.cshtml",
               "RelativeDocumentMoniker": "Views\\Bulk\\Meals.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\Meals.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\Meals.cshtml",
               "RelativeToolTip": "Views\\Bulk\\Meals.cshtml",
               "ViewState": "AgIAANIAAAAAAAAAAAAmwOUAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -550,11 +679,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 27,
               "Title": "BulkController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\BulkController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\BulkController.cs",
               "RelativeDocumentMoniker": "Controllers\\BulkController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\BulkController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\BulkController.cs",
               "RelativeToolTip": "Controllers\\BulkController.cs",
               "ViewState": "AgIAADwAAAAAAAAAACBjwHMAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -562,11 +691,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 28,
               "Title": "IRazorpayService.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\IRazorpayService.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\IRazorpayService.cs",
               "RelativeDocumentMoniker": "Services\\IRazorpayService.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Services\\IRazorpayService.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Services\\IRazorpayService.cs",
               "RelativeToolTip": "Services\\IRazorpayService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -574,11 +703,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 30,
               "Title": "Snacks.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\Snacks.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\Snacks.cshtml",
               "RelativeDocumentMoniker": "Views\\Bulk\\Snacks.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\Snacks.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\Snacks.cshtml",
               "RelativeToolTip": "Views\\Bulk\\Snacks.cshtml",
               "ViewState": "AgIAAFMAAAAAAAAAAIBpwGoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -586,11 +715,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 35,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Corporate\\Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Corporate\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Corporate\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Corporate\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Corporate\\Index.cshtml",
               "RelativeToolTip": "Views\\Corporate\\Index.cshtml",
               "ViewState": "AgIAAGQBAAAAAAAAAIBpwHYBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -598,11 +727,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 32,
               "Title": "BulkItem.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\BulkItem.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\BulkItem.cs",
               "RelativeDocumentMoniker": "Models\\BulkItem.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\BulkItem.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\BulkItem.cs",
               "RelativeToolTip": "Models\\BulkItem.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAqwCMAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -610,11 +739,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 34,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Home\\Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Home\\Index.cshtml",
               "RelativeToolTip": "Views\\Home\\Index.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAOcAAACYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -622,11 +751,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 33,
               "Title": "HomeController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\HomeController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\HomeController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\HomeController.cs",
               "RelativeToolTip": "Controllers\\HomeController.cs",
               "ViewState": "AgIAABoAAAAAAAAAAAAUwCUAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -634,47 +763,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "Models\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\ApplicationDbContext.cs",
-              "RelativeToolTip": "Models\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAJkBAAAAAAAAAIBpwKwBAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T06:26:34.838Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 28,
-              "Title": "AdminController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\AdminController.cs",
-              "RelativeDocumentMoniker": "Controllers\\AdminController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\AdminController.cs",
-              "RelativeToolTip": "Controllers\\AdminController.cs",
-              "ViewState": "AgIAABUBAAAAAAAAAIBpwHwBAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-23T11:04:57.901Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 29,
-              "Title": "OrderTable.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\OrderTable.cs",
-              "RelativeDocumentMoniker": "Models\\OrderTable.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\OrderTable.cs",
-              "RelativeToolTip": "Models\\OrderTable.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T08:36:47.829Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 36,
               "Title": "DailyCalorieEntry.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\DailyCalorieEntry.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\DailyCalorieEntry.cs",
               "RelativeDocumentMoniker": "Models\\DailyCalorieEntry.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\DailyCalorieEntry.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\DailyCalorieEntry.cs",
               "RelativeToolTip": "Models\\DailyCalorieEntry.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -682,11 +775,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 37,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Bulk\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Bulk\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Bulk\\Index.cshtml",
               "RelativeToolTip": "Views\\Bulk\\Index.cshtml",
               "ViewState": "AgIAAEoAAAAAAAAAAIBpwF4AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -694,11 +787,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 38,
               "Title": "_AdminLayout.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_AdminLayout.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_AdminLayout.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_AdminLayout.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_AdminLayout.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_AdminLayout.cshtml",
               "RelativeToolTip": "Views\\Shared\\_AdminLayout.cshtml",
               "ViewState": "AgIAAI0AAAAAAAAAAAAnwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -706,35 +799,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
-              "Title": "_VendorLayout.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_VendorLayout.cshtml",
-              "RelativeDocumentMoniker": "Views\\Shared\\_VendorLayout.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_VendorLayout.cshtml",
-              "RelativeToolTip": "Views\\Shared\\_VendorLayout.cshtml",
-              "ViewState": "AgIAAF0AAAAAAAAAAAAnwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-03-06T12:01:59.905Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 35,
-              "Title": "home.css",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\home.css",
-              "RelativeDocumentMoniker": "wwwroot\\css\\home.css",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\home.css",
-              "RelativeToolTip": "wwwroot\\css\\home.css",
-              "ViewState": "AgIAAD8BAAAAAAAAAIBpwFMBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2026-02-17T02:50:42.624Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 41,
               "Title": "ViewMealCategory.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\ViewMealCategory.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\ViewMealCategory.cshtml",
               "RelativeDocumentMoniker": "Views\\Admin\\ViewMealCategory.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\ViewMealCategory.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\ViewMealCategory.cshtml",
               "RelativeToolTip": "Views\\Admin\\ViewMealCategory.cshtml",
               "ViewState": "AgIAAFEAAAAAAAAAAGBnwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -742,11 +811,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 47,
               "Title": "BlockedUserModel.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\Users\\BlockedUserModel.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\Users\\BlockedUserModel.cs",
               "RelativeDocumentMoniker": "Models\\Users\\BlockedUserModel.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\Users\\BlockedUserModel.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\Users\\BlockedUserModel.cs",
               "RelativeToolTip": "Models\\Users\\BlockedUserModel.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAAAawAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -754,11 +823,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 46,
               "Title": "BlockedUsers.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\BlockedUsers.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\BlockedUsers.cshtml",
               "RelativeDocumentMoniker": "Views\\Users\\BlockedUsers.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\BlockedUsers.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\BlockedUsers.cshtml",
               "RelativeToolTip": "Views\\Users\\BlockedUsers.cshtml",
               "ViewState": "AgIAACEAAAAAAAAAAIBpwAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -766,11 +835,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 45,
               "Title": "UsersController.Blocked.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\UsersController.Blocked.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\UsersController.Blocked.cs",
               "RelativeDocumentMoniker": "Controllers\\UsersController.Blocked.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\UsersController.Blocked.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\UsersController.Blocked.cs",
               "RelativeToolTip": "Controllers\\UsersController.Blocked.cs",
               "ViewState": "AgIAAGEAAAAAAAAAAIBpwD8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -778,11 +847,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 42,
               "Title": "UsersController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\UsersController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\UsersController.cs",
               "RelativeDocumentMoniker": "Controllers\\UsersController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\UsersController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\UsersController.cs",
               "RelativeToolTip": "Controllers\\UsersController.cs",
               "ViewState": "AgIAADEAAAAAAAAAAAD4v30AAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -790,11 +859,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 44,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Users\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\Index.cshtml",
               "RelativeToolTip": "Views\\Users\\Index.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -802,11 +871,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 43,
               "Title": "Details.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\Details.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\Details.cshtml",
               "RelativeDocumentMoniker": "Views\\Users\\Details.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Users\\Details.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Users\\Details.cshtml",
               "RelativeToolTip": "Views\\Users\\Details.cshtml",
               "ViewState": "AgIAABMAAAAAAAAAAGBnwCkAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -814,11 +883,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 48,
               "Title": "ReportsController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\ReportsController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\ReportsController.cs",
               "RelativeDocumentMoniker": "Controllers\\ReportsController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\ReportsController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\ReportsController.cs",
               "RelativeToolTip": "Controllers\\ReportsController.cs",
               "ViewState": "AgIAAFACAAAAAAAAAIBpwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -826,11 +895,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 51,
               "Title": "ManageVendor.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\ManageVendor.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\ManageVendor.cshtml",
               "RelativeDocumentMoniker": "Views\\Admin\\ManageVendor.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\ManageVendor.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\ManageVendor.cshtml",
               "RelativeToolTip": "Views\\Admin\\ManageVendor.cshtml",
               "ViewState": "AgIAADoAAAAAAAAAAIBpwEIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -838,11 +907,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 54,
               "Title": "elderly.css",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\elderly.css",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\elderly.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\elderly.css",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\elderly.css",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\elderly.css",
               "RelativeToolTip": "wwwroot\\css\\elderly.css",
               "ViewState": "AgIAACUBAAAAAAAAAIBpwD4BAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
@@ -850,11 +919,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 50,
               "Title": "NewVendorRequest.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\NewVendorRequest.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\NewVendorRequest.cshtml",
               "RelativeDocumentMoniker": "Views\\Admin\\NewVendorRequest.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\NewVendorRequest.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\NewVendorRequest.cshtml",
               "RelativeToolTip": "Views\\Admin\\NewVendorRequest.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAGIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -862,11 +931,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 53,
               "Title": "students.css",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\students.css",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\students.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\students.css",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\students.css",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\students.css",
               "RelativeToolTip": "wwwroot\\css\\students.css",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
@@ -874,11 +943,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 49,
               "Title": "ViewCategory.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\ViewCategory.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\ViewCategory.cshtml",
               "RelativeDocumentMoniker": "Views\\Admin\\ViewCategory.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Admin\\ViewCategory.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Admin\\ViewCategory.cshtml",
               "RelativeToolTip": "Views\\Admin\\ViewCategory.cshtml",
               "ViewState": "AgIAAFIAAAAAAAAAAIBpwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -886,11 +955,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 52,
               "Title": "corporate.css",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\corporate.css",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\corporate.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\corporate.css",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\wwwroot\\css\\corporate.css",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\wwwroot\\css\\corporate.css",
               "RelativeToolTip": "wwwroot\\css\\corporate.css",
               "ViewState": "AgIAAG4AAAAAAAAAAIBpwIsAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
@@ -898,11 +967,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 55,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Menu\\Index.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Menu\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Menu\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Menu\\Index.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Menu\\Index.cshtml",
               "RelativeToolTip": "Views\\Menu\\Index.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -910,11 +979,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
+              "DocumentIndex": 57,
               "Title": "MealsController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\MealsController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\MealsController.cs",
               "RelativeDocumentMoniker": "Controllers\\MealsController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\MealsController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\MealsController.cs",
               "RelativeToolTip": "Controllers\\MealsController.cs",
               "ViewState": "AgIAAG8AAAAAAAAAAAAkwH0AAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -922,11 +991,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 57,
+              "DocumentIndex": 61,
               "Title": "Meal.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\Meal.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\Meal.cs",
               "RelativeDocumentMoniker": "Models\\Meal.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\Meal.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\Meal.cs",
               "RelativeToolTip": "Models\\Meal.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -934,11 +1003,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
+              "DocumentIndex": 58,
               "Title": "UserSignup.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\UserSignup.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\UserSignup.cs",
               "RelativeDocumentMoniker": "Models\\UserSignup.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Models\\UserSignup.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Models\\UserSignup.cs",
               "RelativeToolTip": "Models\\UserSignup.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -946,11 +1015,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 52,
+              "DocumentIndex": 56,
               "Title": "MenuController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\MenuController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\MenuController.cs",
               "RelativeDocumentMoniker": "Controllers\\MenuController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\MenuController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\MenuController.cs",
               "RelativeToolTip": "Controllers\\MenuController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAADYAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -958,11 +1027,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 56,
+              "DocumentIndex": 60,
               "Title": "UserProfileEditViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\ViewModels\\UserProfileEditViewModel.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\ViewModels\\UserProfileEditViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\UserProfileEditViewModel.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\ViewModels\\UserProfileEditViewModel.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\ViewModels\\UserProfileEditViewModel.cs",
               "RelativeToolTip": "ViewModels\\UserProfileEditViewModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -970,11 +1039,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 58,
+              "DocumentIndex": 62,
               "Title": "CalorieTrackerController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\CalorieTrackerController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\CalorieTrackerController.cs",
               "RelativeDocumentMoniker": "Controllers\\CalorieTrackerController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\CalorieTrackerController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\CalorieTrackerController.cs",
               "RelativeToolTip": "Controllers\\CalorieTrackerController.cs",
               "ViewState": "AgIAAFcAAAAAAAAAAAAuwEcAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -982,11 +1051,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 55,
+              "DocumentIndex": 59,
               "Title": "UsersAccountController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\UsersAccountController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\UsersAccountController.cs",
               "RelativeDocumentMoniker": "Controllers\\UsersAccountController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\UsersAccountController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\UsersAccountController.cs",
               "RelativeToolTip": "Controllers\\UsersAccountController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAANQAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -994,11 +1063,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 59,
+              "DocumentIndex": 63,
               "Title": "AccountController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\AccountController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\AccountController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\AccountController.cs",
               "RelativeToolTip": "Controllers\\AccountController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -1006,11 +1075,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 60,
+              "DocumentIndex": 64,
               "Title": "Login.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Auth\\Login.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Auth\\Login.cshtml",
               "RelativeDocumentMoniker": "Views\\Auth\\Login.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Auth\\Login.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Auth\\Login.cshtml",
               "RelativeToolTip": "Views\\Auth\\Login.cshtml",
               "ViewState": "AgIAAFcAAAAAAAAAAAAIwG0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
@@ -1018,11 +1087,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 61,
+              "DocumentIndex": 65,
               "Title": "ElderlyController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\ElderlyController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\ElderlyController.cs",
               "RelativeDocumentMoniker": "Controllers\\ElderlyController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\ElderlyController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\ElderlyController.cs",
               "RelativeToolTip": "Controllers\\ElderlyController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -1030,11 +1099,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 62,
+              "DocumentIndex": 66,
               "Title": "CorporateController.cs",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\CorporateController.cs",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\CorporateController.cs",
               "RelativeDocumentMoniker": "Controllers\\CorporateController.cs",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Controllers\\CorporateController.cs",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Controllers\\CorporateController.cs",
               "RelativeToolTip": "Controllers\\CorporateController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -1042,22 +1111,22 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 63,
+              "DocumentIndex": 67,
               "Title": "CreateNutriBiteSchema.sql",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\sql\\CreateNutriBiteSchema.sql",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\sql\\CreateNutriBiteSchema.sql",
               "RelativeDocumentMoniker": "sql\\CreateNutriBiteSchema.sql",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\sql\\CreateNutriBiteSchema.sql",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\sql\\CreateNutriBiteSchema.sql",
               "RelativeToolTip": "sql\\CreateNutriBiteSchema.sql",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
               "WhenOpened": "2026-02-16T00:47:35.877Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 64,
+              "DocumentIndex": 68,
               "Title": "_ValidationScriptsPartial.cshtml",
-              "DocumentMoniker": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "DocumentMoniker": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
-              "ToolTip": "C:\\Users\\Hp\\source\\repos\\narmis15\\NutriBitee\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ToolTip": "C:\\BCA - PROJECT\\NUTRIBITE\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
               "RelativeToolTip": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",

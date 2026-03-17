@@ -1,0 +1,182 @@
+@model NUTRIBITE.Models.OrderTable
+@{
+    ViewData["Title"] = "Track Order";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+    var status = Model.Status ?? "Placed";
+    var deliveryStatus = Model.DeliveryStatus ?? "";
+    
+    int progress = 25;
+    if (status == "Accepted") progress = 50;
+    if (status == "Ready for Pickup") progress = 60;
+    if (status == "Out for Delivery" || deliveryStatus == "Out for Delivery") progress = 75;
+    if (status == "Completed" || status == "Delivered" || deliveryStatus == "Delivered") progress = 100;
+    if (status == "Cancelled") progress = 0;
+}
+
+<style>
+    .track-card {
+        border-radius: 20px;
+        border: 1px solid #e9ecef; /* Add a light border */
+        box-shadow: 0 15px 35px rgba(0,0,0,0.07); /* Make shadow a bit more prominent */
+        background: white;
+        overflow: hidden;
+    }
+    .stepper-wrapper {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        position: relative;
+    }
+    .stepper-item {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        z-index: 2;
+    }
+    .stepper-item::before {
+        position: absolute;
+        content: "";
+        border-bottom: 3px solid #e0e0e0;
+        width: 100%;
+        top: 20px;
+        left: -50%;
+        z-index: -1;
+    }
+    .stepper-item:first-child::before {
+        content: none;
+    }
+    .step-counter {
+        position: relative;
+        z-index: 5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s;
+    }
+    .stepper-item.active .step-counter {
+        background-color: #2d6a4f;
+        box-shadow: 0 0 0 5px rgba(45, 106, 79, 0.2);
+    }
+    .stepper-item.completed .step-counter {
+        background-color: #2d6a4f;
+    }
+    .stepper-item.completed::before {
+        border-color: #2d6a4f;
+    }
+    .step-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+    }
+    .stepper-item.active .step-name {
+        color: #2d6a4f;
+    }
+    .status-banner {
+        background: #f0fdf4;
+        color: #2d6a4f;
+        padding: 15px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-4">
+                <a href="/Home/MyOrders" class="btn btn-outline-secondary rounded-circle me-3">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <h2 class="fw-bold mb-0">Track Order #@Model.OrderId</h2>
+            </div>
+
+            <div class="track-card p-4 p-md-5">
+                <div class="status-banner">
+                    <div class="bg-success text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="bi bi-info-circle"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Current Status: @(status == "Completed" ? "Order Delivered" : status)</h6>
+                        <small class="text-muted">Estimated arrival: Within 30-45 mins</small>
+                    </div>
+                </div>
+
+                <!-- STEPPER -->
+                <div class="stepper-wrapper">
+                    <div class="stepper-item @(progress >= 25 ? "completed" : "") @(status == "Placed" ? "active" : "")">
+                        <div class="step-counter"><i class="bi bi-receipt"></i></div>
+                        <div class="step-name">Placed</div>
+                    </div>
+                    <div class="stepper-item @(progress >= 50 ? "completed" : "") @(status == "Accepted" ? "active" : "")">
+                        <div class="step-counter"><i class="bi bi-check2-circle"></i></div>
+                        <div class="step-name">Accepted</div>
+                    </div>
+                    <div class="stepper-item @(progress >= 75 ? "completed" : "") @(status == "Out for Delivery" || deliveryStatus == "Out for Delivery" ? "active" : "")">
+                        <div class="step-counter"><i class="bi bi-truck"></i></div>
+                        <div class="step-name">On the Way</div>
+                    </div>
+                    <div class="stepper-item @(progress >= 100 ? "completed" : "") @(status == "Completed" || status == "Delivered" || deliveryStatus == "Delivered" ? "active" : "")">
+                        <div class="step-counter"><i class="bi bi-house-check"></i></div>
+                        <div class="step-name">Delivered</div>
+                    </div>
+                </div>
+
+                <hr class="my-5">
+
+                <div class="row">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <h6 class="fw-bold text-muted uppercase small mb-3">Delivery Address</h6>
+                        <p class="mb-1 fw-bold">@Model.CustomerName</p>
+                        <p class="text-muted small mb-0">@Model.DeliveryAddress</p>
+                        @if (!string.IsNullOrEmpty(Model.DeliveryNotes))
+                        {
+                            <div class="mt-2 p-2 bg-light rounded small">
+                                <i class="bi bi-chat-left-text me-1"></i> @Model.DeliveryNotes
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-muted uppercase small mb-3">Order Summary</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Order Type</span>
+                            <span class="badge @(Model.OrderType == "Delivery" ? "bg-purple" : "bg-secondary")">@Model.OrderType</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Payment</span>
+                            <span class="fw-bold">@Model.PaymentStatus</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                            <span class="fw-bold">Total Items</span>
+                            <span>@Model.TotalItems</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted small">Need help? <a href="#" class="text-primary text-decoration-none">Contact Support</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh order status every 30 seconds
+        setInterval(function() {
+            location.reload();
+        }, 30000);
+    </script>
+}

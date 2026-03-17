@@ -23,6 +23,16 @@ public partial class OrderTable
 
     public string? Status { get; set; }
 
+    public string? OrderType { get; set; } // Pickup or Delivery
+
+    public string? DeliveryAddress { get; set; }
+
+    public int? DeliveryPersonId { get; set; }
+
+    public string? DeliveryStatus { get; set; }
+
+    public string? DeliveryNotes { get; set; }
+
     public bool? IsFlagged { get; set; }
 
     public bool? IsResolved { get; set; }

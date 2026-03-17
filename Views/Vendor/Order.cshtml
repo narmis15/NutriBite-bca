@@ -1,37 +1,44 @@
-﻿@model IEnumerable<NUTRIBITE.Models.VendorOrderViewModel>
+@model IEnumerable<NUTRIBITE.Models.VendorOrderViewModel>
 @{
     ViewData["Title"] = "Orders";
     Layout = "~/Views/Shared/_VendorLayout.cshtml";
 }
 
-<div class="vendor-card">
+<div class="vendor-card shadow-sm border-0">
 
     <!-- HEADER -->
-    <div class="orders-header">
+    <div class="orders-header d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2>Orders</h2>
-            <p>Manage and track your customer orders.</p>
+            <h2 class="fw-bold text-dark">Customer Orders</h2>
+            <p class="text-muted">Manage and track your kitchen's active orders.</p>
         </div>
 
         <div class="orders-filter">
-            <select class="form-control">
-                <option>All Orders</option>
-                <option>Pending</option>
-                <option>Accepted</option>
-                <option>Completed</option>
-                <option>Cancelled</option>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-filter text-primary"></i></span>
+                <select id="statusFilter" class="form-select border-start-0 shadow-none" style="min-width: 200px;">
+                    <option value="All">All Orders</option>
+                    <option value="Placed">Placed</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Ready for Pickup">Ready for Pickup</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
         </div>
     </div>
 
     <!-- TABLE -->
     <div class="table-responsive mt-4">
-        <table class="table vendor-orders-table align-middle">
+        <table id="vendorOrdersTable" class="table vendor-orders-table align-middle">
             <thead>
                 <tr>
                     <th>Order ID</th>
                     <th>Customer</th>
                     <th>Food Item</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th>Preferences</th>
                     <th>Amount</th>
                     <th>Status</th>
                     <th>Date</th>
@@ -45,22 +52,44 @@
                 {
                     foreach (var order in Model)
                     {
-                        <tr>
+                        <tr class="order-row" data-status="@order.Status">
                             <td>#@order.OrderId</td>
                             <td>@order.CustomerName</td>
                             <td>@order.FoodItem</td>
-                            <td>₹@order.Amount</td>
-
                             <td>
-                                <span class="status-badge @order.Status?.ToLower()">
+                                <span class="badge @(order.OrderType == "Delivery" ? "bg-purple-soft text-purple" : "bg-info-soft text-info")">
+                                    <i class="bi @(order.OrderType == "Delivery" ? "bi-truck" : "bi-bag-check") me-1"></i> @order.OrderType
+                                </span>
+                            </td>
+                            <td>@order.Quantity</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(order.SpecialInstruction))
+                                {
+                                    <div class="p-2 bg-light rounded small border-start border-3 border-warning">
+                                        <i class="bi bi-chat-left-text text-warning me-1"></i> @order.SpecialInstruction
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">-</span>
+                                }
+                            </td>
+                            <td>₹@order.Amount</td>
+                            <td>
+                                <span class="badge @(order.Status == "Placed" ? "bg-warning" : (order.Status == "Accepted" ? "bg-info" : (order.Status == "Ready for Pickup" ? "bg-primary" : "bg-success")))">
                                     @order.Status
                                 </span>
                             </td>
-
-                            <td>@order.Date?.ToString("dd MMM yyyy")</td>
-
+                            <td>@(order.Date.HasValue ? order.Date.Value.ToString("dd MMM, hh:mm tt") : "-")</td>
                             <td class="text-end">
-                                <span class="text-muted">View</span>
+                                @if (order.Status == "Placed")
+                                {
+                                    <button class="btn btn-sm btn-success update-status" data-id="@order.OrderId" data-status="Accepted">Accept</button>
+                                }
+                                else if (order.Status == "Accepted")
+                                {
+                                    <button class="btn btn-sm btn-primary update-status" data-id="@order.OrderId" data-status="Ready for Pickup">Ready</button>
+                                }
                             </td>
                         </tr>
                     }
@@ -68,14 +97,67 @@
                 else
                 {
                     <tr>
-                        <td colspan="7" class="text-center">
-                            No orders available
-                        </td>
+                        <td colspan="9" class="text-center py-4 text-muted">No orders available</td>
                     </tr>
                 }
 
             </tbody>
         </table>
     </div>
-
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#statusFilter').on('change', function() {
+                const selectedStatus = $(this).val();
+                if (selectedStatus === 'All') {
+                    $('.order-row').show();
+                } else {
+                    $('.order-row').hide();
+                    $(`.order-row[data-status="${selectedStatus}"]`).show();
+                }
+                
+                // Show "No orders" if everything is hidden
+                if ($('.order-row:visible').length === 0) {
+                    if ($('#noFilteredResults').length === 0) {
+                        $('#vendorOrdersTable tbody').append('<tr id="noFilteredResults"><td colspan="9" class="text-center py-4 text-muted">No orders found for this status</td></tr>');
+                    }
+                } else {
+                    $('#noFilteredResults').remove();
+                }
+            });
+            
+            // Trigger filter once on load to handle initial selection
+            $('#statusFilter').trigger('change');
+        });
+
+        $(document).on('click', '.update-status', function() {
+            const btn = $(this);
+            const id = btn.data('id');
+            const status = btn.data('status');
+
+            if (!confirm(`Are you sure you want to mark this order as ${status}?`)) return;
+
+            btn.prop('disabled', true).text('Updating...');
+
+            $.ajax({
+                url: '/Vendor/UpdateOrderStatus',
+                type: 'POST',
+                data: { orderId: id, status: status },
+                success: function(res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        alert(res.message || 'Failed to update status');
+                        btn.prop('disabled', false).text(status === 'Accepted' ? 'Accept' : 'Ready');
+                    }
+                },
+                error: function() {
+                    alert('Server error occurred');
+                    btn.prop('disabled', false).text(status === 'Accepted' ? 'Accept' : 'Ready');
+                }
+            });
+        });
+    </script>
+}

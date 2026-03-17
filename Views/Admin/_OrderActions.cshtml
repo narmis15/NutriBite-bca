@@ -1,16 +1,21 @@
-﻿@model dynamic
+@model dynamic
 @{
-    // Expect model.OrderId (int), model.Status (string), model.IsFlagged (bool), model.PaymentStatus (string)
+    // Expect model.OrderId (int), model.Status (string), model.IsFlagged (bool), model.PaymentStatus (string), model.OrderType (string)
     int orderId = Model?.OrderId ?? 0;
     string status = (Model?.Status ?? "").ToString();
     bool isFlagged = Model?.IsFlagged == true;
     string paymentStatus = (Model?.PaymentStatus ?? "").ToString();
+    string orderType = (Model?.OrderType ?? "Pickup").ToString();
+    int? deliveryPersonId = Model?.DeliveryPersonId;
 
     // helper: allowed actions
     bool canAccept = status.Equals("New", StringComparison.OrdinalIgnoreCase);
     bool canMarkReady = status.Equals("Accepted", StringComparison.OrdinalIgnoreCase);
-    bool canMarkPicked = status.Equals("Ready for Pickup", StringComparison.OrdinalIgnoreCase);
-    bool canCancel = !status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) && !status.Equals("Picked", StringComparison.OrdinalIgnoreCase);
+    bool canMarkPicked = status.Equals("Ready for Pickup", StringComparison.OrdinalIgnoreCase) && orderType.Equals("Pickup", StringComparison.OrdinalIgnoreCase);
+    bool canAssignDelivery = orderType.Equals("Delivery", StringComparison.OrdinalIgnoreCase) && 
+                            (status.Equals("Accepted", StringComparison.OrdinalIgnoreCase) || status.Equals("Ready for Pickup", StringComparison.OrdinalIgnoreCase)) &&
+                            deliveryPersonId == null;
+    bool canCancel = !status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) && !status.Equals("Picked", StringComparison.OrdinalIgnoreCase) && !status.Equals("Delivered", StringComparison.OrdinalIgnoreCase);
     bool canRefund = paymentStatus.Equals("Paid", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(paymentStatus);
 }
 @Html.AntiForgeryToken()
@@ -25,6 +30,9 @@
 
     <button type="button" class="btn btn-sm btn-primary action-btn picked-btn" data-action="MarkPicked" data-order-id="@orderId"
             @(canMarkPicked ? "" : "disabled") title="Mark order picked by customer">Mark Picked</button>
+
+    <button type="button" class="btn btn-sm btn-info assign-delivery-btn" data-order-id="@orderId"
+            @(canAssignDelivery ? "" : "disabled") title="Assign a delivery partner">Assign Delivery</button>
 
     <!-- Secondary / destructive -->
     <button type="button" class="btn btn-sm btn-outline-danger action-btn cancel-btn" data-action="CancelOrder" data-order-id="@orderId"

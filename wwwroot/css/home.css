@@ -337,3 +337,211 @@
     margin-bottom: 8px;
     color: #444;
 }
+/*health survey*/
+/* Page spacing */
+.container {
+    max-width: 1200px;
+}
+
+    /* Header */
+    .container h3 {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+/* Card styling */
+.card {
+    border-radius: 14px;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    /* Card titles */
+    .card h5,
+    .card h6 {
+        font-weight: 600;
+        color: #34495e;
+    }
+
+    /* Numbers like BMI/BMR */
+    .card h4 {
+        font-weight: 700;
+        color: #27ae60;
+    }
+
+    /* Profile section */
+    .card p {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+/* Macro box */
+.bg-light {
+    background: #f7f9fb !important;
+}
+
+/* Health insight card */
+.border-success {
+    border-left: 5px solid #27ae60 !important;
+    background: #f8fffb;
+}
+
+/* Meal section titles */
+h6.mt-3,
+h6.mt-4 {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+/* Food cards */
+.card-img-top {
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+}
+
+/* Food title */
+.card-title {
+    font-weight: 600;
+}
+
+/* Calories text */
+.text-muted.small {
+    font-size: 13px;
+}
+
+/* Price */
+.fw-bold {
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+/* Buttons */
+.btn-success {
+    background-color: #27ae60;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    padding: 6px 14px;
+    transition: all 0.2s ease;
+}
+
+    .btn-success:hover {
+        background-color: #219150;
+    }
+
+/* Edit survey button */
+.btn-outline-dark {
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Meal badges */
+.badge {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+/* Trust message */
+.alert-info {
+    border-radius: 12px;
+    background: #e8f4f8;
+    border: none;
+    font-size: 14px;
+}
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+
+    .card {
+        margin-bottom: 15px;
+    }
+
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .btn-success {
+        width: 100%;
+    }
+}
+/* Meal section divider */
+h6.mt-3,
+h6.mt-4 {
+    border-left: 4px solid #27ae60;
+    padding-left: 10px;
+    /* ===============================
+   PROFILE DROPDOWN UI
+================================ */
+
+    .dropdown-menu
+
+{
+    border-radius: 14px;
+    border: none;
+    padding: 10px 0;
+    min-width: 200px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    animation: dropdownFade .2s ease;
+}
+
+/* dropdown animation */
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* dropdown items */
+.dropdown-item {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1b4332;
+    transition: all .2s ease;
+}
+
+    /* hover effect */
+    .dropdown-item:hover {
+        background: #f4f9f6;
+        color: #2d6a4f;
+        padding-left: 22px;
+    }
+
+/* divider */
+.dropdown-divider {
+    margin: 8px 0;
+}
+
+/* logout styling */
+.dropdown-item.text-danger {
+    font-weight: 600;
+}
+
+    .dropdown-item.text-danger:hover {
+        background: #fff3f3;
+        color: #ff4d4d;
+    }
+
+/* avatar improvement */
+.profile-avatar {
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+    .profile-avatar:hover {
+        transform: scale(1.08);
+        box-shadow: 0 10px 25px rgba(27,158,82,0.45);
+    }

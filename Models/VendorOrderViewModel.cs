@@ -1,4 +1,4 @@
-﻿namespace NUTRIBITE.Models
+namespace NUTRIBITE.Models
 {
     public class VendorOrderViewModel
     {
@@ -7,6 +7,12 @@
         public string CustomerName { get; set; }
 
         public string FoodItem { get; set; }
+
+        public string? OrderType { get; set; }
+
+        public int? Quantity { get; set; }
+
+        public string? SpecialInstruction { get; set; }
 
         public decimal? Amount { get; set; }
 

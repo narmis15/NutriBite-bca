@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using NUTRIBITE.Migrations;
@@ -66,10 +66,9 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-Q19F524\\SQLEXPRESS;Database=FoodDeliveryDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+        => optionsBuilder.UseSqlServer("Server=SIMRAN\\SQLEXPRESS;Database=FoodDeliveryDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
 
 );
-  
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -276,6 +275,22 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_OrderItems_OrderTable");
         });
 
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("OrderItems");
+
+            entity.HasOne(d => d.Order)
+                .WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK_OrderItems_OrderTable");
+
+            entity.HasOne(d => d.Food)
+                .WithMany()
+                .HasForeignKey(d => d.FoodId)
+                .HasConstraintName("FK_OrderItems_Food");
+        });
+
         modelBuilder.Entity<OrderTable>(entity =>
         {
             entity.HasKey(e => e.OrderId).HasName("PK__OrderTab__C3905BCF5037D383");
@@ -297,6 +312,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PaymentStatus).HasMaxLength(100);
             entity.Property(e => e.PickupSlot).HasMaxLength(200);
             entity.Property(e => e.Status).HasMaxLength(100);
+            entity.Property(e => e.OrderType).HasMaxLength(50);
+            entity.Property(e => e.DeliveryAddress).HasMaxLength(500);
+            entity.Property(e => e.DeliveryStatus).HasMaxLength(100);
+            entity.Property(e => e.DeliveryNotes).HasMaxLength(1000);
 
             entity.HasOne(d => d.User).WithMany(p => p.OrderTables)
                 .HasForeignKey(d => d.UserId)
@@ -421,6 +440,13 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(150);
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.VendorName).HasMaxLength(100);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.OpeningHours).HasMaxLength(50);
+            entity.Property(e => e.ClosingHours).HasMaxLength(50);
+            entity.Property(e => e.LogoPath).HasMaxLength(300);
+            entity.Property(e => e.UpiId).HasMaxLength(100);
         });
 
         // Mapping for BulkItem (table created by SQL script)

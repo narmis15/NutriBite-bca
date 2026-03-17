@@ -1,79 +1,166 @@
-﻿@{
+@{
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_VendorLayout.cshtml";
 }
 
 <!-- PAGE HEADER -->
-<div class="page-header">
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2>Dashboard Overview</h2>
-        <p>Welcome back! Here's what's happening with your store.</p>
+        <h2 class="fw-bold text-dark">Dashboard Overview</h2>
+        <p class="text-muted">Welcome back! Here's what's happening with your store today.</p>
+    </div>
+    <div>
+        <a asp-action="AddFood" class="btn btn-primary shadow-sm rounded-pill px-4">
+            <i class="bi bi-plus-lg me-1"></i> Add New Dish
+        </a>
     </div>
 </div>
 
 <!-- KPI CARDS -->
 <div class="row g-4 mb-4">
     <div class="col-xl-3 col-md-6">
-        <div class="kpi-card">
-            <div class="kpi-icon">📦</div>
-            <div class="kpi-value">--</div>
-            <div class="kpi-label">Total Orders</div>
+        <div class="kpi-card shadow-sm border-0 h-100">
+            <div class="d-flex align-items-center">
+                <div class="kpi-icon bg-primary-soft text-primary rounded-circle p-3 me-3">
+                    <i class="bi bi-box-seam fs-3"></i>
+                </div>
+                <div>
+                    <div class="kpi-value fs-3 fw-bold">@ViewBag.TotalOrders</div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Total Orders</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="kpi-card">
-            <div class="kpi-icon">💰</div>
-            <div class="kpi-value">--</div>
-            <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-card shadow-sm border-0 h-100">
+            <div class="d-flex align-items-center">
+                <div class="kpi-icon bg-success-soft text-success rounded-circle p-3 me-3">
+                    <i class="bi bi-currency-rupee fs-3"></i>
+                </div>
+                <div>
+                    <div class="kpi-value fs-3 fw-bold">₹@ViewBag.TotalRevenue</div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Total Revenue</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="kpi-card">
-            <div class="kpi-icon">🍽️</div>
-            <div class="kpi-value">@ViewBag.TotalFoods</div>
-            <div class="kpi-label">Total Food Items</div>
+        <div class="kpi-card shadow-sm border-0 h-100">
+            <div class="d-flex align-items-center">
+                <div class="kpi-icon bg-info-soft text-info rounded-circle p-3 me-3">
+                    <i class="bi bi-egg-fried fs-3"></i>
+                </div>
+                <div>
+                    <div class="kpi-value fs-3 fw-bold">@ViewBag.TotalFoods</div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Food Items</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="kpi-card">
-            <div class="kpi-icon">⏳</div>
-            <div class="kpi-value">--</div>
-            <div class="kpi-label">Pending Orders</div>
+        <div class="kpi-card shadow-sm border-0 h-100">
+            <div class="d-flex align-items-center">
+                <div class="kpi-icon bg-warning-soft text-warning rounded-circle p-3 me-3">
+                    <i class="bi bi-clock-history fs-3"></i>
+                </div>
+                <div>
+                    <div class="kpi-value fs-3 fw-bold">@ViewBag.PendingOrders</div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Pending Orders</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- REVENUE FULL WIDTH -->
-<div class="vendor-card mb-4">
-    <h5 class="fw-bold mb-1" style="font-size:16px;">Revenue Overview</h5>
-    <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
-        Monthly revenue chart
-    </p>
+<!-- CHARTS & TABLES -->
+<div class="row g-4">
+    <!-- Revenue Chart -->
+    <div class="col-lg-8">
+        <div class="vendor-card shadow-sm border-0">
+            <h5 class="fw-bold mb-4">Revenue Overview</h5>
+            <div style="height: 300px;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
 
-    <div class="text-center py-5"
-         style="color:var(--text-muted);
-                background:#f8fdf8;
-                border-radius:12px;
-                border: 1.5px dashed #c8e6c9;">
-        📈 Chart will appear here after database integration.
+    <!-- Recent Orders -->
+    <div class="col-lg-4">
+        <div class="vendor-card shadow-sm border-0">
+            <h5 class="fw-bold mb-4">Recent Orders</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.RecentOrders != null)
+                        {
+                            foreach (var order in (List<VendorOrderViewModel>)ViewBag.RecentOrders)
+                            {
+                                <tr>
+                                    <td>#@order.OrderId</td>
+                                    <td>₹@order.Amount</td>
+                                    <td>
+                                        <span class="badge @(order.Status == "Placed" ? "bg-warning" : (order.Status == "Accepted" ? "bg-info" : "bg-success")) px-2">
+                                            @order.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a asp-action="Order" class="btn btn-sm btn-light rounded-pill px-3">View All</a>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- RECENT ORDERS -->
-<div class="vendor-card">
-    <h5 class="fw-bold mb-1" style="font-size:16px;">Recent Orders</h5>
-    <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
-        Latest customer orders
-    </p>
-
-    <div class="text-center py-5"
-         style="color:var(--text-muted);
-                background:#f8fdf8;
-                border-radius:12px;
-                border: 1.5px dashed #c8e6c9;">
-        🧾 Orders will appear here after database connection.
-    </div>
-</div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.ChartLabels)),
+                datasets: [{
+                    label: 'Monthly Revenue (₹)',
+                    data: @Html.Raw(Json.Serialize(ViewBag.ChartData)),
+                    borderColor: '#2d6a4f',
+                    backgroundColor: 'rgba(45, 106, 79, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#2d6a4f'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+}

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 using System.Linq;
 using NUTRIBITE.Models;
+using NUTRIBITE.Services;
 
 namespace NUTRIBITE.Controllers
 {
@@ -11,12 +13,15 @@ namespace NUTRIBITE.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly IOrderService _orderService;
 
         public VendorController(ApplicationDbContext context,
-                                IWebHostEnvironment environment)
+                                IWebHostEnvironment environment,
+                                IOrderService orderService)
         {
             _context = context;
             _environment = environment;
+            _orderService = orderService;
         }
 
         // ================= PASSWORD HASH =================
@@ -33,19 +38,24 @@ namespace NUTRIBITE.Controllers
             }
         }
 
-        // ================= REGISTER =================
-        public IActionResult Register()
+        // ================= AUTH CHECK =================
+        private int? GetVendorId()
         {
-            return View();
+            return HttpContext.Session.GetInt32("VendorId");
         }
+
+        private bool IsLoggedIn()
+        {
+            return GetVendorId() != null;
+        }
+
+        // ================= REGISTER =================
+        public IActionResult Register() => View();
 
         [HttpPost]
         public IActionResult Register(string vendorName, string email, string password)
         {
-            var exists = _context.VendorSignups
-                .Any(v => v.Email == email);
-
-            if (exists)
+            if (_context.VendorSignups.Any(v => v.Email == email))
             {
                 ViewBag.Error = "Email already exists!";
                 return View();
@@ -67,18 +77,14 @@ namespace NUTRIBITE.Controllers
         }
 
         // ================= LOGIN =================
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
 
         [HttpPost]
         public IActionResult Login(string email, string password)
         {
-            var vendor = _context.VendorSignups
-                .FirstOrDefault(v => v.Email == email);
+            var vendor = _context.VendorSignups.FirstOrDefault(v => v.Email == email);
 
-            if (vendor == null)
+            if (vendor == null || vendor.PasswordHash != HashPassword(password))
             {
                 ViewBag.Error = "Invalid email or password.";
                 return View();
@@ -86,19 +92,13 @@ namespace NUTRIBITE.Controllers
 
             if (vendor.IsRejected == true)
             {
-                ViewBag.Error = "Your account was rejected by admin.";
+                ViewBag.Error = "Your account was rejected.";
                 return View();
             }
 
             if (vendor.IsApproved != true)
             {
-                ViewBag.Error = "Your account is waiting for admin approval.";
-                return View();
-            }
-
-            if (vendor.PasswordHash != HashPassword(password))
-            {
-                ViewBag.Error = "Invalid email or password.";
+                ViewBag.Error = "Waiting for admin approval.";
                 return View();
             }
 
@@ -108,24 +108,76 @@ namespace NUTRIBITE.Controllers
             return RedirectToAction("Dashboard");
         }
 
-        // ================= AUTH CHECK =================
-        private bool IsLoggedIn()
-        {
-            return HttpContext.Session.GetInt32("VendorId") != null;
-        }
-
         // ================= DASHBOARD =================
         public IActionResult Dashboard()
         {
-            if (!IsLoggedIn())
+            var vendorId = GetVendorId();
+            if (vendorId == null)
                 return RedirectToAction("Login");
 
-            int vendorId = HttpContext.Session.GetInt32("VendorId").Value;
+            var vendorOrderItems = _context.OrderItems
+                .Include(oi => oi.Food)
+                .Include(oi => oi.Order)
+                .Where(oi => oi.Food != null && oi.Food.VendorId == vendorId)
+                .ToList();
 
-            int totalFoods = _context.Foods
-                .Count(f => f.VendorId == vendorId);
+            int totalFoods = _context.Foods.Count(f => f.VendorId == vendorId);
+
+            int totalOrders = vendorOrderItems
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .Count();
+
+            decimal totalRevenue = vendorOrderItems
+                .Sum(oi => (oi.Quantity ?? 1) * (oi.Food?.Price ?? 0));
+
+            int pendingOrders = _context.OrderTables
+                .Count(o => vendorOrderItems.Select(oi => oi.OrderId).Contains(o.OrderId)
+                         && o.Status == "Placed");
+
+            // Monthly Revenue
+            var monthlyRevenue = vendorOrderItems
+                .Where(oi => oi.Order != null && oi.Order.CreatedAt.HasValue
+                          && oi.Order.CreatedAt.Value.Year == DateTime.Now.Year)
+                .GroupBy(oi => oi.Order.CreatedAt.Value.Month)
+                .Select(g => new
+                {
+                    Month = g.Key,
+                    Revenue = g.Sum(oi => (oi.Quantity ?? 1) * (oi.Food?.Price ?? 0))
+                })
+                .OrderBy(x => x.Month)
+                .ToList();
+
+            string[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+            decimal[] chartData = new decimal[12];
+
+            for (int i = 0; i < 12; i++)
+            {
+                var data = monthlyRevenue.FirstOrDefault(x => x.Month == i + 1);
+                chartData[i] = data?.Revenue ?? 0;
+            }
+
+            var recentOrders = vendorOrderItems
+                .OrderByDescending(oi => oi.Order?.CreatedAt)
+                .Take(5)
+                .Select(oi => new VendorOrderViewModel
+                {
+                    OrderId = oi.OrderId,
+                    CustomerName = oi.Order?.CustomerName,
+                    FoodItem = oi.ItemName,
+                    Amount = (oi.Quantity ?? 1) * (oi.Food?.Price ?? 0),
+                    Status = oi.Order?.Status,
+                    Date = oi.Order?.CreatedAt
+                })
+                .ToList();
 
             ViewBag.TotalFoods = totalFoods;
+            ViewBag.TotalOrders = totalOrders;
+            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.PendingOrders = pendingOrders;
+            ViewBag.ChartLabels = months;
+            ViewBag.ChartData = chartData;
+            ViewBag.RecentOrders = recentOrders;
 
             return View();
         }
@@ -133,7 +185,7 @@ namespace NUTRIBITE.Controllers
         // ================= ADD FOOD =================
         public IActionResult AddFood()
         {
-            if (!IsLoggedIn())
+            if (GetVendorId() == null)
                 return RedirectToAction("Login");
 
             ViewBag.Categories = _context.AddCategories
@@ -147,35 +199,28 @@ namespace NUTRIBITE.Controllers
         [HttpPost]
         public IActionResult AddFood(Food model, IFormFile ImageFile)
         {
-            if (!IsLoggedIn())
+            var vendorId = GetVendorId();
+            if (vendorId == null)
                 return RedirectToAction("Login");
-
-            int vendorId = HttpContext.Session.GetInt32("VendorId").Value;
 
             string imagePath = "";
 
-            if (ImageFile != null && ImageFile.Length > 0)
+            if (ImageFile != null)
             {
-                string uploadsFolder = Path.Combine(_environment.WebRootPath, "Vendorfooduploads");
+                string folder = Path.Combine(_environment.WebRootPath, "Vendorfooduploads");
+                Directory.CreateDirectory(folder);
 
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
+                string fileName = Guid.NewGuid() + Path.GetExtension(ImageFile.FileName);
+                string path = Path.Combine(folder, fileName);
 
-                string fileName = Guid.NewGuid().ToString()
-                                  + Path.GetExtension(ImageFile.FileName);
-
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
+                using (var stream = new FileStream(path, FileMode.Create))
                     ImageFile.CopyTo(stream);
-                }
 
                 imagePath = "/Vendorfooduploads/" + fileName;
             }
 
+            model.VendorId = vendorId.Value;
             model.ImagePath = imagePath;
-            model.VendorId = vendorId;
             model.CreatedAt = DateTime.Now;
             model.Status = "Active";
 
@@ -185,41 +230,38 @@ namespace NUTRIBITE.Controllers
             return RedirectToAction("MyFood");
         }
 
-        // ================= MY FOODS =================
+        // ================= MY FOOD =================
         public IActionResult MyFood()
         {
-            if (!IsLoggedIn())
+            var vendorId = GetVendorId();
+            if (vendorId == null)
                 return RedirectToAction("Login");
 
-            int vendorId = HttpContext.Session.GetInt32("VendorId").Value;
-
-            var foods = _context.Foods
-                .Where(f => f.VendorId == vendorId)
-                .ToList();
-
-            return View(foods);
+            return View(_context.Foods.Where(f => f.VendorId == vendorId).ToList());
         }
 
         // ================= ORDERS =================
-        // ================= ORDERS =================
         public IActionResult Order()
         {
-            if (!IsLoggedIn())
+            var vendorId = GetVendorId();
+            if (vendorId == null)
                 return RedirectToAction("Login");
 
-            var orders = _context.OrderTables
-                .Select(o => new VendorOrderViewModel
+            var orders = _context.OrderItems
+                .Include(oi => oi.Food)
+                .Include(oi => oi.Order)
+                .Where(oi => oi.Food != null && oi.Food.VendorId == vendorId)
+                .Select(oi => new VendorOrderViewModel
                 {
-                    OrderId = o.OrderId,
-                    CustomerName = o.CustomerName,
-                    FoodItem = o.OrderItems
-                                .Select(i => i.ItemName)
-                                .FirstOrDefault(),
-                    Amount = o.Payments
-                                .Select(p => p.Amount)
-                                .FirstOrDefault(),
-                    Status = o.Status,
-                    Date = o.CreatedAt
+                    OrderId = oi.OrderId,
+                    CustomerName = oi.Order.CustomerName,
+                    FoodItem = oi.ItemName,
+                    OrderType = oi.Order.OrderType,
+                    Quantity = oi.Quantity,
+                    SpecialInstruction = oi.SpecialInstruction,
+                    Amount = (oi.Quantity ?? 1) * (oi.Food.Price),
+                    Status = oi.Order.Status,
+                    Date = oi.Order.CreatedAt
                 })
                 .OrderByDescending(o => o.Date)
                 .ToList();
@@ -227,15 +269,71 @@ namespace NUTRIBITE.Controllers
             return View(orders);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
+        {
+            if (GetVendorId() == null)
+                return Json(new { success = false });
 
-        // ================= PROFILE =================
+            var ok = await _orderService.UpdateOrderStatusAsync(orderId, status);
+            return Json(new { success = ok });
+        }
         public IActionResult Profile()
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null)
+                return RedirectToAction("Login");
+
+            var vendor = _context.VendorSignups.FirstOrDefault(v => v.VendorId == vendorId);
+            return View(vendor);
+        }
+
+        [HttpPost]
+        public IActionResult Profile(string vendorName, string email, string phone, string address, string description, string openingHours, string closingHours, string upiId, IFormFile LogoFile)
         {
             if (!IsLoggedIn())
                 return RedirectToAction("Login");
 
-            return View();
+            int vendorId = HttpContext.Session.GetInt32("VendorId").Value;
+            var vendor = _context.VendorSignups.FirstOrDefault(v => v.VendorId == vendorId);
+
+            if (vendor != null)
+            {
+                vendor.VendorName = vendorName;
+                vendor.Email = email;
+                vendor.Phone = phone;
+                vendor.Address = address;
+                vendor.Description = description;
+                vendor.OpeningHours = openingHours;
+                vendor.ClosingHours = closingHours;
+                vendor.UpiId = upiId;
+
+                if (LogoFile != null && LogoFile.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(_environment.WebRootPath, "Vendorlogos");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(LogoFile.FileName);
+                    string filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        LogoFile.CopyTo(stream);
+                    }
+
+                    vendor.LogoPath = "/Vendorlogos/" + fileName;
+                }
+
+                _context.SaveChanges();
+                ViewBag.Success = "Profile updated successfully!";
+            }
+
+            return View(vendor);
         }
+
+
+
 
         // ================= LOGOUT =================
         public IActionResult Logout()

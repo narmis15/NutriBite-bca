@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace NUTRIBITE.Models;
@@ -18,4 +18,18 @@ public partial class VendorSignup
     public DateTime? CreatedAt { get; set; }
 
     public bool IsRejected { get; set; }
+
+    public string? Phone { get; set; }
+
+    public string? Address { get; set; }
+
+    public string? Description { get; set; }
+
+    public string? OpeningHours { get; set; }
+
+    public string? ClosingHours { get; set; }
+
+    public string? LogoPath { get; set; }
+
+    public string? UpiId { get; set; }
 }

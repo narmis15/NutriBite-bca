@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Order Management";
 }
 
@@ -50,8 +50,8 @@
                     <th>Order Id</th>
                     <th>Customer</th>
                     <th>Items</th>
-                    <th>Pickup Slot</th>
-                    <th>Calories</th>
+                    <th>Type</th>
+                    <th>Details</th>
                     <th>Payment</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -65,6 +65,31 @@
 
     <div id="noOrders" class="no-records" style="display:none;">
         No active orders.
+    </div>
+</div>
+
+<!-- Assign Delivery Modal -->
+<div class="modal fade" id="assignDeliveryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content card-glass">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Delivery Person</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="assignOrderId" />
+                <div class="mb-3">
+                    <label class="form-label">Select Delivery Partner</label>
+                    <select id="deliveryPersonSelect" class="form-select">
+                        <option value="">Loading partners...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmAssignBtn" class="btn btn-primary">Assign Now</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -102,9 +127,18 @@
                     btns.push('<button class="btn btn-sm glow btn-success action-btn" data-action="AcceptOrder" data-id="' + order.OrderId + '">Accept</button>');
                 } else if (order.Status === "Accepted") {
                     btns.push('<button class="btn btn-sm glow btn-warning action-btn" data-action="MarkReady" data-id="' + order.OrderId + '">Mark Ready</button>');
-                } else if (order.Status === "Ready for Pickup") {
+                } else if (order.Status === "Ready for Pickup" && order.OrderType === "Pickup") {
                     btns.push('<button class="btn btn-sm glow btn-primary action-btn" data-action="MarkPicked" data-id="' + order.OrderId + '">Mark Picked</button>');
                 }
+
+                if (order.OrderType === "Delivery" && (order.Status === "Accepted" || order.Status === "Ready for Pickup")) {
+                    if (!order.DeliveryPersonId) {
+                        btns.push('<button class="btn btn-sm glow btn-info assign-delivery-btn" data-id="' + order.OrderId + '">Assign Delivery</button>');
+                    } else {
+                        btns.push('<span class="badge bg-info d-block mb-1">Assigned</span>');
+                    }
+                }
+
                 const flagLabel = order.IsFlagged ? 'Unflag' : 'Flag';
                 btns.push('<button class="btn btn-sm btn-outline-danger action-btn ms-1" data-action="ToggleFlag" data-id="' + order.OrderId + '">' + flagLabel + '</button>');
                 return btns.join('');
@@ -147,8 +181,15 @@
                     $tr.append($('<td>').html(orderLink + (order.IsFlagged ? ' <span class="text-danger ms-1">⚑</span>' : '')));
                     $tr.append($('<td>').text((order.CustomerName || '') + ' • ' + (order.CustomerPhone || '')));
                     $tr.append($('<td>').text(order.TotalItems));
-                    $tr.append($('<td>').text(order.PickupSlot));
-                    $tr.append($('<td>').text(order.TotalCalories || 0));
+                    
+                    // Type & Details
+                    const typeBadge = order.OrderType === 'Delivery' ? '<span class="badge bg-purple">Delivery</span>' : '<span class="badge bg-secondary">Pickup</span>';
+                    $tr.append($('<td>').html(typeBadge));
+                    
+                    const details = order.OrderType === 'Delivery' ? (order.DeliveryAddress || 'No Address') : (order.PickupSlot || 'No Slot');
+                    const deliveryInfo = order.OrderType === 'Delivery' ? `<br/><small class="text-info">${order.DeliveryStatus || 'Unassigned'}</small>` : '';
+                    $tr.append($('<td>').html(details + deliveryInfo));
+                    
                     $tr.append($('<td>').text(order.PaymentStatus || ''));
                     $tr.append($('<td>').html(formatBadge(order.Status) + flaggedIcon));
                     $tr.append($('<td>').html(buildActionButtons(order)));
@@ -178,11 +219,67 @@
                 $.post({
                     url: '/Admin/' + action,
                     data: { orderId: id, __RequestVerificationToken: token },
-                    dataType: 'json'
-                }).done(function (res) {
-                    if (res && res.success) fetchOrders(); else alert(res?.message || 'Action failed');
-                }).fail(function () { alert('Server error while performing action.'); })
-                  .always(function () { $btn.prop('disabled', false); });
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.success) {
+                            fetchOrders();
+                        } else {
+                            alert(res.message || 'Action failed');
+                            $btn.prop('disabled', false);
+                        }
+                    },
+                    error: function () {
+                        alert('Error processing action');
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+
+            // Delivery Assignment Handlers
+            $(document).on('click', '.assign-delivery-btn', function () {
+                const orderId = $(this).data('id');
+                $('#assignOrderId').val(orderId);
+                $('#assignDeliveryModal').modal('show');
+
+                // Fetch personnel
+                $.get('/Admin/GetDeliveryPersonnel', function (data) {
+                    const $select = $('#deliveryPersonSelect').empty();
+                    if (!data || data.length === 0) {
+                        $select.append('<option value="">No partners found</option>');
+                        return;
+                    }
+                    data.forEach(p => {
+                        $select.append(`<option value="${p.id}">${p.name} (${p.phone})</option>`);
+                    });
+                });
+            });
+
+            $('#confirmAssignBtn').on('click', function () {
+                const orderId = $('#assignOrderId').val();
+                const personId = $('#deliveryPersonSelect').val();
+
+                if (!personId) {
+                    alert('Please select a delivery partner');
+                    return;
+                }
+
+                $(this).prop('disabled', true).text('Assigning...');
+
+                $.post({
+                    url: '/Admin/AssignDelivery',
+                    data: { orderId: orderId, deliveryPersonId: personId, __RequestVerificationToken: token },
+                    success: function (res) {
+                        if (res.success) {
+                            $('#assignDeliveryModal').modal('hide');
+                            fetchOrders();
+                        } else {
+                            alert(res.message || 'Failed to assign');
+                        }
+                    },
+                    complete: function () {
+                        $('#confirmAssignBtn').prop('disabled', false).text('Assign Now');
+                    }
+                });
             });
 
             $('#statusTabs').on('click', 'a', function (e) {

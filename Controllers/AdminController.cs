@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Http;
 using NutriBite.Filters;
@@ -547,6 +547,33 @@ namespace NUTRIBITE.Controllers
         public async Task<IActionResult> AddAdminNote(int orderId, string note)
         {
             var ok = await _orderService.AddAdminNoteAsync(orderId, note);
+            return Json(new { success = ok });
+        }
+
+        // Delivery Actions
+        [AdminAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> GetDeliveryPersonnel()
+        {
+            var list = await _orderService.GetAvailableDeliveryPersonnelAsync();
+            return Json(list);
+        }
+
+        [AdminAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignDelivery(int orderId, int deliveryPersonId)
+        {
+            var ok = await _orderService.AssignDeliveryPersonAsync(orderId, deliveryPersonId);
+            return Json(new { success = ok });
+        }
+
+        [AdminAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateDeliveryStatus(int orderId, string status)
+        {
+            var ok = await _orderService.UpdateDeliveryStatusAsync(orderId, status);
             return Json(new { success = ok });
         }
 

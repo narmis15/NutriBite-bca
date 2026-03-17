@@ -1,4 +1,4 @@
-﻿@model List<NUTRIBITE.Models.OrderTable>
+@model List<NUTRIBITE.Models.OrderTable>
 
 @{
     ViewData["Title"] = "My Orders";
@@ -70,15 +70,43 @@
 
                 <div class="order-info">
                     <h5>Order #@order.OrderId</h5>
+                    
+                    @if (order.OrderType == "Delivery")
+                    {
+                        <div class="mt-1">
+                            <span class="badge bg-purple text-white">Delivery</span>
+                            <small class="text-muted d-block mt-1">Status: <strong>@order.DeliveryStatus</strong></small>
+                            <small class="text-muted d-block">Address: @order.DeliveryAddress</small>
+                            @if (!string.IsNullOrEmpty(order.DeliveryNotes))
+                            {
+                                <small class="text-muted d-block"><em>Note: @order.DeliveryNotes</em></small>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mt-1">
+                            <span class="badge bg-secondary text-white">Pickup</span>
+                            <small class="text-muted d-block mt-1">Slot: @order.PickupSlot</small>
+                        </div>
+                    }
 
-                    <span>
+                    <span class="d-block mt-2">
                         Ordered on:
                         @(order.CreatedAt?.ToString("dd MMM yyyy"))
                     </span>
                 </div>
 
-                <div class="order-status @statusClass">
-                    @order.Status
+                <div class="d-flex align-items-center">
+                    <div class="order-status @statusClass me-3">
+                        @order.Status
+                    </div>
+                    @if (order.Status != "Cancelled" && order.Status != "Completed" && order.Status != "Delivered")
+                    {
+                        <a href="/Home/TrackOrder?orderId=@order.OrderId" class="btn btn-sm btn-primary rounded-pill px-3">
+                            <i class="bi bi-geo-alt me-1"></i> Track
+                        </a>
+                    }
                 </div>
 
             </div>

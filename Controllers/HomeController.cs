@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -180,6 +180,20 @@ namespace NUTRIBITE.Controllers
                 .ToList();
 
             return View(orders);
+        }
+
+        [SessionAuthorize]
+        public IActionResult TrackOrder(int orderId)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return RedirectToAction("Login", "Auth");
+
+            var order = _context.OrderTables
+                .FirstOrDefault(o => o.OrderId == orderId && o.UserId == userId.Value);
+
+            if (order == null) return NotFound();
+
+            return View(order);
         }
         [HttpGet]
         public IActionResult EditProfile()

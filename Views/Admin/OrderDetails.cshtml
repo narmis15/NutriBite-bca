@@ -30,7 +30,13 @@
                     <dt class="col-sm-3">Order ID</dt><dd class="col-sm-9">${data.OrderId}</dd>
                     <dt class="col-sm-3">Customer</dt><dd class="col-sm-9">${data.CustomerName} (${data.CustomerPhone})</dd>
                     <dt class="col-sm-3">Status</dt><dd class="col-sm-9">${data.Status}</dd>
-                    <dt class="col-sm-3">Pickup Slot</dt><dd class="col-sm-9">${data.PickupSlot}</dd>
+                    <dt class="col-sm-3">Type</dt><dd class="col-sm-9"><span class="badge ${data.OrderType === 'Delivery' ? 'bg-purple' : 'bg-secondary'}">${data.OrderType}</span></dd>
+                    ${data.OrderType === 'Delivery' 
+                        ? `<dt class="col-sm-3">Delivery Address</dt><dd class="col-sm-9">${data.DeliveryAddress}</dd>
+                           <dt class="col-sm-3">Delivery Notes</dt><dd class="col-sm-9"><em class="text-muted">${data.DeliveryNotes || 'No notes'}</em></dd>
+                           <dt class="col-sm-3">Delivery Status</dt><dd class="col-sm-9">${data.DeliveryStatus || 'Not Assigned'}</dd>`
+                        : `<dt class="col-sm-3">Pickup Slot</dt><dd class="col-sm-9">${data.PickupSlot}</dd>`
+                    }
                     <dt class="col-sm-3">Total Amount</dt><dd class="col-sm-9">${data.Amount}</dd>
                     <dt class="col-sm-3">Created</dt><dd class="col-sm-9">${data.OrderDateTime}</dd>
                 </dl>`;

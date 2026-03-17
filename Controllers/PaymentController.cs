@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using NUTRIBITE.Controllers;
 using System;
@@ -36,9 +36,6 @@ namespace NUTRIBITE.Controllers
         }
 
         // POST: /Payment/CreateOrder
-        // Accepts JSON or form data:
-        // { amount: 499.50, localOrderId: 123 }  OR form fields amount / localOrderId
-        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> CreateOrder()
         {
@@ -227,7 +224,14 @@ namespace NUTRIBITE.Controllers
                     var order = _db.OrderTables.FirstOrDefault(o => o.OrderId == localOrderId.Value);
 
                     if (order != null)
+                    {
                         order.PaymentStatus = "Paid";
+                        order.Status = "Placed"; // Change from Pending Payment to Placed
+
+                        // Clear cart
+                        var cartItems = _db.Carttables.Where(c => c.Uid == order.UserId);
+                        _db.Carttables.RemoveRange(cartItems);
+                    }
                 }
                 _db.SaveChanges();
 

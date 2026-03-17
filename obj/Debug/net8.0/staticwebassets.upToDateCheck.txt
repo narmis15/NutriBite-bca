@@ -25,6 +25,7 @@ wwwroot\css\users-support.css
 wwwroot\css\Users.css
 wwwroot\css\vendor-dashboard.css
 wwwroot\css\vendor-myfoods.css
+wwwroot\css\vendor-portal.css
 wwwroot\css\Vendor.css
 wwwroot\favicon.ico
 wwwroot\images\bowl1.jpeg
@@ -231,3 +232,6 @@ wwwroot\Vendorfooduploads\66727802-2300-4698-8683-435f59fd4504.jpg
 wwwroot\Vendorfooduploads\e7ee6a1b-c92e-4f5d-b085-1e1fa39c27d6.jpg
 wwwroot\Vendorfooduploads\edbdcc3c-a32f-49ff-b6b7-9df29c7200c9.jpg
 wwwroot\Vendorfooduploads\f539df50-21db-405e-972d-86ccf7d01f41.jpg
+wwwroot\Vendorlogos\89adf8b8-5577-4e56-a20f-e49b01cc4fa3.png
+wwwroot\Vendorlogos\b1cada72-e1fa-44e0-b92f-2100922ac332.png
+wwwroot\Vendorlogos\f54557e2-310c-41bf-9440-66b3fa56ae47.svg

@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @{
     var userId = Context.Session.GetInt32("UserId");
     var userName = Context.Session.GetString("UserName");
@@ -12,7 +12,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/vendor-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/vendor-portal.css" asp-append-version="true" />
 
     @RenderSection("Styles", required: false)
 
@@ -40,24 +41,48 @@
 </head>
 <body>
 
-    <!-- NAVBAR: same simple public navbar (text logo) -->
+    <!-- NAVBAR: same simple public navbar (text logo)<a href="/Vendor/Dashboard">
+                                       <img src="/images/hero/Nutribitelogo.png" alt="NutriBite Logo" />
+
+                </a> -->
     
 
-    <!-- ===== VENDOR WRAPPER (sidebar + content) ===== -->
     <div class="vendor-wrapper">
         <div class="vendor-sidebar" id="vendorSidebar">
-           
-            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
-            <
-            <a href="/Vendor/Dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></a>
-            <a href="/Vendor/MyFood"><span class="nav-icon">🍽️</span><span class="nav-label">My Foods</span></a>
-            <a href="/Vendor/AddFood"><span class="nav-icon">➕</span><span class="nav-label">Add Food</span></a>
-            <a href="/Vendor/Order"><span class="nav-icon">📦</span><span class="nav-label">Orders</span></a>
+            <div class="sidebar-header">
+                
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            
+            <a href="/Vendor/Dashboard" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="bi bi-speedometer2 nav-icon"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="/Vendor/MyFood" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "MyFood" ? "active" : "")">
+                <i class="bi bi-egg-fried nav-icon"></i>
+                <span class="nav-label">My Foods</span>
+            </a>
+            <a href="/Vendor/AddFood" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "AddFood" ? "active" : "")">
+                <i class="bi bi-plus-circle nav-icon"></i>
+                <span class="nav-label">Add Food</span>
+            </a>
+            <a href="/Vendor/Order" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Order" ? "active" : "")">
+                <i class="bi bi-box-seam nav-icon"></i>
+                <span class="nav-label">Orders</span>
+            </a>
 
-            <div class="sidebar-divider"></div>
+            <div class="sidebar-divider my-3 mx-4" style="border-top: 1px solid rgba(255,255,255,0.1);"></div>
 
-            <a href="/Vendor/Profile"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
-            <a href="/Vendor/Logout" class="logout-link"><span class="nav-icon">🚪</span><span class="nav-label">Logout</span></a>
+            <a href="/Vendor/Profile" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
+                <i class="bi bi-person-circle nav-icon"></i>
+                <span class="nav-label">Profile</span>
+            </a>
+            <a href="/Vendor/Logout" class="logout-link">
+                <i class="bi bi-box-arrow-right nav-icon"></i>
+                <span class="nav-label">Logout</span>
+            </a>
         </div>
 
         <div class="vendor-main" id="vendorMain">

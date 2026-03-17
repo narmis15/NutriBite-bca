@@ -1,0 +1,183 @@
+/* Professional Vendor Portal Styling */
+:root {
+    --vendor-primary: #2d6a4f;
+    --vendor-secondary: #40916c;
+    --vendor-light: #f8fdfb;
+    --vendor-sidebar: #1b4332;
+    --text-muted: #6c757d;
+    --bg-soft-success: #d8f3dc;
+    --bg-soft-primary: #e7f1ff;
+    --bg-soft-warning: #fff3cd;
+    --bg-soft-info: #e0f7fa;
+}
+
+body {
+    background-color: #f0f4f2;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Sidebar & Layout */
+.vendor-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.vendor-sidebar {
+    width: 260px;
+    background: var(--vendor-sidebar);
+    color: white;
+    transition: all 0.3s ease;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.vendor-sidebar.collapsed {
+    width: 80px;
+}
+
+.vendor-sidebar a {
+    color: rgba(255,255,255,0.8);
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.2s;
+    border-radius: 0 50px 50px 0;
+    margin-right: 15px;
+    margin-bottom: 5px;
+}
+
+.vendor-sidebar a:hover, .vendor-sidebar a.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding-left: 35px;
+}
+
+.vendor-sidebar.collapsed a {
+    padding: 15px;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 5px 10px;
+}
+
+.vendor-sidebar.collapsed .nav-label {
+    display: none;
+}
+
+.vendor-main {
+    flex: 1;
+    margin-left: 260px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.vendor-main.collapsed {
+    margin-left: 80px;
+}
+
+.sidebar-header {
+    padding: 20px 25px;
+    text-align: center; 
+}
+
+.sidebar-header a {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Vertically center items */
+    gap: 10px; /* Space between logo and text */
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    text-decoration: none; /* Remove underline from link */
+}
+
+.sidebar-header span {
+    font-size: 1.4rem; /* Match the home page logo text size */
+    font-weight: 600; /* Make the text bold */
+    color: #333; /* Dark text color for contrast */
+}
+
+.sidebar-header a:hover {
+    transform: scale(1.05);
+    background: white;
+}
+
+.sidebar-header img {
+    height: 45px;
+    width: auto;
+    display: block;
+}
+
+.vendor-sidebar.collapsed .sidebar-header {
+    padding: 20px 10px;
+}
+
+.vendor-sidebar.collapsed .sidebar-header a {
+    padding: 8px;
+}
+
+.vendor-sidebar.collapsed .sidebar-header img {
+    height: 35px;
+}
+
+.nav-icon {
+    margin-right: 15px;
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.vendor-sidebar.collapsed .nav-icon {
+    margin-right: 0;
+}
+
+/* Cards & Elements */
+.vendor-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.vendor-card:hover {
+    transform: translateY(-5px);
+}
+
+.kpi-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-8px);
+}
+
+.bg-primary-soft { background-color: var(--bg-soft-primary); }
+.bg-success-soft { background-color: var(--bg-soft-success); }
+.bg-warning-soft { background-color: var(--bg-soft-warning); }
+.bg-info-soft { background-color: var(--bg-soft-info); }
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    padding: 10px;
+    position: absolute;
+    right: 10px;
+    top: 25px;
+    cursor: pointer;
+}
+
+.vendor-sidebar.collapsed .sidebar-toggle {
+    position: relative;
+    right: 0;
+    top: 0;
+    width: 100%;
+}

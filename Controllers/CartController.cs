@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System;
@@ -202,7 +202,7 @@ namespace NUTRIBITE.Controllers
 
         // ================= CHECKOUT =================
         [HttpPost]
-        public IActionResult Checkout(string pickupSlot = "12:00 PM")
+        public IActionResult Checkout(string pickupSlot = "12:00 PM", string orderType = "Pickup", string deliveryAddress = "", string deliveryNotes = "", string paymentMethod = "Online", bool clearCart = true)
         {
             var uid = HttpContext.Session.GetInt32("UserId");
 
@@ -242,10 +242,14 @@ namespace NUTRIBITE.Controllers
                 CustomerName = user?.Name,
                 CustomerPhone = user?.Phone,
                 TotalItems = totalItems,
-                PickupSlot = pickupSlot,
+                PickupSlot = orderType == "Pickup" ? pickupSlot : null,
+                OrderType = orderType,
+                DeliveryAddress = orderType == "Delivery" ? deliveryAddress : null,
+                DeliveryNotes = orderType == "Delivery" ? deliveryNotes : null,
+                DeliveryStatus = orderType == "Delivery" ? "Pending Assignment" : null,
                 TotalCalories = totalCalories,
-                PaymentStatus = "Pending",
-                Status = "Placed",
+                PaymentStatus = paymentMethod == "COD" ? "To be Paid (COD)" : "Pending",
+                Status = paymentMethod == "COD" ? "Placed" : "Pending Payment",
                 IsFlagged = false,
                 CreatedAt = DateTime.Now
             };
@@ -266,6 +270,7 @@ namespace NUTRIBITE.Controllers
                 _context.OrderItems.Add(new OrderItem
                 {
                     OrderId = order.OrderId,
+                    FoodId = food.Id, // Ensure FoodId is linked for vendor visibility
                     ItemName = food.Name,
                     Quantity = item.Qty,
                     SpecialInstruction = item.SpecialInstruction,
@@ -288,10 +293,17 @@ namespace NUTRIBITE.Controllers
             _context.SaveChanges();
 
 
-            // CLEAR CART
-            _context.Carttables.RemoveRange(cartItems);
-            _context.SaveChanges();
+            // CLEAR CART if requested
+            if (clearCart)
+            {
+                _context.Carttables.RemoveRange(cartItems);
+                _context.SaveChanges();
+            }
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, orderId = order.OrderId });
+            }
 
             return RedirectToAction("Success");
         }

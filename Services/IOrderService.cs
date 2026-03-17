@@ -24,5 +24,11 @@ namespace NUTRIBITE.Services
         Task<bool> UpdateSlotStatusAsync(int slotId, bool isDisabled);
         Task<(bool ok,int currentBookings)> UpdateSlotCapacityAsync(int slotId, int capacity);
         Task<(bool ok,string message)> ToggleSlotBlockAsync(int slotId, DateTime date);
+
+        // Delivery methods
+        Task<bool> AssignDeliveryPersonAsync(int orderId, int deliveryPersonId);
+        Task<bool> UpdateDeliveryStatusAsync(int orderId, string status);
+        Task<IEnumerable<object>> GetAvailableDeliveryPersonnelAsync();
+        Task<IEnumerable<object>> GetDeliveriesForPersonAsync(int deliveryPersonId);
     }
 }
