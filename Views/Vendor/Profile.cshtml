@@ -10,16 +10,9 @@
     <div class="col-md-4">
         <div class="vendor-card profile-summary text-center h-100 shadow-sm">
             <div class="profile-avatar-container position-relative mb-3">
-                @if (!string.IsNullOrEmpty(Model.LogoPath))
-                {
-                    <img src="@Model.LogoPath" class="profile-logo-img rounded-circle border border-4 border-white shadow" alt="Logo" style="width: 120px; height: 120px; object-fit: cover;">
-                }
-                else
-                {
-                    <div class="profile-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow mb-3" style="width: 120px; height: 120px; font-size: 3rem;">
-                        @Model.VendorName.Substring(0, 1).ToUpper()
-                    </div>
-                }
+                <div class="profile-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow mb-3" style="width: 120px; height: 120px; font-size: 3rem;">
+                    @Model.VendorName.Substring(0, 1).ToUpper()
+                </div>
             </div>
             <h4 class="fw-bold mb-1">@Model.VendorName</h4>
             <p class="text-muted mb-3">@Model.Email</p>
@@ -81,10 +74,6 @@
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone text-muted"></i></span>
                             <input type="text" name="phone" class="form-control border-start-0" value="@Model.Phone" placeholder="+91 98765-43210">
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Store Logo</label>
-                        <input type="file" name="LogoFile" class="form-control" accept="image/*">
                     </div>
                     
                     <div class="col-md-12">

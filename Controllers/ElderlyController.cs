@@ -20,11 +20,11 @@ namespace NUTRIBITE.Controllers
             var foods = _context.Foods
                 .Include(f => f.Nutritionist)
                 .Where(f => f.Status == "Active" && f.FoodType == "Elderly")
-                .Take(3)
+                .Take(10)
                 .ToList();
 
-            // Auto-seed if empty
-            if (!foods.Any())
+            // Auto-seed if less than 10 items
+            if (foods.Count < 10)
             {
                 var vendor = _context.VendorSignups.FirstOrDefault(v => v.Email == "system@nutribite.com");
                 if (vendor == null)
@@ -45,12 +45,25 @@ namespace NUTRIBITE.Controllers
                     new Food { Name = "Pumpkin Mash & Phulka", Price = 75, Calories = 400, PreparationTime = "20 mins", FoodType = "Elderly", ImagePath = "/images/menu items/pumpkin mash with phulkas.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
                     new Food { Name = "Steamed Idli with Mild Sambar", Price = 85, Calories = 350, PreparationTime = "15 mins", FoodType = "Elderly", ImagePath = "/images/menu items/sambhar idli.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
                     new Food { Name = "Mashed Aloo-Baingan Bharta", Price = 80, Calories = 430, PreparationTime = "20 mins", FoodType = "Elderly", ImagePath = "/images/menu items/baigan bharta.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
-                    new Food { Name = "Warm Apple & Cinnamon Stew", Price = 50, Calories = 240, PreparationTime = "15 mins", FoodType = "Elderly", ImagePath = "/images/menu items/cinnamon apple stew.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now }
+                    new Food { Name = "Warm Apple & Cinnamon Stew", Price = 50, Calories = 240, PreparationTime = "15 mins", FoodType = "Elderly", ImagePath = "/images/menu items/cinnamon apple stew.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
+                    new Food { Name = "Carrot & Ginger Soup", Price = 65, Calories = 180, PreparationTime = "20 mins", FoodType = "Elderly", ImagePath = "/images/menu items/fresh smoothie.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
+                    new Food { Name = "Ragi Malt Porridge", Price = 55, Calories = 220, PreparationTime = "10 mins", FoodType = "Elderly", ImagePath = "/images/menu items/jowar upma.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now }
                 };
 
-                _context.Foods.AddRange(elderlyMeals);
+                foreach (var meal in elderlyMeals)
+                {
+                    if (!_context.Foods.Any(f => f.Name == meal.Name && f.FoodType == "Elderly"))
+                    {
+                        _context.Foods.Add(meal);
+                    }
+                }
                 _context.SaveChanges();
-                foods = elderlyMeals;
+                
+                foods = _context.Foods
+                    .Include(f => f.Nutritionist)
+                    .Where(f => f.Status == "Active" && f.FoodType == "Elderly")
+                    .Take(10)
+                    .ToList();
             }
 
             return View(foods);

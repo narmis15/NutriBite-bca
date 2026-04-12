@@ -108,40 +108,150 @@ body {
 .badge {
     padding: 6px 12px;
     border-radius: 50px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: .3px;
+    text-transform: uppercase;
 }
 
     .badge.status-new {
         background: #FFF9C4;
         color: #8a6d00;
+        border: 1px solid rgba(138,109,0,0.1);
     }
 
     .badge.status-accepted {
-        background: #FFF3E0;
-        color: #7a4a00;
+        background: #E0F7FA;
+        color: #006064;
+        border: 1px solid rgba(0,96,100,0.1);
     }
 
     .badge.status-ready {
         background: #E8F5E9;
         color: #1b5e20;
+        border: 1px solid rgba(27,94,32,0.1);
+    }
+
+    .badge.status-transit {
+        background: #E3F2FD;
+        color: #0d47a1;
+        border: 1px solid rgba(13,71,161,0.1);
     }
 
     .badge.status-picked {
-        background: #E3F2FD;
-        color: #0d47a1;
+        background: #F3E5F5;
+        color: #4a148c;
+        border: 1px solid rgba(74,20,140,0.1);
     }
 
     .badge.status-flagged {
         background: #FFF3E0;
         color: #a84b00;
+        border: 1px solid rgba(168,75,0,0.1);
     }
 
     .badge.status-cancelled {
         background: #FFEBEE;
         color: #b71c1c;
+        border: 1px solid rgba(183,28,28,0.1);
     }
+
+/* =========================================
+   ACTION BUTTONS
+========================================= */
+.action-btn {
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.action-btn i {
+    font-size: 14px;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+.action-btn.btn-accept { background: #4caf50; color: #000000; }
+.action-btn.btn-ready { background: #2e7d32; color: #000000; }
+.action-btn.btn-assign { background: #0288d1; color: #000000; }
+.action-btn.btn-transit { background: #1976d2; color: #000000; }
+.action-btn.btn-delivered { background: #388e3c; color: #000000; }
+.action-btn.btn-picked { background: #7b1fa2; color: #000000; }
+
+/* =========================================
+   ORDER DETAILS MODAL
+========================================= */
+.order-details-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.order-details-header {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.order-item-row:last-child {
+    border-bottom: none;
+}
+
+.order-meta {
+    font-size: 13px;
+    color: #666;
+}
+
+.order-meta strong {
+    color: #333;
+}
+
+/* =========================================
+   NAV TABS MODERN
+========================================= */
+.nav-tabs {
+    border: none;
+    gap: 10px;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    color: #666;
+    font-weight: 500;
+    background: #f1f3f1;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+    background: var(--primary);
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+    background: #e4e9e4;
+}
 
 /* =========================================
    EMPTY STATE
@@ -160,29 +270,40 @@ body {
 }
 
 /* =========================================
-   LIVE PULSE EFFECT (Optional)
+   LIVE PULSE EFFECT
 ========================================= */
 .live-badge {
     background: var(--primary-light);
     color: white;
-    padding: 4px 10px;
+    padding: 6px 14px;
     border-radius: 50px;
-    font-size: 12px;
-    font-weight: 600;
-    animation: pulseLive 1.5s infinite;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    animation: pulseLive 2s infinite;
+}
+
+.live-badge::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    display: inline-block;
 }
 
 @keyframes pulseLive {
     0% {
-        box-shadow: 0 0 0 0 rgba(76,175,80,0.5);
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4);
     }
-
     70% {
-        box-shadow: 0 0 0 10px rgba(76,175,80,0);
+        box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
     }
-
     100% {
-        box-shadow: 0 0 0 0 rgba(76,175,80,0);
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
     }
 }
 

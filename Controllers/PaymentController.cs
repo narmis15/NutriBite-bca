@@ -22,22 +22,28 @@ namespace NUTRIBITE.Controllers
     {
         private readonly IRazorpayService _razorpayService;
         private readonly IPaymentDistributionService _distributionService;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _db;
         private readonly ILogger<PaymentController> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public PaymentController(
             IRazorpayService razorpayService,
             IPaymentDistributionService distributionService,
+            IEmailService emailService,
             IConfiguration configuration,
             ApplicationDbContext db,
-            ILogger<PaymentController> logger)
+            ILogger<PaymentController> logger,
+            IServiceScopeFactory scopeFactory)
         {
             _razorpayService = razorpayService ?? throw new ArgumentNullException(nameof(razorpayService));
             _distributionService = distributionService ?? throw new ArgumentNullException(nameof(distributionService));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _db = db ?? throw new ArgumentNullException(nameof(db));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         }
 
         // POST: /Payment/CreateOrder
@@ -61,12 +67,22 @@ namespace NUTRIBITE.Controllers
 
                 foreach (var c in cartRows)
                 {
-                    var food = _db.Foods.FirstOrDefault(f => f.Id == c.Pid);
-
-                    if (food != null)
-                        subtotal += food.Price * c.Qty;
+                    if (c.IsBulk)
+                    {
+                        var bulk = _db.BulkItems.FirstOrDefault(b => b.Id == c.Pid);
+                        if (bulk != null)
+                            subtotal += bulk.Price * c.Qty;
+                        else
+                            _logger.LogWarning("Cart item Pid {Pid} (Bulk) not found in BulkItems", c.Pid);
+                    }
                     else
-                        _logger.LogWarning("Cart item Pid {Pid} not found in Foods", c.Pid);
+                    {
+                        var food = _db.Foods.FirstOrDefault(f => f.Id == c.Pid);
+                        if (food != null)
+                            subtotal += food.Price * c.Qty;
+                        else
+                            _logger.LogWarning("Cart item Pid {Pid} (Regular) not found in Foods", c.Pid);
+                    }
                 }
 
                 if (subtotal <= 0)
@@ -221,9 +237,18 @@ namespace NUTRIBITE.Controllers
 
                     foreach (var c in cartRows)
                     {
-                        var food = _db.Foods.FirstOrDefault(f => f.Id == c.Pid);
-                        if (food != null)
-                            serverTotal += food.Price * c.Qty;
+                        if (c.IsBulk)
+                        {
+                            var bulk = _db.BulkItems.FirstOrDefault(b => b.Id == c.Pid);
+                            if (bulk != null)
+                                serverTotal += bulk.Price * c.Qty;
+                        }
+                        else
+                        {
+                            var food = _db.Foods.FirstOrDefault(f => f.Id == c.Pid);
+                            if (food != null)
+                                serverTotal += food.Price * c.Qty;
+                        }
                     }
 
                     if (Math.Abs(serverTotal - amountMajor) > 0.01m)
@@ -275,9 +300,56 @@ namespace NUTRIBITE.Controllers
                             // We don't fail the verification if distribution fails, but log it for manual intervention
                         }
 
+                        // ⭐ AUTOMATIC ACCEPTANCE LOGIC (3-5 seconds delay)
+                        // This triggers vendor acceptance and automatic delivery agent assignment
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await Task.Delay(5000); // 5 seconds delay
+                                using (var scope = _scopeFactory.CreateScope())
+                                {
+                                    var scopedOrderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
+                                    await scopedOrderService.UpdateOrderStatusAsync(order.OrderId, "Accepted");
+                                    _logger.LogInformation("Automatic order acceptance and agent assignment successful for order {OrderId}", order.OrderId);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Automatic order acceptance failed for order {OrderId}", order.OrderId);
+                            }
+                        });
+
                         // Clear cart
                         var cartItems = _db.Carttables.Where(c => c.Uid == order.UserId);
                         _db.Carttables.RemoveRange(cartItems);
+
+                        // 📧 Send Confirmation Email
+                        try
+                        {
+                            var user = await _db.UserSignups.FindAsync(order.UserId);
+                            if (user != null && !string.IsNullOrEmpty(user.Email))
+                            {
+                                string subject = $"Order Confirmed! NutriBite #{order.OrderId}";
+                                string body = $@"
+                                    <div style='font-family: Poppins, sans-serif; padding: 20px; border: 1px solid #eef2f3; border-radius: 10px;'>
+                                        <h2 style='color: #2d6a4f;'>Thank you for your order, {user.Name}!</h2>
+                                        <p>Your order <strong>#{order.OrderId}</strong> has been successfully placed and is being prepared.</p>
+                                        <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                                            <p style='margin: 0;'><strong>Total Amount:</strong> ₹{order.TotalAmount}</p>
+                                            <p style='margin: 0;'><strong>Status:</strong> {order.Status}</p>
+                                        </div>
+                                        <p>You can track your order live on our website.</p>
+                                        <br>
+                                        <p style='color: #888; font-size: 12px;'>This is an automated message from NutriBite.</p>
+                                    </div>";
+                                await _emailService.SendEmailAsync(user.Email, subject, body);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to send order confirmation email");
+                        }
                     }
                 }
                 _db.SaveChanges();

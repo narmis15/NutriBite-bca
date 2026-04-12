@@ -10,10 +10,20 @@
             <p class="text-muted">Manage and verify payments to vendors across the platform.</p>
         </div>
         <div class="d-flex gap-2">
-            <input type="month" id="payoutMonthPicker" class="form-control" value="@DateTime.Now.AddMonths(-1).ToString("yyyy-MM")" />
-            <button id="btnProcessMonthly" class="btn btn-success text-nowrap">
-                <i class="bi bi-gear-fill"></i> Process Monthly
-            </button>
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event"></i></span>
+                <input type="date" id="payoutDayPicker" class="form-control border-start-0" value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" />
+                <button id="btnProcessDaily" class="btn btn-primary text-nowrap">
+                    Process Daily
+                </button>
+            </div>
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-range"></i></span>
+                <input type="month" id="payoutMonthPicker" class="form-control border-start-0" value="@DateTime.Now.AddMonths(-1).ToString("yyyy-MM")" />
+                <button id="btnProcessMonthly" class="btn btn-success text-nowrap">
+                    Process Monthly
+                </button>
+            </div>
         </div>
     </div>
 
@@ -23,8 +33,8 @@
             <div class="col-md-3">
                 <label class="small fw-bold text-muted mb-1">Status</label>
                 <select id="statusFilter" class="form-select">
-                    <option value="">All Statuses</option>
-                    <option value="Pending" selected>Pending</option>
+                    <option value="" selected>All Statuses</option>
+                    <option value="Pending">Pending</option>
                     <option value="PaidToVendor">Paid</option>
                 </select>
             </div>
@@ -109,10 +119,12 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let currentPage = 1;
         const pageSize = 20;
         let selectedPayoutId = null;
+        const token = $('input[name="__RequestVerificationToken"]').first().val() || '';
         const payoutModal = new bootstrap.Modal(document.getElementById('payoutModal'));
 
         async function loadPayouts(page = 1) {
@@ -127,7 +139,7 @@
             </td></tr>`;
 
             try {
-                const response = await fetch(`/api/admin/payouts/list?page=${page}&pageSize=${pageSize}&status=${status}&search=${search}`);
+                const response = await fetch(`/Admin/GetPayoutsList?page=${page}&pageSize=${pageSize}&status=${status}&search=${search}`);
                 
                 if (response.ok) {
                     const data = await response.json();
@@ -157,32 +169,33 @@
             body.innerHTML = payouts.map(p => `
                 <tr>
                     <td class="ps-4">
-                        ${p.orderId ? `<span class="badge bg-light text-dark border">Order #${p.orderId}</span>` : `<span class="badge bg-primary">Monthly Aggregate</span>`}
-                        <div class="text-muted extra-small">ID: #${p.id}</div>
+                        ${p.id === 0 ? `<span class="badge bg-warning-subtle text-warning border">Unprocessed Balance</span>` : 
+                          (p.period && p.period.length > 7 ? `<span class="badge bg-info-subtle text-info border">Daily Payout</span>` : `<span class="badge bg-primary">Monthly Aggregate</span>`)}
+                        <div class="text-muted extra-small">ID: ${p.id === 0 ? 'ACC-NEW' : '#' + p.id}</div>
                     </td>
                     <td>
                         <div class="fw-bold">${p.vendorName}</div>
                         <div class="text-muted small">${p.vendorEmail}</div>
                     </td>
                     <td>
-                        <div class="fw-bold">${p.payoutMonth || 'N/A'}</div>
+                        <div class="fw-bold">${p.period || 'N/A'}</div>
                     </td>
                     <td>₹${p.totalSales.toFixed(2)}</td>
-                    <td class="text-danger">- ₹${p.commissionDeducted.toFixed(2)}</td>
+                    <td class="text-danger">- ₹${p.commission.toFixed(2)}</td>
                     <td class="fw-bold text-success">₹${p.amount.toFixed(2)}</td>
                     <td>
-                        <span class="badge ${p.status === 'Pending' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'} rounded-pill px-3">
-                            ${p.status === 'PaidToVendor' ? 'Paid' : p.status}
+                        <span class="badge ${p.status === 'Pending' || p.status === 'Accruing' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'} rounded-pill px-3">
+                            ${p.status === 'PaidToVendor' ? 'Paid' : (p.status === 'Accruing' ? 'Live Balance' : p.status)}
                         </span>
                     </td>
                     <td class="text-end pe-4">
-                        ${p.status === 'Pending' ? `
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="openPayoutModal(${p.id}, '${p.vendorName}', ${p.amount})">
-                                Mark as Paid
+                        ${p.status === 'Pending' || p.status === 'Accruing' ? `
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="initiateRazorpayPayout(${p.id}, '${p.vendorName}', ${p.amount}, ${p.vendorId})">
+                                <i class="bi bi-credit-card me-1"></i> Pay Now
                             </button>
                         ` : `
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" disabled>
-                                Already Paid
+                            <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" disabled>
+                                <i class="bi bi-check-circle-fill me-1"></i> Paid
                             </button>
                         `}
                     </td>
@@ -205,41 +218,131 @@
             pagination.innerHTML = html;
         }
 
-        function openPayoutModal(id, vendor, amount) {
-            selectedPayoutId = id;
-            document.getElementById('modalVendor').textContent = vendor;
-            document.getElementById('modalAmount').textContent = `₹${amount.toFixed(2)}`;
+        async function initiateRazorpayPayout(id, name, amount, vendorId) {
+            // Mocking the Razorpay Payout UI
+            const modalHtml = `
+                <div class="modal fade" id="payoutModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-body text-center p-5">
+                                <div class="mb-4">
+                                    <i class="bi bi-info-circle text-info display-1"></i>
+                                </div>
+                                <h3 class="mb-3">Secure Checkout</h3>
+                                <p class="text-muted">Mocking payment to <strong>${name}</strong>...</p>
+                                <div class="display-4 fw-bold text-success mb-4">₹${amount.toFixed(2)}</div>
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const payoutModal = new bootstrap.Modal(document.getElementById('payoutModal'));
             payoutModal.show();
+
+            // Simulate network delay for payment processing
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(`/Admin/UpdatePayoutStatus?payoutId=${id}&status=PaidToVendor`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    });
+
+                    if (response.ok) {
+                        // Success Feedback
+                        const modalBody = document.querySelector('#payoutModal .modal-body');
+                        modalBody.innerHTML = `
+                            <div class="mb-4">
+                                <i class="bi bi-check-circle-fill text-success display-1 pulse"></i>
+                            </div>
+                            <h3 class="mb-3">Payment Successful!</h3>
+                            <p class="text-muted">Funds have been transferred to ${name}.</p>
+                            <div class="alert alert-success small py-2 mb-4">
+                                <strong>Transaction ID:</strong> PAY_${Math.random().toString(36).substr(2, 9).toUpperCase()}
+                            </div>
+                            <button type="button" class="btn btn-success rounded-pill px-5" data-bs-dismiss="modal">Done</button>
+                        `;
+                        
+                        // Refresh the table when modal is closed
+                        document.getElementById('payoutModal').addEventListener('hidden.bs.modal', function () {
+                            document.getElementById('payoutModal').remove();
+                            loadPayouts(currentPage);
+                        });
+                    } else {
+                        throw new Error('Payment processing failed');
+                    }
+                } catch (error) {
+                    payoutModal.hide();
+                    document.getElementById('payoutModal').remove();
+                    alert('Error processing payment: ' + error.message);
+                }
+            }, 2500);
         }
 
-        document.getElementById('confirmPayoutBtn').addEventListener('click', async () => {
-            if (!selectedPayoutId) return;
-            
-            const btn = document.getElementById('confirmPayoutBtn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-
+        async function processPayoutInternal(payoutId, vendorId) {
             try {
-                const response = await fetch(`/api/admin/payouts/${selectedPayoutId}/mark-paid`, {
+                const response = await fetch(`/Admin/UpdatePayoutStatus`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        payoutId: payoutId || 0,
+                        vendorId: vendorId || 0,
+                        status: 'PaidToVendor',
+                        __RequestVerificationToken: token
+                    })
                 });
 
-                if (response.ok) {
-                    payoutModal.hide();
+                const res = await response.json();
+                if (res.success) {
+                    if (typeof notify !== 'undefined') notify.success('Payout processed successfully through Razorpay.');
+                    else alert('Payout processed successfully through Razorpay.');
                     loadPayouts(currentPage);
                 } else {
-                    alert('Failed to process payout. Please try again.');
+                    if (typeof notify !== 'undefined') notify.error(res.message || 'Failed to process payout. Please try again.');
+                    else alert(res.message || 'Failed to process payout. Please try again.');
                 }
             } catch (error) {
                 console.error('Error processing payout:', error);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Confirm Payment';
             }
-        });
+        }
 
         document.getElementById('applyFilters').addEventListener('click', () => loadPayouts(1));
+
+        document.getElementById('btnProcessDaily').addEventListener('click', async () => {
+            const val = document.getElementById('payoutDayPicker').value;
+            if(!val) return;
+            
+            if(!confirm(`Are you sure you want to process daily payouts for ${val}?`)) return;
+
+            const btn = document.getElementById('btnProcessDaily');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+
+            try {
+                const response = await fetch(`/Admin/GenerateDailyPayouts?date=${val}`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        __RequestVerificationToken: token
+                    })
+                });
+                const res = await response.json();
+                alert(res.message);
+                if(res.success) loadPayouts(1);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Process Daily';
+            }
+        });
 
         document.getElementById('btnProcessMonthly').addEventListener('click', async () => {
             const val = document.getElementById('payoutMonthPicker').value;
@@ -253,7 +356,13 @@
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
             try {
-                const response = await fetch(`/Admin/ProcessMonthlyPayouts?year=${year}&month=${month}`, { method: 'POST' });
+                const response = await fetch(`/Admin/GenerateMonthlyPayouts?year=${year}&month=${month}`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        __RequestVerificationToken: token
+                    })
+                });
                 const res = await response.json();
                 alert(res.message);
                 if(res.success) loadPayouts(1);

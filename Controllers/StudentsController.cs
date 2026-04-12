@@ -20,11 +20,11 @@ namespace NUTRIBITE.Controllers
             var foods = _context.Foods
                 .Include(f => f.Nutritionist)
                 .Where(f => f.Status == "Active" && f.FoodType == "Student")
-                .Take(3)
+                .Take(10)
                 .ToList();
 
-            // Auto-seed if empty
-            if (!foods.Any())
+            // Auto-seed if less than 10 items
+            if (foods.Count < 10)
             {
                 var vendor = _context.VendorSignups.FirstOrDefault(v => v.Email == "system@nutribite.com");
                 if (vendor == null)
@@ -51,9 +51,20 @@ namespace NUTRIBITE.Controllers
                     new Food { Name = "Flash Breakfast Smoothie", Price = 65, Calories = 350, PreparationTime = "10 mins", FoodType = "Student", ImagePath = "/images/menu items/fresh smoothie.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now }
                 };
 
-                _context.Foods.AddRange(studentMeals);
+                foreach (var meal in studentMeals)
+                {
+                    if (!_context.Foods.Any(f => f.Name == meal.Name && f.FoodType == "Student"))
+                    {
+                        _context.Foods.Add(meal);
+                    }
+                }
                 _context.SaveChanges();
-                foods = studentMeals;
+                
+                foods = _context.Foods
+                    .Include(f => f.Nutritionist)
+                    .Where(f => f.Status == "Active" && f.FoodType == "Student")
+                    .Take(10)
+                    .ToList();
             }
 
             return View(foods);

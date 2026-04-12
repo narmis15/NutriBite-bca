@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using NUTRIBITE.Models;
+using NUTRIBITE.ViewModels;
+
+using Microsoft.AspNetCore.SignalR;
+using NUTRIBITE.Hubs;
 
 namespace NUTRIBITE.Services
 {
@@ -14,11 +18,13 @@ namespace NUTRIBITE.Services
         private readonly string _cs;
         private readonly ILogger<OrderService> _log;
         private readonly ApplicationDbContext _db;
+        private readonly IHubContext<AnalyticsHub> _hubContext;
 
-        public OrderService(IConfiguration cfg, ILogger<OrderService> log, ApplicationDbContext db)
+        public OrderService(IConfiguration cfg, ILogger<OrderService> log, ApplicationDbContext db, IHubContext<AnalyticsHub> hubContext)
         {
             _log = log;
             _db = db;
+            _hubContext = hubContext;
             _cs = cfg.GetConnectionString("DBCS") ?? throw new Exception("DBCS not found");
         }
 
@@ -42,10 +48,10 @@ namespace NUTRIBITE.Services
 SELECT OrderId, CustomerName, CustomerPhone, ISNULL(TotalItems,0) AS TotalItems,
        ISNULL(TotalCalories,0) AS TotalCalories, ISNULL(PaymentStatus,'') AS PaymentStatus, ISNULL(Status,'') AS Status,
        ISNULL(IsFlagged,0) AS IsFlagged, CreatedAt, 'Delivery' AS OrderType, ISNULL(DeliveryStatus, '') AS DeliveryStatus,
-       ISNULL(DeliveryAddress, '') AS DeliveryAddress, ISNULL(DeliveryNotes, '') AS DeliveryNotes
+       ISNULL(DeliveryAddress, '') AS DeliveryAddress, ISNULL(DeliveryNotes, '') AS DeliveryNotes, ISNULL(TotalAmount, 0) AS TotalAmount,
+       DeliveryPersonId
 FROM OrderTable
-WHERE ISNULL(Status,'') <> 'Cancelled' 
-  AND (CreatedAt >= DATEADD(day, -2, GETDATE()) OR Status IN ('Placed', 'New', 'Accepted', 'Ready for Delivery', 'Ready for Pickup', 'In Transit', 'Picked'))
+WHERE (CreatedAt >= DATEADD(day, -7, GETDATE()) OR Status IN ('Placed', 'New', 'Accepted', 'Ready for Delivery', 'In Transit', 'On the Way', 'Cancelled'))
 ORDER BY CreatedAt DESC";
                 using var cmd = new SqlCommand(q, con);
                 using var r = await cmd.ExecuteReaderAsync();
@@ -65,7 +71,9 @@ ORDER BY CreatedAt DESC";
                         orderType = "Delivery",
                         deliveryStatus = r.IsDBNull(10) ? "Unassigned" : r.GetString(10),
                         deliveryAddress = r.IsDBNull(11) ? "No Address" : r.GetString(11),
-                        deliveryNotes = r.IsDBNull(12) ? "" : r.GetString(12)
+                        deliveryNotes = r.IsDBNull(12) ? "" : r.GetString(12),
+                        totalAmount = r.IsDBNull(13) ? 0m : r.GetDecimal(13),
+                        deliveryPersonId = r.IsDBNull(14) ? (int?)null : r.GetInt32(14)
                     });
                 }
             }
@@ -76,7 +84,7 @@ ORDER BY CreatedAt DESC";
             return list;
         }
 
-        public async Task<object?> GetOrderDetailsAsync(int orderId)
+        public async Task<OrderDetailsViewModel> GetOrderDetailsAsync(int orderId)
         {
             try
             {
@@ -88,9 +96,9 @@ SELECT TOP 1 o.OrderId, o.CreatedAt AS OrderDateTime, ISNULL(o.Status,'') AS Sta
        ISNULL(o.CustomerPhone,'') AS CustomerPhone, ISNULL(o.TotalCalories,0) AS TotalCalories,
        ISNULL(p.PaymentMode,'') AS PaymentMode, ISNULL(o.TotalAmount,0) AS Amount, ISNULL(o.CommissionAmount,0) AS CommissionAmount, ISNULL(o.VendorAmount,0) AS VendorAmount,
        ISNULL(p.IsRefunded,0) AS IsRefunded, ISNULL(p.RefundStatus,'') AS RefundStatus,
-       'Delivery' AS OrderType, ISNULL(o.DeliveryAddress,'') AS DeliveryAddress,
+       ISNULL(o.OrderType, 'Delivery') AS OrderType, ISNULL(o.DeliveryAddress,'') AS DeliveryAddress,
        ISNULL(o.DeliveryStatus,'') AS DeliveryStatus, o.DeliveryPersonId, ISNULL(o.DeliveryNotes, '') AS DeliveryNotes,
-       ISNULL(p.TransactionId, '') AS TransactionId, ISNULL(o.TrackingProgress, 0) AS TrackingProgress
+       ISNULL(p.TransactionId, '') AS TransactionId, ISNULL(o.TrackingProgress, 0) AS TrackingProgress, o.PickupSlot
 FROM OrderTable o
 LEFT JOIN Payment p ON p.OrderId = o.OrderId
 WHERE o.OrderId = @id";
@@ -99,48 +107,49 @@ WHERE o.OrderId = @id";
                 using var hr = await hcmd.ExecuteReaderAsync();
                 if (!await hr.ReadAsync()) return null;
 
-                var orderObj = new Dictionary<string, object?>
+                var orderObj = new OrderDetailsViewModel
                 {
-                    ["orderId"] = hr.GetInt32(0),
-                    ["orderDateTime"] = hr.IsDBNull(1) ? null : hr.GetDateTime(1),
-                    ["status"] = hr.IsDBNull(2) ? "" : hr.GetString(2),
-                    ["customerName"] = hr.IsDBNull(3) ? "" : hr.GetString(3),
-                    ["customerPhone"] = hr.IsDBNull(4) ? "" : hr.GetString(4),
-                    ["totalCalories"] = hr.IsDBNull(5) ? 0 : hr.GetInt32(5),
-                    ["paymentMode"] = hr.IsDBNull(6) ? "" : hr.GetString(6),
-                    ["amount"] = hr.IsDBNull(7) ? 0m : hr.GetDecimal(7),
-                    ["commissionAmount"] = hr.IsDBNull(8) ? 0m : hr.GetDecimal(8),
-                    ["vendorAmount"] = hr.IsDBNull(9) ? 0m : hr.GetDecimal(9),
-                    ["isRefunded"] = !hr.IsDBNull(10) && Convert.ToInt32(hr.GetValue(10)) == 1,
-                    ["refundStatus"] = hr.IsDBNull(11) ? "" : hr.GetString(11),
-                    ["orderType"] = "Delivery",
-                    ["deliveryAddress"] = hr.IsDBNull(13) ? "" : hr.GetString(13),
-                    ["deliveryStatus"] = hr.IsDBNull(14) ? "" : hr.GetString(14),
-                    ["deliveryPersonId"] = hr.IsDBNull(15) ? null : hr.GetInt32(15),
-                    ["deliveryNotes"] = hr.IsDBNull(16) ? "" : hr.GetString(16),
-                    ["transactionId"] = hr.IsDBNull(17) ? "" : hr.GetString(17),
-                    ["trackingProgress"] = hr.IsDBNull(18) ? 0 : hr.GetInt32(18)
+                    OrderId = hr.GetInt32(0),
+                    OrderDateTime = hr.IsDBNull(1) ? "" : hr.GetDateTime(1).ToString("g"),
+                    Status = hr.IsDBNull(2) ? "" : hr.GetString(2),
+                    CustomerName = hr.IsDBNull(3) ? "" : hr.GetString(3),
+                    CustomerPhone = hr.IsDBNull(4) ? "" : hr.GetString(4),
+                    TotalCalories = hr.IsDBNull(5) ? 0 : hr.GetInt32(5),
+                    PaymentMode = hr.IsDBNull(6) ? "" : hr.GetString(6),
+                    Amount = hr.IsDBNull(7) ? 0m : hr.GetDecimal(7),
+                    CommissionAmount = hr.IsDBNull(8) ? 0m : hr.GetDecimal(8),
+                    VendorAmount = hr.IsDBNull(9) ? 0m : hr.GetDecimal(9),
+                    IsRefunded = !hr.IsDBNull(10) && Convert.ToInt32(hr.GetValue(10)) == 1,
+                    RefundStatus = hr.IsDBNull(11) ? "" : hr.GetString(11),
+                    OrderType = hr.IsDBNull(12) ? "Delivery" : hr.GetString(12),
+                    DeliveryAddress = hr.IsDBNull(13) ? "" : hr.GetString(13),
+                    DeliveryStatus = hr.IsDBNull(14) ? "" : hr.GetString(14),
+                    DeliveryPersonId = hr.IsDBNull(15) ? null : hr.GetInt32(15),
+                    DeliveryNotes = hr.IsDBNull(16) ? "" : hr.GetString(16),
+                    TransactionId = hr.IsDBNull(17) ? "" : hr.GetString(17),
+                    TrackingProgress = hr.IsDBNull(18) ? 0 : hr.GetInt32(18),
+                    PickupSlot = hr.IsDBNull(19) ? "" : hr.GetString(19)
                 };
 
                 // items
-                var items = new List<object>();
+                var items = new List<OrderItemViewModel>();
                 var itemsQ = @"SELECT ISNULL(ItemName,'') AS Name, ISNULL(Quantity,0) AS Quantity, ISNULL(SpecialInstruction,'') AS Instructions FROM OrderItems WHERE OrderId = @id";
                 using var icmd = new SqlCommand(itemsQ, con);
                 icmd.Parameters.AddWithValue("@id", orderId);
                 using var ir = await icmd.ExecuteReaderAsync();
                 while (await ir.ReadAsync())
                 {
-                    items.Add(new
+                    items.Add(new OrderItemViewModel
                     {
-                        name = ir.IsDBNull(0) ? "" : ir.GetString(0),
-                        quantity = ir.IsDBNull(1) ? 0 : ir.GetInt32(1),
-                        instructions = ir.IsDBNull(2) ? "" : ir.GetString(2)
+                        Name = ir.IsDBNull(0) ? "" : ir.GetString(0),
+                        Quantity = ir.IsDBNull(1) ? 0 : ir.GetInt32(1),
+                        Instructions = ir.IsDBNull(2) ? "" : ir.GetString(2)
                     });
                 }
-                orderObj["items"] = items;
+                orderObj.Items = items;
 
                 // customer order count
-                var phone = orderObj["customerPhone"]?.ToString() ?? "";
+                var phone = orderObj.CustomerPhone ?? "";
                 var count = 0;
                 if (!string.IsNullOrWhiteSpace(phone))
                 {
@@ -149,8 +158,8 @@ WHERE o.OrderId = @id";
                     cc.Parameters.AddWithValue("@phone", phone);
                     count = Convert.ToInt32(await cc.ExecuteScalarAsync() ?? 0);
                 }
-                orderObj["customerOrderCount"] = count;
-                orderObj["pickupStatus"] = "On-time";
+                orderObj.CustomerOrderCount = count;
+                orderObj.PickupStatus = "On-time";
 
                 return orderObj;
             }
@@ -172,8 +181,40 @@ WHERE o.OrderId = @id";
                 int progress = 1; // Default for Placed
                 string deliveryStatus = null;
                 
-                if (newStatus.Equals("Accepted", StringComparison.OrdinalIgnoreCase)) progress = 2;
-                else if (newStatus.Contains("Ready", StringComparison.OrdinalIgnoreCase)) progress = 3;
+                int? autoAssignedId = null;
+                if (newStatus.Equals("Accepted", StringComparison.OrdinalIgnoreCase)) 
+                {
+                    progress = 2;
+                    // AUTO-ASSIGN LOGIC: Find an available delivery partner
+                    try
+                    {
+                        var availablePartner = _db.UserSignups
+                            .Where(u => u.Role == "Delivery" && u.Status == "Active")
+                            .ToList()
+                            .FirstOrDefault(u => !_db.OrderTables.Any(o => o.DeliveryPersonId == u.Id && 
+                                                                         o.Status != "Completed" && 
+                                                                         o.Status != "Delivered" && 
+                                                                         o.Status != "Cancelled"));
+
+                        if (availablePartner != null)
+                        {
+                            deliveryStatus = "Assigned";
+                            autoAssignedId = availablePartner.Id;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogError(ex, "Auto-assignment failed during status update");
+                    }
+                }
+                else if (newStatus.Contains("Ready", StringComparison.OrdinalIgnoreCase)) 
+                {
+                    progress = 3;
+                    if (newStatus.Equals("Ready for Delivery", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Logic: Ready for Delivery means Prepared by vendor
+                    }
+                }
                 else if (newStatus.Equals("In Transit", StringComparison.OrdinalIgnoreCase) || newStatus.Equals("On the Way", StringComparison.OrdinalIgnoreCase)) 
                 {
                     progress = 4;
@@ -186,17 +227,28 @@ WHERE o.OrderId = @id";
                     deliveryStatus = "Delivered";
                     newStatus = "Delivered"; // Standardize
                 }
-
-                string updateQ = deliveryStatus != null 
-                    ? "UPDATE OrderTable SET Status = @s, TrackingProgress = @p, DeliveryStatus = @ds, UpdatedAt = GETDATE() WHERE OrderId = @id"
-                    : "UPDATE OrderTable SET Status = @s, TrackingProgress = @p, UpdatedAt = GETDATE() WHERE OrderId = @id";
+                
+                // Construct the update query
+                string updateQ = "UPDATE OrderTable SET Status = @s, TrackingProgress = @p, UpdatedAt = GETDATE()";
+                if (deliveryStatus != null) updateQ += ", DeliveryStatus = @ds";
+                if (autoAssignedId != null) updateQ += ", DeliveryPersonId = @dp";
+                updateQ += " WHERE OrderId = @id";
 
                 using var cmd = new SqlCommand(updateQ, con);
                 cmd.Parameters.AddWithValue("@s", newStatus);
                 cmd.Parameters.AddWithValue("@p", progress);
                 cmd.Parameters.AddWithValue("@id", orderId);
                 if (deliveryStatus != null) cmd.Parameters.AddWithValue("@ds", deliveryStatus);
+                if (autoAssignedId != null) cmd.Parameters.AddWithValue("@dp", autoAssignedId.Value);
+                
                 var rows = await cmd.ExecuteNonQueryAsync();
+
+                if (rows > 0)
+                {
+                    // 🔔 Notify client via SignalR
+                    await _hubContext.Clients.All.SendAsync("ReceiveUpdate", $"Order #{orderId} status updated to: {newStatus}");
+                }
+
                 return rows > 0;
             }
             catch (Exception ex)
@@ -286,6 +338,12 @@ ORDER BY o.CancelledAt DESC";
                 using var pcmd = new SqlCommand(payQ, con, tx);
                 pcmd.Parameters.AddWithValue("@id", orderId);
                 await pcmd.ExecuteNonQueryAsync();
+
+                // Remove calorie entries associated with this order
+                var calQ = "DELETE FROM DailyCalorieEntry WHERE OrderId = @id";
+                using var ccmd = new SqlCommand(calQ, con, tx);
+                ccmd.Parameters.AddWithValue("@id", orderId);
+                await ccmd.ExecuteNonQueryAsync();
 
                 await tx.CommitAsync();
                 return true;
@@ -426,6 +484,35 @@ ORDER BY o.CancelledAt DESC";
             }
         }
 
+        public async Task<bool> VerifyOrderOTPAsync(int orderId, int otp)
+        {
+            try
+            {
+                var order = await _db.OrderTables.FindAsync(orderId);
+                if (order == null || order.DeliveryOTP != otp || order.IsDelivered == true)
+                    return false;
+
+                order.IsDelivered = true;
+                order.Status = "Delivered";
+                order.DeliveryStatus = "Delivered";
+                order.OrderStatus = "Delivered";
+                order.TrackingProgress = 100;
+                order.UpdatedAt = DateTime.Now;
+
+                await _db.SaveChangesAsync();
+
+                // 🔔 Notify client via SignalR
+                await _hubContext.Clients.All.SendAsync("ReceiveUpdate", $"Order #{orderId} has been successfully delivered!");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "VerifyOrderOTPAsync failed for order {OrderId}", orderId);
+                return false;
+            }
+        }
+
         public async Task<IEnumerable<object>> GetAvailableDeliveryPersonnelAsync()
         {
             var list = new List<object>();
@@ -433,11 +520,10 @@ ORDER BY o.CancelledAt DESC";
             {
                 using var con = GetConn();
                 await con.OpenAsync();
-                // Since Role is not in DB yet, we might need to rely on a naming convention or a specific status if we can't change the schema easily.
-                // But wait, the user said "build the delivery part", so I should probably assume I can add the Role column to the DB if needed.
-                // For now, I'll search for users who have 'Delivery' in their name or just all users if I can't filter by role.
-                // Actually, let's assume there's a Role column or we'll add it.
-                var q = "SELECT Id, Name, Phone FROM UserSignup WHERE Status = 'Active'"; // Simplified for now
+                
+                // Fetching only users who are explicitly registered as Delivery Partners
+                // We'll filter for users where Role is 'Delivery'
+                var q = "SELECT Id, Name, Phone FROM UserSignup WHERE Status = 'Active' AND Role = 'Delivery'"; 
                 using var cmd = new SqlCommand(q, con);
                 using var r = await cmd.ExecuteReaderAsync();
                 while (await r.ReadAsync())
@@ -453,6 +539,7 @@ ORDER BY o.CancelledAt DESC";
             catch (Exception ex)
             {
                 _log.LogError(ex, "GetAvailableDeliveryPersonnelAsync failed");
+                // Return empty list on error
             }
             return list;
         }
@@ -492,6 +579,75 @@ ORDER BY CreatedAt DESC";
                 _log.LogError(ex, "GetDeliveriesForPersonAsync failed");
             }
             return list;
+        }
+
+        public async Task<object> GetDeliveryDashboardDataAsync()
+        {
+            try
+            {
+                var today = DateTime.Today;
+
+                // 1. Statistics
+                var activePartners = await GetAvailableDeliveryPersonnelAsync();
+                int activePartnersCount = activePartners.Count();
+
+                int inTransitCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "In Transit" || o.Status == "On the Way" || o.DeliveryStatus == "In Transit" || o.DeliveryStatus == "Out for Delivery"));
+                int pendingAssignmentCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "Ready for Delivery" || o.Status == "Accepted") && o.DeliveryPersonId == null);
+                int completedTodayCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "Completed" || o.Status == "Delivered") && o.UpdatedAt >= today);
+
+                // 2. Partner List with status
+                var partners = new List<object>();
+                var allPartners = await GetAvailableDeliveryPersonnelAsync();
+
+                foreach (var p in allPartners)
+                {
+                    dynamic partner = p;
+                    int pid = partner.Id;
+                    string name = partner.Name;
+                    string phone = partner.Phone;
+
+                    // Find if they have an active delivery
+                    var activeDelivery = _db.OrderTables
+                        .Where(o => o.DeliveryPersonId == pid && 
+                                   o.Status != "Completed" && 
+                                   o.Status != "Delivered" && 
+                                   o.Status != "Cancelled")
+                        .OrderByDescending(o => o.CreatedAt)
+                        .FirstOrDefault();
+
+                    string status = activeDelivery != null ? "On Delivery" : "Available";
+                    string task = activeDelivery != null ? $"Order #{activeDelivery.OrderId} • {activeDelivery.Status}" : "Waiting for assignment";
+
+                    partners.Add(new
+                    {
+                        Name = name,
+                        Phone = phone,
+                        Status = status,
+                        CurrentTask = task,
+                        Rating = 0.0 // Default to 0 for real data until a rating system is implemented
+                    });
+                }
+
+                return new
+                {
+                    ActivePartnersCount = activePartnersCount,
+                    InTransitCount = inTransitCount,
+                    PendingAssignmentCount = pendingAssignmentCount,
+                    CompletedTodayCount = completedTodayCount,
+                    Partners = partners
+                };
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "GetDeliveryDashboardDataAsync failed");
+                return new { 
+                    ActivePartnersCount = 0, 
+                    InTransitCount = 0, 
+                    PendingAssignmentCount = 0, 
+                    CompletedTodayCount = 0, 
+                    Partners = new List<object>() 
+                };
+            }
         }
     }
 }

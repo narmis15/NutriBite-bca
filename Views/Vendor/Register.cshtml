@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Vendor";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
@@ -35,12 +35,18 @@
 
                 <div class="mb-3">
                     <label>Password</label>
-                    <input type="password" name="Password" class="form-control" required />
+                    <div class="input-group">
+                        <input id="password" type="password" name="Password" class="form-control custom-input" required />
+                        <button id="togglePasswordReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label>Confirm Password</label>
-                    <input type="password" name="ConfirmPassword" class="form-control" required />
+                    <div class="input-group">
+                        <input id="confirmPassword" type="password" name="ConfirmPassword" class="form-control custom-input" required />
+                        <button id="toggleConfirmReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-success w-100 mt-2">
@@ -57,3 +63,21 @@
     </div>
 </div>
 
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $('#togglePasswordReg').on('click', function () {
+            const $pwd = $('#password');
+            const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
+            $pwd.attr('type', type);
+            $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
+        });
+
+        $('#toggleConfirmReg').on('click', function () {
+            const $pwd = $('#confirmPassword');
+            const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
+            $pwd.attr('type', type);
+            $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
+        });
+    </script>
+}

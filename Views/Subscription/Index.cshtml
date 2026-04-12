@@ -1,0 +1,77 @@
+@model IEnumerable<NUTRIBITE.Models.Subscription>
+@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    ViewData["Title"] = "My Subscriptions";
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 fw-bold" style="color: #2d6a4f;">My Subscriptions</h2>
+    
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm p-5 text-center bg-light">
+            <h4 class="text-muted">You have no active subscriptions.</h4>
+            <p class="text-muted">Subscribe to a meal plan to get your favorite meals delivered automatically!</p>
+            <a href="/Home/Index" class="btn btn-success mt-3 rounded-pill px-4" style="background:#2d6a4f;">Explore Meals</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var sub in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+                        @if (sub.Status == "Active")
+                        {
+                            <span class="position-absolute top-0 end-0 bg-success text-white px-3 py-1 m-3 rounded-pill small fw-bold shadow-sm">
+                                <i class="bi bi-arrow-repeat"></i> Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="position-absolute top-0 end-0 bg-secondary text-white px-3 py-1 m-3 rounded-pill small fw-bold shadow-sm">
+                                <i class="bi bi-x-circle"></i> Cancelled
+                            </span>
+                        }
+                        
+                        @{
+                            var subImg = sub.Food?.ImagePath;
+                            if (string.IsNullOrEmpty(subImg)) subImg = "/images/hero/premium_healthy_bowl.png";
+                            if (!subImg.StartsWith("http") && subImg.Contains("unsplash.com")) subImg = "https://" + subImg.TrimStart('/', '\\');
+                        }
+                        <img src="@subImg" onerror="this.src='/images/hero/premium_healthy_bowl.png'" style="height: 180px; width: 100%; object-fit: cover; border-bottom: 3px solid #63B34E;" />
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-1">
+                                @(sub.Food?.Name ?? "Unknown Meal")
+                            </h5>
+                            
+                            <h6 class="text-success fw-bold mb-3">₹@sub.PricePerDelivery / Delivery</h6>
+                            
+                            <ul class="list-unstyled mb-4 small text-muted">
+                                <li class="mb-2"><i class="bi bi-calendar-check me-2"></i> <strong>Frequency:</strong> @sub.SubscriptionType</li>
+                                <li class="mb-2"><i class="bi bi-clock me-2"></i> <strong>Time Pref:</strong> @sub.DeliveryTimePreference.ToString(@"hh\:mm")</li>
+                                <li class="mb-2"><i class="bi bi-calendar-range me-2"></i> <strong>Period:</strong> @sub.StartDate.ToString("MMM dd") - @(sub.EndDate.HasValue ? sub.EndDate.Value.ToString("MMM dd") : "Ongoing")</li>
+                                <li class="mb-2"><i class="bi bi-credit-card me-2"></i> <strong>Payment:</strong> Auto-deduct from primary card</li>
+                            </ul>
+                            
+                            @if (sub.Status == "Active")
+                            {
+                                <form asp-action="Cancel" asp-controller="Subscription" method="post">
+                                    <input type="hidden" name="id" value="@sub.Id" />
+                                    <button type="submit" class="btn btn-outline-danger w-100 rounded-pill fw-bold" onclick="return confirm('Are you sure you want to cancel this subscription?');">
+                                        Cancel Subscription
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary w-100 rounded-pill fw-bold" disabled>Cancelled</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,4 +1,4 @@
-﻿@model NUTRIBITE.ViewModels.HealthSurveyViewModel
+@model NUTRIBITE.ViewModels.HealthSurveyViewModel
 
 @{
     ViewData["Title"] = "Health Survey";
@@ -10,191 +10,297 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/health-survey.css" />
+    <style>
+        body { background-color: #f8fafc; }
+        
+        .pulse-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .pulse-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .hs-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+            background: white;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .premium-input {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01) inset;
+        }
+        .premium-input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            outline: none;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+        .section-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #ecfdf5;
+            color: #10b981;
+            border-radius: 12px;
+            margin-right: 12px;
+            font-size: 1.25rem;
+        }
+
+        /* Pill Checkboxes */
+        .pill-checkbox-wrap {
+            position: relative;
+        }
+        .pill-checkbox-wrap input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .pill-checkbox-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.2rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            height: 100%;
+        }
+        .pill-checkbox-wrap input[type="checkbox"]:checked + .pill-checkbox-label {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #059669;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+        }
+        
+        .other-input {
+            display: none;
+            margin-top: 10px;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        @@keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 14px;
+            padding: 1rem 2.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(16, 185, 129, 0.4);
+        }
+    </style>
 }
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-xl-10 col-lg-11">
-            <div class="card hs-card shadow-sm overflow-hidden">
-                <div class="hs-card-header px-4 py-3 d-flex align-items-center">
-                    <div class="me-3 hs-header-icon">🍃</div>
-                    <div>
-                        <h3 class="mb-0">Health Survey</h3>
-                        <small class="text-muted">Provide basic information to get personalized recommendations</small>
-                    </div>
+        <div class="col-xl-9 col-lg-10">
+            <div class="hs-card">
+                
+                <div class="pulse-header text-center">
+                    <h2 class="fw-bold mb-2">Personal Health Assessment</h2>
+                    <p class="mb-0 fs-5 text-white-50">Tell us about yourself to tailor your experience perfectly.</p>
                 </div>
 
-                <div class="card-body p-4">
+                <div class="p-4 p-md-5">
                     @using (Html.BeginForm("Index", "HealthSurvey", FormMethod.Post, new { @id = "healthSurveyForm" }))
                     {
                         @Html.AntiForgeryToken()
-                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger rounded-3" })
 
-                        <div class="row gx-4 gy-3">
-                            <div class="col-md-2">
-                                <label class="form-label small">Age</label>
-                                @Html.TextBoxFor(m => m.Age, new { @class = "form-control hs-input", type = "number", min = "10", max = "120" })
-                                @Html.ValidationMessageFor(m => m.Age, "", new { @class = "text-danger small" })
+                        <!-- Physical Profile -->
+                        <div class="section-title">
+                            <div class="section-icon"><i class="bi bi-person-bounding-box"></i></div> Physical Profile
+                        </div>
+                        
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-3 col-6">
+                                <label class="form-label">Age</label>
+                                @Html.TextBoxFor(m => m.Age, new { @class = "form-control premium-input", type = "number", min = "10", max = "120", placeholder="e.g. 25" })
+                                @Html.ValidationMessageFor(m => m.Age, "", new { @class = "text-danger small mt-1 d-block" })
                             </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label small">Gender</label>
-                                @Html.DropDownListFor(m => m.Gender, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] { "Male", "Female", "Other" }, Model?.Gender), new { @class = "form-select hs-select" })
-                                @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger small" })
+                            <div class="col-md-3 col-6">
+                                <label class="form-label">Gender</label>
+                                @Html.DropDownListFor(m => m.Gender, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] { "Male", "Female", "Other" }, Model?.Gender), new { @class = "form-select premium-input" })
+                                @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger small mt-1 d-block" })
                             </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label small">Height (cm)</label>
-                                @Html.TextBoxFor(m => m.HeightCm, new { @class = "form-control hs-input", type = "number", step = "0.1" })
-                                @Html.ValidationMessageFor(m => m.HeightCm, "", new { @class = "text-danger small" })
+                            <div class="col-md-3 col-6">
+                                <label class="form-label">Height (cm)</label>
+                                @Html.TextBoxFor(m => m.HeightCm, new { @class = "form-control premium-input", type = "number", step = "0.1", placeholder="e.g. 175" })
+                                @Html.ValidationMessageFor(m => m.HeightCm, "", new { @class = "text-danger small mt-1 d-block" })
                             </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label small">Weight (kg)</label>
-                                @Html.TextBoxFor(m => m.WeightKg, new { @class = "form-control hs-input", type = "number", step = "0.1" })
-                                @Html.ValidationMessageFor(m => m.WeightKg, "", new { @class = "text-danger small" })
+                            <div class="col-md-3 col-6">
+                                <label class="form-label">Weight (kg)</label>
+                                @Html.TextBoxFor(m => m.WeightKg, new { @class = "form-control premium-input", type = "number", step = "0.1", placeholder="e.g. 70" })
+                                @Html.ValidationMessageFor(m => m.WeightKg, "", new { @class = "text-danger small mt-1 d-block" })
                             </div>
                         </div>
 
-                        <hr class="my-3" />
-
-                        <div class="row gx-4 gy-3">
-                            <div class="col-md-6">
-                                <label class="form-label small">Activity Level</label>
+                        <!-- Lifestyle & Goals -->
+                        <div class="section-title">
+                            <div class="section-icon"><i class="bi bi-compass"></i></div> Lifestyle & Objectives
+                        </div>
+                        
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4">
+                                <label class="form-label">Activity Level</label>
                                 @Html.DropDownListFor(m => m.ActivityLevel, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] {
-                                    "Sedentary",
-                                    "Lightly Active",
-                                    "Moderately Active",
-                                    "Very Active"
-                                }, Model?.ActivityLevel), new { @class = "form-select hs-select" })
-                                @Html.ValidationMessageFor(m => m.ActivityLevel, "", new { @class = "text-danger small" })
+                                    "Sedentary", "Lightly Active", "Moderately Active", "Very Active"
+                                }, Model?.ActivityLevel), new { @class = "form-select premium-input" })
+                                @Html.ValidationMessageFor(m => m.ActivityLevel, "", new { @class = "text-danger small mt-1 d-block" })
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label small">Goal</label>
+                            <div class="col-md-4">
+                                <label class="form-label">Primary Goal</label>
                                 @{
                                     var goals = new[]
                                     {
                                         new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Weight Loss","Weight Loss", Model?.Goal == "Weight Loss"),
                                         new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Weight Gain","Weight Gain", Model?.Goal == "Weight Gain"),
-                                        // value remains "Maintain" to keep model default while label shows "Maintain Weight"
                                         new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Maintain Weight","Maintain", Model?.Goal == "Maintain"),
                                         new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem("Muscle Gain","Muscle Gain", Model?.Goal == "Muscle Gain")
                                     };
                                 }
-                                @Html.DropDownListFor(m => m.Goal, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(goals, "Value", "Text", Model?.Goal), new { @class = "form-select hs-select" })
-                                @Html.ValidationMessageFor(m => m.Goal, "", new { @class = "text-danger small" })
+                                @Html.DropDownListFor(m => m.Goal, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(goals, "Value", "Text", Model?.Goal), new { @class = "form-select premium-input" })
+                                @Html.ValidationMessageFor(m => m.Goal, "", new { @class = "text-danger small mt-1 d-block" })
                             </div>
-                        </div>
 
-                        <div class="row gx-4 gy-3 mt-3">
-                            <div class="col-md-6">
-                                <label class="form-label small">Dietary Preference</label>
+                            <div class="col-md-4">
+                                <label class="form-label">Dietary Preference</label>
                                 @Html.DropDownListFor(m => m.DietaryPreference, new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new[] {
                                     "Vegetarian", "Vegan", "Eggetarian", "Non-Vegetarian"
-                                }, Model?.DietaryPreference), new { @class = "form-select hs-select" })
-                                @Html.ValidationMessageFor(m => m.DietaryPreference, "", new { @class = "text-danger small" })
-                            </div>
-
-                            <div class="col-md-6 d-flex align-items-end justify-content-end">
-                                <!-- placeholder for future controls -->
+                                }, Model?.DietaryPreference), new { @class = "form-select premium-input" })
+                                @Html.ValidationMessageFor(m => m.DietaryPreference, "", new { @class = "text-danger small mt-1 d-block" })
                             </div>
                         </div>
 
-                        <hr class="my-3" />
-
-                        <!-- Chronic Diseases (multi-select checkboxes) -->
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <h6 class="mb-0 me-2"><span class="me-2">⚕️</span>Chronic Diseases</h6>
-                                <small class="text-muted">select all that apply</small>
-                            </div>
-
-                            <div class="row gx-2 gy-2 hs-multi">
-                                @{
-                                    var chronicOptions = new[] { "Diabetes", "Hypertension", "Thyroid", "Heart Disease", "PCOS", "Asthma", "None", "Other" };
-                                }
-                                @* Hidden field bound to ViewModel.ChronicDiseases (server expects single string) *@
+                        <!-- Medical History -->
+                        <div class="section-title">
+                            <div class="section-icon text-danger bg-danger bg-opacity-10"><i class="bi bi-heart-pulse"></i></div> Medical History
+                        </div>
+                        
+                        <!-- Chronic Diseases -->
+                        <div class="mb-5">
+                            <label class="form-label mb-3">Chronic Conditions <span class="text-muted fw-normal text-none small ms-2">(Select all that apply)</span></label>
+                            
+                            <div class="row g-3">
+                                @{ var chronicOptions = new[] { "Diabetes", "Hypertension", "Thyroid", "Heart Disease", "PCOS", "Asthma", "None", "Other" }; }
                                 @Html.HiddenFor(m => m.ChronicDiseases, new { @id = "chronicHidden" })
 
-                                <div class="col-12">
-                                    <div class="card hs-subcard p-3">
-                                        <div class="row gx-2 gy-2">
-                                            @foreach (var opt in chronicOptions)
-                                            {
-                                                <div class="col-6 col-sm-4 col-md-3">
-                                                    <div class="form-check hs-check">
-                                                        <input class="form-check-input chronic-checkbox" type="checkbox" data-value="@opt" id="chronic_@opt" />
-                                                        <label class="form-check-label small" for="chronic_@opt">@opt</label>
-                                                    </div>
-                                                </div>
-                                            }
-                                            <div class="col-12 mt-2" id="chronicOtherWrap" style="display:none;">
-                                                <input id="chronicOtherText" class="form-control hs-input" placeholder="Please specify" />
-                                            </div>
-                                        </div>
+                                @foreach (var opt in chronicOptions)
+                                {
+                                    <div class="col-6 col-md-3">
+                                        <label class="pill-checkbox-wrap w-100">
+                                            <input type="checkbox" class="chronic-checkbox" data-value="@opt" id="chronic_@opt" />
+                                            <span class="pill-checkbox-label">@opt</span>
+                                        </label>
                                     </div>
+                                }
+                                <div class="col-12 other-input" id="chronicOtherWrap">
+                                    <input id="chronicOtherText" class="form-control premium-input" placeholder="Please specify your condition..." />
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Food Allergies (multi-select checkboxes) -->
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <h6 class="mb-0 me-2"><span class="me-2">🥗</span>Food Allergies</h6>
-                                <small class="text-muted">select all that apply</small>
-                            </div>
-
-                            <div class="row gx-2 gy-2 hs-multi">
-                                @{
-                                    var allergyOptions = new[] { "Nuts", "Dairy", "Gluten", "Shellfish", "Soy", "Eggs", "None", "Other" };
-                                }
+                        <!-- Food Allergies -->
+                        <div class="mb-5">
+                            <label class="form-label mb-3">Food Allergies <span class="text-muted fw-normal text-none small ms-2">(Select all that apply)</span></label>
+                            
+                            <div class="row g-3">
+                                @{ var allergyOptions = new[] { "Nuts", "Dairy", "Gluten", "Shellfish", "Soy", "Eggs", "None", "Other" }; }
                                 @Html.HiddenFor(m => m.FoodAllergies, new { @id = "allergyHidden" })
 
-                                <div class="col-12">
-                                    <div class="card hs-subcard p-3">
-                                        <div class="row gx-2 gy-2">
-                                            @foreach (var opt in allergyOptions)
-                                            {
-                                                <div class="col-6 col-sm-4 col-md-3">
-                                                    <div class="form-check hs-check">
-                                                        <input class="form-check-input allergy-checkbox" type="checkbox" data-value="@opt" id="allergy_@opt" />
-                                                        <label class="form-check-label small" for="allergy_@opt">@opt</label>
-                                                    </div>
-                                                </div>
-                                            }
-                                            <div class="col-12 mt-2" id="allergyOtherWrap" style="display:none;">
-                                                <input id="allergyOtherText" class="form-control hs-input" placeholder="Please specify allergy" />
-                                            </div>
-                                        </div>
+                                @foreach (var opt in allergyOptions)
+                                {
+                                    <div class="col-6 col-md-3">
+                                        <label class="pill-checkbox-wrap w-100">
+                                            <input type="checkbox" class="allergy-checkbox" data-value="@opt" id="allergy_@opt" />
+                                            <span class="pill-checkbox-label">@opt</span>
+                                        </label>
+                                    </div>
+                                }
+                                <div class="col-12 other-input" id="allergyOtherWrap">
+                                    <input id="allergyOtherText" class="form-control premium-input" placeholder="Please specify allergy..." />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Habits -->
+                        <div class="mb-5 p-4 rounded-4" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch d-flex align-items-center">
+                                        @Html.CheckBoxFor(m => m.Smoking, new { @class = "form-check-input fs-4 mt-0 me-3", id = "smoking" })
+                                        <label class="form-check-label fw-bold text-dark fs-5" for="smoking" style="cursor: pointer;">I am a Smoker</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch d-flex align-items-center">
+                                        @Html.CheckBoxFor(m => m.Alcohol, new { @class = "form-check-input fs-4 mt-0 me-3", id = "alcohol" })
+                                        <label class="form-check-label fw-bold text-dark fs-5" for="alcohol" style="cursor: pointer;">I consume Alcohol</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row gx-4 gy-3 mt-2">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    @Html.CheckBoxFor(m => m.Smoking, new { @class = "form-check-input", id = "smoking" })
-                                    <label class="form-check-label small" for="smoking">I smoke</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    @Html.CheckBoxFor(m => m.Alcohol, new { @class = "form-check-input", id = "alcohol" })
-                                    <label class="form-check-label small" for="alcohol">I consume alcohol</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" class="btn btn-success btn-lg hs-submit">Submit Survey</button>
-                        </div>
-
-                        <div class="mt-3 small text-muted">
-                            <em>Note: You can fill this survey only once. If you already submitted, you will be redirected to your profile.</em>
+                        <div class="d-flex justify-content-center mt-5 mb-3">
+                            <button type="submit" class="btn btn-success submit-btn text-white w-100 w-md-auto px-5 py-3">
+                                Generate Health Assessment <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
                         </div>
                     }
                 </div>

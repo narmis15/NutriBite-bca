@@ -158,7 +158,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         productId: parseInt(id),
-                        quantity: 20
+                        quantity: 20,
+                        isBulk: true
                     })
                 })
                 .then(r => r.json())
@@ -195,30 +196,28 @@
 
             // Final Custom Box Add
             if(e.target.id === "addCustomBox"){
-                let btn = e.target;
-                
-                // Collect selected items to send to backend or just add a generic "Custom FoodBox"
-                // For now, let's just add the primary box item or handle it as a single product
-                // assuming custom logic is needed. But based on requirement, let's fix the basic add.
-                
+                const itemNames = Object.keys(selectedItems).map(name => `${name} x ${selectedItems[name].qty}`).join(', ');
+
+                const requestData = {
+                    productId: 0, // 0 indicates we need to create it
+                    quantity: 25,
+                    isBulk: true,
+                    itemName: "Custom FoodBox: " + itemNames.substring(0, 30) + (itemNames.length > 30 ? "..." : ""),
+                    price: totalPrice,
+                    category: "Custom FoodBox",
+                    description: "Custom box containing: " + itemNames
+                };
+
                 fetch('/Cart/AddToCart', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        productId: 101, // Example ID for Custom Box
-                        quantity: 25
-                    })
+                    body: JSON.stringify(requestData)
                 })
                 .then(r => r.json())
                 .then(res => {
                     if (res.success) {
-                        if (window.updateCartCount) window.updateCartCount();
-                        btn.outerHTML = `
-                        <div class="qty-box custom-box d-inline-flex" data-min="25">
-                            <button class="qty-btn minus">−</button>
-                            <span class="qty-input px-2">25</span>
-                            <button class="qty-btn plus">+</button>
-                        </div>`;
+                        alert('Custom Box added to cart!');
+                        location.reload();
                     } else {
                         alert(res.message || "Failed to add to cart.");
                         if (res.message === "Please login first") window.location.href = '/Auth/Login';

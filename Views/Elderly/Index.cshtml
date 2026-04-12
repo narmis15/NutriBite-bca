@@ -133,7 +133,9 @@
                             </div>
                         }
 
-                        <button class="btn add-cart" data-id="@food.Id">Add to Cart</button>
+                        <button class="btn btn-success add-to-cart-btn" data-id="@food.Id">
+                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        </button>
                     </div>
 
                     <!-- RIGHT SIDE (IMAGE) -->
@@ -153,7 +155,6 @@
 </section>
 
 @section Scripts {
-    <script src="~/js/elderly.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const priceRange = document.getElementById("priceRange");

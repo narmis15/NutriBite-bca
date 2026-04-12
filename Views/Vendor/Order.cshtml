@@ -35,10 +35,9 @@
                 <tr>
                     <th>Order ID</th>
                     <th>Customer</th>
+                    <th>Delivery Info</th>
                     <th>Food Item</th>
-                    <th>Type</th>
                     <th>Quantity</th>
-                    <th>Preferences</th>
                     <th>Amount</th>
                     <th>Status</th>
                     <th>Date</th>
@@ -54,60 +53,26 @@
                     {
                         <tr class="order-row" data-status="@order.Status">
                             <td>#@order.OrderId</td>
-                            <td>@order.CustomerName</td>
+                            <td>
+                                <div>@order.CustomerName</div>
+                                <small class="text-muted"><i class="bi bi-telephone me-1"></i> @order.CustomerPhone</small>
+                            </td>
+                            <td>
+                                <div class="small text-truncate" style="max-width: 150px;" title="@order.DeliveryAddress">
+                                    <i class="bi bi-geo-alt me-1"></i> @(order.DeliveryAddress ?? "Local Address")
+                                </div>
+                            </td>
                             <td>@order.FoodItem</td>
-                            <td>
-                                <span class="badge @(order.OrderType == "Delivery" ? "bg-purple-soft text-purple" : "bg-info-soft text-info")">
-                                    <i class="bi @(order.OrderType == "Delivery" ? "bi-truck" : "bi-bag-check") me-1"></i> @order.OrderType
-                                </span>
-                            </td>
                             <td>@order.Quantity</td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(order.SpecialInstruction))
-                                {
-                                    <div class="p-2 bg-light rounded small border-start border-3 border-warning">
-                                        <i class="bi bi-chat-left-text text-warning me-1"></i> @order.SpecialInstruction
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">-</span>
-                                }
-                            </td>
                             <td>₹@order.Amount</td>
                             <td>
-                                @{
-                                    var badgeCls = "bg-secondary";
-                                    var displayStatus = order.Status;
-                                    if (order.Status == "Placed" || order.Status == "New") badgeCls = "bg-warning text-dark";
-                                    else if (order.Status == "Accepted") badgeCls = "bg-info text-dark";
-                                    else if (order.Status == "Ready for Pickup" || order.Status == "Ready for Delivery") badgeCls = "bg-primary";
-                                    else if (order.Status == "On the Way" || order.Status == "In Transit") badgeCls = "bg-info text-dark";
-                                    else if (order.Status == "Delivered" || order.Status == "Completed") badgeCls = "bg-success";
-                                }
-                                <span class="badge @badgeCls">
-                                    @displayStatus
+                                <span class="badge bg-success">
+                                    Delivered
                                 </span>
                             </td>
                             <td>@(order.Date.HasValue ? order.Date.Value.ToString("dd MMM, hh:mm tt") : "-")</td>
                             <td class="text-end">
-                                @if (order.Status == "Placed" || order.Status == "New")
-                                {
-                                    <button class="btn btn-sm btn-success update-status" data-id="@order.OrderId" data-status="Accepted">Accept</button>
-                                }
-                                else if (order.Status == "Accepted")
-                                {
-                                    var nextStatus = order.OrderType == "Delivery" ? "Ready for Delivery" : "Ready for Pickup";
-                                    <button class="btn btn-sm btn-primary update-status" data-id="@order.OrderId" data-status="@nextStatus">Ready</button>
-                                }
-                                else if (order.Status == "Ready for Delivery" || order.Status == "Ready for Pickup")
-                                {
-                                    <button class="btn btn-sm btn-info update-status" data-id="@order.OrderId" data-status="On the Way">Dispatch</button>
-                                }
-                                else if (order.Status == "On the Way")
-                                {
-                                    <button class="btn btn-sm btn-success update-status" data-id="@order.OrderId" data-status="Delivered">Deliver</button>
-                                }
+                                <span class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Completed</span>
                             </td>
                         </tr>
                     }

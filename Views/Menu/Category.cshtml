@@ -1,11 +1,84 @@
-@{
-    Layout = "~/Views/Shared/_PublicLayout.cshtml";
-}
-
 @model List<NUTRIBITE.Models.Food>
 
 @{
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+@inject NUTRIBITE.Models.ApplicationDbContext DbContext
+@{
+    // One-time inline fix for incorrect descriptions and generic images added by vendors/seeders.
+    bool requiresFix = DbContext.Foods.Any(f => f.ImagePath == null || f.ImagePath.Contains("premium_healthy_bowl") || f.ImagePath.Contains("floating_hero_bowl") || f.ImagePath.Contains("default-food.jpg") || f.Description.Contains("made with fresh ingredients"));
+    if (requiresFix)
+    {
+        var allFoods = DbContext.Foods.ToList();
+        foreach (var f in allFoods)
+        {
+            string n = (f.Name ?? "").ToLower();
+            
+            // Fix images
+            if (string.IsNullOrEmpty(f.ImagePath) || f.ImagePath.Contains("premium_healthy_bowl") || f.ImagePath.Contains("floating_hero_bowl") || f.ImagePath.Contains("default-food.jpg"))
+            {
+                if (n.Contains("khichdi")) f.ImagePath = "/images/menu items/Dal khichdi.png";
+                else if (n.Contains("lemon rice")) f.ImagePath = "/images/menu items/Tehri.png";
+                else if (n.Contains("curd rice")) f.ImagePath = "/images/menu items/curd rice with pomegranate.png";
+                else if (n.Contains("pulao")) f.ImagePath = "/images/menu items/tawa pulao.png";
+                else if (n.Contains("aloo paratha")) f.ImagePath = "/images/menu items/aloo paratha with curd.png";
+                else if (n.Contains("baigan bharta")) f.ImagePath = "/images/menu items/baigan bharta.png";
+                else if (n.Contains("black chana") || n.Contains("barley")) f.ImagePath = "/images/menu items/Black Chana & Barley Salad.png";
+                else if (n.Contains("black channa")) f.ImagePath = "/images/menu items/black channa with 2 rotis.png";
+                else if (n.Contains("chaana") && n.Contains("lauki")) f.ImagePath = "/images/menu items/chaana and lauki dal with phulka.png";
+                else if (n.Contains("cinnamon apple")) f.ImagePath = "/images/menu items/cinnamon apple stew.png";
+                else if (n.Contains("deep grain bowl")) f.ImagePath = "/images/menu items/deep grain bowl.png";
+                else if (n.Contains("egg thali")) f.ImagePath = "/images/menu items/egg thali.png";
+                else if (n.Contains("exam topper")) f.ImagePath = "/images/menu items/exam topper combo.png";
+                else if (n.Contains("executive lean")) f.ImagePath = "/images/menu items/executive lean thali.png";
+                else if (n.Contains("smoothie")) f.ImagePath = "/images/menu items/fresh smoothie.png";
+                else if (n.Contains("tofu salad") || n.Contains("sprouts")) f.ImagePath = "/images/menu items/Grilled tofu salad with sprouts.png";
+                else if (n.Contains("jowar upma")) f.ImagePath = "/images/menu items/jowar upma.png";
+                else if (n.Contains("kadhii chawal")) f.ImagePath = "/images/menu items/kadhii chawal.png";
+                else if (n.Contains("methi") && n.Contains("matar")) f.ImagePath = "/images/menu items/Methi-Matar Malai.png";
+                else if (n.Contains("thelpa")) f.ImagePath = "/images/menu items/methi thelpa with dahi.png";
+                else if (n.Contains("mixed sprouts")) f.ImagePath = "/images/menu items/mixed sprouts.png";
+                else if (n.Contains("moong") || n.Contains("oats chilla")) f.ImagePath = "/images/menu items/moong and oats chilla.png";
+                else if (n.Contains("paneer bhurji")) f.ImagePath = "/images/menu items/paneer bhurji with 3 phulkas.png";
+                else if (n.Contains("paneer tikka wrap")) f.ImagePath = "/images/menu items/paneer tikka wrap.png";
+                else if (n.Contains("pesto paneer")) f.ImagePath = "/images/menu items/pesto paneer wrap.png";
+                else if (n.Contains("pocket friendly")) f.ImagePath = "/images/menu items/pocket friendly thali.png";
+                else if (n.Contains("pumpkin")) f.ImagePath = "/images/menu items/pumpkin mash with phulkas.png";
+                else if (n.Contains("quick bowl rice")) f.ImagePath = "/images/menu items/quick bowl rice.png";
+                else if (n.Contains("sambhar idli")) f.ImagePath = "/images/menu items/sambhar idli.png";
+                else if (n.Contains("soya chunks")) f.ImagePath = "/images/menu items/soya chunks curry.png";
+                else if (n.Contains("soya chaap bowl")) f.ImagePath = "/images/menu items/Tandoori Soya Chaap Bowl.png";
+                else if (n.Contains("tawa pulao")) f.ImagePath = "/images/menu items/tawa pulao.png";
+                else if (n.Contains("tehri")) f.ImagePath = "/images/menu items/Tehri.png";
+                else if (n.Contains("vegetable daliya")) f.ImagePath = "/images/menu items/vegetable daliya.png";
+                else if (n.Contains("thali")) f.ImagePath = "/images/Meals/Standard_Thali.jpeg";
+                else if (n.Contains("paneer")) f.ImagePath = "/images/menu items/paneer tikka wrap.png";
+                else if (n.Contains("salad") || n.Contains("quinoa")) f.ImagePath = "/images/Meals/salads.jpeg";
+                else if (n.Contains("chicken") || n.Contains("egg") || n.Contains("protein")) f.ImagePath = "/images/menu items/protein1.jpeg";
+                else if (n.Contains("dal") || n.Contains("rice")) f.ImagePath = "/images/Meals/Standard_Thali.jpeg";
+            }
+
+            // Fix mismatching descriptions (e.g. Khichdi having 'quinoa salad' desc)
+            if (!string.IsNullOrEmpty(f.Description) && (f.Description == "Fresh quinoa salad with olive oil dressing" || f.Description.Contains("made with fresh ingredients") || f.Description.Contains("A delicious and healthy homemade meal option")))
+            {
+                if (n.Contains("lemon rice")) f.Description = "Light and zesty homestyle lemon rice made with healthy brown rice and tempered with traditional Indian spices.";
+                else if (n.Contains("curd rice")) f.Description = "Cooling and probiotic-rich homestyle curd rice tempered with mustard seeds, curry leaves, and pomegranate.";
+                else if (n.Contains("pulao")) f.Description = "Wholesome protein-rich vegetable pulao packed with fresh seasonal veggies and aromatic Indian spices.";
+                else if (n.Contains("khichdi")) f.Description = "Comforting and wholesome rice and lentil porridge, perfect for a balanced Indian meal.";
+                else if (n.Contains("thali")) f.Description = "A complete traditional Indian meal offering a balanced mix of protein, fiber, and essential nutrients.";
+                else if (n.Contains("paneer")) f.Description = "Rich and flavorful paneer preparation with traditional Indian spices and healthy cooking methods.";
+                else if (n.Contains("dal")) f.Description = "Hearty and nutritious lentil preparation, a staple of a healthy Indian diet.";
+                else if (n.Contains("aloo paratha")) f.Description = "Wholesome whole wheat aloo paratha served with fresh curd, a classic healthy Indian breakfast.";
+                else if (n.Contains("baigan bharta")) f.Description = "Smoky roasted eggplant mash cooked with traditional Indian spices and fresh herbs.";
+                else if (n.Contains("soya chunks")) f.Description = "High-protein soya chunks curry cooked in a flavorful Indian gravy.";
+                else if (n.Contains("idli")) f.Description = "Soft and fluffy steamed rice cakes served with nutritious sambhar.";
+                else if (n.Contains("upma")) f.Description = "Healthy and savory semolina porridge with vegetables and Indian tempering.";
+                else f.Description = "Freshly prepared wholesome and nutritious Indian meal.";
+            }
+        }
+        DbContext.SaveChanges();
+    }
 }
 
 @section Styles {
@@ -62,9 +135,62 @@
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm h-100">
 
-                <img src="@food.ImagePath"
+                @{
+                    var imgPath = food.ImagePath;
+                    var n = (food.Name ?? "").ToLower();
+
+                    if (string.IsNullOrEmpty(imgPath) || imgPath.Contains("premium_healthy_bowl") || imgPath.Contains("floating_hero_bowl") || imgPath.Contains("default-food.jpg"))
+                    {
+                        if (n.Contains("khichdi")) imgPath = "/images/menu items/Dal khichdi.png";
+                        else if (n.Contains("lemon rice")) imgPath = "/images/menu items/Tehri.png";
+                        else if (n.Contains("curd rice")) imgPath = "/images/menu items/curd rice with pomegranate.png";
+                        else if (n.Contains("pulao")) imgPath = "/images/menu items/tawa pulao.png";
+                        else if (n.Contains("aloo paratha")) imgPath = "/images/menu items/aloo paratha with curd.png";
+                        else if (n.Contains("baigan bharta")) imgPath = "/images/menu items/baigan bharta.png";
+                        else if (n.Contains("black chana") || n.Contains("barley")) imgPath = "/images/menu items/Black Chana & Barley Salad.png";
+                        else if (n.Contains("black channa")) imgPath = "/images/menu items/black channa with 2 rotis.png";
+                        else if (n.Contains("chaana") && n.Contains("lauki")) imgPath = "/images/menu items/chaana and lauki dal with phulka.png";
+                        else if (n.Contains("cinnamon apple")) imgPath = "/images/menu items/cinnamon apple stew.png";
+                        else if (n.Contains("deep grain bowl")) imgPath = "/images/menu items/deep grain bowl.png";
+                        else if (n.Contains("egg thali")) imgPath = "/images/menu items/egg thali.png";
+                        else if (n.Contains("exam topper")) imgPath = "/images/menu items/exam topper combo.png";
+                        else if (n.Contains("executive lean")) imgPath = "/images/menu items/executive lean thali.png";
+                        else if (n.Contains("smoothie")) imgPath = "/images/menu items/fresh smoothie.png";
+                        else if (n.Contains("tofu salad") || n.Contains("sprouts")) imgPath = "/images/menu items/Grilled tofu salad with sprouts.png";
+                        else if (n.Contains("jowar upma")) imgPath = "/images/menu items/jowar upma.png";
+                        else if (n.Contains("kadhii chawal")) imgPath = "/images/menu items/kadhii chawal.png";
+                        else if (n.Contains("methi") && n.Contains("matar")) imgPath = "/images/menu items/Methi-Matar Malai.png";
+                        else if (n.Contains("thelpa")) imgPath = "/images/menu items/methi thelpa with dahi.png";
+                        else if (n.Contains("mixed sprouts")) imgPath = "/images/menu items/mixed sprouts.png";
+                        else if (n.Contains("moong") || n.Contains("oats chilla")) imgPath = "/images/menu items/moong and oats chilla.png";
+                        else if (n.Contains("paneer bhurji")) imgPath = "/images/menu items/paneer bhurji with 3 phulkas.png";
+                        else if (n.Contains("paneer tikka wrap")) imgPath = "/images/menu items/paneer tikka wrap.png";
+                        else if (n.Contains("pesto paneer")) imgPath = "/images/menu items/pesto paneer wrap.png";
+                        else if (n.Contains("pocket friendly")) imgPath = "/images/menu items/pocket friendly thali.png";
+                        else if (n.Contains("pumpkin")) imgPath = "/images/menu items/pumpkin mash with phulkas.png";
+                        else if (n.Contains("quick bowl rice")) imgPath = "/images/menu items/quick bowl rice.png";
+                        else if (n.Contains("sambhar idli")) imgPath = "/images/menu items/sambhar idli.png";
+                        else if (n.Contains("soya chunks")) imgPath = "/images/menu items/soya chunks curry.png";
+                        else if (n.Contains("soya chaap bowl")) imgPath = "/images/menu items/Tandoori Soya Chaap Bowl.png";
+                        else if (n.Contains("tawa pulao")) imgPath = "/images/menu items/tawa pulao.png";
+                        else if (n.Contains("tehri")) imgPath = "/images/menu items/Tehri.png";
+                        else if (n.Contains("vegetable daliya")) imgPath = "/images/menu items/vegetable daliya.png";
+                        else if (n.Contains("thali")) imgPath = "/images/Meals/Standard_Thali.jpeg";
+                        else if (n.Contains("paneer")) imgPath = "/images/menu items/paneer tikka wrap.png";
+                        else if (n.Contains("salad") || n.Contains("quinoa")) imgPath = "/images/Meals/salads.jpeg";
+                        else if (n.Contains("chicken") || n.Contains("egg") || n.Contains("protein")) imgPath = "/images/menu items/protein1.jpeg";
+                        else if (n.Contains("dal") || n.Contains("rice")) imgPath = "/images/Meals/Standard_Thali.jpeg";
+                        else imgPath = "/images/hero/premium_healthy_bowl.png";
+                    }
+                    else if (!imgPath.StartsWith("http") && imgPath.Contains("unsplash.com"))
+                    {
+                        imgPath = "https://" + imgPath.TrimStart('/', '\\');
+                    }
+                }
+                <img src="@imgPath"
                      class="card-img-top"
-                     style="height:200px; object-fit:cover;" />
+                     style="height:200px; object-fit:cover;"
+                     onerror="this.onerror=null;this.src='/images/hero/premium_healthy_bowl.png';" />
 
                 <div class="card-body text-center">
                     
@@ -75,10 +201,36 @@
                         </div>
                     }
 
+                    <div class="vendor-badge mb-2">
+                        <span class="badge bg-light text-success border small fw-bold">
+                            <i class="bi bi-shop"></i> @(ViewBag.Vendors != null && food.VendorId.HasValue && ((Dictionary<int, string>)ViewBag.Vendors).ContainsKey(food.VendorId.Value) ? ((Dictionary<int, string>)ViewBag.Vendors)[food.VendorId.Value] : "NutriBite Kitchen")
+                        </span>
+                    </div>
+
                     <h5>@food.Name</h5>
 
+                    @{
+                        var desc = food.Description;
+                        if (!string.IsNullOrEmpty(desc) && (desc == "Fresh quinoa salad with olive oil dressing" || desc.Contains("made with fresh ingredients") || desc.Contains("A delicious and healthy homemade meal option")))
+                        {
+                            if (n.Contains("lemon rice")) desc = "Light and zesty homestyle lemon rice made with healthy brown rice and tempered with traditional Indian spices.";
+                            else if (n.Contains("curd rice")) desc = "Cooling and probiotic-rich homestyle curd rice tempered with mustard seeds, curry leaves, and pomegranate.";
+                            else if (n.Contains("pulao")) desc = "Wholesome protein-rich vegetable pulao packed with fresh seasonal veggies and aromatic Indian spices.";
+                            else if (n.Contains("khichdi")) desc = "Comforting and wholesome rice and lentil porridge, perfect for a balanced Indian meal.";
+                            else if (n.Contains("thali")) desc = "A complete traditional Indian meal offering a balanced mix of protein, fiber, and essential nutrients.";
+                            else if (n.Contains("paneer")) desc = "Rich and flavorful paneer preparation with traditional Indian spices and healthy cooking methods.";
+                            else if (n.Contains("dal")) desc = "Hearty and nutritious lentil preparation, a staple of a healthy Indian diet.";
+                            else if (n.Contains("aloo paratha")) desc = "Wholesome whole wheat aloo paratha served with fresh curd, a classic healthy Indian breakfast.";
+                            else if (n.Contains("baigan bharta")) desc = "Smoky roasted eggplant mash cooked with traditional Indian spices and fresh herbs.";
+                            else if (n.Contains("soya chunks")) desc = "High-protein soya chunks curry cooked in a flavorful Indian gravy.";
+                            else if (n.Contains("idli")) desc = "Soft and fluffy steamed rice cakes served with nutritious sambhar.";
+                            else if (n.Contains("upma")) desc = "Healthy and savory semolina porridge with vegetables and Indian tempering.";
+                            else desc = "Freshly prepared wholesome and nutritious Indian meal.";
+                        }
+                    }
+
                     <p class="text-muted small mb-2">
-                        @food.Description
+                        @desc
                     </p>
 
                     <div class="nutrition-grid">
@@ -94,6 +246,21 @@
                             Expert: @food.Nutritionist.Name
                         </div>
                     }
+
+                    <div class="d-flex justify-content-center flex-wrap gap-1 mb-2">
+                        @if (food.IsVegan)
+                        {
+                            <span class="badge" style="background:#28a745;">🍃 Vegan</span>
+                        }
+                        @if (food.IsGlutenFree)
+                        {
+                            <span class="badge bg-light text-dark border">🌾 Gluten-Free</span>
+                        }
+                        @if (food.IsNutFree)
+                        {
+                            <span class="badge bg-info text-dark">🥜 Nut-Free</span>
+                        }
+                    </div>
 
                     @if (food.Calories <= 400)
                     {
@@ -116,9 +283,15 @@
                         <button class="btn btn-sm btn-success flex-grow-1 add-to-cart-btn" data-id="@food.Id">
                             <i class="bi bi-cart-plus"></i> Add
                         </button>
+                        <button class="btn btn-sm btn-outline-success subscribe-btn" 
+                                data-id="@food.Id" 
+                                data-name="@Uri.EscapeDataString(food.Name)" 
+                                data-price="@food.Price">
+                            <i class="bi bi-calendar-plus"></i> Subscribe
+                        </button>
                         <a asp-controller="Recipe" asp-action="Details" asp-route-foodId="@food.Id" 
-                           class="btn btn-sm btn-outline-success">
-                            <i class="bi bi-book"></i> Recipe
+                           class="btn btn-sm btn-outline-secondary" title="View Recipe">
+                            <i class="bi bi-book"></i>
                         </a>
                     </div>
 
@@ -129,4 +302,111 @@
     }
 </div>
 
+<!-- Subscription Modal -->
+<div class="modal fade" id="subscribeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 bg-light rounded-top-4">
+                <h5 class="modal-title fw-bold" style="color: #2d6a4f;">
+                    <i class="bi bi-calendar-check me-2"></i>Subscribe: <span id="subFoodName" class="text-dark"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                
+                <h6 class="text-success fw-bold mb-3">Rate: ₹<span id="subFoodPrice"></span> / Delivery</h6>
+                <p class="text-muted small mb-4">Set up recurring deliveries for this amazing meal. You can cancel at any time directly from your dashboard.</p>
+
+                <form id="subscribeForm" onsubmit="return submitSubscription(event)">
+                    <input type="hidden" id="subFoodId" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">Subscription Frequency</label>
+                        <select class="form-select border-success shadow-none" id="subFrequency">
+                            <option value="Weekly" selected>Weekly (7 Days)</option>
+                            <option value="Monthly">Monthly (30 Days)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-dark">Preferred Daily Delivery Time</label>
+                        <input type="time" class="form-control border-success shadow-none" id="subTime" value="13:00" required />
+                    </div>
+
+                    <button type="submit" id="btnConfirmSub" class="btn btn-success w-100 rounded-pill py-2 fw-bold" style="background:#2d6a4f;">
+                        Confirm Subscription
+                    </button>
+                </form>
+
+                <div id="subAlert" class="alert alert-danger mt-3 small" style="display:none; border-radius:12px;"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var el = document.getElementById('subscribeModal');
+            if(el) {
+                var myModal = new bootstrap.Modal(el);
+
+                // Wire up Subscribe buttons
+                document.querySelectorAll('.subscribe-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.getElementById('subFoodId').value = this.dataset.id;
+                        document.getElementById('subFoodName').innerText = decodeURIComponent(this.dataset.name);
+                        document.getElementById('subFoodPrice').innerText = this.dataset.price;
+                        
+                        document.getElementById('subAlert').style.display = 'none';
+                        myModal.show();
+                    });
+                });
+            }
+        });
+
+        function submitSubscription(e) {
+            e.preventDefault();
+            const foodId = document.getElementById('subFoodId').value;
+            const type = document.getElementById('subFrequency').value;
+            const timePref = document.getElementById('subTime').value;
+            const btn = document.getElementById('btnConfirmSub');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+            $.post('/Subscription/Subscribe', { foodId: foodId, type: type, timePref: timePref })
+             .done(function(res) {
+                 if(res.success) {
+                     var myModalEl = document.getElementById('subscribeModal');
+                     var modal = bootstrap.Modal.getInstance(myModalEl);
+                     modal.hide();
+
+                     alert("✅ Subscription Successfully Activated! You can track it in your Dashboard.");
+                 } else {
+                     let alertBox = document.getElementById('subAlert');
+                     alertBox.innerText = res.message || "Failed to subscribe.";
+                     alertBox.style.display = 'block';
+
+                     if (res.message === "Please login first") {
+                         setTimeout(() => window.location.href = '/Auth/Login', 1500);
+                     }
+                 }
+             })
+             .fail(function() {
+                 let alertBox = document.getElementById('subAlert');
+                 alertBox.innerText = "Network error. Please try again.";
+                 alertBox.style.display = 'block';
+             })
+             .always(function() {
+                 btn.disabled = false;
+                 btn.innerHTML = 'Confirm Subscription';
+             });
+
+            return false;
+        }
+    </script>
+}
 

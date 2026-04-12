@@ -213,9 +213,10 @@
                     fetch('/Cart/AddToCart',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
-                        body:JSON.stringify({
+                        body: JSON.stringify({
                             productId: parseInt(id),
-                            quantity: parseInt(qty)
+                            quantity: parseInt(qty),
+                            isBulk: true
                         })
                     })
                     .then(r=>r.json())

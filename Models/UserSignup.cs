@@ -19,6 +19,7 @@ public partial class UserSignup
     public int? CalorieGoal { get; set; }
     public string? Role { get; set; } = "User";
     public string? ProfilePictureUrl { get; set; }
+    public string? Address { get; set; }
 
     public virtual ICollection<OrderTable> OrderTables { get; set; } = new List<OrderTable>();
 }

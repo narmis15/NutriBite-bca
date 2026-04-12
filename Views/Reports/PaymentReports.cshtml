@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Payment Reports";
 }
 
@@ -71,8 +71,6 @@
                         <th>Method</th>
                         <th>Amount</th>
                         <th>Status</th>
-                        <th>Gateway Ref</th>
-                        <th>Notes</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -120,13 +118,11 @@
                     tr.append('<td>' + (p.method || p.Method) + '</td>');
                     tr.append('<td>₹' + (Number(p.amount || p.Amount).toFixed(2)) + '</td>');
                     tr.append('<td>' + statusChip(p.status || p.Status) + '</td>');
-                    tr.append('<td>' + (p.gatewayRef || p.GatewayRef) + '</td>');
-                    tr.append('<td>' + (p.notes || p.Notes) + '</td>');
                     $tbody.append(tr);
                 });
             }
 
-            function fetch() {
+            function loadPaymentData() {
                 $.getJSON(api, { from: $from.val(), to: $to.val(), status: $status.val() })
                  .done(function (res) { render(res); })
                  .fail(function () { alert('Failed to load payment data'); });
@@ -134,8 +130,8 @@
 
             $(function () {
                 initDates();
-                fetch();
-                $('#apply').on('click', fetch);
+                loadPaymentData();
+                $('#apply').on('click', loadPaymentData);
             });
         })();
     </script>

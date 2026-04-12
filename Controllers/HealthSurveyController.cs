@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -193,18 +194,25 @@ namespace NUTRIBITE.Controllers
             {
                 if (survey.Goal == "Weight Loss")
                 {
-                    foodQuery = foodQuery.Where(f => f.Calories <= 450);
+                    foodQuery = foodQuery.Where(f => f.Calories <= 600); 
                 }
-                else if (survey.Goal == "Muscle Gain")
+                else if (survey.Goal == "Muscle Gain" || survey.Goal == "Weight Gain")
                 {
-                    foodQuery = foodQuery.Where(f => f.Calories >= 500 && f.Calories <= 900);
+                    // For muscle/weight gain, prioritize higher protein or higher calorie
+                    foodQuery = foodQuery.Where(f => f.Calories >= 500); 
+                }
+                else if (survey.Goal == "Maintain")
+                {
+                    // Balanced maintenance constraint
+                    foodQuery = foodQuery.Where(f => f.Calories >= 300 && f.Calories <= 800);
                 }
             }
 
             // =========================
             // SMART CALORIE FILTER
             // =========================
-            if (remainingCalories > 0)
+            // Only apply strict remaining calorie filter if we have enough calories left
+            if (remainingCalories > 300) 
             {
                 foodQuery = foodQuery.Where(f => f.Calories <= remainingCalories);
             }
@@ -214,14 +222,88 @@ namespace NUTRIBITE.Controllers
             // =========================
             var foods = foodQuery
                 .OrderBy(f => f.Calories)
-                .Take(6)
+                .Take(12) // Show more options
                 .ToList();
+
+            // If no foods match strict goal, show general healthy options
+            if (!foods.Any())
+            {
+                foods = _context.Foods
+                    .Where(f => f.Calories <= 800)
+                    .OrderBy(f => Guid.NewGuid()) // Random healthy suggestions
+                    .Take(6)
+                    .ToList();
+            }
 
             ViewBag.FoodSuggestions = foods;
 
             ViewBag.TodayCalories = todayCalories;
             ViewBag.RecommendedCalories = recommendedCalories;
             ViewBag.RemainingCalories = remainingCalories;
+
+            // =========================
+            // ALIGN RECOMMENDATIONS WITH HOME PAGE
+            // =========================
+            var activeFoodsQuery = _context.Foods
+                .Include(f => f.Nutritionist)
+                .Where(f => f.Status == "Active" || f.Status == null);
+
+            var allActiveFoods = activeFoodsQuery.ToList();
+
+            bool IsBreakfast(Food f) => f.Name.Contains("Smoothie", StringComparison.OrdinalIgnoreCase) 
+                                        || f.Name.Contains("Oats", StringComparison.OrdinalIgnoreCase) 
+                                        || f.Name.Contains("Cheela", StringComparison.OrdinalIgnoreCase) 
+                                        || f.Name.Contains("Idli", StringComparison.OrdinalIgnoreCase) 
+                                        || f.Name.Contains("Upma", StringComparison.OrdinalIgnoreCase) 
+                                        || f.Name.Contains("Paratha", StringComparison.OrdinalIgnoreCase)
+                                        || f.Name.Contains("Apple", StringComparison.OrdinalIgnoreCase);
+            bool IsLunch(Food f) => f.Name.Contains("Thali", StringComparison.OrdinalIgnoreCase) 
+                                     || f.Name.Contains("Combo", StringComparison.OrdinalIgnoreCase) 
+                                     || f.Name.Contains("Curry", StringComparison.OrdinalIgnoreCase) 
+                                     || f.Name.Contains("Tehri", StringComparison.OrdinalIgnoreCase);
+            bool IsDinner(Food f) => f.Name.Contains("Salad", StringComparison.OrdinalIgnoreCase) 
+                                      || f.Name.Contains("Khichdi", StringComparison.OrdinalIgnoreCase) 
+                                      || f.Name.Contains("Bowl", StringComparison.OrdinalIgnoreCase) 
+                                      || f.Name.Contains("Dal", StringComparison.OrdinalIgnoreCase);
+
+            var bfList = allActiveFoods.Where(IsBreakfast).ToList();
+            var lList = allActiveFoods.Where(IsLunch).ToList();
+            var dList = allActiveFoods.Where(IsDinner).ToList();
+
+            Food breakfast = null, lunch = null, dinner = null;
+
+            if (survey.Bmi > 25 || survey.Goal == "Weight Loss")
+            {
+                breakfast = bfList.Where(f => (f.Calories ?? 0) < 300).FirstOrDefault() ?? bfList.FirstOrDefault();
+                lunch = lList.Where(f => (f.Calories ?? 0) < 500).FirstOrDefault() ?? lList.FirstOrDefault();
+                dinner = dList.Where(f => (f.Calories ?? 0) < 400).FirstOrDefault() ?? dList.FirstOrDefault();
+                ViewBag.RecommendationReason = "Focusing on weight management? We've designed a structured, nutrient-dense daily plan just for you.";
+            }
+            else if (survey.Goal == "Muscle Gain")
+            {
+                breakfast = bfList.OrderByDescending(f => f.Protein ?? 0).FirstOrDefault() ?? bfList.FirstOrDefault();
+                lunch = lList.OrderByDescending(f => f.Protein ?? 0).FirstOrDefault() ?? lList.FirstOrDefault();
+                dinner = dList.OrderByDescending(f => f.Protein ?? 0).FirstOrDefault() ?? dList.FirstOrDefault();
+                ViewBag.RecommendationReason = "To support your muscle gain goals, this daily plan maximizes your protein intake.";
+            }
+            else if (survey.Age > 60)
+            {
+                breakfast = bfList.FirstOrDefault(f => f.FoodType == "Elderly") ?? bfList.FirstOrDefault();
+                lunch = lList.FirstOrDefault(f => f.FoodType == "Elderly") ?? lList.FirstOrDefault();
+                dinner = dList.FirstOrDefault(f => f.FoodType == "Elderly") ?? dList.FirstOrDefault();
+                ViewBag.RecommendationReason = "Specially curated soft and nutritious meals for healthy aging.";
+            }
+            else
+            {
+                breakfast = bfList.FirstOrDefault();
+                lunch = lList.FirstOrDefault();
+                dinner = dList.FirstOrDefault();
+                ViewBag.RecommendationReason = "Hand-picked balanced meals tailored to your health profile.";
+            }
+
+            ViewBag.Breakfast = breakfast;
+            ViewBag.Lunch = lunch;
+            ViewBag.Dinner = dinner;
 
             return View(survey);
         }

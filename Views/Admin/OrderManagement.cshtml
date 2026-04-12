@@ -4,53 +4,81 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 }
 
 @Html.AntiForgeryToken()
 
 <div class="table-wrapper card-glass p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">Order Management</h3>
+        <div>
+            <h3 class="mb-0 fw-bold">Order Management</h3>
+            <p class="text-muted small mb-0">Track and manage incoming meal orders in real-time</p>
+        </div>
 
-        <div class="d-flex align-items-center">
-            <span id="liveIndicator" class="badge bg-success me-2">Live</span>
-            <label class="form-check-label me-2">Auto-refresh</label>
-            <input id="autoRefreshToggle" class="form-check-input" type="checkbox" checked />
-            <span id="lastUpdated" class="ms-3 text-muted"></span>
+        <div class="d-flex align-items-center bg-light p-2 rounded-pill shadow-sm">
+            <span id="liveIndicator" class="live-badge me-2">Live</span>
+            <div class="form-check form-switch me-3 mb-0">
+                <input id="autoRefreshToggle" class="form-check-input" type="checkbox" checked />
+                <label class="form-check-label small text-muted">Auto-refresh</label>
+            </div>
+            <span id="lastUpdated" class="small text-muted fw-500"></span>
         </div>
     </div>
 
     <!-- Submenu -->
-    <nav class="admin-submenu mb-4">
+    <nav class="admin-submenu mb-4 d-flex gap-2">
         <a asp-controller="Admin"
-           asp-action="OrderDetails"
-           class="submenu-link @(ViewContext.RouteData.Values["action"].ToString() == "OrderDetails" ? "active" : "")">
-            Order Details
-        </a>       
-        <a asp-controller="Admin" asp-action="CancelledOrders" class="submenu-link">Cancelled Orders</a>
+           asp-action="OrderManagement"
+           class="btn btn-sm @(ViewContext.RouteData.Values["action"].ToString() == "OrderManagement" ? "btn-success" : "btn-outline-success") rounded-pill px-3">
+            Active Management
+        </a>
+        <a asp-controller="Admin" asp-action="CancelledOrders" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+            Cancelled Orders
+        </a>
     </nav>
 
     <!-- Status tabs -->
-    <ul class="nav nav-tabs mb-3" id="statusTabs" role="tablist">
-        <li class="nav-item"><a class="nav-link active" data-status="All" href="#">All <span class="badge bg-light text-dark ms-1" id="count-All">0</span></a></li>
-        <li class="nav-item"><a class="nav-link" data-status="New" href="#">New <span class="badge bg-light text-dark ms-1" id="count-New">0</span></a></li>
-        <li class="nav-item"><a class="nav-link" data-status="Accepted" href="#">Accepted <span class="badge bg-light text-dark ms-1" id="count-Accepted">0</span></a></li>
-        <li class="nav-item"><a class="nav-link" data-status="Ready" href="#">Ready <span class="badge bg-light text-dark ms-1" id="count-Ready">0</span></a></li>
-        <li class="nav-item"><a class="nav-link" data-status="In Progress" href="#">In Progress <span class="badge bg-light text-dark ms-1" id="count-In Progress">0</span></a></li>
+    <ul class="nav nav-tabs mb-4" id="statusTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-status="All" href="#">
+                All <span class="ms-1 opacity-75" id="count-All">0</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-status="New" href="#">
+                New <span class="ms-1 opacity-75" id="count-New">0</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-status="Accepted" href="#">
+                Accepted <span class="ms-1 opacity-75" id="count-Accepted">0</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-status="Ready" href="#">
+                Ready <span class="ms-1 opacity-75" id="count-Ready">0</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-status="In Progress" href="#">
+                Processing <span class="ms-1 opacity-75" id="count-In Progress">0</span>
+            </a>
+        </li>
     </ul>
 
     <!-- Orders table -->
     <div class="table-responsive">
-        <table class="table admin-table" id="ordersTable">
+        <table class="table admin-table align-middle" id="ordersTable">
             <thead>
                 <tr>
-                    <th>Order Id</th>
+                    <th class="ps-4">ID</th>
                     <th>Customer</th>
-                    <th>Items</th>
-                    <th>Delivery Address</th>
+                    <th>Order Info</th>
+                    <th>Logistics</th>
                     <th>Payment</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th class="text-end pe-4">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,30 +88,26 @@
     </div>
 
     <div id="noOrders" class="no-records" style="display:none;">
-        No active orders.
+        <div class="py-5">
+            <i class="bi bi-inbox text-muted display-4"></i>
+            <p class="mt-3 fs-5">No active orders found in this category.</p>
+        </div>
     </div>
 </div>
 
-<!-- Assign Delivery Modal -->
-<div class="modal fade" id="assignDeliveryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content card-glass">
-            <div class="modal-header">
-                <h5 class="modal-title">Assign Delivery Person</h5>
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0 pe-4 pt-4">
+                <h5 class="modal-title fw-bold" id="detailTitle">Order Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <input type="hidden" id="assignOrderId" />
-                <div class="mb-3">
-                    <label class="form-label">Select Delivery Partner</label>
-                    <select id="deliveryPersonSelect" class="form-select">
-                        <option value="">Loading partners...</option>
-                    </select>
+            <div class="modal-body p-4" id="detailBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-success"></div>
+                    <p class="mt-2">Fetching order information...</p>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="confirmAssignBtn" class="btn btn-primary">Assign Now</button>
             </div>
         </div>
     </div>
@@ -96,7 +120,7 @@
     <script>
         "use strict";
         (function ($) {
-            const pollIntervalMs = 15000; // 15s (increased because we have SignalR now)
+            const pollIntervalMs = 20000; 
             let pollTimer = null;
             let currentFilter = "All";
             const token = $('input[name="__RequestVerificationToken"]').first().val();
@@ -108,58 +132,37 @@
 
             connection.on("ReceiveUpdate", function (message) {
                 console.log("Real-time order update: ", message);
-                window.notify.info(message);
-                fetchOrders(); // Refresh table on update
+                if (window.notify) window.notify.info(message);
+                fetchOrders(); 
             });
 
             connection.start().catch(err => console.error(err.toString()));
 
-            const statusClass = {
-                "New": "order-row-new",
-                "Accepted": "order-row-accepted",
-                "Ready for Pickup": "order-row-ready",
-                "Ready for Delivery": "order-row-ready",
-                "Picked": "order-row-picked",
-                "In Transit": "order-row-picked",
-                "Flagged": "order-row-flagged"
-            };
-
             function formatBadge(status) {
-                let cls = "badge bg-secondary";
-                if (status === "New") cls = "badge bg-warning text-dark";
-                else if (status === "Accepted") cls = "badge bg-info text-dark";
-                else if (status === "Ready for Pickup" || status === "Ready for Delivery") cls = "badge bg-success";
-                else if (status === "Picked" || status === "In Transit") cls = "badge bg-primary";
-                else if (status === "Flagged") cls = "badge bg-danger";
-                return '<span class="' + cls + '">' + status + '</span>';
+                let cls = "status-new";
+                if (status === "Accepted") cls = "status-accepted";
+                else if (status.includes("Ready")) cls = "status-ready";
+                else if (status === "In Transit" || status === "On the Way") cls = "status-transit";
+                else if (status === "Picked" || status === "Delivered") cls = "status-picked";
+                else if (status === "Flagged") cls = "status-flagged";
+                else if (status === "Cancelled") cls = "status-cancelled";
+                
+                return `<span class="badge ${cls}">${status}</span>`;
             }
 
             function buildActionButtons(order) {
-                let btns = [];
-                const status = order.status;
                 const id = order.orderId;
-
-                if (status === "New" || status === "Placed") {
-                    btns.push('<button class="btn btn-sm glow btn-success action-btn me-1" data-action="AcceptOrder" data-id="' + id + '">Accept</button>');
+                const status = order.status;
+                
+                let buttons = `<button class="btn btn-sm btn-outline-secondary rounded-pill me-1 px-3 view-details-btn" data-id="${id}"><i class="bi bi-eye"></i> Details</button>`;
+                
+                if (status === "Placed" || status === "New") {
+                    buttons += `<button class="btn btn-sm btn-success rounded-pill px-3 accept-order-btn" data-id="${id}"><i class="bi bi-check2"></i> Accept</button>`;
                 } else if (status === "Accepted") {
-                    btns.push('<button class="btn btn-sm glow btn-warning action-btn me-1" data-action="MarkReady" data-id="' + id + '">Mark Ready</button>');
-                } else if (status === "Ready for Delivery") {
-                    if (!order.deliveryPersonId) {
-                        btns.push('<button class="btn btn-sm glow btn-info assign-delivery-btn me-1" data-id="' + id + '">Assign Delivery</button>');
-                    } else {
-                        btns.push('<button class="btn btn-sm glow btn-primary action-btn me-1" data-action="MarkInTransit" data-id="' + id + '">In Transit</button>');
-                    }
-                } else if (status === "In Transit") {
-                    btns.push('<button class="btn btn-sm glow btn-success action-btn me-1" data-action="MarkDelivered" data-id="' + id + '">Delivered</button>');
-                } else if (status === "Ready for Pickup") {
-                    btns.push('<button class="btn btn-sm glow btn-primary action-btn me-1" data-action="MarkPicked" data-id="' + id + '">Mark Picked</button>');
+                    buttons += `<button class="btn btn-sm btn-primary rounded-pill px-3 ready-order-btn" data-id="${id}"><i class="bi bi-box-seam"></i> Mark Ready</button>`;
                 }
-
-                if (order.deliveryPersonId && (status === "Ready for Delivery" || status === "In Transit")) {
-                    btns.push('<span class="badge bg-info d-block mt-1">Partner Assigned</span>');
-                }
-
-                return btns.join('');
+                
+                return buttons;
             }
 
             function renderOrders(list) {
@@ -179,8 +182,8 @@
                 list.forEach(o => {
                     let tabStatus = o.status;
                     if (o.status === "New" || o.status === "Placed") tabStatus = "New";
-                    else if (o.status === "Ready for Pickup" || o.status === "Ready for Delivery") tabStatus = "Ready";
-                    else if (o.status === "Picked" || o.status === "In Transit") tabStatus = "In Progress";
+                    else if (o.status.includes("Ready")) tabStatus = "Ready";
+                    else if (o.status === "In Transit" || o.status === "On the Way") tabStatus = "In Progress";
 
                     if (counts.hasOwnProperty(tabStatus)) counts[tabStatus]++;
                 });
@@ -193,28 +196,33 @@
                 list.forEach(order => {
                     let tabStatus = order.status;
                     if (order.status === "New" || order.status === "Placed") tabStatus = "New";
-                    else if (order.status === "Ready for Pickup" || order.status === "Ready for Delivery") tabStatus = "Ready";
-                    else if (order.status === "Picked" || order.status === "In Transit") tabStatus = "In Progress";
+                    else if (order.status.includes("Ready")) tabStatus = "Ready";
+                    else if (order.status === "In Transit" || order.status === "On the Way") tabStatus = "In Progress";
 
-                    const cls = statusClass[order.status] || '';
-                    if (currentFilter !== "All" && currentFilter !== tabStatus) {
-                        return;
-                    }
+                    if (currentFilter !== "All" && currentFilter !== tabStatus) return;
 
-                    const orderLink = '<a href="/Admin/OrderDetails?orderId=' + order.orderId + '" class="fw-bold">#' + order.orderId + '</a>';
+                    const date = order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
 
-                    const $tr = $('<tr>').addClass(cls).attr('data-id', order.orderId);
-                    $tr.append($('<td>').html(orderLink));
-                    $tr.append($('<td>').html('<strong>' + (order.customerName || 'Guest') + '</strong><br/><small class="text-muted">' + (order.customerPhone || 'No Phone') + '</small>'));
-                    $tr.append($('<td>').text(order.totalItems + ' items'));
+                    const $tr = $('<tr>').attr('data-id', order.orderId);
+                    $tr.append(`<td class="ps-4 fw-bold text-success">#${order.orderId}</td>`);
+                    $tr.append(`<td>
+                        <div class="fw-bold">${order.customerName || 'Guest User'}</div>
+                        <div class="text-muted small"><i class="bi bi-telephone"></i> ${order.customerPhone || 'N/A'}</div>
+                    </td>`);
+                    $tr.append(`<td>
+                        <div class="fw-500">${order.totalItems} Items</div>
+                        <div class="text-muted small"><i class="bi bi-truck"></i> Delivery</div>
+                    </td>`);
                     
-                    const details = (order.deliveryAddress || 'No Address');
-                    const deliveryInfo = `<br/><small class="text-info">${order.deliveryStatus || 'Unassigned'}</small>`;
-                    $tr.append($('<td>').html('<small>' + details + '</small>' + deliveryInfo));
+                    const addr = order.deliveryAddress ? (order.deliveryAddress.substring(0, 30) + '...') : 'Local Address';
+                    $tr.append(`<td>
+                        <div class="small text-truncate" style="max-width: 200px;" title="${order.deliveryAddress}">${addr}</div>
+                        <div class="text-info small fw-bold mt-1"><i class="bi bi-geo-alt"></i> ${order.deliveryStatus || 'Pending'}</div>
+                    </td>`);
                     
-                    $tr.append($('<td>').text(order.paymentStatus || 'Pending'));
-                    $tr.append($('<td>').html(formatBadge(order.status)));
-                    $tr.append($('<td>').html(buildActionButtons(order)));
+                    $tr.append(`<td><span class="fw-bold text-dark">₹${order.totalAmount || '--'}</span><br/><small class="text-success">${order.paymentStatus || 'Paid'}</small></td>`);
+                    $tr.append(`<td>${formatBadge(order.status)}</td>`);
+                    $tr.append(`<td class="text-end pe-4">${buildActionButtons(order)}</td>`);
 
                     $tbody.append($tr);
                 });
@@ -222,128 +230,168 @@
             }
 
             function fetchOrders() {
-                $('#liveIndicator').removeClass('bg-danger').addClass('bg-success').text('Live');
+                $('#liveIndicator').text('Updating...');
                 $.ajax({
                     url: '/Admin/GetActiveOrders',
                     method: 'GET',
-                    dataType: 'json',
                     success: function (data) { 
-                        $('#noOrders').hide();
-                        $('#ordersTable').show();
                         renderOrders(data); 
+                        $('#liveIndicator').text('Live');
                     },
                     error: function (xhr) { 
                         console.error("Fetch orders failed:", xhr);
-                        $('#liveIndicator').removeClass('bg-success').addClass('bg-danger').text('Disconnected');
-                        if ($('#ordersTable tbody tr').length === 0) {
-                            $('#ordersTable').hide();
-                            $('#noOrders').html('Error loading orders. <button class="btn btn-sm btn-outline-primary ms-2" onclick="location.reload()">Retry</button>').show();
-                        }
+                        $('#liveIndicator').text('Offline').addClass('bg-danger');
                     }
                 });
             }
 
-            $(document).on('click', '.action-btn', function (e) {
-                e.preventDefault();
-                const $btn = $(this);
-                const action = $btn.data('action');
-                const id = $btn.data('id');
-                const originalHtml = $btn.html();
+            // Details Modal Logic
+            $(document).on('click', '.view-details-btn', function() {
+                const id = $(this).data('id');
+                $('#detailTitle').text(`Order #${id} - Summary`);
+                $('#orderDetailsModal').modal('show');
+                $('#detailBody').html('<div class="text-center py-5"><div class="spinner-border text-success"></div></div>');
 
-                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
-                $.post({
-                    url: '/Admin/' + action,
-                    data: { orderId: id, __RequestVerificationToken: token },
-                    dataType: 'json',
-                    success: function (res) {
-                        if (res.success) {
-                            window.notify.success(res.message || 'Action completed');
-                            fetchOrders();
-                        } else {
-                            window.notify.error(res.message || 'Action failed');
-                            $btn.prop('disabled', false).html(originalHtml);
-                        }
-                    },
-                    error: function () {
-                        window.notify.error('Network error. Please try again.');
-                        $btn.prop('disabled', false).html(originalHtml);
-                    }
-                });
-            });
-
-            // Delivery Assignment Handlers
-            $(document).on('click', '.assign-delivery-btn', function () {
-                const orderId = $(this).data('id');
-                $('#assignOrderId').val(orderId);
-                $('#assignDeliveryModal').modal('show');
-
-                // Fetch personnel
-                $.get('/Admin/GetDeliveryPersonnel', function (data) {
-                    const $select = $('#deliveryPersonSelect').empty();
-                    if (!data || data.length === 0) {
-                        $select.append('<option value="">No partners found</option>');
+                $.get(`/Admin/GetOrderDetails?orderId=${id}`, function(data) {
+                    if (data.error) {
+                        $('#detailBody').html(`<div class="alert alert-danger">${data.error}</div>`);
                         return;
                     }
-                    data.forEach(p => {
-                        $select.append(`<option value="${p.id}">${p.name} (${p.phone})</option>`);
+
+                    let itemsHtml = '';
+                    data.items.forEach(item => {
+                        itemsHtml += `
+                            <div class="order-item-row d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">${item.name}</div>
+                                    <div class="small text-muted">${item.instructions || 'No special instructions'}</div>
+                                </div>
+                                <div class="fw-bold">x${item.quantity}</div>
+                            </div>`;
                     });
+
+                    const html = `
+                        <div class="row g-4">
+                            <div class="col-md-7">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-cart3"></i> Items Ordered</h6>
+                                <div class="bg-light p-3 rounded-3 mb-4">
+                                    ${itemsHtml}
+                                </div>
+                                <div class="d-flex justify-content-between px-2">
+                                    <span class="fw-bold">Total Amount</span>
+                                    <span class="fw-bold text-success fs-5">₹${data.amount}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> Information</h6>
+                                <div class="order-meta mb-3">
+                                    <div class="mb-2"><strong>Customer:</strong> ${data.customerName}</div>
+                                    <div class="mb-2"><strong>Phone:</strong> ${data.customerPhone}</div>
+                                    <div class="mb-2"><strong>Address:</strong><br/> ${data.deliveryAddress || 'Local Address'}</div>
+                                    <div class="mb-2"><strong>Payment:</strong> ${data.paymentMode} (${data.transactionId || 'No ID'})</div>
+                                    <div class="mb-2"><strong>Placed At:</strong> ${new Date(data.orderDateTime).toLocaleString()}</div>
+                                </div>
+                                <div class="mt-4 p-3 bg-light rounded-3 text-center">
+                                    <div class="small text-muted mb-1">Current Status</div>
+                                    <div class="fs-5 fw-bold text-uppercase text-success">${data.status}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                    $('#detailBody').html(html);
                 });
             });
 
-            $('#confirmAssignBtn').on('click', function () {
-                const orderId = $('#assignOrderId').val();
-                const personId = $('#deliveryPersonSelect').val();
+            // Action Buttons Logic
+            $(document).on('click', '.accept-order-btn', function() {
+                const id = $(this).data('id');
+                if (!confirm(`Mark order #${id} as Accepted?`)) return;
+                performAction(id, '/Admin/AcceptOrder');
+            });
 
-                if (!personId) {
-                    alert('Please select a delivery partner');
-                    return;
-                }
+            $(document).on('click', '.ready-order-btn', function() {
+                const id = $(this).data('id');
+                if (!confirm(`Mark order #${id} as Ready for Delivery?`)) return;
+                performAction(id, '/Admin/MarkReady');
+            });
 
-                $(this).prop('disabled', true).text('Assigning...');
-
-                $.post({
-                    url: '/Admin/AssignDelivery',
-                    data: { orderId: orderId, deliveryPersonId: personId, __RequestVerificationToken: token },
-                    success: function (res) {
+            function performAction(id, url) {
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: { 
+                        orderId: id, 
+                        __RequestVerificationToken: token 
+                    },
+                    success: function(res) {
                         if (res.success) {
-                            $('#assignDeliveryModal').modal('hide');
                             fetchOrders();
                         } else {
-                            alert(res.message || 'Failed to assign');
+                            alert("Error: " + res.message);
                         }
                     },
-                    complete: function () {
-                        $('#confirmAssignBtn').prop('disabled', false).text('Assign Now');
+                    error: function(xhr) {
+                        console.error(xhr);
+                        alert("An error occurred while communicating with the server.");
                     }
                 });
-            });
+            }
 
             $('#statusTabs').on('click', 'a', function (e) {
                 e.preventDefault();
                 $('#statusTabs a').removeClass('active');
                 $(this).addClass('active');
                 currentFilter = $(this).data('status');
-                fetchOrders();
+                renderOrders(window.lastOrderList || []); 
             });
 
-            $('#autoRefreshToggle').on('change', function () {
-                const enabled = $(this).is(':checked');
-                if (enabled) startPolling(); else stopPolling();
-            });
-
+            // Polling
             function startPolling() {
                 if (pollTimer) return;
                 pollTimer = setInterval(fetchOrders, pollIntervalMs);
                 fetchOrders();
             }
+            function stopPolling() { clearInterval(pollTimer); pollTimer = null; }
+            $('#autoRefreshToggle').on('change', function () { if ($(this).is(':checked')) startPolling(); else stopPolling(); });
 
-            function stopPolling() {
-                if (!pollTimer) return;
-                clearInterval(pollTimer);
-                pollTimer = null;
-            }
+            $(function () { 
+                startPolling(); 
+                // Cache data globally for local filtering
+                const origFetch = fetchOrders;
+                fetchOrders = function() {
+                    $.get('/Admin/GetActiveOrders', function(data) {
+                        window.lastOrderList = data;
+                        renderOrders(data);
+                        $('#lastUpdated').text('Updated: ' + new Date().toLocaleTimeString());
+                    });
+                };
+            });
 
-            $(function () { startPolling(); $(document).on('orders:refresh', fetchOrders); });
+            $(document).on('click', '.view-summary-btn', function () {
+                const orderId = $(this).data('id');
+                const order = window.lastOrderList.find(o => o.orderId === orderId);
+
+                if (order) {
+                    $('#detailTitle').text(`Order #${order.orderId} - Summary`);
+
+                    const summaryHtml = `
+                        <div>
+                            <h6>Items Ordered</h6>
+                            <p>${order.items.map(i => i.name).join(', ')}</p> 
+                            <hr />
+                            <h6>Information</h6>
+                            <p><strong>Customer:</strong> ${order.customer.name}</p>
+                            <p><strong>Phone:</strong> ${order.customer.phone}</p>
+                            <p><strong>Address:</strong> ${order.deliveryAddress || 'Local Address'}</p>
+                            <p><strong>Payment:</strong> ${order.paymentStatus || 'Paid'}</p>
+                            <p><strong>Placed At:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+                        </div>
+                    `;
+
+                    $('#detailBody').html(summaryHtml);
+                    var detailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                    detailsModal.show();
+                }
+            });
         })(jQuery);
     </script>
 }

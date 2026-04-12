@@ -1,169 +1,268 @@
-﻿@{
+@{
+    ViewData["Title"] = "NutriBite — Premium Healthy Food Delivery";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
-    ViewData["Title"] = "NutriBite";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/land.css" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <style>
+        /* Landing Page Specific Additions */
+        .how-it-works-step {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            background: #fff;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .how-it-works-step:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(45, 106, 79, 0.12);
+            border-color: rgba(45, 106, 79, 0.2);
+        }
+        .how-it-works-step:hover .step-number {
+            background: var(--brand-green);
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 16px rgba(45, 106, 79, 0.25);
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--brand-light);
+            color: var(--brand-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0 auto 1.5rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cta-section {
+            background: linear-gradient(135deg, var(--brand-green) 0%, #1b4332 100%);
+            padding: 100px 0;
+            color: white;
+            text-align: center;
+            border-radius: 40px;
+            margin: 60px 20px;
+        }
+    </style>
 }
 
 <!-- HERO SECTION -->
 <div class="hero-section">
-
-    <div class="hero-top">
-
-        <div class="hero-left">
-            <div class="eyebrow">Eat Fresh, Live Healthy</div>
-
-            <h1>Track Calories On Your Plate</h1>
-
-            <p>
-                Discover calorie-based meal selection and nutrition insights tailored to your goals.
-                Choose meals by calorie, protein, fats and carbs and get them picked up or delivered fresh.
-            </p>
-
-            <a class="cta-btn" asp-controller="Auth" asp-action="Login">
-                Explore Meals
-            </a>
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            
+            <div class="col-lg-6 text-start">
+                <div class="eyebrow">
+                    <i class="bi bi-stars"></i> Eat Fresh, Live Healthy
+                </div>
+                
+                <h1>Professional Nutrition<br/><span>Delivered Daily</span></h1>
+                
+                <p class="lead">
+                    Connect with certified home chefs for balanced, calorie-counted homemade meals. 
+                    Personalized nutrition plans tailored to your fitness and health goals.
+                </p>
+                
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a asp-controller="Auth" asp-action="Register" class="btn btn-success btn-lg px-4 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-2" style="background:#2d6a4f; border-color:#2d6a4f;">
+                        Get Started <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a asp-controller="Home" asp-action="About" class="btn btn-outline-dark btn-lg px-4 rounded-pill fw-bold">
+                        Learn More
+                    </a>
+                </div>
+                
+                <div class="d-flex align-items-center gap-4 mt-5">
+                    <div class="d-flex -space-x-4">
+                        <img src="https://i.pravatar.cc/100?img=1" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px;" alt="User">
+                        <img src="https://i.pravatar.cc/100?img=2" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; margin-left: -15px;" alt="User">
+                        <img src="https://i.pravatar.cc/100?img=3" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; margin-left: -15px;" alt="User">
+                        <div class="rounded-circle bg-light border border-2 border-white d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; margin-left: -15px; font-weight: bold; font-size: 0.8rem;">
+                            5K+
+                        </div>
+                    </div>
+                    <div class="text-muted small fw-semibold">
+                        Happy Customers <br /><span class="text-dark">Rating 4.9/5 ⭐</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mt-5 mt-lg-0">
+                <div class="food-circle-wrapper">
+                    <img src="/images/hero/floating_hero_bowl.png" class="floating-img" alt="Premium Healthy Bowl" onerror="this.src='/images/hero/hero-food.png';" />
+                    
+                    <div class="stats-badge" style="top: 80px;">
+                        <div class="h5">100%</div>
+                        <div class="small text-muted fw-bold">Verified Chefs</div>
+                    </div>
+                </div>
+            </div>
+            
         </div>
+    </div>
+</div>
 
-        <div class="hero-right">
-            <div class="food-circle">
-                <img src="~/images/bowl1.jpeg" alt="Healthy Food" />
+<!-- FEATURES SECTION (Value Proposition) -->
+<div class="features-section pb-0">
+    <div class="container">
+        <div class="text-center mb-5 pb-3">
+            <h2 class="section-title">Why Choose NutriBite?</h2>
+            <p class="text-muted" style="font-size:1.1rem; max-width: 600px; margin: 0 auto;">
+                We take the guesswork out of healthy eating so you can focus on living your best life.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 reveal-up delay-100">
+                <div class="feature-card-v2">
+                    <div class="feature-icon text-white" style="background: linear-gradient(135deg, #34d399 0%, #059669 100%); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);">
+                        <i class="bi bi-fire"></i>
+                    </div>
+                    <h5>Smart Calorie Tracking</h5>
+                    <p>Monitor your daily intake of protein, carbs, and fats with precision for every meal to hit your health goals without the hassle.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up delay-200">
+                <div class="feature-card-v2">
+                    <div class="feature-icon text-white" style="background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.25);">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <h5>Verified Home Chefs</h5>
+                    <p>Every meal is prepared in hygienic home kitchens by passionate chefs verified for quality, authentic taste, and pristine safety.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up delay-300">
+                <div class="feature-card-v2">
+                    <div class="feature-icon text-white" style="background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); box-shadow: 0 10px 20px rgba(245, 158, 11, 0.25);">
+                        <i class="bi bi-stars"></i>
+                    </div>
+                    <h5>AI Personalized Plans</h5>
+                    <p>Our intelligent system learns your body type, goals, and allergies to recommend the perfect weekly meal plans tailored just for you.</p>
+                </div>
             </div>
         </div>
-
     </div>
-
-    <!-- FEATURES -->
-    <div class="features">
-        <div class="feature-card">
-            <h4>🔥 Smart Calorie Tracking</h4>
-            <p>Track protein, carbs and fats instantly.</p>
-        </div>
-
-        <div class="feature-card">
-            <h4>🥗 Healthy Meal Options</h4>
-            <p>Curated meals based on your fitness goals.</p>
-        </div>
-
-        <div class="feature-card">
-            <h4>🚚 Fast Delivery</h4>
-            <p>Fresh meals delivered to your doorstep.</p>
-        </div>
-    </div>
-
 </div>
-<!-- ===============================
-       NUTRIBITE INFO SECTION
-================================= -->
 
-<section class="nutribite-info">
-
+<!-- HOW IT WORKS -->
+<section class="soft-section bg-white" style="padding-top: 100px;">
     <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">How It Works</h2>
+            <p class="text-muted" style="font-size:1.1rem; max-width: 600px; margin: 0 auto;">
+                Three simple steps to a healthier, happier you.
+            </p>
+        </div>
+        <div class="row g-4 position-relative">
+            <!-- Connecting Line (Desktop only) -->
+            <div class="d-none d-md-block position-absolute" style="top: 25%; left: 10%; right: 10%; height: 2px; border-top: 2px dashed #cbd5e1; z-index: 0;"></div>
+            
+            <div class="col-md-4 reveal-up delay-100">
+                <div class="how-it-works-step h-100">
+                    <div class="step-number">1</div>
+                    <h5 class="fw-bold">Tell Us Your Goals</h5>
+                    <p class="text-muted mb-0 small">Sign up and input your dietary preferences, allergies, and health targets.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up delay-200">
+                <div class="how-it-works-step h-100">
+                    <div class="step-number">2</div>
+                    <h5 class="fw-bold">We Curate Your Menu</h5>
+                    <p class="text-muted mb-0 small">Our AI matches you with the best local verified home chefs and builds your plan.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up delay-300">
+                <div class="how-it-works-step h-100">
+                    <div class="step-number">3</div>
+                    <h5 class="fw-bold">Daily Seamless Delivery</h5>
+                    <p class="text-muted mb-0 small">Enjoy fresh, macro-counted meals delivered to your door every single day.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- FINAL CALL TO ACTION -->
+<section class="container">
+    <div class="cta-section">
+        <h2 class="fw-bold mb-3" style="font-size: 2.5rem;">Ready to transform your health?</h2>
+        <p class="mb-5 opacity-75" style="font-size: 1.2rem; max-width: 600px; margin: 0 auto;">
+            Join thousands of professionals, students, and seniors who are already eating better with NutriBite.
+        </p>
+        <a asp-controller="Auth" asp-action="Register" class="btn btn-light btn-lg rounded-pill fw-bold px-5 py-3 shadow text-success" style="font-size: 1.1rem;">
+            Create Your Free Account
+        </a>
+        <div class="mt-4 small opacity-50">
+            No credit card required to explore our menus.
+        </div>
+    </div>
+</section>
+
+<!-- NUTRIBITE INFO SECTION -->
+<section class="nutribite-info">
+    <div class="container">
         <div class="row">
 
             <!-- LEFT SIDE -->
-
-            <div class="col-md-4">
-
+            <div class="col-lg-4 mb-5 mb-lg-0">
                 <div class="brand-block">
-
-                    <img src="~/images/hero/Nutribitelogo.png"
-                         class="footer-logo" />
-
+                    <img src="~/images/hero/Nutribitelogo.png" class="footer-logo" alt="NutriBite" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                    <h3 style="display:none; color:white; font-weight:800; font-size:2rem; margin-bottom:15px; letter-spacing:-1px;">NutriBite<span style="color:#10b981;">.</span></h3>
                     <p>
-                        NutriBite connects people with healthy homemade meals prepared by trusted home chefs, making nutritious and calorie-counted food
+                        NutriBite connects you with passionate home chefs to deliver healthy, perfectly portioned, and macro-counted homemade meals. Because good health begins with great food.
                     </p>
-
                 </div>
-
             </div>
-
 
             <!-- COMPANY -->
-
-            <div class="col-md-3">
-
+            <div class="col-lg-3 col-md-4 mb-4 mb-md-0">
                 <h5>Company</h5>
-
                 <ul class="footer-links">
-
-                    <li>
-                        <a asp-controller="Home" asp-action="About">
-                            About Us
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="#">
-                            Why NutriBite
-                        </a>
-                    </li>
-
-                    <li>
-                        <a asp-controller="Vendor" asp-action="Register">
-                            Join as Vendor
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="#">
-                            Careers
-                        </a>
-                    </li>
-
+                    <li><a asp-controller="Home" asp-action="About">About Us</a></li>
+                    <li><a href="#">Why NutriBite</a></li>
+                    <li><a asp-controller="Vendor" asp-action="Register">Join as Vendor</a></li>
+                    <li><a href="#">Careers</a></li>
                 </ul>
-
             </div>
-
 
             <!-- INFORMATION -->
-
-            <div class="col-md-3">
-
+            <div class="col-lg-3 col-md-4 mb-4 mb-md-0">
                 <h5>Information</h5>
-
                 <ul class="footer-links">
-
-                    <li>
-                        <a href="#">Privacy Policy</a>
-                    </li>
-
-                    <li>
-                        <a href="#">Terms & Conditions</a>
-                    </li>
-
-                    <li>
-                        <a href="#">Cancellation & Refunds</a>
-                    </li>
-
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Cancellation & Refunds</a></li>
+                    <li><a asp-controller="Nutritionists" asp-action="Index">Our Experts</a></li>
                 </ul>
-
             </div>
 
-
             <!-- CONTACT -->
-
-            <div class="col-md-2">
-
-                <h5>Contact Us</h5>
-
+            <div class="col-lg-2 col-md-4">
+                <h5>Contact</h5>
                 <p class="contact-item">
-                    <span class="icon">📞</span>
-                    <span>+91 9876543210</span>
+                    <i class="bi bi-telephone text-success"></i> +91 9876543210
                 </p>
-
                 <p class="contact-item">
-                    <span class="icon">✉</span>
-                    <span>support@nutribite.com</span>
+                    <i class="bi bi-envelope text-success"></i> hello@nutribite.com
                 </p>
-
             </div>
 
         </div>
-
+        
+        <div class="border-top mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.1) !important;">
+            <p class="text-muted small mb-3 mb-md-0">&copy; @DateTime.Now.Year NutriBite Technologies. All rights reserved.</p>
+            <div class="d-flex gap-3">
+                <a href="#" class="text-muted fs-5"><i class="bi bi-instagram hover-text-white transition"></i></a>
+                <a href="#" class="text-muted fs-5"><i class="bi bi-twitter-x hover-text-white transition"></i></a>
+                <a href="#" class="text-muted fs-5"><i class="bi bi-facebook hover-text-white transition"></i></a>
+            </div>
+        </div>
     </div>
-
 </section>

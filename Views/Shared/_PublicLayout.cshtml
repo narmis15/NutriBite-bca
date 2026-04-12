@@ -7,11 +7,10 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
-    // Show Bulk nav on Home and Bulk pages (not landing)
+    // Show Bulk nav on all pages except the landing page
     bool isLanding = string.Equals(currentController, "Public", System.StringComparison.OrdinalIgnoreCase)
                      && string.Equals(currentAction, "Index", System.StringComparison.OrdinalIgnoreCase);
-    bool showBulkNav = !isLanding && (string.Equals(currentController, "Home", System.StringComparison.OrdinalIgnoreCase)
-                                      || string.Equals(currentController, "Bulk", System.StringComparison.OrdinalIgnoreCase));
+    bool showBulkNav = !isLanding;
     bool showBackButton = !(string.Equals(currentController, "Home", System.StringComparison.OrdinalIgnoreCase)
                             && string.Equals(currentAction, "Index", System.StringComparison.OrdinalIgnoreCase))
                           && !(string.Equals(currentController, "Public", System.StringComparison.OrdinalIgnoreCase)
@@ -36,15 +35,23 @@
     @RenderSection("Styles", required: false)
 
     <style>
-
-        body {
-            font-family: 'Poppins',sans-serif;
-            background: #fdfdfd;
-            margin: 0;
-            color: #1b4332;
+        :root {
+            --brand-green: #2d6a4f;
+            --brand-green-hover: #1b4332;
+            --brand-light: #f0fdf4;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --glass-bg: rgba(255, 255, 255, 0.85);
         }
 
-        /* Full-width layout main container */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #fdfdfd;
+            margin: 0;
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+
         .main-container {
             width: 100%;
             min-height: 100vh;
@@ -52,183 +59,318 @@
             flex-direction: column;
         }
 
-        /* Inner content container to keep things centered */
         .content-container {
             width: 92%;
             max-width: 1200px;
             margin: 0 auto;
         }
 
+        /* NAVBAR - Enhanced Glassmorphism */
         .public-navbar {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            padding: 16px 4%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 16px 5%;
+            background: rgba(255, 255, 255, 0.65); /* More transparent to absorb background */
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(45, 106, 79, 0.12);
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 1050;
+            transition: all 0.3s ease;
         }
+
         .logo-img {
-            height: 55px;
+            height: 48px;
+            transition: transform 0.3s ease;
+        }
+        .logo-img:hover {
+            transform: scale(1.02);
         }
 
         .nav-center {
             display: flex;
-            justify-content: center;
-            gap: 50px;
+            gap: 40px;
             align-items: center;
         }
 
-            .nav-center a {
-                text-decoration: none;
-                font-weight: 600;
-                color: #1b4332;
-                transition: .3s;
-            }
+        .nav-center a {
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            position: relative;
+        }
 
-                .nav-center a:hover {
-                    color: #40916c;
-                }
+        .nav-center a:hover {
+            color: var(--brand-green);
+        }
 
-                .nav-center a.active {
-                    color: #1b4332;
-                    background: rgba(45,106,79,0.08);
-                    padding: 6px 10px;
-                    border-radius: 8px;
-                }
+        .nav-center a.active {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
 
-                .nav-center a:hover {
-                    border-bottom: 2px solid #40916c;
-                    padding-bottom: 4px;
-                }
+        .nav-center a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--brand-green);
+            border-radius: 3px;
+        }
 
         .nav-actions {
             display: flex;
             align-items: center;
-            gap: 20px;
-            justify-content: flex-end;
-        }
-        .vendor-btn {
-            padding: 10px 18px;
-            border-radius: 25px;
-            border: 2px solid #52b788;
-            color: #1b4332;
-            text-decoration: none;
-            font-weight: 600;
-            transition: .3s;
+            gap: 16px;
         }
 
-            .vendor-btn:hover {
-                background: #52b788;
-                color: white;
-            }
+        .btn-rounded {
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .vendor-btn {
+            background: transparent;
+            color: var(--text-dark);
+            border: 1.5px solid #e5e7eb;
+        }
+        .vendor-btn:hover {
+            border-color: var(--brand-green);
+            color: var(--brand-green);
+        }
 
         .login-btn {
-            padding: 10px 20px;
-            border-radius: 25px;
-            background: #2d6a4f;
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
+            background: transparent;
+            color: var(--brand-green);
+            border: 1.5px solid var(--brand-green);
+        }
+        .login-btn:hover {
+            background: var(--brand-light);
         }
 
         .signup-btn {
-            padding: 10px 20px;
-            border-radius: 25px;
-            border: 2px solid #2d6a4f;
-            color: #2d6a4f;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-            .signup-btn:hover {
-                background: #2d6a4f;
-                color: white;
-            }
-
-        .cart-icon {
-            font-size: 22px;
-            position: relative;
-            text-decoration: none;
-        }
-
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -10px;
-            background: #ff4d4d;
+            background: var(--brand-green);
             color: white;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 50%;
-            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.2);
+            border: 1.5px solid var(--brand-green);
         }
-
-        .profile-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: #1b9e52;
+        .signup-btn:hover {
+            background: var(--brand-green-hover);
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(27,158,82,0.4);
+            box-shadow: 0 6px 16px rgba(45, 106, 79, 0.3);
+            transform: translateY(-1px);
         }
 
         .nav-search {
             position: relative;
         }
 
-            .nav-search input {
-                width: 260px;
-                padding: 10px 16px;
-                border-radius: 25px;
-                border: 1px solid #e0e0e0;
-                font-size: 14px;
-                transition: 0.3s;
-            }
+        .nav-search input {
+            width: 280px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
 
-                .nav-search input:focus {
-                    outline: none;
-                    border-color: #52b788;
-                    box-shadow: 0 0 0 3px rgba(82,183,136,0.2);
-                }
+        .nav-search input:focus {
+            outline: none;
+            background: #fff;
+            border-color: var(--brand-green);
+            box-shadow: 0 0 0 4px var(--brand-light);
+        }
 
         #searchResults {
             position: absolute;
-            top: 38px;
+            top: 48px;
             width: 100%;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            z-index: 999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            z-index: 1060;
+            overflow: hidden;
+            border: 1px solid #f3f4f6;
         }
 
         .search-item {
             display: flex;
-            gap: 10px;
-            padding: 10px;
+            gap: 12px;
+            padding: 12px 16px;
             align-items: center;
             cursor: pointer;
             text-decoration: none;
-            color: #1b4332;
+            color: var(--text-dark);
+            border-bottom: 1px solid #f9fafb;
         }
 
-            .search-item:hover {
-                background: #f4f7f5;
-            }
+        .search-item:hover {
+            background: #f9fafb;
+        }
 
-            .search-item img {
-            width: 40px;
-            height: 40px;
+        .search-item img {
+            width: 48px;
+            height: 48px;
             border-radius: 8px;
             object-fit: cover;
+        }
+
+        .cart-icon {
+            font-size: 1.25rem;
+            position: relative;
+            text-decoration: none;
+            color: var(--text-dark);
+            background: #f3f4f6;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .cart-icon:hover {
+            background: #e5e7eb;
+            color: var(--brand-green);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50px;
+            font-weight: 700;
+            border: 2px solid white;
+        }
+
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-green), #40916c);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .profile-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(45,106,79,0.4);
+        }
+
+        #locationDisplay {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background: transparent;
+            color: var(--text-muted);
+            padding: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        #locationDisplay:hover {
+            color: var(--brand-green);
+        }
+
+        /* DROPDOWN UI */
+        .dropdown-menu {
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 12px 0;
+            min-width: 220px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            animation: dropdownFade 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 10px;
+        }
+
+        @@keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .dropdown-item {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--brand-light);
+            color: var(--brand-green);
+            padding-left: 24px;
+        }
+
+        .dropdown-divider {
+            margin: 8px 0;
+            border-color: #f3f4f6;
+        }
+
+        .dropdown-item.text-danger {
+            color: #ef4444 !important;
+            font-weight: 600;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background: #fef2f2;
+            color: #dc2626 !important;
+        }
+
+        /* Global Back Button */
+        .global-back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            color: var(--text-muted);
+            border: 1px solid #e5e7eb;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+        .global-back-btn:hover {
+            background: #f9fafb;
+            color: var(--text-dark);
+            transform: translateX(-2px);
+        }
+        
+        .back-wrapper {
+            display: flex;
+            justify-content: flex-start;
+            padding-top: 30px;
         }
 
         main {
@@ -237,147 +379,93 @@
             width: 100%;
         }
 
-        /* Global Back Button - NutriBite style (Small Circle Arrow Design) */
-        .global-back-btn {
-            display: inline-flex;
+        /* RESPONSIVE NAVBAR */
+        @@media (max-width: 1024px) {
+            .nav-center { display: none; }
+            .mobile-menu-btn { display: flex !important; }
+            .nav-search input { width: 200px; }
+        }
+
+        .mobile-menu-btn {
+            display: none;
             align-items: center;
             justify-content: center;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
+            border-radius: 8px;
+            background: #f3f4f6;
+            color: var(--text-dark);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav-offcanvas {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
             background: #fff;
-            color: #6c757d;
-            border: 1px solid #dee2e6;
+            z-index: 2000;
+            transition: all 0.3s ease;
+            box-shadow: 15px 0 40px rgba(0,0,0,0.1);
+            padding: 30px 20px;
+        }
+
+        .mobile-nav-offcanvas.active {
+            left: 0;
+        }
+
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+
+        .mobile-nav-overlay.active {
+            display: block;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mobile-nav-links a {
+            text-decoration: none;
             font-size: 1.1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            margin-bottom: 20px;
-        }
-        .global-back-btn:hover {
-            background: #f8f9fa;
-            color: #212529;
-            border-color: #adb5bd;
-            transform: scale(1.05);
-        }
-        /* keep button left-aligned and under navbar */
-        .back-wrapper {
-            display:flex;
-            justify-content:flex-start;
-            padding-top: 20px;
-        }
-
-        .cart-icon {
-            font-size: 22px;
-            position: relative;
-            text-decoration: none;
-            background: #eef7f2;
-            padding: 8px 12px;
-            border-radius: 12px;
-            transition: 0.3s;
-        }
-
-            .cart-icon:hover {
-                background: #dff3ea;
-            }
-
-        .hero-btn {
-            background: #2d6a4f;
-            color: white;
-            padding: 14px 28px;
-            border-radius: 30px;
-            font-weight: 600;
-            border: none;
-            transition: 0.3s;
-        }
-
-            .hero-btn:hover {
-                background: #40916c;
-                transform: translateY(-2px);
-            }
-
-        #locationDisplay {
-            max-width: 220px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: #eef7f2;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        /* ===============================
-           PROFILE DROPDOWN UI
-        ================================ */
-
-        .dropdown-menu {
-            border-radius: 14px;
-            border: none;
-            padding: 10px 0;
-            min-width: 200px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
-            animation: dropdownFade .2s ease;
-        }
-
-        /* dropdown animation */
-        keyframes dropdownFade {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
-
-        /* dropdown items */
-        .dropdown-item {
-            padding: 10px 18px;
-            font-size: 14px;
             font-weight: 500;
-            color: #1b4332;
-            transition: all .2s ease;
+            color: var(--text-dark);
+            padding: 10px 15px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
         }
 
-            /* hover effect */
-            .dropdown-item:hover {
-                background: #f4f9f6;
-                color: #2d6a4f;
-                padding-left: 22px;
-            }
-
-        /* divider */
-        .dropdown-divider {
-            margin: 8px 0;
+        .mobile-nav-links a:hover, .mobile-nav-links a.active {
+            background: var(--brand-light);
+            color: var(--brand-green);
         }
 
-        /* logout styling */
-        .dropdown-item.text-danger {
-            font-weight: 600;
+        @@media (max-width: 768px) {
+            .public-navbar { padding: 12px 5%; }
+            .logo-img { height: 40px; }
+            #locationDisplay { display: none; }
+            .vendor-btn { display: none; }
+            .nav-search input { width: 150px; font-size: 0.85rem; }
+            .btn-rounded { padding: 8px 16px; font-size: 0.85rem; }
         }
 
-            .dropdown-item.text-danger:hover {
-                background: #fff3f3;
-                color: #ff4d4d;
-            }
-
-        /* avatar improvement */
-        .profile-avatar {
-            transition: transform .2s ease, box-shadow .2s ease;
+        @@media (max-width: 480px) {
+            .nav-search { display: none; }
+            .public-navbar { padding: 12px 4%; }
         }
-
-            .profile-avatar:hover {
-                transform: scale(1.08);
-                box-shadow: 0 10px 25px rgba(27,158,82,0.45);
-            }
-
     </style>
 </head>
 
@@ -385,14 +473,63 @@
 
     <div class="main-container">
 
+        <!-- MOBILE NAV -->
+        <div class="mobile-nav-overlay" id="mobileOverlay" onclick="toggleMobileNav()"></div>
+        <div class="mobile-nav-offcanvas" id="mobileNav">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <img src="~/images/hero/Nutribitelogo.png" height="40" />
+                <button class="btn-close" onclick="toggleMobileNav()"></button>
+            </div>
+            <div class="mobile-nav-links">
+                @if (userId == null)
+                {
+                    <a asp-controller="Public" asp-action="Index" class="@(currentController == "Public" && currentAction == "Index" ? "active" : "")">Home</a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index" class="@(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
+                }
+                <a asp-controller="Home" asp-action="About" class="@(currentController == "Home" && currentAction == "About" ? "active" : "")">About</a>
+                <a asp-controller="Nutritionists" asp-action="Index" class="@(currentController == "Nutritionists" ? "active" : "")">Experts</a>
+                
+                @if (showBulkNav)
+                {
+                    <a asp-controller="Bulk" asp-action="Index" class="@(currentController == "Bulk" ? "active" : "")">Bulk Ordering</a>
+                }
+
+                <hr />
+                @if (userId == null)
+                {
+                    <a asp-controller="Auth" asp-action="Login">Login</a>
+                    <a asp-controller="Auth" asp-action="Register">Sign Up</a>
+                    <a asp-controller="Vendor" asp-action="Register">Join as Vendor</a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="MyProfile">My Profile</a>
+                    <a asp-controller="Cart" asp-action="Index">My Cart</a>
+                    <a asp-controller="Auth" asp-action="Logout" class="text-danger">Logout</a>
+                }
+            </div>
+        </div>
+
         <!-- NAVBAR -->
         <div class="public-navbar">
 
             <div style="display:flex;align-items:center;gap:15px;">
 
-                <a asp-controller="Home" asp-action="Index">
-                    <img src="~/images/hero/Nutribitelogo.png" class="logo-img" />
-                </a>
+                @if (userId == null)
+                {
+                    <a asp-controller="Public" asp-action="Index">
+                        <img src="~/images/hero/Nutribitelogo.png" class="logo-img" />
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index">
+                        <img src="~/images/hero/Nutribitelogo.png" class="logo-img" />
+                    </a>
+                }
 
                 @if (userId != null)
                 {
@@ -409,7 +546,14 @@
             </div>
 
             <div class="nav-center">
-                <a asp-controller="Home" asp-action="Index" class="nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
+                @if (userId == null)
+                {
+                    <a asp-controller="Public" asp-action="Index" class="nav-link @(currentController == "Public" && currentAction == "Index" ? "active" : "")">Home</a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index" class="nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
+                }
                 <a asp-controller="Home" asp-action="About" class="nav-link @(currentController == "Home" && currentAction == "About" ? "active" : "")">About</a>
                 <a asp-controller="Nutritionists" asp-action="Index" class="nav-link @(currentController == "Nutritionists" ? "active" : "")">Experts</a>
 
@@ -421,14 +565,18 @@
             </div>
 
             <div class="nav-actions">
+                <button class="mobile-menu-btn" onclick="toggleMobileNav()">
+                    <i class="bi bi-list"></i>
+                </button>
+
 
                 
 
                 @if (userId == null)
                 {
-                    <a class="vendor-btn" asp-controller="Vendor" asp-action="Register">Join as Vendor</a>
-                    <a class="login-btn" asp-controller="Auth" asp-action="Login">Login</a>
-                    <a class="signup-btn" asp-controller="Auth" asp-action="Register">Sign Up</a>
+                    <a class="btn-rounded vendor-btn" asp-controller="Vendor" asp-action="Register">Join as Vendor</a>
+                    <a class="btn-rounded login-btn" asp-controller="Auth" asp-action="Login">Login</a>
+                    <a class="btn-rounded signup-btn" asp-controller="Auth" asp-action="Register">Sign Up</a>
                 }
                 else
                 {
@@ -480,6 +628,12 @@
                                 </a>
                             </li>
 
+                            <li>
+                                <a class="dropdown-item" asp-controller="Subscription" asp-action="Index">
+                                    My Subscriptions
+                                </a>
+                            </li>
+
                             <li><hr class="dropdown-divider"></li>
 
                             <li>
@@ -523,6 +677,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>if(typeof bootstrap === 'undefined'){document.write('<script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"><\/script>')}</script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function toggleMobileNav() {
+            const nav = document.getElementById('mobileNav');
+            const overlay = document.getElementById('mobileOverlay');
+            nav.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    </script>
 
     <script>
 
@@ -585,25 +748,29 @@
 
     <script>
 
-        function loadCartCount(){
+        function updateCartCount(){
 
-        fetch('/Cart/GetCartCount')
-        .then(res=>res.json())
-        .then(data=>{
+            fetch('/Cart/GetCartCount')
+            .then(res=>res.json())
+            .then(data=>{
 
-        if(data.success){
+                if(data.success){
 
-        let count=data.count.toString().padStart(2,'0');
+                    let count=data.count.toString().padStart(2,'0');
 
-        document.getElementById("cartCount").innerText=count;
+                    document.getElementById("cartCount").innerText=count;
+
+                }
+
+            });
 
         }
 
-        });
+        // Alias for compatibility
+        window.loadCartCount = updateCartCount;
+        window.updateCartCount = updateCartCount;
 
-        }
-
-        loadCartCount();
+        updateCartCount();
 
     </script>
 
@@ -614,8 +781,12 @@
             if (!btn) return;
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
-                if (window.history.length > 1) { window.history.back(); return; }
-                window.location.href = '/';
+                let ref = document.referrer;
+                if (ref && ref.indexOf(window.location.hostname) > -1) { 
+                    window.history.back(); 
+                } else {
+                    window.location.href = '/';
+                }
             });
         })();
     </script>
@@ -636,6 +807,28 @@
                 // silent
             }
         })();
+    </script>
+
+    <!-- Scroll Reveal Animation Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el));
+        });
     </script>
 
     <!-- Location script (initialize after DOM) -->

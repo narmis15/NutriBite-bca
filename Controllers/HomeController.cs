@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using NUTRIBITE.Models;
 using NUTRIBITE.Filters;
+using NUTRIBITE.Services;
 
 namespace NUTRIBITE.Controllers
 {
@@ -15,14 +16,51 @@ namespace NUTRIBITE.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
+        private readonly IOrderService _orderService;
 
         private const string AdminEmail = "Nutribite123@gmail.com";
         private const string AdminPassword = "NutriBite//26";
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IEmailService emailService, IOrderService orderService)
         {
             _logger = logger;
             _context = context;
+            _emailService = emailService;
+            _orderService = orderService;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyDeliveryOTP(int orderId, int otp)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue) return Json(new { success = false, message = "Please login first." });
+
+            var ok = await _orderService.VerifyOrderOTPAsync(orderId, otp);
+            
+            if (ok)
+            {
+                var order = _context.OrderTables.Include(o => o.User).FirstOrDefault(o => o.OrderId == orderId);
+                // Send Delivery Confirmation Email
+                if (order?.User != null && !string.IsNullOrEmpty(order.User.Email))
+                {
+                    var emailBody = $@"
+                        <div style='font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+                            <h2 style='color: #2d6a4f;'>Order Delivered Successfully!</h2>
+                            <p>Hello {order.User.Name}, your order <b>#{order.OrderId}</b> has been delivered.</p>
+                            <hr>
+                            <p>We hope you enjoy your meal! Thank you for choosing NutriBite.</p>
+                            <br>
+                            <a href='https://localhost:5156/Home/Index' style='background: #2d6a4f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Order Again</a>
+                        </div>";
+                    
+                    await _emailService.SendEmailAsync(order.User.Email, "Order Delivered - NutriBite", emailBody);
+                }
+
+                return Json(new { success = true, message = "OTP Verified! Order marked as delivered." });
+            }
+
+            return Json(new { success = false, message = "Invalid OTP. Please check your email and try again." });
         }
 
         // =========================
@@ -193,8 +231,8 @@ namespace NUTRIBITE.Controllers
             AddFoodIfMissing("Methi Soft Thepla with Dahi", 80, 390, 14, 58, 11, "15 mins", "Elderly", "/images/menu items/methi thelpa with dahi.png", nutritionist1.Id, "Comfort Thali");
             AddFoodIfMissing("Curd Rice (Mild Tadka)", 70, 370, 12, 55, 10, "10 mins", "Elderly", "/images/menu items/curd rice with pomegranate.png", nutritionist1.Id, "Comfort Thali");
             AddFoodIfMissing("Pumpkin Mash & Phulka", 75, 400, 13, 62, 10, "20 mins", "Elderly", "/images/menu items/pumpkin mash with phulkas.png", nutritionist1.Id, "Comfort Thali");
-            AddFoodIfMissing("Steamed Idli with Mild Sambar", 85, 350, 11, 60, 6, "15 mins", "Elderly", "/images/menu items/sambhar idli.png", nutritionist1.Id, "Classical Thali");
-            AddFoodIfMissing("Mashed Aloo-Baingan Bharta", 80, 430, 12, 65, 14, "20 mins", "Elderly", "/images/menu items/baigan bharta.png", nutritionist1.Id, "Classical Thali");
+            AddFoodIfMissing("Steamed Idli with Mild Sambar", 85, 350, 11, 60, 6, "15 mins", "Elderly", "/images/menu items/sambhar idli.png", nutritionist1.Id, "Comfort Thali");
+            AddFoodIfMissing("Mashed Aloo-Baingan Bharta", 80, 430, 12, 65, 14, "20 mins", "Elderly", "/images/menu items/baigan bharta.png", nutritionist1.Id, "Comfort Thali");
             AddFoodIfMissing("Warm Apple & Cinnamon Stew", 50, 240, 2, 45, 1, "15 mins", "Elderly", "/images/menu items/cinnamon apple stew.png", nutritionist1.Id, "Low Calorie");
 
             // --- CORPORATE ---
@@ -244,7 +282,7 @@ namespace NUTRIBITE.Controllers
         }
 
         private static readonly string[] SpecifiedMealCategories = {
-            "Low Calorie Meal", "Protein Meal", "Rice Combo", "Salads",
+            "Low Calorie", "Protein Meal", "Rice Combo", "Salad Bowl",
             "Classical Thali", "Comfort Thali", "Deluxe Thali",
             "Jain Thali", "Special Thali", "Standard Thali"
         };
@@ -279,7 +317,13 @@ namespace NUTRIBITE.Controllers
             ViewBag.Foods = foods;
 
             if (!uid.HasValue)
+            {
+                // Fallback for non-surveyed users
+                var queryFallback = _context.Foods.Include(f => f.Nutritionist).Where(f => f.Status == "Active" || f.Status == null);
+                ViewBag.RecommendedFoods = queryFallback.OrderBy(r => Guid.NewGuid()).Take(4).ToList();
+                ViewBag.RecommendationReason = "Popular choices from our kitchen today.";
                 return View();
+            }
 
             int calorieGoal = 1450;
 
@@ -312,7 +356,100 @@ namespace NUTRIBITE.Controllers
 
             ViewBag.Progress = progress > 100 ? 100 : progress;
 
+            // 💡 AI-Powered Personalized Recommendations (Daily Blueprint)
+            Food breakfast = null;
+            Food lunch = null;
+            Food dinner = null;
+
+            var activeFoodsQuery = _context.Foods.Include(f => f.Nutritionist).Where(f => f.Status == "Active" || f.Status == null);
+            var allActiveFoods = activeFoodsQuery.ToList();
+
+            // Simple Categorization Engine
+            bool IsBreakfast(Food f) => f.Name.Contains("Smoothie", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Oats", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Cheela", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Idli", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Upma", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Paratha", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Apple", StringComparison.OrdinalIgnoreCase);
+            bool IsLunch(Food f) => f.Name.Contains("Thali", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Combo", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Curry", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Tehri", StringComparison.OrdinalIgnoreCase);
+            bool IsDinner(Food f) => f.Name.Contains("Salad", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Khichdi", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Bowl", StringComparison.OrdinalIgnoreCase) || f.Name.Contains("Dal", StringComparison.OrdinalIgnoreCase);
+
+            var bfList = allActiveFoods.Where(IsBreakfast).ToList();
+            var lList = allActiveFoods.Where(IsLunch).ToList();
+            var dList = allActiveFoods.Where(IsDinner).ToList();
+
+            if (survey != null)
+            {
+                if (survey.Bmi > 25 || survey.Goal == "Weight Loss")
+                {
+                    breakfast = bfList.Where(f => f.Calories < 300).FirstOrDefault() ?? bfList.FirstOrDefault();
+                    lunch = lList.Where(f => f.Calories < 500).FirstOrDefault() ?? lList.FirstOrDefault();
+                    dinner = dList.Where(f => f.Calories < 400).FirstOrDefault() ?? dList.FirstOrDefault();
+                    ViewBag.RecommendationReason = "Focusing on weight management? We've designed a structured, nutrient-dense daily plan just for you.";
+                }
+                else if (survey.Goal == "Muscle Gain")
+                {
+                    breakfast = bfList.OrderByDescending(f => f.Protein).FirstOrDefault() ?? bfList.FirstOrDefault();
+                    lunch = lList.OrderByDescending(f => f.Protein).FirstOrDefault() ?? lList.FirstOrDefault();
+                    dinner = dList.OrderByDescending(f => f.Protein).FirstOrDefault() ?? dList.FirstOrDefault();
+                    ViewBag.RecommendationReason = "To support your muscle gain goals, this daily plan maximizes your protein intake.";
+                }
+                else if (survey.Age > 60)
+                {
+                    breakfast = bfList.Where(f => f.FoodType == "Elderly").FirstOrDefault() ?? bfList.FirstOrDefault();
+                    lunch = lList.Where(f => f.FoodType == "Elderly").FirstOrDefault() ?? lList.FirstOrDefault();
+                    dinner = dList.Where(f => f.FoodType == "Elderly").FirstOrDefault() ?? dList.FirstOrDefault();
+                    ViewBag.RecommendationReason = "Specially curated soft and nutritious meals for healthy aging.";
+                }
+                else
+                {
+                    breakfast = bfList.FirstOrDefault();
+                    lunch = lList.FirstOrDefault();
+                    dinner = dList.FirstOrDefault();
+                    ViewBag.RecommendationReason = "Hand-picked balanced meals tailored to your health profile.";
+                }
+            }
+            else
+            {
+                // Fallback for non-surveyed users
+                var rand = new Random();
+                breakfast = bfList.OrderBy(x => rand.Next()).FirstOrDefault();
+                lunch = lList.OrderBy(x => rand.Next()).FirstOrDefault();
+                dinner = dList.OrderBy(x => rand.Next()).FirstOrDefault();
+                ViewBag.RecommendationReason = "A complete nutritional blueprint for your day.";
+            }
+
+            ViewBag.Breakfast = breakfast;
+            ViewBag.Lunch = lunch;
+            ViewBag.Dinner = dinner;
+
             return View();
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> GetFoodDetail(int foodId)
+        {
+            try
+            {
+                var food = await _context.Foods
+                    .Include(f => f.Nutritionist)
+                    .FirstOrDefaultAsync(f => f.Id == foodId);
+
+                if (food == null) return Json(new { success = false, message = "Food not found" });
+
+                return Json(new { 
+                    success = true, 
+                    data = new {
+                        name = food.Name,
+                        price = food.Price.ToString("N2"),
+                        calories = food.Calories ?? 0,
+                        protein = food.Protein ?? 0,
+                        description = food.Description ?? "No description available for this healthy meal.",
+                        imagePath = string.IsNullOrEmpty(food.ImagePath) ? "/images/Meals/Standard_Thali.jpeg" : food.ImagePath
+                    } 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching food details for {FoodId}", foodId);
+                return Json(new { success = false, message = "Internal server error" });
+            }
         }
 
         // =========================
@@ -396,8 +533,17 @@ namespace NUTRIBITE.Controllers
                 .OrderByDescending(h => h.CreatedAt)
                 .FirstOrDefault();
 
+            // Fetch Recent Orders (Top 3)
+            var recentOrders = _context.OrderTables
+                .Where(o => o.UserId == userId.Value)
+                .OrderByDescending(o => o.CreatedAt)
+                .Take(3)
+                .ToList();
+
             ViewBag.User = user;
             ViewBag.Survey = survey;
+            ViewBag.UserId = userId.Value;
+            ViewBag.RecentOrders = recentOrders;
 
             return View();
         }
@@ -473,6 +619,10 @@ namespace NUTRIBITE.Controllers
             if (!userId.HasValue) return RedirectToAction("Login", "Auth");
 
             var order = _context.OrderTables
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Food)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.BulkItemData)
                 .FirstOrDefault(o => o.OrderId == orderId && o.UserId == userId.Value);
 
             if (order == null) return NotFound();
@@ -504,6 +654,8 @@ namespace NUTRIBITE.Controllers
 
             user.Name = model.Name;
             user.Email = model.Email;
+            user.Phone = model.Phone;
+            user.Address = model.Address;
 
             _context.SaveChanges();
 

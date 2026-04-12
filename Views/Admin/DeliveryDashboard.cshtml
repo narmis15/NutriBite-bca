@@ -1,109 +1,151 @@
+@model dynamic
 @{
     ViewData["Title"] = "Delivery Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold mb-1">Delivery Dashboard</h2>
-            <p class="text-muted small mb-0">Monitor real-time delivery performance and partner activity.</p>
+            <h2 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Delivery Dashboard</h2>
+            <p class="text-muted small mb-0">Manage and track all food deliveries in real-time.</p>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary" onclick="location.reload()">
-                <i class="bi bi-arrow-clockwise"></i> Refresh
+            <button class="btn btn-primary rounded-pill px-4 shadow-sm" onclick="location.reload()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
             </button>
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
+    <!-- METRICS -->
+    <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <div class="text-muted small text-uppercase fw-bold mb-1">Active Partners</div>
-                <div class="h3 fw-bold text-success mb-0">12</div>
-                <div class="text-muted extra-small mt-1"><i class="bi bi-caret-up-fill text-success"></i> 2 new today</div>
+            <div class="card border-0 p-4" style="border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div class="text-muted small fw-bold mb-2"><i class="bi bi-people-fill text-primary me-2"></i>Active Partners</div>
+                <div class="display-6 fw-bold text-dark mb-0">@Model.ActivePartnersCount</div>
+                <div class="text-success extra-small mt-2 fw-medium"><i class="bi bi-caret-up-fill"></i> Real-time tracking</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <div class="text-muted small text-uppercase fw-bold mb-1">In Transit</div>
-                <div class="h3 fw-bold text-primary mb-0">8</div>
-                <div class="text-muted extra-small mt-1">Avg. time: 24 mins</div>
+            <div class="card border-0 p-4" style="border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div class="text-muted small fw-bold mb-2"><i class="bi bi-box-seam text-info me-2"></i>In Transit</div>
+                <div class="display-6 fw-bold text-dark mb-0">@Model.InTransitCount</div>
+                <div class="text-muted extra-small mt-2 fw-medium">Orders out for delivery</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <div class="text-muted small text-uppercase fw-bold mb-1">Pending Assignment</div>
-                <div class="h3 fw-bold text-warning mb-0">3</div>
-                <div class="text-muted extra-small mt-1">Immediate action required</div>
+            <div class="card border-0 p-4" style="border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div class="text-muted small fw-bold mb-2"><i class="bi bi-clock-history text-warning me-2"></i>Pending Assignment</div>
+                <div class="display-6 fw-bold text-dark mb-0">@Model.PendingAssignmentCount</div>
+                <div class="text-muted extra-small mt-2 fw-medium">Awaiting partner dispatch</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <div class="text-muted small text-uppercase fw-bold mb-1">Completed (Today)</div>
-                <div class="h3 fw-bold text-dark mb-0">45</div>
-                <div class="text-muted extra-small mt-1">98% on-time rate</div>
+            <div class="card border-0 p-4" style="border-radius: 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 15px 35px rgba(16, 185, 129, 0.2);">
+                <div class="text-white-50 small fw-bold mb-2"><i class="bi bi-check-circle-fill text-white me-2"></i>Completed (Today)</div>
+                <div class="display-6 fw-bold text-white mb-0">@Model.CompletedTodayCount</div>
+                <div class="text-white extra-small mt-2 fw-medium">Successfully delivered</div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-            <h5 class="fw-bold mb-0">Live Delivery Map & Partners</h5>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 mb-4 h-100" style="border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+                    <h5 class="fw-bold mb-0">Active Deliveries</h5>
+                    <p class="text-muted extra-small mb-0">Monitor all current order statuses from pickup to delivery.</p>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="text-muted small">
+                                <tr>
+                                    <th>ORDER ID</th>
+                                    <th>CUSTOMER</th>
+                                    <th>AMOUNT</th>
+                                    <th>STATUS</th>
+                                    <th class="text-end">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logisticsOrdersContainer">
+                                <!-- Data populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-muted small text-uppercase">
-                        <tr>
-                            <th class="ps-4">Partner</th>
-                            <th>Status</th>
-                            <th>Current Task</th>
-                            <th>Rating</th>
-                            <th class="text-end pe-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-soft-primary text-primary rounded-circle p-2 me-3" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-semibold">Rahul Kumar</div>
-                                        <div class="text-muted extra-small">+91 98765 43210</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge bg-soft-success text-success border border-success border-opacity-25 rounded-pill px-3">Available</span></td>
-                            <td class="small text-muted">Waiting for assignment</td>
-                            <td><i class="bi bi-star-fill text-warning me-1"></i> 4.8</td>
-                            <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-light border">Track</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-soft-primary text-primary rounded-circle p-2 me-3" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-semibold">Amit Singh</div>
-                                        <div class="text-muted extra-small">+91 87654 32109</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge bg-soft-info text-info border border-info border-opacity-25 rounded-pill px-3">On Delivery</span></td>
-                            <td class="small text-muted">Order #1042 • 1.2km away</td>
-                            <td><i class="bi bi-star-fill text-warning me-1"></i> 4.5</td>
-                            <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-light border text-primary">Track</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+        <!-- PARTNER FLEET -->
+        <div class="col-lg-5">
+            <div class="card border-0 h-100" style="border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+                    <h5 class="fw-bold mb-0">Active Delivery Fleet</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <tbody>
+                                @foreach (var partner in Model.Partners)
+                                {
+                                    <tr class="border-bottom">
+                                        <td class="py-3 px-0">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-light text-dark rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                                    <i class="bi bi-person-fill fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold text-dark">@partner.Name</div>
+                                                    <div class="text-muted small">@partner.Phone</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 text-end">
+                                            @if (partner.Status == "Available")
+                                            {
+                                                <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 fw-bold">Available</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2 fw-bold">@partner.Status</span>
+                                            }
+                                        </td>
+                                        <td class="py-3 text-end">
+                                            <div class="text-muted fw-bold"><i class="bi bi-star-fill text-warning me-1"></i> @partner.Rating.ToString("F1")</div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Delivery Modal -->
+    <div class="modal fade" id="assignDeliveryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="modal-title fw-bold">Assign Delivery Partner</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="assignOrderId" />
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Select Available Partner</label>
+                        <select id="deliveryPersonSelect" class="form-select rounded-4 py-3 bg-light border-0 fw-medium">
+                            <option value="">Loading partners...</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="button" id="confirmAssignBtn" class="btn btn-dark btn-lg rounded-pill fw-bold">
+                            Confirm Assignment
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -115,3 +157,146 @@
     .bg-soft-info { background-color: rgba(6, 182, 212, 0.1); }
     .extra-small { font-size: 0.75rem; }
 </style>
+
+@section Scripts {
+    <script>
+        let currentFilter = 'pending';
+        let allOrders = [];
+
+        $(document).ready(function() {
+            loadLogisticsData();
+        });
+
+        function loadLogisticsData() {
+            const container = $('#logisticsOrdersContainer');
+            $.get('/Admin/GetActiveOrders', function(data) {
+                allOrders = data;
+                renderLogisticsTable();
+            }).fail(function(err) {
+                console.error("Error fetching orders:", err);
+                container.html('<div class="py-5 text-center text-danger"><i class="bi bi-exclamation-triangle fs-1 mb-3 d-block"></i><p>Error loading logistics data.</p></div>');
+            });
+        }
+
+        function renderLogisticsTable() {
+            const container = $('#logisticsOrdersContainer');
+            
+            // Show all active delivery orders together
+            const activeOrders = allOrders.filter(o => 
+                o.status === 'Ready for Delivery' || 
+                o.status === 'Accepted' || 
+                o.status === 'In Transit' || 
+                o.status === 'On the Way'
+            );
+
+            if (activeOrders.length === 0) {
+                container.html(`<div class="py-5 text-center text-muted"><i class="bi bi-check2-circle fs-1 text-success mb-3 d-block"></i><p class="mb-0">No active deliveries at the moment.</p></div>`);
+                return;
+            }
+
+            let html = '<div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="bg-light text-muted small text-uppercase"><tr><th class="ps-4">Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th class="text-end pe-4">Actions</th></tr></thead><tbody>';
+            
+            activeOrders.forEach(order => {
+                html += `<tr>
+                    <td class="ps-4 fw-bold">#${order.orderId}</td>
+                    <td><div>${order.customerName}</div><small class="text-muted">${order.customerPhone}</small></td>
+                    <td class="fw-semibold">₹${Number(order.totalAmount).toFixed(2)}</td>
+                    <td><span class="badge bg-soft-info text-info border border-info border-opacity-25 rounded-pill px-3">${order.status}</span></td>
+                    <td class="text-end pe-4">
+                        <a href="/Admin/OrderDetails?orderId=${order.orderId}" class="btn btn-sm btn-light border" title="View Details"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            container.html(html);
+        }
+
+        // Action Handlers
+        $(document).on('click', '.assign-delivery-btn', function() {
+            const orderId = $(this).data('id');
+            $('#assignOrderId').val(orderId);
+            $('#assignDeliveryModal').modal('show');
+
+            $.ajax({
+                url: '/Admin/GetDeliveryPersonnel',
+                method: 'GET',
+                success: function (data) {
+                    const $select = $('#deliveryPersonSelect').empty();
+                    if (!data || data.length === 0) {
+                        $select.append('<option value="">No registered delivery partners found</option>');
+                        return;
+                    }
+                    $select.append('<option value="">-- Select Registered Partner --</option>');
+                    data.forEach(p => {
+                        $select.append(`<option value="${p.id}">${p.name} (${p.phone})</option>`);
+                    });
+                },
+                error: function(err) {
+                    console.error("Failed fetching personnel", err);
+                    alert("Failed to load delivery partners.");
+                }
+            });
+        });
+
+        $('#confirmAssignBtn').on('click', function () {
+            const orderId = $('#assignOrderId').val();
+            const personId = $('#deliveryPersonSelect').val();
+            if (!personId) { alert('Please select a partner'); return; }
+
+            $(this).prop('disabled', true).text('Assigning...');
+            $.ajax({
+                type: 'POST',
+                url: '/Admin/AssignDelivery',
+                data: { 
+                    orderId: orderId, 
+                    deliveryPersonId: personId, 
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() 
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $('#assignDeliveryModal').modal('hide');
+                        loadLogisticsData();
+                    } else { 
+                        alert("Error: " + res.message); 
+                    }
+                },
+                error: function(xhr) {
+                    alert("A server error occurred during assignment.");
+                },
+                complete: function () { 
+                    $('#confirmAssignBtn').prop('disabled', false).text('Confirm Assignment'); 
+                }
+            });
+        });
+
+        $(document).on('click', '.dispatch-btn', function() {
+            const id = $(this).data('id');
+            if(!confirm("Mark order #" + id + " as Dispatched/In Transit?")) return;
+
+            // Optional: change button text visually
+            $(this).prop('disabled', true).text('Dispatching...');
+
+            $.ajax({
+                type: 'POST',
+                url: '/Admin/MarkInTransit',
+                data: { 
+                    orderId: id, 
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() 
+                },
+                success: function (res) {
+                    if (res.success) { 
+                        loadLogisticsData(); 
+                    } else { 
+                        alert("Error: " + res.message); 
+                    }
+                },
+                error: function() {
+                    alert("A server error occurred executing the dispatch.");
+                }
+            });
+        });
+    </script>
+}
+
+@Html.AntiForgeryToken()

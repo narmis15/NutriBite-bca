@@ -1,4 +1,4 @@
-﻿@model List<NUTRIBITE.Models.CartItem>
+@model List<NUTRIBITE.Models.CartItem>
 
 @{
     ViewData["Title"] = "Your Cart";
@@ -41,53 +41,6 @@
                                     <h5>@item.Name</h5>
                                     <p class="text-muted mb-2">₹ @item.Price</p>
 
-                                    <!-- COOKING PREFERENCES -->
-                                    <div class="bg-light p-2 rounded small">
-
-                                        <strong class="text-muted">Cooking Preference</strong>
-
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   name="lessOil_@item.Id"
-                                                   value="Less Oil">
-                                            <label class="form-check-label">Less Oil</label>
-                                        </div>
-
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   name="lessSalt_@item.Id"
-                                                   value="Less Salt">
-                                            <label class="form-check-label">Less Salt</label>
-                                        </div>
-
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   name="lessSpicy_@item.Id"
-                                                   value="Less Spicy">
-                                            <label class="form-check-label">Less Spicy</label>
-                                        </div>
-
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   name="noOnion_@item.Id"
-                                                   value="No Onion">
-                                            <label class="form-check-label">No Onion</label>
-                                        </div>
-
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   name="noGarlic_@item.Id"
-                                                   value="No Garlic">
-                                            <label class="form-check-label">No Garlic</label>
-                                        </div>
-
-                                    </div>
-
                                 </div>
                             </div>
 
@@ -98,6 +51,32 @@
 
                                     <input type="hidden" name="id" value="@item.Id" />
 
+                                    <!-- Preferences moved into form for binding -->
+                                    <div class="bg-light p-2 rounded small text-start mb-2">
+                                        <strong class="text-muted d-block mb-1">Update Preferences</strong>
+                                        
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="lessOil" value="Less Oil" @(item.SpecialInstructions?.Contains("Less Oil") == true ? "checked" : "")>
+                                            <label class="form-check-label">Less Oil</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="lessSalt" value="Less Salt" @(item.SpecialInstructions?.Contains("Less Salt") == true ? "checked" : "")>
+                                            <label class="form-check-label">Less Salt</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="lessSpicy" value="Less Spicy" @(item.SpecialInstructions?.Contains("Less Spicy") == true ? "checked" : "")>
+                                            <label class="form-check-label">Less Spicy</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="noOnion" value="No Onion" @(item.SpecialInstructions?.Contains("No Onion") == true ? "checked" : "")>
+                                            <label class="form-check-label">No Onion</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="noGarlic" value="No Garlic" @(item.SpecialInstructions?.Contains("No Garlic") == true ? "checked" : "")>
+                                            <label class="form-check-label">No Garlic</label>
+                                        </div>
+                                    </div>
+
                                     <input type="number"
                                            name="qty"
                                            value="@item.Quantity"
@@ -106,7 +85,7 @@
 
                                     <button type="submit"
                                             class="btn btn-sm btn-outline-success w-100">
-                                        Update
+                                        Update Cart
                                     </button>
 
                                 </form>
@@ -117,7 +96,7 @@
 
                                     <button type="submit"
                                             class="btn btn-sm btn-outline-danger w-100">
-                                        Remove
+                                        Remove Item
                                     </button>
 
                                 </form>

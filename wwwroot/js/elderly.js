@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     this.innerHTML = '<i class="bi bi-check2"></i> Added';
                     this.classList.add('bg-success');
                     
-                    if (window.updateCartCount) {
-                        window.updateCartCount();
+                    if (window.loadCartCount) {
+                        window.loadCartCount();
                     }
 
                     setTimeout(() => {

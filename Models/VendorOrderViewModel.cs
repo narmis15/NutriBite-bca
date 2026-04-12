@@ -6,6 +6,10 @@ namespace NUTRIBITE.Models
 
         public string CustomerName { get; set; }
 
+        public string? CustomerPhone { get; set; }
+
+        public string? DeliveryAddress { get; set; }
+
         public string FoodItem { get; set; }
 
         public string? OrderType { get; set; }

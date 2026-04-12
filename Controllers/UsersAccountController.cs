@@ -93,7 +93,7 @@ namespace NUTRIBITE.Controllers
                 return RedirectToAction("Login", "Auth");
 
             if (!ModelState.IsValid)
-                return View(model);
+                return RedirectToAction("MyProfile", "Home");
 
             var user = _context.UserSignups.FirstOrDefault(u => u.Id == uid.Value);
             if (user == null)
@@ -101,6 +101,7 @@ namespace NUTRIBITE.Controllers
 
             user.Name = model.Name.Trim();
             user.Email = model.Email.Trim();
+            if (model.Phone != null) user.Phone = model.Phone.Trim();
 
             _context.SaveChanges();
 
@@ -118,7 +119,7 @@ namespace NUTRIBITE.Controllers
                 }
             }
 
-            return RedirectToAction("Account");
+            return RedirectToAction("MyProfile", "Home");
         }
 
         // ================= UPDATE CALORIE GOAL =================

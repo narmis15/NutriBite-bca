@@ -36,8 +36,8 @@ namespace NUTRIBITE.Services
         {
             try
             {
-                // Use Nominatim reverse endpoint with addressdetails
-                var url = $"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={latitude}&lon={longitude}&addressdetails=1";
+                // Use Nominatim reverse endpoint with addressdetails and zoom=18 for building/street-level precision
+                var url = $"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={latitude}&lon={longitude}&addressdetails=1&zoom=18";
                 using var res = await _http.GetAsync(url);
                 if (!res.IsSuccessStatusCode)
                 {

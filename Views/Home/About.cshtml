@@ -1,201 +1,336 @@
 @{
-    ViewData["Title"] = "About Us";
+    ViewData["Title"] = "About NutriBite";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
     <style>
-        .about-section {
-            padding: 60px 0;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 40px;
+        /* Hero Section */
+        .about-hero {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            padding: 140px 0 100px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .about-header {
-            text-align: center;
-            margin-bottom: 50px;
+        .about-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 120px;
+            background: linear-gradient(to top, rgba(255,255,255,1), transparent);
+            pointer-events: none;
         }
 
-        .about-header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #1b4332;
-            margin-bottom: 20px;
+        .about-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
         }
 
-        .about-header p {
-            font-size: 1.2rem;
-            color: #40916c;
-            max-width: 800px;
-            margin: 0 auto;
+        .about-title span {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-            padding: 0 40px;
+        .about-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            max-width: 650px;
+            line-height: 1.7;
         }
 
-        .about-image img {
-            width: 100%;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        /* Stats Grid */
+        .stats-wrapper {
+            position: relative;
+            z-index: 10;
+            margin-top: -60px;
         }
 
-        .about-text h2 {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #2d6a4f;
-            margin-bottom: 20px;
-        }
-
-        .about-text p {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        .features-grid {
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-top: 60px;
-            padding: 0 40px;
+            gap: 24px;
         }
 
-        .feature-item {
+        .stat-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
             text-align: center;
-            padding: 30px;
-            background: #f8fffb;
-            border-radius: 15px;
-            transition: 0.3s;
-            border: 1px solid #eef7f2;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 1);
+            transition: transform 0.3s ease;
         }
 
-        .feature-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 25px rgba(45,106,79,0.1);
+        .stat-card:hover {
+            transform: translateY(-8px);
         }
 
-        .feature-icon {
+        .stat-icon {
             font-size: 2.5rem;
-            color: #2d6a4f;
-            margin-bottom: 20px;
+            color: #10b981;
+            margin-bottom: 16px;
         }
 
-        .feature-item h4 {
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #64748b;
             font-weight: 600;
-            color: #1b4332;
-            margin-bottom: 15px;
+            font-size: 1.1rem;
         }
 
-        .feature-item p {
-            color: #666;
-            font-size: 0.95rem;
+        /* Story Section - Seamless flow instead of a box */
+        .story-section {
+            padding: 120px 0;
+            background: #ffffff;
+            position: relative;
         }
 
-        .mission-vision {
-            background: #1b4332;
-            color: white;
-            padding: 60px 40px;
-            border-radius: 20px;
-            margin-top: 60px;
-            text-align: center;
+        .story-content h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -1.5px;
+            margin-bottom: 32px;
         }
 
-        .mission-vision h2 {
-            font-size: 2.2rem;
-            margin-bottom: 30px;
+        .story-content p {
+            font-size: 1.15rem;
+            color: #475569;
+            line-height: 1.8;
+            margin-bottom: 24px;
         }
 
-        .mv-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+        .image-collage {
+            position: relative;
+            display: inline-block;
+        }
+
+        .main-image {
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            height: 600px;
+            object-fit: cover;
+        }
+
+        .floating-badge {
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Mission & Vision Section */
+        .mv-section {
+            padding: 100px 0;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .mv-item {
+            padding: 40px;
+            border-radius: 24px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .mv-item:hover {
+            box-shadow: 0 20px 50px rgba(16, 185, 129, 0.08);
+            transform: translateY(-5px);
+        }
+
+        .mv-icon {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ecfdf5;
+            color: #10b981;
+            font-size: 2rem;
+            border-radius: 16px;
+            margin-bottom: 24px;
         }
 
         .mv-item h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #d8f3dc;
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 2rem;
+            margin-bottom: 16px;
         }
 
         .mv-item p {
-            font-size: 1.05rem;
-            opacity: 0.9;
+            color: #64748b;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin: 0;
+        }
+
+        .floating-bowl {
+            width: 100%;
+            max-width: 450px;
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 30px 40px rgba(0,0,0,0.15));
+        }
+
+        @@keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
         }
 
         @@media (max-width: 992px) {
-            .about-content, .mv-grid {
-                grid-template-columns: 1fr;
-            }
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
+            .about-title { font-size: 3rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .story-section { padding: 80px 0; }
+            .story-content h2 { font-size: 2.5rem; }
+            .main-image { height: 400px; }
+            .floating-badge { left: 50%; transform: translateX(-50%); bottom: -20px; width: 90%; justify-content: center; }
         }
     </style>
 }
 
-<div class="container py-5">
-    <div class="about-section">
-        <div class="about-header">
-            <h1>About NutriBite</h1>
-            <p>Your ultimate destination for fresh, homemade, and calorie-counted meals delivered straight to your doorstep.</p>
-        </div>
-
-        <div class="about-content">
-            <div class="about-image">
-                <img src="~/images/hero/hero-food.png" alt="Healthy Food" />
-            </div>
-            <div class="about-text">
-                <h2>Our Story</h2>
-                <p>
-                    NutriBite was born from a simple idea: everyone deserves access to healthy, home-cooked meals, even with a busy lifestyle. We realized that while there are many food delivery services, few focus on the nutritional value and the authentic taste of home.
-                </p>
-                <p>
-                    We connect verified home chefs with people who care about what they eat. Every meal on our platform is prepared with love, using fresh ingredients, and is calorie-counted to help you maintain your health goals.
-                </p>
-                <p>
-                    Whether you are a student, a working professional, or someone looking for specialized meals for the elderly, NutriBite has something tailored for you.
+<div class="about-hero">
+    <div class="container position-relative z-1">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 mb-4" style="font-size: 0.9rem; font-weight: 600;">
+                    Who We Are
+                </span>
+                <h1 class="about-title">Nourishing Lives,<br/><span>One Bite at a Time.</span></h1>
+                <p class="about-subtitle mt-4">
+                    We're bridging the gap between busy lifestyles and authentic, home-cooked nutrition. Empowering local chefs to serve your health, effortlessly.
                 </p>
             </div>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-item">
-                <div class="feature-icon"><i class="bi bi-heart-pulse"></i></div>
-                <h4>Healthy & Nutritious</h4>
-                <p>Every meal is balanced and calorie-counted by experts to ensure you get the best nutrition.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon"><i class="bi bi-house-heart"></i></div>
-                <h4>Homemade Quality</h4>
-                <p>Prepared by verified home chefs who use the same care they use for their own families.</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon"><i class="bi bi-truck"></i></div>
-                <h4>Fast Delivery</h4>
-                <p>Freshly cooked meals delivered to your location while they are still warm and delicious.</p>
+            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                <img src="/images/hero/floating_hero_bowl.png" class="floating-bowl" alt="Healthy Bowl" onerror="this.style.display='none';" />
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="mission-vision">
-            <h2>Our Purpose</h2>
-            <div class="mv-grid">
-                <div class="mv-item">
-                    <h3>Our Mission</h3>
-                    <p>To make healthy, homemade food accessible to everyone while empowering home chefs to showcase their culinary talents and build their own businesses.</p>
+<div class="container stats-wrapper">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-number">5k+</div>
+            <div class="stat-label">Happy Customers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-shop"></i></div>
+            <div class="stat-number">120+</div>
+            <div class="stat-label">Verified Home Chefs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <div class="stat-number">25+</div>
+            <div class="stat-label">Active Cities</div>
+        </div>
+    </div>
+</div>
+
+<div class="story-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5 story-content">
+                <h2>The NutriBite Journey</h2>
+                <p>
+                    Founded in 2024, NutriBite emerged from a simple observation: the gap between "healthy" commercial restaurant food and the genuine nutrition of a home-cooked meal was widening exponentially.
+                </p>
+                <p>
+                    We envisioned a platform where nutrition isn't just a label, but a promise. By empowering local home chefs who understand the soul of cooking and combining their skills with precise calorie tracking algorithms, we've created a unique ecosystem for balanced, effortless living.
+                </p>
+                
+                <div class="mt-5 d-flex align-items-center gap-4">
+                    <div class="flex-shrink-0 text-success">
+                        <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: #0f172a;">Uncompromising Quality</h4>
+                        <p class="text-muted mb-0" style="font-size: 1rem; line-height: 1.5;">Every kitchen undergoes rigorous hygiene and taste audits before making a single delivery to your desk.</p>
+                    </div>
                 </div>
-                <div class="mv-item">
-                    <h3>Our Vision</h3>
-                    <p>To become the world's leading platform for personalized, health-focused homemade meal subscriptions and deliveries.</p>
+            </div>
+            
+            <div class="col-lg-6 position-relative">
+                <div class="image-collage w-100 ps-lg-4">
+                    <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1000&auto=format&fit=crop" 
+                         class="main-image" 
+                         alt="Chef cooking" />
+                    
+                    <div class="floating-badge d-none d-md-flex">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                            <i class="bi bi-star-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-5 text-dark">4.9/5 Awarded</div>
+                            <div class="text-muted small">Quality Excellence 2024</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<div class="mv-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="mv-item">
+                    <div class="mv-icon"><i class="bi bi-bullseye"></i></div>
+                    <h3>Our Mission</h3>
+                    <p>To democratize healthy eating by providing access to affordable, precisely calorie-counted, and authentic homemade meals, while concurrently fostering a vibrant community of skilled home-based culinary entrepreneurs.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mv-item">
+                    <div class="mv-icon"><i class="bi bi-eye"></i></div>
+                    <h3>Our Vision</h3>
+                    <p>To be the world's most trusted partner in personalized nutrition—where every meal we deliver contributes to a healthier, more energetic lifestyle for our customers and a stronger local economy for our chefs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="container py-5 my-5">
+    <div class="bg-dark text-white rounded-5 p-5 text-center position-relative overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #334155;">
+        <div class="position-relative z-1">
+            <h2 class="fw-bold mb-4" style="font-size: 3rem; letter-spacing: -1px;">Begin Your Health Journey Today</h2>
+            <p class="mb-5 opacity-75 mx-auto" style="max-width: 600px; font-size: 1.25rem;">
+                Join thousands of professionals eating better every day with NutriBite. Fresh, tracked, and delivered.
+            </p>
+            <a asp-controller="Auth" asp-action="Register" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm" style="background: #10b981; border: none; font-size: 1.1rem; transition: transform 0.2s;">
+                Get Started Free <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+

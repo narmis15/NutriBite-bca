@@ -1,217 +1,437 @@
-@using NUTRIBITE.Models
 @{
-    ViewData["Title"] = "Nutribite Admin Dashboard";
-    var recentActivity = ViewBag.RecentActivity as List<ActivityLog> ?? new List<ActivityLog>();
+    ViewData["Title"] = "Admin Dashboard";
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 }
 
 <div class="dashboard-wrapper">
-    <div class="dashboard-header d-flex justify-content-between align-items-center">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5 pb-2 border-bottom">
         <div>
-            <h1 class="dashboard-title">Dashboard Overview</h1>
-            <p class="text-muted small mb-0">Welcome back, Admin. Here's what's happening today.</p>
+            <h1 class="h2 mb-2 fw-bold text-dark" style="letter-spacing: -1px;">System Dashboard</h1>
+            <p class="text-muted mb-0 fs-6">Complete overview of operations, revenue, and system stability.</p>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-white border shadow-sm btn-sm">
-                <i class="bi bi-calendar3 me-2"></i> @DateTime.Now.ToString("MMM dd, yyyy")
-            </button>
-            <button class="btn btn-primary btn-sm shadow-sm" onclick="location.reload()">
-                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+        <div class="d-flex gap-3">
+            <div class="bg-white p-2 rounded-pill border shadow-sm d-flex align-items-center px-4" style="font-size: 0.9rem;">
+                <i class="bi bi-calendar-check text-primary me-2"></i>
+                <span class="fw-semibold text-secondary">@DateTime.Now.ToString("dd MMMM, yyyy")</span>
+            </div>
+            <button id="refreshData" class="btn btn-outline-secondary rounded-pill px-4 shadow-sm fw-bold">
+                <i class="bi bi-arrow-clockwise me-2"></i> Sync Data
             </button>
         </div>
     </div>
 
-    <!-- Stat Cards -->
-    <div id="statGrid" class="stat-grid">
-        <!-- Skeleton Loaders -->
-        <div class="stat-card skeleton"></div>
-        <div class="stat-card skeleton"></div>
-        <div class="stat-card skeleton"></div>
-        <div class="stat-card skeleton"></div>
+    <!-- Top KPI Row -->
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiTotalOrders">0</div>
+                    <div class="stat-label">Total Volume</div>
+                </div>
+                <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-primary">
+                <i class="bi bi-graph-up me-1"></i> <span id="kpiTodayOrders" class="fw-bold me-1">0</span> orders today
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiTotalRevenue">₹0</div>
+                    <div class="stat-label">Gross Revenue</div>
+                </div>
+                <div class="stat-icon-wrapper bg-success-subtle text-success">
+                    <i class="bi bi-currency-rupee"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-success">
+                <i class="bi bi-arrow-up-right-circle-fill me-1"></i> ₹<span id="kpiTodayRevenue" class="fw-bold me-1">0</span> today
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiTotalCommission">₹0</div>
+                    <div class="stat-label">Net Commission</div>
+                </div>
+                <div class="stat-icon-wrapper bg-info-subtle text-info">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-info">
+                <i class="bi bi-arrow-up-right-circle-fill me-1"></i> ₹<span id="kpiTodayCommission" class="fw-bold me-1">0</span> today
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiTotalVendors">0</div>
+                    <div class="stat-label">Kitchen Partners</div>
+                </div>
+                <div class="stat-icon-wrapper" style="background:#fef3c7; color:#d97706;">
+                    <i class="bi bi-shop"></i>
+                </div>
+            </div>
+            <div class="stat-trend" style="color:#d97706;">
+                <i class="bi bi-patch-check-fill me-1"></i> Highly verified network
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiDeliveryAgents">0</div>
+                    <div class="stat-label">Logistics Fleet</div>
+                </div>
+                <div class="stat-icon-wrapper bg-secondary-subtle text-secondary">
+                    <i class="bi bi-truck"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-secondary">
+                <i class="bi bi-geo-alt-fill me-1"></i> Active agents on ground
+            </div>
+        </div>
+
+        <div class="stat-card" style="border: 2px solid #10b981;">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in text-success" id="kpiHealth">100%</div>
+                    <div class="stat-label">System Health</div>
+                </div>
+                <div class="stat-icon-wrapper bg-success text-white shadow-sm">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-success">
+                <i class="bi bi-check-circle-fill me-1"></i> All systems operational
+            </div>
+        </div>
     </div>
 
-    <!-- Content Grid -->
-    <div class="content-grid">
-        <!-- Analytics Chart -->
-        <div class="admin-card shadow-sm">
-            <div class="admin-card-header">
-                <h5 class="admin-card-title">Revenue & Growth</h5>
+    <!-- Main Bento Grid -->
+    <div class="dashboard-bento-grid">
+        <!-- Revenue & Growth (Area Chart) -->
+        <div class="bento-item col-span-8">
+            <div class="widget-header">
+                <h3 class="widget-title"><i class="bi bi-graph-up-arrow text-primary me-2"></i> Revenue & Scale</h3>
                 <div class="dropdown">
-                    <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
-                        <i class="bi bi-three-dots-vertical"></i>
+                    <button class="btn btn-sm btn-light border rounded-pill px-3" type="button" data-bs-toggle="dropdown">
+                        Last 14 Days <i class="bi bi-chevron-down ms-1"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                        <li><a class="dropdown-item small" href="#" id="exportCsv">Export CSV</a></li>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item" href="#">Last 7 Days</a></li>
+                        <li><a class="dropdown-item" href="#">Last 30 Days</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="admin-card-body">
-                <div id="chartContainer" style="height: 350px;">
-                    <canvas id="performanceChart"></canvas>
-                </div>
-                <div id="noDataChart" class="text-center py-5 d-none">
-                    <img src="/images/no-data.svg" style="width: 150px;" alt="No data" />
-                    <p class="text-muted mt-3">No analytics data available for this period.</p>
-                </div>
+            <div class="chart-container" style="height: 300px !important;">
+                <canvas id="revenueChart"></canvas>
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="admin-card shadow-sm">
-            <div class="admin-card-header">
-                <h5 class="admin-card-title">Live Alerts</h5>
-                <a href="/Admin/SystemLogs" class="text-primary small text-decoration-none fw-600">View All</a>
-            </div>
-            <div class="admin-card-body p-0">
-                <div class="px-4" id="alertsContainer">
-                    <ul class="activity-list" id="alertsList">
-                        <!-- injected -->
-                    </ul>
-                    <div id="noAlerts" class="py-5 text-center text-muted d-none">
-                        <i class="bi bi-bell-slash display-6 d-block mb-2"></i>
-                        <p class="small mb-0">No alerts logged today.</p>
+        <!-- System Performance Mini Widgets -->
+        <div class="bento-item col-span-4">
+            <h3 class="widget-title mb-4"><i class="bi bi-speedometer2 text-info me-2"></i> User Metrics</h3>
+            <div class="d-flex flex-column gap-3">
+                <div class="mini-kpi">
+                    <div class="stat-icon-wrapper bg-white shadow-sm mb-0 rounded-circle" style="width:40px; height:40px; font-size:1.1rem; color:#8b5cf6;">
+                        <i class="bi bi-lightning-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="small fw-bold text-dark">Active Sessions</span>
+                            <span class="small fw-bold text-dark" id="kpiSessions">0</span>
+                        </div>
+                        <div class="progress progress-thin bg-light border">
+                            <div class="progress-bar" style="width: 75%; background-color:#8b5cf6;"></div>
+                        </div>
                     </div>
                 </div>
+                <div class="mini-kpi">
+                    <div class="stat-icon-wrapper bg-white shadow-sm mb-0 rounded-circle" style="width:40px; height:40px; font-size:1.1rem; color:#ec4899;">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="small fw-bold text-dark">Conversion Rate</span>
+                            <span class="small fw-bold text-dark" id="kpiConversion">0%</span>
+                        </div>
+                        <div class="progress progress-thin bg-light border">
+                            <div class="progress-bar" style="width: 45%; background-color:#ec4899;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mini-kpi">
+                    <div class="stat-icon-wrapper bg-white shadow-sm mb-0 rounded-circle" style="width:40px; height:40px; font-size:1.1rem; color:#f59e0b;">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="flex-grow-1 w-100 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="small fw-bold text-dark">Total Vendors</div>
+                            <h4 class="fw-bold mb-0 mt-1" id="kpiVendors">0</h4>
+                        </div>
+                        <a href="/Admin/ManageVendor" class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold">Manage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status Distribution (Pie Chart) -->
+        <div class="bento-item col-span-4">
+            <h3 class="widget-title mb-4"><i class="bi bi-pie-chart-fill text-warning me-2"></i> Fulfillment Status</h3>
+            <div class="chart-container" style="height: 220px;">
+                <canvas id="statusDistChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="bento-item col-span-4 row-span-2">
+            <div class="widget-header border-bottom pb-3">
+                <h3 class="widget-title"><i class="bi bi-activity text-danger me-2"></i> Live Feed</h3>
+                <span class="badge bg-danger rounded-pill pulse-red px-3 py-2 shadow-sm">LIVE REC</span>
+            </div>
+            <div id="activityFeed" class="activity-list mt-3 pe-2" style="max-height: 500px; overflow-y: auto;">
+                <!-- Activity items injected here -->
+            </div>
+        </div>
+
+        <!-- Top Products/Categories -->
+        <div class="bento-item col-span-4 row-span-2">
+            <h3 class="widget-title mb-4 border-bottom pb-3"><i class="bi bi-trophy-fill text-warning me-2"></i> Top Categories</h3>
+            <div class="chart-container mt-2" style="height: 500px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- User Registrations (Bar Chart) -->
+        <div class="bento-item col-span-4">
+            <h3 class="widget-title mb-4"><i class="bi bi-people-fill text-success me-2"></i> User Growth</h3>
+            <div class="chart-container" style="height: 220px;">
+                <canvas id="userRegChart"></canvas>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .skeleton {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: skeleton-loading 1.5s infinite;
-        height: 100px;
-        border-radius: 12px;
+    .pulse-red {
+        animation: pulse 2s infinite;
     }
-    @@keyframes skeleton-loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+    @@keyframes pulse {
+        0% { opacity: 1; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { opacity: 1; box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
+    .extra-small { font-size: 0.7rem; }
+    .fw-600 { font-weight: 600; }
 </style>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
-        $(function() {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            let performanceChart;
+        let charts = {};
 
-            function fetchDashboardData() {
-                $.get('/Reports/GetDashboardData', function(res) {
-                    if (res.success) {
-                        renderStats(res.summary);
-                        renderChart(res.trend);
-                        renderAlerts(res.alerts);
-                    } else {
-                        showToast('Error', res.message || 'Failed to load dashboard data', 'danger');
-                    }
-                }).fail(function() {
-                    showToast('Error', 'Server connection failed. <a href="#" onclick="location.reload()">Retry</a>', 'danger');
-                });
-            }
+        async function updateDashboard() {
+            const btn = document.getElementById('refreshData');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Syncing...';
 
-            function renderStats(summary) {
-                const $grid = $('#statGrid').empty();
-                summary.forEach(s => {
-                    const card = `
-                        <div class="stat-card">
-                            <div class="stat-icon-wrapper" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                                <i class="bi ${s.icon}"></i>
-                            </div>
-                            <div class="stat-value">${s.value}</div>
-                            <div class="stat-label">${s.title}</div>
-                            <div class="extra-small mt-1 ${s.trendClass}">${s.trend}</div>
-                        </div>`;
-                    $grid.append(card);
-                });
-            }
-
-            function renderChart(trend) {
-                if (!trend || trend.length === 0) {
-                    $('#chartContainer').addClass('d-none');
-                    $('#noDataChart').removeClass('d-none');
-                    return;
+            try {
+                const response = await fetch('/Reports/GetDashboardData');
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderSummary(data.summary);
+                    renderCharts(data.charts);
+                    renderAlerts(data.alerts);
                 }
-                $('#chartContainer').removeClass('d-none');
-                $('#noDataChart').addClass('d-none');
-
-                if (performanceChart) performanceChart.destroy();
-
-                performanceChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: trend.map(t => t.label),
-                        datasets: [{
-                            label: 'Orders',
-                            data: trend.map(t => t.orders),
-                            borderColor: '#10b981',
-                            fill: true,
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4
-                        }, {
-                            label: 'Revenue (₹)',
-                            data: trend.map(t => t.revenue),
-                            borderColor: '#3b82f6',
-                            fill: true,
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'top', align: 'end' } },
-                        scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
-                    }
-                });
+            } catch (error) {
+                console.error('Dashboard update failed:', error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> Refresh';
             }
+        }
 
-            function renderAlerts(alerts) {
-                const $list = $('#alertsList').empty();
-                if (!alerts || alerts.length === 0) {
-                    $('#noAlerts').removeClass('d-none');
-                    return;
-                }
-                $('#noAlerts').addClass('d-none');
-
-                alerts.forEach(a => {
-                    const item = `
-                        <li class="activity-item">
-                            <div class="activity-dot bg-primary"></div>
-                            <div class="activity-content">
-                                <div class="d-flex justify-content-between">
-                                    <div class="activity-action">${a.type}</div>
-                                    <div class="activity-time">${a.time}</div>
-                                </div>
-                                <div class="activity-details">${a.message}</div>
-                            </div>
-                        </li>`;
-                    $list.append(item);
-                });
-            }
-
-            function showToast(title, msg, type) {
-                // Simplified toast for brevity
-                const toast = `<div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow" style="z-index: 9999">
-                    <strong>${title}</strong>: ${msg}
-                    <button type="button" class="btn-close" data-bs-dismiss="dismiss"></button>
-                </div>`;
-                $('body').append(toast);
-                setTimeout(() => $('.alert').alert('close'), 5000);
-            }
-
-            fetchDashboardData();
+        function animateValue(id, value, prefix = '', suffix = '') {
+            const obj = document.getElementById(id);
+            const start = parseInt(obj.innerHTML.replace(/[^\d]/g, '')) || 0;
+            const end = parseInt(value);
+            if (start === end) return;
             
-            $('#exportCsv').click(function() {
-                // Mock export
-                window.location.href = '/Reports/ExportDashboardCsv';
+            let current = start;
+            const range = end - start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(1000 / range)) || 20;
+            
+            const timer = setInterval(function() {
+                current += Math.ceil(range / 10);
+                if ((range > 0 && current >= end) || (range < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                obj.innerHTML = prefix + current.toLocaleString() + suffix;
+            }, 30);
+        }
+
+        function renderSummary(s) {
+            animateValue('kpiTotalOrders', s.totalOrders);
+            animateValue('kpiTotalRevenue', s.totalRevenue, '₹');
+            animateValue('kpiTotalCommission', s.totalCommission, '₹');
+            
+            document.getElementById('kpiTodayOrders').innerText = s.todaysOrders;
+            document.getElementById('kpiTodayRevenue').innerText = s.todaysRevenue;
+            document.getElementById('kpiTodayCommission').innerText = s.todaysCommission;
+
+            animateValue('kpiTotalVendors', s.totalVendors);
+            animateValue('kpiDeliveryAgents', s.activeDeliveryAgents);
+            animateValue('kpiHealth', s.systemHealth, '', '%');
+            
+            document.getElementById('kpiSessions').innerText = s.activeSessions;
+            document.getElementById('kpiConversion').innerText = s.conversionRate + '%';
+            document.getElementById('kpiVendors').innerText = s.activeVendors;
+        }
+
+        function renderCharts(c) {
+            // 1. Revenue & Orders (Line/Area)
+            if (charts.revenue) charts.revenue.destroy();
+            charts.revenue = new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: c.labels,
+                    datasets: [
+                        {
+                            label: 'Revenue (₹)',
+                            data: c.revenue,
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Orders',
+                            data: c.orders,
+                            borderColor: '#10b981',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', grid: { display: false } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { display: false } }
+                    }
+                }
             });
-        });
+
+            // 2. User Growth (Bar)
+            if (charts.userReg) charts.userReg.destroy();
+            charts.userReg = new Chart(document.getElementById('userRegChart'), {
+                type: 'bar',
+                data: {
+                    labels: c.labels,
+                    datasets: [{
+                        label: 'New Users',
+                        data: c.userReg,
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                }
+            });
+
+            // 3. Status Dist (Pie)
+            if (charts.statusDist) charts.statusDist.destroy();
+            charts.statusDist = new Chart(document.getElementById('statusDistChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: c.statusDist.map(x => x.status),
+                    datasets: [{
+                        data: c.statusDist.map(x => x.count),
+                        backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } },
+                    cutout: '70%'
+                }
+            });
+
+            // 4. Categories (Horizontal Bar)
+            if (charts.category) charts.category.destroy();
+            charts.category = new Chart(document.getElementById('categoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: c.categories.map(x => x.name.length > 15 ? x.name.substring(0,12)+'...' : x.name),
+                    datasets: [{
+                        data: c.categories.map(x => x.count),
+                        backgroundColor: '#0ea5e9',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+                }
+            });
+        }
+
+        function renderAlerts(alerts) {
+            const feed = document.getElementById('activityFeed');
+            feed.innerHTML = alerts.map(a => `
+                <div class="activity-item">
+                    <div class="activity-dot bg-${getAlertColor(a.type)}"></div>
+                    <div class="activity-content">
+                        <div class="activity-action">${a.type}</div>
+                        <div class="activity-details">${a.message}</div>
+                    </div>
+                    <div class="activity-time">${a.time}</div>
+                </div>
+            `).join('');
+        }
+
+        function getAlertColor(type) {
+            type = type.toLowerCase();
+            if (type.includes('order')) return 'success';
+            if (type.includes('payment')) return 'primary';
+            if (type.includes('security') || type.includes('cancelled')) return 'danger';
+            if (type.includes('system')) return 'info';
+            return 'warning';
+        }
+
+        document.getElementById('refreshData').addEventListener('click', updateDashboard);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', updateDashboard);
+        
+        // Auto refresh every 5 minutes
+        setInterval(updateDashboard, 300000);
     </script>
 }

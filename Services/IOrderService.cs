@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NUTRIBITE.ViewModels;
 
 namespace NUTRIBITE.Services
 {
     public interface IOrderService
     {
         Task<IEnumerable<object>> GetActiveOrdersAsync();
-        Task<object?> GetOrderDetailsAsync(int orderId);
+        Task<OrderDetailsViewModel> GetOrderDetailsAsync(int orderId);
         Task<bool> UpdateOrderStatusAsync(int orderId, string newStatus);
         Task<IEnumerable<object>> GetCancelledOrdersAsync();
         Task<int> GetCancelledCountAsync();
@@ -20,8 +21,10 @@ namespace NUTRIBITE.Services
         // Delivery methods
         Task<bool> AssignDeliveryPersonAsync(int orderId, int deliveryPersonId);
         Task<bool> UpdateDeliveryStatusAsync(int orderId, string status);
+        Task<bool> VerifyOrderOTPAsync(int orderId, int otp);
         Task<IEnumerable<object>> GetAvailableDeliveryPersonnelAsync();
         Task<IEnumerable<object>> GetDeliveriesForPersonAsync(int deliveryPersonId);
+        Task<object> GetDeliveryDashboardDataAsync();
 
         System.Linq.IQueryable<NUTRIBITE.Models.OrderTable> GetOrderQueryable();
     }

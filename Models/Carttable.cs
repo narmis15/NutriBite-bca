@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,6 +12,8 @@ public partial class Carttable
     public int Crid { get; set; }
 
     public int Pid { get; set; }
+
+    public bool IsBulk { get; set; }
 
     public int Uid { get; set; }
 

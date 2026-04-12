@@ -18,5 +18,17 @@ BEGIN
     ALTER TABLE [OrderTable] ADD [Version] INT NOT NULL DEFAULT 1;
 END
 
+-- 4. Update Carttables with IsBulk
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Carttables]') AND name = N'IsBulk')
+BEGIN
+    ALTER TABLE [Carttables] ADD [IsBulk] BIT NOT NULL DEFAULT 0;
+END
+
+-- 5. Update OrderItems with BulkItemId
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[OrderItems]') AND name = N'BulkItemId')
+BEGIN
+    ALTER TABLE [OrderItems] ADD [BulkItemId] INT NULL;
+END
+
 PRINT 'Database schema sync completed successfully.';
 GO

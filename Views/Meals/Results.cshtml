@@ -62,9 +62,21 @@
 
             <div class="card h-100 shadow-sm">
 
-                <img src="@food.ImagePath"
+                @{
+                    var imgPath = food.ImagePath;
+                    if (string.IsNullOrEmpty(imgPath))
+                    {
+                        imgPath = "/images/hero/premium_healthy_bowl.png";
+                    }
+                    else if (!imgPath.StartsWith("http") && imgPath.Contains("unsplash.com"))
+                    {
+                        imgPath = "https://" + imgPath.TrimStart('/', '\\');
+                    }
+                }
+                <img src="@imgPath"
                      class="card-img-top"
-                     style="height:220px; object-fit:cover;" />
+                     style="height:220px; object-fit:cover;"
+                     onerror="this.onerror=null;this.src='/images/hero/premium_healthy_bowl.png';" />
 
                 <div class="card-body">
                     
@@ -137,20 +149,13 @@
 
                     alert("Item added to cart");
 
-                    // Update cart count
-                    fetch("/Cart/GetCartCount")
-                    .then(res => res.json())
-                    .then(countData => {
-
-                        if(countData.success){
-                            document.getElementById("cartCount").innerText = countData.count;
-                        }
-
-                    });
+                    if (window.updateCartCount) {
+                        window.updateCartCount();
+                    }
 
                 }
                 else {
-                    alert("Please login first");
+                    alert(data.message || "Please login first");
                 }
 
             });

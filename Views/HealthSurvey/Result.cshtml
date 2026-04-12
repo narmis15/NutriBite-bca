@@ -1,408 +1,322 @@
-﻿@model NUTRIBITE.Models.HealthSurvey
+@model NUTRIBITE.Models.HealthSurvey
 
 @{
     ViewData["Title"] = "Health Result";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
-    <link rel="stylesheet" href="~/css/Home.css" />
-    var foods = ViewBag.FoodSuggestions as List<NUTRIBITE.Models.Food>;
-
+    
     string bmiStatus = "";
+    string statusBadge = "";
+    string statusColor = "";
 
     if (Model.Bmi < 18.5m)
     {
         bmiStatus = "Underweight";
+        statusBadge = "bg-warning";
+        statusColor = "text-warning";
     }
     else if (Model.Bmi >= 18.5m && Model.Bmi <= 24.9m)
     {
         bmiStatus = "Normal Weight";
+        statusBadge = "bg-success";
+        statusColor = "text-success";
     }
     else if (Model.Bmi >= 25 && Model.Bmi <= 29.9m)
     {
         bmiStatus = "Overweight";
+        statusBadge = "bg-danger"; // Changed to danger as per screenshot
+        statusColor = "text-danger";
     }
     else
     {
         bmiStatus = "Obese";
+        statusBadge = "bg-danger";
+        statusColor = "text-danger";
     }
 
     string healthTip = "";
-
     if (Model.Bmi < 18.5m)
     {
-        healthTip = "Your BMI indicates you may be underweight. Consider increasing calorie intake with balanced meals.";
+        healthTip = "Your BMI indicates you may be underweight. Consider increasing calorie intake with nutrient-dense, balanced meals.";
     }
     else if (Model.Bmi <= 24.9m)
     {
-        healthTip = "Your BMI is in the healthy range. Maintain a balanced diet and active lifestyle.";
+        healthTip = "Excellent! Your BMI is in the healthy range. Maintain your balanced diet and active lifestyle to stay here.";
     }
     else
     {
         healthTip = "Your BMI is above the healthy range. Consider reducing calorie intake and increasing physical activity.";
     }
+
+    // Macro distribution based on the screenshot (assuming fixed values for now)
+    string carbs = "50%";
+    string protein = "20%";
+    string fats = "30%";
 }
 
-<div class="container mt-4">
+<style>
+    body { background-color: #f8fafc; }
+    .container-custom {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    .summary-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .summary-card .value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+    }
+    .summary-card .label {
+        font-size: 0.9rem;
+        color: #666;
+        text-transform: uppercase;
+        margin-top: 0.5rem;
+    }
+    .profile-section, .health-notes-section, .macro-section, .health-insight-section, .meal-section, .info-footer {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1.5rem;
+    }
+    .profile-details, .health-notes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .detail-item {
+        margin-bottom: 0.5rem;
+    }
+    .detail-item strong {
+        color: #555;
+        font-weight: 500;
+    }
+    .detail-item span {
+        color: #333;
+        font-weight: 600;
+    }
+    .macro-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    .macro-item:last-child {
+        border-bottom: none;
+    }
+    .health-insight-section {
+        background-color: #e6ffe6; /* Light green background */
+        border: 1px solid #a3e6a3;
+        color: #333;
+    }
+    .health-insight-section .title {
+        color: #1a7a1a;
+        font-weight: 600;
+    }
+    .meal-card {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .meal-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+    .meal-card-body {
+        padding: 1rem;
+    }
+    .meal-card-body .title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .meal-card-body .description {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+    .meal-card-body .calories {
+        font-weight: 600;
+        color: #28a745;
+        margin-bottom: 0.5rem;
+    }
+    .meal-card-body .price {
+        font-weight: 700;
+        color: #333;
+        font-size: 1.1rem;
+    }
+    .info-footer {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
 
-    <!-- HEADER -->
+<div class="container-custom">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>Your Health Summary</h3>
-
-        <a href="/HealthSurvey/Edit" class="btn btn-outline-dark">
-            ✏ Edit Health Survey
+        <h2 class="section-title mb-0">Your Health Summary</h2>
+        <a href="/HealthSurvey/Edit" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Edit Health Survey
         </a>
     </div>
 
-
-    <!-- SUMMARY CARDS -->
-    <div class="row text-center mb-4">
-
-        <!-- BMI -->
+    <!-- Core Metrics -->
+    <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card shadow-sm p-3">
-                <h6>BMI</h6>
-                <h4>@Model.Bmi</h4>
-
-                @if (bmiStatus == "Normal Weight")
-                {
-                    <span class="badge bg-success">@bmiStatus</span>
-                }
-                else if (bmiStatus == "Underweight")
-                {
-                    <span class="badge bg-warning text-dark">@bmiStatus</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger">@bmiStatus</span>
-                }
-
+            <div class="summary-card">
+                <div class="value">@Model.Bmi</div>
+                <div class="label">BMI</div>
+                <span class="badge @statusBadge mt-2">@bmiStatus</span>
             </div>
         </div>
-
-        <!-- BMR -->
         <div class="col-md-4">
-            <div class="card shadow-sm p-3">
-                <h6>BMR</h6>
-                <h4>@Model.Bmr</h4>
-                <small>kcal/day</small>
+            <div class="summary-card">
+                <div class="value">@Math.Round((Model.Bmr ?? 0))</div>
+                <div class="label">BMR kcal/day</div>
             </div>
         </div>
-
-        <!-- Recommended Calories -->
         <div class="col-md-4">
-            <div class="card shadow-sm p-3">
-                <h6>Recommended Calories</h6>
-                <h4>@Model.RecommendedCalories</h4>
-                <small>kcal/day</small>
+            <div class="summary-card">
+                <div class="value">@Model.RecommendedCalories</div>
+                <div class="label">Recommended Calories</div>
             </div>
         </div>
-
     </div>
 
-
-    <!-- PROFILE -->
-    <div class="card p-4 shadow-sm mb-4">
-
-        <h5>Profile</h5>
-
-        <div class="row">
-
-            <div class="col-md-6">
-                <p><strong>Age:</strong> @Model.Age</p>
-                <p><strong>Height:</strong> @Model.HeightCm cm</p>
-                <p><strong>Weight:</strong> @Model.WeightKg kg</p>
+    <!-- Profile and Health Notes -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="profile-section">
+                <h3 class="section-title">Profile</h3>
+                <div class="profile-details">
+                    <div class="detail-item"><strong>Age:</strong> <span>@Model.Age</span></div>
+                    <div class="detail-item"><strong>Gender:</strong> <span>@Model.Gender</span></div>
+                    <div class="detail-item"><strong>Height:</strong> <span>@Model.HeightCm cm</span></div>
+                    <div class="detail-item"><strong>Weight:</strong> <span>@Model.WeightKg kg</span></div>
+                    <div class="detail-item"><strong>Diet:</strong> <span>@Model.DietaryPreference</span></div>
+                    <div class="detail-item"><strong>Activity:</strong> <span>@Model.ActivityLevel</span></div>
+                </div>
             </div>
-
-            <div class="col-md-6">
-                <p><strong>Gender:</strong> @Model.Gender</p>
-                <p><strong>Diet:</strong> @Model.DietaryPreference</p>
-                <p><strong>Activity:</strong> @Model.ActivityLevel</p>
-            </div>
-
         </div>
-
-        <hr />
-
-        <h6>Health Notes</h6>
-
-        <p><strong>Chronic Conditions:</strong> @Model.ChronicDiseases</p>
-        <p><strong>Food Allergies:</strong> @Model.FoodAllergies</p>
-        <p><strong>Smoking:</strong> @(Model.Smoking ? "Yes" : "No")</p>
-        <p><strong>Alcohol:</strong> @(Model.Alcohol ? "Yes" : "No")</p>
-
-    </div>
-
-
-    <!-- MACROS -->
-    <div class="card p-4 shadow-sm mb-4">
-
-        <h5>Macro Distribution</h5>
-
-        <div class="bg-light p-3 rounded">
-
-            <p><strong>Carbs:</strong> 50%</p>
-            <p><strong>Protein:</strong> 20%</p>
-            <p><strong>Fats:</strong> 30%</p>
-
+        <div class="col-md-6">
+            <div class="health-notes-section">
+                <h3 class="section-title">Health Notes</h3>
+                <div class="health-notes">
+                    <div class="detail-item"><strong>Chronic Conditions:</strong> <span>@(string.IsNullOrEmpty(Model.ChronicDiseases) ? "None" : Model.ChronicDiseases)</span></div>
+                    <div class="detail-item"><strong>Food Allergies:</strong> <span>@(string.IsNullOrEmpty(Model.FoodAllergies) ? "None" : Model.FoodAllergies)</span></div>
+                    <div class="detail-item"><strong>Smoking:</strong> <span>@(Model.Smoking ? "Yes" : "No")</span></div>
+                    <div class="detail-item"><strong>Alcohol:</strong> <span>@(Model.Alcohol ? "Yes" : "No")</span></div>
+                </div>
+            </div>
         </div>
-
     </div>
 
-
-    <!-- HEALTH INSIGHT -->
-    <div class="card p-4 shadow-sm mb-4 border-success">
-
-        <h5>💡 Health Insight</h5>
-
-        <p class="mb-1">
-            Based on your health survey results:
-        </p>
-
-        <p class="fw-bold">
-            @healthTip
-        </p>
-
-        <p class="text-muted small">
-            Your recommended daily calorie intake is
-            <strong>@Model.RecommendedCalories kcal</strong>.
-            Try to maintain balanced meals to meet your daily nutrition needs.
-        </p>
-
+    <!-- Macro Distribution -->
+    <div class="macro-section mb-4">
+        <h3 class="section-title">Macro Distribution</h3>
+        <div class="macro-items">
+            <div class="macro-item"><span>Carbs:</span> <span>@carbs</span></div>
+            <div class="macro-item"><span>Protein:</span> <span>@protein</span></div>
+            <div class="macro-item"><span>Fats:</span> <span>@fats</span></div>
+        </div>
     </div>
 
+    <!-- Health Insight -->
+    <div class="health-insight-section mb-4">
+        <h3 class="title"><i class="bi bi-lightbulb-fill me-2"></i>Health Insight</h3>
+        <p>Based on your health survey results:</p>
+        <p>@healthTip</p>
+        <p>Your recommended daily calorie intake is @Model.RecommendedCalories kcal. Try to maintain balanced meals to meet your daily nutrition needs.</p>
+    </div>
 
-    <!-- FOOD RECOMMENDATIONS -->
-    <div class="card p-4 shadow-sm mb-4">
+    <!-- Recommended Meals For You (Aligned with Home Page) -->
+    <div class="meal-section mb-4">
+        <h3 class="section-title">AI Personalised Meals</h3>
 
-        <h5>Recommended Meals For You</h5>
-
-        @if (foods != null && foods.Any())
-        {
-
-            <!-- BREAKFAST -->
-            <h6 class="mt-3">🍳 Breakfast</h6>
-
-            <div class="row">
-
-                @foreach (var food in foods.Where(f => f.Calories <= 400))
-                {
-                    <div class="col-md-4 mb-4">
-
-                        <div class="card shadow-sm h-100">
-
-                            <img src="@food.ImagePath"
-                                 class="card-img-top"
-                                 style="height:200px;object-fit:cover;" />
-
-                            <div class="card-body">
-
-                                <h6 class="card-title">@food.Name</h6>
-
-                                <p class="text-muted small">
-                                    @food.Description
-                                </p>
-
-                                <p class="text-muted small">
-                                    🔥 @food.Calories kcal
-                                </p>
-
-                                <span class="badge bg-success mb-2">
-                                    Breakfast Option
-                                </span>
-
-                                <p class="fw-bold mt-2">
-                                    ₹@food.Price
-                                </p>
-
-                                <button type="button"
-                                        class="btn btn-success addToCartBtn"
-                                        data-id="@food.Id">
-                                    Add to Cart
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                }
-
-            </div>
-
-
-            <!-- LUNCH -->
-            <h6 class="mt-4">🍛 Lunch</h6>
-
-            <div class="row">
-
-                @foreach (var food in foods.Where(f => f.Calories > 400 && f.Calories <= 700))
-                {
-                    <div class="col-md-4 mb-4">
-
-                        <div class="card shadow-sm h-100">
-
-                            <img src="@food.ImagePath"
-                                 class="card-img-top"
-                                 style="height:200px;object-fit:cover;" />
-
-                            <div class="card-body">
-
-                                <h6 class="card-title">@food.Name</h6>
-
-                                <p class="text-muted small">
-                                    @food.Description
-                                </p>
-
-                                <p class="text-muted small">
-                                    🔥 @food.Calories kcal
-                                </p>
-
-                                <span class="badge bg-warning text-dark mb-2">
-                                    Lunch Option
-                                </span>
-
-                                <p class="fw-bold mt-2">
-                                    ₹@food.Price
-                                </p>
-
-                                <button type="button"
-                                        class="btn btn-success addToCartBtn"
-                                        data-id="@food.Id">
-                                    Add to Cart
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                }
-
-            </div>
-
-
-            <!-- DINNER -->
-            <h6 class="mt-4">🍽 Dinner</h6>
-
-            <div class="row">
-
-                @foreach (var food in foods.Where(f => f.Calories > 700))
-                {
-                    <div class="col-md-4 mb-4">
-
-                        <div class="card shadow-sm h-100">
-
-                            <img src="@food.ImagePath"
-                                 class="card-img-top"
-                                 style="height:200px;object-fit:cover;" />
-
-                            <div class="card-body">
-
-                                <h6 class="card-title">@food.Name</h6>
-
-                                <p class="text-muted small">
-                                    @food.Description
-                                </p>
-
-                                <p class="text-muted small">
-                                    🔥 @food.Calories kcal
-                                </p>
-
-                                <span class="badge bg-danger mb-2">
-                                    Dinner Option
-                                </span>
-
-                                <p class="fw-bold mt-2">
-                                    ₹@food.Price
-                                </p>
-
-                                <button type="button"
-                                        class="btn btn-success addToCartBtn"
-                                        data-id="@food.Id">
-                                    Add to Cart
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                }
-
-            </div>
-
-        }
-        else
-        {
-            <p>No recommended meals available.</p>
+        @{
+            var meals = new List<(string Name, string Icon, string Color, NUTRIBITE.Models.Food Food)>
+            {
+                ("Breakfast", "bi-sunrise", "#f59e0b", ViewBag.Breakfast as NUTRIBITE.Models.Food),
+                ("Lunch", "bi-sun", "#ef4444", ViewBag.Lunch as NUTRIBITE.Models.Food),
+                ("Dinner", "bi-moon-stars-fill", "#3b82f6", ViewBag.Dinner as NUTRIBITE.Models.Food)
+            };
         }
 
+        <div class="row g-3">
+            @foreach (var meal in meals.Where(m => m.Food != null))
+            {
+                <div class="col-md-4">
+                    <div class="meal-card h-100">
+                        <img src="@(string.IsNullOrEmpty(meal.Food.ImagePath) ? "/images/Meals/Standard_Thali.jpeg" : meal.Food.ImagePath)" 
+                             alt="@meal.Food.Name"
+                             onerror="this.onerror=null;this.src='/images/Meals/Standard_Thali.jpeg';" />
+                        <div class="meal-card-body">
+                            <div class="title">@meal.Food.Name</div>
+                            <div class="description">@(string.IsNullOrEmpty(meal.Food.Description) ? "Nutritious and freshly prepared for your health goals." : meal.Food.Description)</div>
+                            <div class="calories">@((meal.Food.Calories ?? 0)) kcal</div>
+                            <div class="price">₹@meal.Food.Price.ToString("0.00")</div>
+                            <button class="btn btn-success btn-sm mt-2" onclick="addToCart('@meal.Food.Name', @meal.Food.Price, '@meal.Name', '@(meal.Food.Description ?? "")')">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 
-
-    <!-- TRUST MESSAGE -->
-    <div class="alert alert-info mt-4">
-
-        <strong>Why we collect this information</strong>
-
-        <p class="mb-1">
-            Your health data helps NutriBite calculate BMI, BMR, and recommended daily calorie intake.
-            This allows us to provide personalized nutrition insights and meal recommendations.
-        </p>
-
-        <p class="small text-muted mb-0">
-            Your information is kept private and used only to improve your nutrition experience.
-        </p>
-
+    <!-- Info Footer -->
+    <div class="info-footer text-center p-3">
+        <p class="mb-1"><strong>Why we collect this information</strong></p>
+        <p class="mb-0">Your health data helps NutriBite calculate BMI, BMR, and recommended daily calorie intake. This allows us to provide personalized nutrition insights and meal recommendations.</p>
+        <p class="mb-0">Your information is kept private and used only to improve your nutrition experience.</p>
     </div>
-
-
-
-
 </div>
 
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-
-    $(document).ready(function () {
-
-        $(document).on("click", ".addToCartBtn", function () {
-
-            var foodId = $(this).data("id");
+@section Scripts {
+    <script>
+        function addToCart(name, price, category, desc) {
+            const data = {
+                itemName: name,
+                price: price,
+                category: category,
+                description: desc,
+                isBulk: true,
+                quantity: 1
+            };
 
             $.ajax({
-                url: "/Cart/AddToCart",
-                type: "POST",
-                data: { foodId: foodId },
-
-                success: function (res) {
-
-                    if (res.success) {
-
-                        alert("Food added to cart");
-
-                        $.get("/Cart/GetCartCount", function (data) {
-
-                            if (data.success) {
-                                $("#cartCount").text(data.count);
-                            }
-
-                        });
-
+                url: '/Cart/AddToCart',
+                type: 'POST',
+                data: data,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Item added to cart successfully!');
+                    } else {
+                        alert(response.message || 'Error adding to cart');
                     }
-                    else {
-
-                        alert(res.message);
-
-                    }
-
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
                 }
-
             });
-
-        });
-
-    });
-
-</script>
+        }
+    </script>
+}

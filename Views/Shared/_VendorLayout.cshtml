@@ -55,11 +55,13 @@
     <div class="vendor-wrapper">
         <div class="vendor-sidebar" id="vendorSidebar">
             <div class="sidebar-header">
-                
+                <a href="/Vendor/Dashboard" class="text-white text-decoration-none">
+                    <h4 class="fw-bold mb-0">NutriBite</h4>
+                </a>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
             </div>
-            <button class="sidebar-toggle" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
             
             <a href="/Vendor/Dashboard" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
                 <i class="bi bi-speedometer2 nav-icon"></i>
@@ -80,6 +82,10 @@
             <a href="/Vendor/Earnings" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Earnings" ? "active" : "")">
                 <i class="bi bi-wallet2 nav-icon"></i>
                 <span class="nav-label">Earnings</span>
+            </a>
+            <a href="/Vendor/Subscriptions" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Subscriptions" ? "active" : "")">
+                <i class="bi bi-calendar-check nav-icon"></i>
+                <span class="nav-label">Subscriptions</span>
             </a>
 
             <div class="sidebar-divider my-3 mx-4" style="border-top: 1px solid rgba(255,255,255,0.1);"></div>

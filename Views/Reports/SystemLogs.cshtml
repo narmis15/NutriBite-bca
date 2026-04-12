@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "System Logs";
 }
 
@@ -76,9 +76,126 @@
         <h5 class="modal-title">Log Details</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <pre id="logDetailsContent" class="mb-0"></pre>
+      <div class="modal-body p-4">
+        <div id="logDetailsView">
+            <!-- Professional details view -->
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const api = '/Reports/GetSystemLogs';
+            const $tbody = $('#logsTable tbody');
+            const $from = $('#fromDate'), $to = $('#toDate'), $q = $('#q'), $severity = $('#severityFilter');
+            let currentPage = 1;
+
+            function initDates() {
+                const today = new Date();
+                const start = new Date(); start.setDate(today.getDate() - 7);
+                $from.val(start.toISOString().slice(0, 10));
+                $to.val(today.toISOString().slice(0, 10));
+            }
+
+            function levelBadge(lvl) {
+                const l = (lvl || 'Info').toLowerCase();
+                if (l === 'error') return '<span class="badge bg-danger">Error</span>';
+                if (l === 'warning') return '<span class="badge bg-warning text-dark">Warning</span>';
+                if (l === 'debug') return '<span class="badge bg-secondary">Debug</span>';
+                return '<span class="badge bg-info">Info</span>';
+            }
+
+            function render(res) {
+                $tbody.empty();
+                $('#totalCount').text(res.totalCount || 0);
+                $('#shownCount').text(res.items ? res.items.length : 0);
+
+                if (!res.items || res.items.length === 0) {
+                    $tbody.append('<tr><td colspan="6" class="text-center py-4 text-muted">No logs found for the selected filters.</td></tr>');
+                    return;
+                }
+
+                res.items.forEach(item => {
+                    const date = new Date(item.timestamp).toLocaleString();
+                    const tr = $(`
+                        <tr style="cursor:pointer">
+                            <td class="small text-muted">${date}</td>
+                            <td>${levelBadge(item.level)}</td>
+                            <td class="small fw-bold">${item.source || 'System'}</td>
+                            <td class="text-truncate" style="max-width:400px">${item.message}</td>
+                            <td class="small text-muted">${item.user || 'System'}</td>
+                            <td><button class="btn btn-sm btn-link p-0 text-primary view-details">View</button></td>
+                        </tr>
+                    `);
+                    tr.find('.view-details').addBack('tr').on('click', () => {
+                        const html = `
+                            <div class="mb-4">
+                                <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Message</label>
+                                <div class="h5 fw-bold text-dark mb-0">${item.message}</div>
+                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Timestamp</label>
+                                    <div class="fw-semibold">${date}</div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Severity</label>
+                                    <div>${levelBadge(item.level)}</div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Source / Action</label>
+                                    <div class="fw-semibold text-primary">${item.source || 'System'}</div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small text-uppercase fw-bold mb-1 d-block">User / Actor</label>
+                                    <div class="fw-semibold">${item.user || 'System'}</div>
+                                </div>
+                            </div>
+                            ${item.details ? `
+                            <div class="bg-light p-3 rounded-3">
+                                <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Additional Context</label>
+                                <pre class="mb-0 small" style="white-space: pre-wrap;">${item.details}</pre>
+                            </div>` : ''}
+                        `;
+                        $('#logDetailsView').html(html);
+                        new bootstrap.Modal('#logDetailsModal').show();
+                    });
+                    $tbody.append(tr);
+                });
+
+                $('#prevPage').prop('disabled', currentPage <= 1);
+                $('#nextPage').prop('disabled', (currentPage * 50) >= res.totalCount);
+            }
+
+            function loadLogs() {
+                $.getJSON(api, { 
+                    severity: $severity.val(), 
+                    from: $from.val(), 
+                    to: $to.val(), 
+                    q: $q.val(), 
+                    page: currentPage 
+                }).done(render).fail(() => console.error('Failed to load logs'));
+            }
+
+            $(function () {
+                initDates();
+                loadLogs();
+                $('#applyBtn').on('click', () => { currentPage = 1; loadLogs(); });
+                $('#prevPage').on('click', () => { if (currentPage > 1) { currentPage--; loadLogs(); } });
+                $('#nextPage').on('click', () => { currentPage++; loadLogs(); });
+                
+                let refreshInterval;
+                $('#autoRefresh').on('change', function() {
+                    if (this.checked) {
+                        refreshInterval = setInterval(loadLogs, 10000);
+                    } else {
+                        clearInterval(refreshInterval);
+                    }
+                }).trigger('change');
+            });
+        })();
+    </script>
+}

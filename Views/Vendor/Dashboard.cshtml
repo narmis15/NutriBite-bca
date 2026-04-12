@@ -4,71 +4,66 @@
 }
 
 <!-- PAGE HEADER -->
-<div class="page-header d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold text-dark">Dashboard Overview</h2>
+        <h2 class="fw-bold text-dark">@ViewBag.BusinessName Dashboard</h2>
         <p class="text-muted">Welcome back! Here's what's happening with your store today.</p>
-    </div>
-    <div>
-        <a asp-action="AddFood" class="btn btn-primary shadow-sm rounded-pill px-4">
-            <i class="bi bi-plus-lg me-1"></i> Add New Dish
-        </a>
     </div>
 </div>
 
 <!-- KPI CARDS -->
 <div class="row g-4 mb-4">
     <div class="col-xl-3 col-md-6">
-        <div class="kpi-card shadow-sm border-0 h-100">
+        <div class="kpi-card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, #2d6a4f, #1b4332); color:white; border-radius: 12px; padding: 1.5rem;">
             <div class="d-flex align-items-center">
-                <div class="kpi-icon bg-primary-soft text-primary rounded-circle p-3 me-3">
-                    <i class="bi bi-box-seam fs-3"></i>
+                <div class="kpi-icon bg-white text-success rounded-circle p-3 me-3 opacity-75">
+                    <i class="bi bi-wallet2 fs-3"></i>
                 </div>
                 <div>
-                    <div class="kpi-value fs-3 fw-bold">@ViewBag.TotalOrders</div>
-                    <div class="kpi-label text-muted small uppercase fw-semibold">Total Orders</div>
+                    <div class="kpi-value fs-3 fw-bold">₹@ViewBag.NetEarnings</div>
+                    <div class="kpi-label small fw-semibold text-white-50 text-uppercase">Total Received</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="kpi-card shadow-sm border-0 h-100">
+        <div class="kpi-card shadow-sm border-0 h-100 bg-white" style="border-radius: 12px; padding: 1.5rem;">
             <div class="d-flex align-items-center">
-                <div class="kpi-icon bg-success-soft text-success rounded-circle p-3 me-3">
+                <div class="kpi-icon bg-secondary-soft text-secondary rounded-circle p-3 me-3">
                     <i class="bi bi-currency-rupee fs-3"></i>
                 </div>
                 <div>
-                    <div class="kpi-value fs-3 fw-bold">₹@ViewBag.TotalRevenue</div>
-                    <div class="kpi-label text-muted small uppercase fw-semibold">Total Revenue</div>
+                    <div class="kpi-value fs-3 fw-bold text-dark">₹@ViewBag.TotalRevenue</div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Gross Revenue</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="kpi-card shadow-sm border-0 h-100">
-            <div class="d-flex align-items-center">
-                <div class="kpi-icon bg-info-soft text-info rounded-circle p-3 me-3">
-                    <i class="bi bi-egg-fried fs-3"></i>
-                </div>
-                <div>
-                    <div class="kpi-value fs-3 fw-bold">@ViewBag.TotalFoods</div>
-                    <div class="kpi-label text-muted small uppercase fw-semibold">Food Items</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6">
-        <div class="kpi-card shadow-sm border-0 h-100">
+        <div class="kpi-card shadow-sm border-0 h-100 bg-white" style="border-radius: 12px; padding: 1.5rem;">
             <div class="d-flex align-items-center">
                 <div class="kpi-icon bg-warning-soft text-warning rounded-circle p-3 me-3">
-                    <i class="bi bi-clock-history fs-3"></i>
+                    <i class="bi bi-hourglass-split fs-3"></i>
                 </div>
                 <div>
-                    <div class="kpi-value fs-3 fw-bold">@ViewBag.PendingOrders</div>
-                    <div class="kpi-label text-muted small uppercase fw-semibold">Pending Orders</div>
+                    <div class="kpi-value fs-3 fw-bold text-dark">₹@ViewBag.PendingEarnings</div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Pending Payouts</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card shadow-sm border-0 h-100 bg-white" style="border-radius: 12px; padding: 1.5rem;">
+            <div class="d-flex align-items-center">
+                <div class="kpi-icon bg-info-soft text-info rounded-circle p-3 me-3">
+                    <i class="bi bi-box-seam fs-3"></i>
+                </div>
+                <div>
+                    <div class="kpi-value fs-3 fw-bold text-dark">@ViewBag.TotalOrders</div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Total Orders</div>
                 </div>
             </div>
         </div>

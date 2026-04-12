@@ -28,39 +28,124 @@ namespace NUTRIBITE.Controllers
             _distributionService = distributionService;
         }
 
-        [HttpGet("/api/vendor/earnings")]
-        public async Task<IActionResult> GetEarnings()
+        [HttpGet]
+        public async Task<IActionResult> GetEarningsData()
         {
             var vendorId = GetVendorId();
-            if (vendorId == null) return Unauthorized();
+            if (vendorId == null) return Json(new { success = false, message = "Unauthorized" });
+
+            // Use the same robust filter as Dashboard
+            var vendorOrderIdsFromItems = _context.OrderItems
+                .Include(oi => oi.Food)
+                .Where(oi => (oi.Food != null && oi.Food.VendorId == vendorId) || 
+                             (_context.BulkItems.Any(b => b.Id == oi.BulkItemId && b.VendorId == vendorId)))
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .ToList();
+
+            var vendorOrders = _context.OrderTables
+                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.Status != "Cancelled")
+                .ToList();
 
             var payouts = await _distributionService.GetVendorPayoutsAsync(vendorId.Value);
             
+            // Total Sales (Gross)
+            decimal totalSales = vendorOrders.Sum(o => o.TotalAmount);
+            
+            // Total Paid (Received)
+            decimal totalPaid = vendorOrders.Where(o => o.PaymentStatus != null && o.PaymentStatus.Trim() == "PaidToVendor").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m))
+                               + payouts.Where(p => p.Status == PayoutStatus.PaidToVendor).Sum(p => p.Amount);
+            
+            // Total Commission
+            decimal totalCommission = vendorOrders.Sum(o => o.CommissionAmount > 0 ? o.CommissionAmount : (o.TotalAmount * 0.1m));
+
+            // Pending Payments
+            decimal pendingPayments = vendorOrders.Where(o => o.PaymentStatus == null || o.PaymentStatus.Trim() != "PaidToVendor").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m))
+                                     + payouts.Where(p => p.Status == PayoutStatus.Pending).Sum(p => p.Amount);
+
             return Json(new {
-                totalEarnings = payouts.Sum(p => p.Amount),
-                totalCommissionDeducted = payouts.Sum(p => p.CommissionDeducted),
-                pendingPayments = payouts.Where(p => p.Status == PayoutStatus.Pending).Sum(p => p.Amount)
+                totalEarnings = totalSales,
+                totalPaid = totalPaid,
+                totalCommissionDeducted = totalCommission,
+                pendingPayments = pendingPayments
             });
         }
 
-        [HttpGet("/api/vendor/payouts")]
-        public async Task<IActionResult> GetPayouts(int page = 1, int pageSize = 10, PayoutStatus? status = null)
+        [HttpGet]
+        public async Task<IActionResult> GetPayoutsData(int page = 1, int pageSize = 10, string status = null)
         {
             var vendorId = GetVendorId();
-            if (vendorId == null) return Unauthorized();
+            if (vendorId == null) return Json(new { success = false, message = "Unauthorized" });
 
-            var query = _context.VendorPayouts
+            // 1. Get official payouts
+            var payoutQuery = _context.VendorPayouts
                 .Where(p => p.VendorId == vendorId.Value);
 
-            if (status.HasValue)
-                query = query.Where(p => p.Status == status.Value);
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (Enum.TryParse<PayoutStatus>(status, out var payoutStatus))
+                    payoutQuery = payoutQuery.Where(p => p.Status == payoutStatus);
+            }
 
-            var totalItems = await query.CountAsync();
-            var items = await query
+            var officialPayouts = await payoutQuery
                 .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            // 2. Get orders using the robust filter
+            var vendorOrderIdsFromItems = _context.OrderItems
+                .Include(oi => oi.Food)
+                .Where(oi => (oi.Food != null && oi.Food.VendorId == vendorId) || 
+                             (_context.BulkItems.Any(b => b.Id == oi.BulkItemId && b.VendorId == vendorId)))
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .ToList();
+
+            var orders = await _context.OrderTables
+                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.Status != "Cancelled")
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            var orderPayouts = new List<dynamic>();
+            foreach (var o in orders)
+            {
+                if (!officialPayouts.Any(p => p.OrderId == o.OrderId))
+                {
+                    string orderStatus = (o.PaymentStatus != null && o.PaymentStatus.Trim() == "PaidToVendor") ? "PaidToVendor" : "Pending";
+                    if (string.IsNullOrEmpty(status) || status == orderStatus)
+                    {
+                        orderPayouts.Add(new {
+                            id = 0,
+                            orderId = o.OrderId,
+                            payoutMonth = "Order Settlement",
+                            orderDate = o.CreatedAt,
+                            totalSales = o.TotalAmount,
+                            commissionDeducted = o.CommissionAmount > 0 ? o.CommissionAmount : (o.TotalAmount * 0.1m),
+                            amount = o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m),
+                            status = orderStatus,
+                            updatedAt = o.UpdatedAt ?? o.CreatedAt ?? DateTime.Now
+                        });
+                    }
+                }
+            }
+
+            // Combine and paginate
+            var allItems = orderPayouts.Concat(officialPayouts.Select(p => (dynamic)new {
+                id = p.Id,
+                orderId = (int?)null,
+                payoutMonth = p.PayoutMonth,
+                orderDate = (DateTime?)null,
+                totalSales = p.TotalSales,
+                commissionDeducted = p.CommissionDeducted,
+                amount = p.Amount,
+                status = p.Status.ToString(),
+                updatedAt = p.UpdatedAt
+            })).OrderByDescending(x => x.updatedAt).ToList();
+
+            var totalItems = allItems.Count;
+            var items = allItems
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToList();
 
             return Json(new {
                 items,
@@ -111,7 +196,7 @@ namespace NUTRIBITE.Controllers
             {
                 VendorName = vendorName,
                 Email = email,
-                PasswordHash = HashPassword(password),
+                PasswordHash = password, // ⭐ UPDATED: Storing plain text for testing
                 IsApproved = false,
                 IsRejected = false
             };
@@ -131,21 +216,21 @@ namespace NUTRIBITE.Controllers
         {
             var vendor = _context.VendorSignups.FirstOrDefault(v => v.Email == email);
 
-            if (vendor == null || vendor.PasswordHash != HashPassword(password))
+            if (vendor == null || vendor.PasswordHash != password)
             {
-                ViewBag.Error = "Invalid email or password.";
+                ViewBag.Error = "Invalid email or password. Please try again.";
                 return View();
             }
 
             if (vendor.IsRejected == true)
             {
-                ViewBag.Error = "Your account was rejected.";
+                ViewBag.Error = "Your application has been reviewed and unfortunately was not approved at this time.";
                 return View();
             }
 
             if (vendor.IsApproved != true)
             {
-                ViewBag.Error = "Waiting for admin approval.";
+                ViewBag.Error = "Your account is currently pending admin approval. Please wait for up to 24 hours for our team to review and verify your business details.";
                 return View();
             }
 
@@ -162,71 +247,94 @@ namespace NUTRIBITE.Controllers
         };
 
         // ================= DASHBOARD =================
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
             var vendorId = GetVendorId();
             if (vendorId == null)
                 return RedirectToAction("Login");
 
-            var vendorOrderItems = _context.OrderItems
+            var vendor = _context.VendorSignups.Find(vendorId);
+            ViewBag.BusinessName = vendor?.VendorName ?? "Vendor Dashboard";
+
+            // Total Foods: Count both regular food items and bulk items for this vendor
+            int totalFoods = _context.Foods.Count(f => f.VendorId == vendorId) + 
+                             _context.BulkItems.Count(b => b.Id == vendorId); // Fixed logic
+
+            // GET ALL ORDERS FOR THIS VENDOR
+            // Inclusive logic: by VendorId on OrderTable OR by items in OrderItems
+            var vendorOrderIdsFromItems = _context.OrderItems
                 .Include(oi => oi.Food)
-                .Include(oi => oi.Order)
-                .Where(oi => oi.Food != null && oi.Food.VendorId == vendorId)
-                .ToList();
-
-            int totalFoods = _context.Foods.Count(f => f.VendorId == vendorId);
-
-            int totalOrders = vendorOrderItems
+                .Where(oi => (oi.Food != null && oi.Food.VendorId == vendorId) || 
+                             (_context.BulkItems.Any(b => b.Id == oi.BulkItemId && b.VendorId == vendorId)))
                 .Select(oi => oi.OrderId)
                 .Distinct()
-                .Count();
-
-            decimal totalRevenue = vendorOrderItems
-                .Sum(oi => (oi.Quantity ?? 1) * (oi.Food?.Price ?? 0));
-
-            int pendingOrders = _context.OrderTables
-                .Count(o => vendorOrderItems.Select(oi => oi.OrderId).Contains(o.OrderId)
-                         && o.Status == "Placed");
-
-            // Monthly Revenue
-            var monthlyRevenue = vendorOrderItems
-                .Where(oi => oi.Order != null && oi.Order.CreatedAt.HasValue
-                          && oi.Order.CreatedAt.Value.Year == DateTime.Now.Year)
-                .GroupBy(oi => oi.Order.CreatedAt.Value.Month)
-                .Select(g => new
-                {
-                    Month = g.Key,
-                    Revenue = g.Sum(oi => (oi.Quantity ?? 1) * (oi.Food?.Price ?? 0))
-                })
-                .OrderBy(x => x.Month)
                 .ToList();
 
+            var vendorOrders = _context.OrderTables
+                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.Status != "Cancelled")
+                .ToList();
+
+            // Total Orders for this vendor
+            int totalOrders = vendorOrders.Count;
+
+            // Total Gross Revenue
+            decimal totalRevenue = vendorOrders.Sum(o => o.TotalAmount);
+
+            // Total Received: Orders marked PaidToVendor + official payouts that are Paid
+            var payouts = await _distributionService.GetVendorPayoutsAsync(vendorId.Value);
+            decimal processedEarnings = payouts.Where(p => p.Status == PayoutStatus.PaidToVendor).Sum(p => p.Amount);
+            
+            decimal paidOrdersEarnings = vendorOrders
+                .Where(o => o.PaymentStatus != null && o.PaymentStatus.Trim() == "PaidToVendor")
+                .Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
+            
+            decimal netEarnings = processedEarnings + paidOrdersEarnings;
+
+            // Pending Payments: Orders NOT marked PaidToVendor + payouts that are Pending
+            decimal accruedEarnings = vendorOrders
+                .Where(o => o.PaymentStatus == null || o.PaymentStatus.Trim() != "PaidToVendor")
+                .Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
+            
+            decimal pendingEarnings = payouts.Where(p => p.Status == PayoutStatus.Pending).Sum(p => p.Amount) + accruedEarnings;
+
+            // Pending Orders: Orders that are not yet Delivered/Completed
+            int pendingOrders = vendorOrders.Count(o => o.Status != "Delivered" && o.Status != "Completed" && o.Status != "Picked");
+
+            // Monthly Net Earnings for chart (using revenue from OrderTables)
             string[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             decimal[] chartData = new decimal[12];
 
             for (int i = 0; i < 12; i++)
             {
-                var data = monthlyRevenue.FirstOrDefault(x => x.Month == i + 1);
-                chartData[i] = data?.Revenue ?? 0;
+                // Show monthly revenue based on orders for this year
+                var monthlyRevenue = vendorOrders
+                    .Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == i + 1 && o.CreatedAt.Value.Year == DateTime.Now.Year)
+                    .Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
+                
+                chartData[i] = monthlyRevenue;
             }
 
-            var recentOrders = vendorOrderItems
-                .OrderByDescending(oi => oi.Order?.CreatedAt)
+            // Recent Orders for this vendor
+            var recentOrders = vendorOrders
+                .OrderByDescending(o => o.CreatedAt)
                 .Take(5)
-                .Select(oi => new VendorOrderViewModel
+                .Select(o => new VendorOrderViewModel
                 {
-                    OrderId = oi.OrderId,
-                    CustomerName = oi.Order?.CustomerName,
-                    FoodItem = oi.ItemName,
-                    Amount = (oi.Quantity ?? 1) * (oi.Food?.Price ?? 0),
-                    Status = oi.Order?.Status,
-                    Date = oi.Order?.CreatedAt
+                    OrderId = o.OrderId,
+                    CustomerName = o.CustomerName ?? "Guest",
+                    CustomerPhone = o.CustomerPhone,
+                    DeliveryAddress = o.DeliveryAddress,
+                    Amount = o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m),
+                    Status = o.Status ?? "Placed",
+                    Date = o.CreatedAt
                 })
                 .ToList();
 
             ViewBag.TotalFoods = totalFoods;
             ViewBag.TotalOrders = totalOrders;
-            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.TotalRevenue = totalRevenue;     // Gross
+            ViewBag.NetEarnings = netEarnings;       // Net
+            ViewBag.PendingEarnings = pendingEarnings;
             ViewBag.PendingOrders = pendingOrders;
             ViewBag.ChartLabels = months;
             ViewBag.ChartData = chartData;
@@ -310,6 +418,24 @@ namespace NUTRIBITE.Controllers
             return View(foods);
         }
 
+        [HttpPost]
+        public IActionResult DeleteFood(int id)
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null)
+                return Json(new { success = false, message = "Unauthorized" });
+
+            var food = _context.Foods.FirstOrDefault(f => f.Id == id && f.VendorId == vendorId);
+            if (food != null)
+            {
+                _context.Foods.Remove(food);
+                _context.SaveChanges();
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false, message = "Food not found" });
+        }
+
         // ================= ORDERS =================
         public IActionResult Order()
         {
@@ -317,26 +443,39 @@ namespace NUTRIBITE.Controllers
             if (vendorId == null)
                 return RedirectToAction("Login");
 
-            var orders = _context.OrderItems
+            // Filter all orders where at least one item belongs to this vendor
+            var vendorOrderIdsFromItems = _context.OrderItems
                 .Include(oi => oi.Food)
-                .Include(oi => oi.Order)
-                .Where(oi => oi.Food != null && oi.Food.VendorId == vendorId)
-                .Select(oi => new VendorOrderViewModel
-                {
-                    OrderId = oi.OrderId,
-                    CustomerName = oi.Order.CustomerName,
-                    FoodItem = oi.ItemName,
-                    OrderType = oi.Order.OrderType,
-                    Quantity = oi.Quantity,
-                    SpecialInstruction = oi.SpecialInstruction,
-                    Amount = (oi.Quantity ?? 1) * (oi.Food.Price),
-                    Status = oi.Order.Status,
-                    Date = oi.Order.CreatedAt
-                })
-                .OrderByDescending(o => o.Date)
+                .Where(oi => (oi.Food != null && oi.Food.VendorId == vendorId) || 
+                             (_context.BulkItems.Any(b => b.Id == oi.BulkItemId && b.VendorId == vendorId)))
+                .Select(oi => oi.OrderId)
+                .Distinct()
                 .ToList();
 
-            return View(orders);
+            var orders = _context.OrderTables
+                .Include(o => o.OrderItems)
+                .Where(o => o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId))
+                .OrderByDescending(o => o.CreatedAt)
+                .ToList();
+
+            var viewModel = orders.Select(o => new VendorOrderViewModel
+            {
+                OrderId = o.OrderId,
+                CustomerName = o.CustomerName ?? "Guest",
+                CustomerPhone = o.CustomerPhone,
+                DeliveryAddress = o.DeliveryAddress,
+                OrderType = o.OrderType ?? "Delivery",
+                // For the list view, we show the main item name or a summary
+                FoodItem = o.OrderItems.Any() ? 
+                           (o.OrderItems.First().ItemName + (o.OrderItems.Count > 1 ? $" (+{o.OrderItems.Count - 1} more)" : "")) : 
+                           "General Order",
+                Quantity = o.OrderItems.Sum(oi => oi.Quantity),
+                Amount = o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m),
+                Status = o.Status ?? "Placed",
+                Date = o.CreatedAt
+            }).ToList();
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -419,6 +558,68 @@ namespace NUTRIBITE.Controllers
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
+        }
+
+        // ================= EDIT FOOD =================
+        [HttpGet]
+        public IActionResult EditFood(int id)
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null) return RedirectToAction("Login");
+
+            var food = _context.Foods.FirstOrDefault(f => f.Id == id && f.VendorId == vendorId);
+            if (food == null) return NotFound();
+
+            return View(food);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditFood(int id, Food model, IFormFile? ProductPic)
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null) return RedirectToAction("Login");
+
+            var food = _context.Foods.FirstOrDefault(f => f.Id == id && f.VendorId == vendorId);
+            if (food == null) return NotFound();
+
+            food.Name = model.Name;
+            food.Description = model.Description;
+            food.Price = model.Price;
+            food.Calories = model.Calories;
+            food.Status = model.Status;
+            food.FoodType = model.FoodType;
+
+            if (ProductPic != null && ProductPic.Length > 0)
+            {
+                var uniqueName = Guid.NewGuid().ToString() + Path.GetExtension(ProductPic.FileName);
+                var path = Path.Combine(_environment.WebRootPath, "images/foods", uniqueName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await ProductPic.CopyToAsync(stream);
+                }
+                food.ImagePath = "/images/foods/" + uniqueName;
+            }
+
+            _context.SaveChanges();
+            TempData["Success"] = "Food updated successfully.";
+            return RedirectToAction("MyFood");
+        }
+
+        // ================= SUBSCRIPTIONS =================
+        public async Task<IActionResult> Subscriptions()
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null) return RedirectToAction("Login");
+
+            var subscriptions = await _context.Subscriptions
+                .Include(s => s.Food)
+                .Include(s => s.User)
+                .Where(s => s.VendorId == vendorId || (s.Food != null && s.Food.VendorId == vendorId))
+                .OrderByDescending(s => s.StartDate)
+                .ToListAsync();
+
+            return View(subscriptions);
         }
     }
 }

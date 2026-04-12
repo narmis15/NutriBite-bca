@@ -120,11 +120,13 @@
                                     }
                                     else if (delivery.DeliveryStatus == "Out for Delivery")
                                     {
-                                        <button class="btn btn-success btn-update update-status-btn shadow-sm" 
-                                                data-id="@delivery.OrderId" 
-                                                data-status="Delivered">
-                                            <i class="bi bi-check2-circle me-1"></i> Mark as Delivered
-                                        </button>
+                                        <div class="mt-2">
+                                            <div class="input-group mb-2">
+                                                <input type="text" class="form-control otp-input" placeholder="Enter 4-digit OTP" maxlength="4">
+                                                <button class="btn btn-success verify-otp-btn" data-id="@delivery.OrderId">Verify</button>
+                                            </div>
+                                            <small class="text-muted d-block text-center">Ask customer for OTP to complete delivery</small>
+                                        </div>
                                     }
                                     else if (delivery.DeliveryStatus == "Delivered")
                                     {
@@ -190,6 +192,42 @@
                 error: function() {
                     alert('Server error');
                     btn.prop('disabled', false).text('Try Again');
+                }
+            });
+        });
+
+        $(document).on('click', '.verify-otp-btn', function() {
+            const btn = $(this);
+            const id = btn.data('id');
+            const otp = btn.siblings('.otp-input').val();
+            
+            if (!otp || otp.length !== 4) {
+                alert('Please enter a valid 4-digit OTP');
+                return;
+            }
+
+            btn.prop('disabled', true).text('...');
+
+            $.ajax({
+                url: '/Delivery/VerifyOTP',
+                type: 'POST',
+                data: { 
+                    orderId: id, 
+                    otp: otp,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() 
+                },
+                success: function(res) {
+                    if (res.success) {
+                        alert(res.message);
+                        location.reload();
+                    } else {
+                        alert(res.message);
+                        btn.prop('disabled', false).text('Verify');
+                    }
+                },
+                error: function() {
+                    alert('Server error');
+                    btn.prop('disabled', false).text('Verify');
                 }
             });
         });

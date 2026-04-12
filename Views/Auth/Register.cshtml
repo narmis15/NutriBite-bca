@@ -52,7 +52,7 @@
                     <label for="password" class="form-label small">Password</label>
                     <div class="input-group">
                         <input id="password" name="password" type="password" class="form-control custom-input" required />
-                        <button id="togglePasswordReg" class="btn btn-outline-secondary" type="button">Show</button>
+                        <button id="togglePasswordReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
                     </div>
                 </div>
 
@@ -60,7 +60,7 @@
                     <label for="confirmPassword" class="form-label small">Confirm Password</label>
                     <div class="input-group">
                         <input id="confirmPassword" name="confirmPassword" type="password" class="form-control custom-input" required />
-                        <button id="toggleConfirmReg" class="btn btn-outline-secondary" type="button">Show</button>
+                        <button id="toggleConfirmReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
                     </div>
                 </div>
 
@@ -70,7 +70,7 @@
 
                 <div class="mt-3 small text-center">
                     Already have an account?
-                    <a href="/login" class="link-success">Login here</a>
+                    <a href="/Auth/Login" class="link-success">Login here</a>
                 </div>
 
                 <div class="auth-divider">or join with</div>
@@ -107,14 +107,14 @@
                 const $pwd = $('#password');
                 const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
                 $pwd.attr('type', type);
-                $(this).text(type === 'password' ? 'Show' : 'Hide');
+                $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
             });
 
             $('#toggleConfirmReg').on('click', function () {
                 const $pwd = $('#confirmPassword');
                 const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
                 $pwd.attr('type', type);
-                $(this).text(type === 'password' ? 'Show' : 'Hide');
+                $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
             });
 
             // Use explicit AJAX with antiforgery header and improved error handling.

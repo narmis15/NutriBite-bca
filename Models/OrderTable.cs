@@ -57,6 +57,10 @@ public partial class OrderTable
 
     public decimal VendorAmount { get; set; } = 0.00m;
 
+    public decimal DeliveryCharge { get; set; } = 0.00m;
+
+    public decimal GST { get; set; } = 0.00m;
+
     public int? VendorId { get; set; }
 
     public int? AdminId { get; set; }
@@ -64,6 +68,12 @@ public partial class OrderTable
     public int Version { get; set; } = 1;
 
     public int TrackingProgress { get; set; } = 0;
+
+    public int? DeliveryOTP { get; set; }
+
+    public bool? IsDelivered { get; set; } = false;
+
+    public string? OrderStatus { get; set; } = "Placed";
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 

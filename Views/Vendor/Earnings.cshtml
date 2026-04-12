@@ -6,19 +6,25 @@
 <div class="earnings-container">
     <div class="row g-4 mb-4">
         <!-- KPI Cards -->
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card border-0 shadow-sm text-center p-4">
-                <div class="text-muted small text-uppercase fw-bold mb-2">Total Earnings</div>
+                <div class="text-muted small text-uppercase fw-bold mb-2">Total Sales</div>
                 <h2 class="text-primary mb-0">₹ <span id="totalEarnings">0.00</span></h2>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card border-0 shadow-sm text-center p-4">
-                <div class="text-muted small text-uppercase fw-bold mb-2">Commission Deducted</div>
+                <div class="text-muted small text-uppercase fw-bold mb-2">Total Received</div>
+                <h2 class="text-success mb-0">₹ <span id="totalPaid">0.00</span></h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <div class="text-muted small text-uppercase fw-bold mb-2">Commission (10%)</div>
                 <h2 class="text-danger mb-0">₹ <span id="totalCommission">0.00</span></h2>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card border-0 shadow-sm text-center p-4">
                 <div class="text-muted small text-uppercase fw-bold mb-2">Pending Payments</div>
                 <h2 class="text-warning mb-0">₹ <span id="pendingPayments">0.00</span></h2>
@@ -77,13 +83,22 @@
         const pageSize = 20;
 
         async function loadEarnings() {
+            console.log('Fetching earnings data...');
             try {
-                const response = await fetch('/api/vendor/earnings');
+                const response = await fetch('/Vendor/GetEarningsData');
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('totalEarnings').textContent = data.totalEarnings.toFixed(2);
-                    document.getElementById('totalCommission').textContent = data.totalCommissionDeducted.toFixed(2);
-                    document.getElementById('pendingPayments').textContent = data.pendingPayments.toFixed(2);
+                    console.log('Earnings data received:', data);
+                    if (data.success === false) {
+                        console.error('API Error:', data.message);
+                        return;
+                    }
+                    document.getElementById('totalEarnings').textContent = (data.totalEarnings || 0).toFixed(2);
+                    document.getElementById('totalPaid').textContent = (data.totalPaid || 0).toFixed(2);
+                    document.getElementById('totalCommission').textContent = (data.totalCommissionDeducted || 0).toFixed(2);
+                    document.getElementById('pendingPayments').textContent = (data.pendingPayments || 0).toFixed(2);
+                } else {
+                    console.error('Failed to fetch earnings:', response.status);
                 }
             } catch (error) {
                 console.error('Error loading earnings:', error);
@@ -91,16 +106,24 @@
         }
 
         async function loadPayouts(page = 1) {
+            console.log('Fetching payouts data for page:', page);
             const status = document.getElementById('statusFilter').value;
             try {
-                const response = await fetch(`/api/vendor/payouts?page=${page}&pageSize=${pageSize}&status=${status}`);
+                const response = await fetch(`/Vendor/GetPayoutsData?page=${page}&pageSize=${pageSize}&status=${status}`);
                 if (response.ok) {
                     const data = await response.json();
-                    renderPayouts(data.items);
-                    renderPagination(data.totalItems, data.page, data.pageSize);
-                    document.getElementById('showingCount').textContent = data.items.length;
-                    document.getElementById('totalCount').textContent = data.totalItems;
-                    currentPage = data.page;
+                    console.log('Payouts data received:', data);
+                    if (data.success === false) {
+                        console.error('API Error:', data.message);
+                        return;
+                    }
+                    renderPayouts(data.items || []);
+                    renderPagination(data.totalItems || 0, data.page || 1, data.pageSize || 20);
+                    document.getElementById('showingCount').textContent = (data.items || []).length;
+                    document.getElementById('totalCount').textContent = data.totalItems || 0;
+                    currentPage = data.page || 1;
+                } else {
+                    console.error('Failed to fetch payouts:', response.status);
                 }
             } catch (error) {
                 console.error('Error loading payouts:', error);
@@ -117,7 +140,9 @@
             body.innerHTML = payouts.map(p => `
                 <tr>
                     <td>
-                        ${p.orderId ? `<span class="badge bg-light text-dark border">Order #${p.orderId}</span>` : `<span class="badge bg-primary">Monthly Aggregate</span>`}
+                        ${p.id === 0 ? `<span class="badge bg-warning-subtle text-warning border">Live Balance</span>` :
+                          (p.orderId ? `<span class="badge bg-light text-dark border">Order #${p.orderId}</span>` : `<span class="badge bg-primary">Aggregate Payout</span>`)}
+                        <div class="text-muted extra-small">ID: ${p.id === 0 ? 'ACC-NEW' : '#' + p.id}</div>
                     </td>
                     <td>
                         <div class="fw-bold">${p.payoutMonth || 'N/A'}</div>
@@ -127,8 +152,8 @@
                     <td class="text-danger">- ₹${p.commissionDeducted.toFixed(2)}</td>
                     <td class="fw-bold text-success">₹${p.amount.toFixed(2)}</td>
                     <td>
-                        <span class="badge ${p.status === 'Pending' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'}">
-                            ${p.status === 'PaidToVendor' ? 'Paid' : p.status}
+                        <span class="badge ${p.status === 'Pending' || p.status === 'Accruing' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'}">
+                            ${p.status === 'PaidToVendor' ? 'Paid' : (p.status === 'Accruing' ? 'Live Balance' : p.status)}
                         </span>
                     </td>
                     <td class="text-muted small">${new Date(p.updatedAt).toLocaleString()}</td>

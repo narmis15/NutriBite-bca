@@ -16,11 +16,49 @@
         <a asp-action="AddFood" class="add-btn">+ Add New Food</a>
     </div>
 
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(id, name) {
+            Swal.fire({
+                title: 'Delete Food?',
+                text: `Are you sure you want to remove "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/Vendor/DeleteFood/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Deleted!', 'Food item has been removed.', 'success')
+                            .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error!', data.message || 'Could not delete item.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}
+
     <div class="food-grid">
 
         @if (Model == null || Model.Count == 0)
         {
-            <p>No food items added yet.</p>
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-egg-fried text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">No food items added yet.</p>
+            </div>
         }
         else
         {
@@ -28,8 +66,38 @@
             {
                 <div class="food-card">
 
+                    @{
+                        // Precise image mapping based on food name keywords
+                        string lowerName = food.Name.ToLower();
+                        string finalImg = "/images/hero/premium_healthy_bowl.png"; // Default
+
+                        if (lowerName.Contains("dal") || lowerName.Contains("khichdi")) 
+                            finalImg = "/images/menu items/Dal khichdi.png";
+                        else if (lowerName.Contains("bharta")) 
+                            finalImg = "/images/menu items/baigan bharta.png";
+                        else if (lowerName.Contains("kofta") || lowerName.Contains("lauki")) 
+                            finalImg = "/images/menu items/chaana and lauki dal with phulka.png";
+                        else if (lowerName.Contains("chicken") || lowerName.Contains("mughlai")) 
+                            finalImg = "/images/Meals/Special_Thali.jpeg";
+                        else if (lowerName.Contains("pulao") || lowerName.Contains("rice") || lowerName.Contains("tehri")) 
+                            finalImg = "/images/menu items/tawa pulao.png";
+                        else if (lowerName.Contains("salad") || lowerName.Contains("sprouts")) 
+                            finalImg = "/images/menu items/mixed sprouts.png";
+                        else if (lowerName.Contains("oats") || lowerName.Contains("daliya") || lowerName.Contains("smoothie")) 
+                            finalImg = "/images/menu items/vegetable daliya.png";
+                        else if (lowerName.Contains("paneer")) 
+                            finalImg = "/images/menu items/paneer bhurji with 3 phulkas.png";
+                        else if (lowerName.Contains("thali"))
+                            finalImg = "/images/Meals/Standard_Thali.jpeg";
+                        
+                        // If vendor has uploaded a specific image, use it
+                        if (!string.IsNullOrEmpty(food.ImagePath) && food.ImagePath.Contains("Vendorfooduploads"))
+                            finalImg = food.ImagePath;
+                    }
+
                     <img class="food-image"
-                         src="@food.ImagePath"
+                         src="@finalImg"
+                         onerror="this.onerror=null;this.src='/images/hero/premium_healthy_bowl.png';"
                          alt="Food">
 
                     <div class="food-body">
@@ -41,39 +109,24 @@
                             </span>
                         }
 
-                        <h4>@food.Name</h4>
+                        <h4 class="mb-1">@food.Name</h4>
 
-                        <div class="food-meta">
-                            @food.Calories kcal · ₹@food.Price
+                        <div class="food-meta text-success fw-bold">
+                            ₹@food.Price <span class="text-muted small fw-normal ms-1">(@food.Calories kcal)</span>
                         </div>
 
-                        <div class="nutrition-summary mt-2 mb-2" style="font-size: 0.75rem; color: #666;">
-                            P: @(food.Protein ?? 0)g | C: @(food.Carbs ?? 0)g | F: @(food.Fat ?? 0)g
+                        <div class="nutrition-summary mt-2 mb-2 p-2 bg-light rounded" style="font-size: 0.75rem; color: #444; border: 1px solid #eee;">
+                            <span class="me-2"><strong>P:</strong> @(food.Protein ?? 0)g</span>
+                            <span class="me-2"><strong>C:</strong> @(food.Carbs ?? 0)g</span>
+                            <span><strong>F:</strong> @(food.Fat ?? 0)g</span>
                         </div>
 
-                        <div class="tag">
-                            @food.CategoryId
-                        </div>
-
-                        <div class="actions mt-3 d-flex flex-wrap gap-2">
-                            <a asp-action="EditFood"
-                               asp-route-id="@food.Id"
-                               class="btn edit flex-grow-1">
-                                <i class="bi bi-pencil"></i> Edit
-                            </a>
-
-                            <a asp-action="ManageRecipe"
-                               asp-route-foodId="@food.Id"
-                               class="btn btn-outline-primary flex-grow-1" style="font-size: 0.8rem; padding: 5px 10px;">
-                                <i class="bi bi-book"></i> Recipe
-                            </a>
-
-                            <a asp-action="DeleteFood"
-                               asp-route-id="@food.Id"
-                               class="btn delete w-100 mt-1">
-                                <i class="bi bi-trash"></i> Delete
-                            </a>
-                        </div>
+                        @if (!string.IsNullOrEmpty(food.FoodType) && food.FoodType != "NA")
+                        {
+                            <div class="tag mb-3">
+                                <i class="bi bi-tag-fill me-1"></i> @food.FoodType
+                            </div>
+                        }
                     </div>
 
                 </div>

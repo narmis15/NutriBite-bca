@@ -14,6 +14,7 @@
             <h1>Premium Corporate Catering</h1>
             <p class="lead">Healthy, timely, and professional meal solutions for your team.</p>
             <a class="btn explore-combos" href="#corporateMeals">Explore Productivity Menu</a>
+            <a class="btn btn-outline-light ms-2" href="/Bulk/FoodBox" style="border: 2px solid white; color: white;">Order Catering & Bulk Boxes</a>
         </div>
         <div class="hero-right" aria-hidden="true">
             <img src="~/images/categories/corporate.jpeg" alt="Corporate meals" loading="lazy" />
@@ -135,7 +136,9 @@
                             </div>
                         }
 
-                        <button class="btn add-cart" data-id="@food.Id">Add to Cart</button>
+                        <button class="btn btn-success add-to-cart-btn" data-id="@food.Id">
+                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        </button>
                     </div>
 
                     <!-- RIGHT SIDE (IMAGE) -->
@@ -155,7 +158,6 @@
 </section>
 
 @section Scripts {
-    <script src="~/js/corporate.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const priceRange = document.getElementById("priceRange");

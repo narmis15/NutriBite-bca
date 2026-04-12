@@ -23,8 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     this.classList.add('bg-success');
                     
                     // Trigger cart count update if site.js has a global function
-                    if (window.updateCartCount) {
-                        window.updateCartCount();
+                    if (window.loadCartCount) {
+                        window.loadCartCount();
                     }
 
                     setTimeout(() => {

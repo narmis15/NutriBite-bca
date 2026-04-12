@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "NutriBite — Home";
+    ViewData["Title"] = "NutriBite — Premium Healthy Food Delivery";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
@@ -7,55 +7,161 @@
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 }
 
-<!-- HERO -->
+<!-- HERO SECTION -->
 <div class="hero-section">
-    <div class="hero-top">
-        <div class="hero-left">
-            <div class="eyebrow">100% Homemade</div>
-            <h1>Discover Balanced Homemade Meals</h1>
-            <p>
-                Fresh, calorie-counted meals prepared by verified home chefs.
-                Daily deliveries tailored to your goals.
-            </p>
-            <a href="#mealCategories" class="cta-btn">
-                Start Ordering
-            </a>
-        </div>
-
-        <div class="hero-right">
-            <div class="food-circle">
-                <img src="~/images/hero/hero-food.png" />
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            
+            <div class="col-lg-6 text-start">
+                <div class="eyebrow">
+                    <i class="bi bi-stars"></i> Eat Fresh, Live Healthy
+                </div>
+                
+                <h1>Professional Nutrition<br/><span>Delivered Daily</span></h1>
+                
+                <p class="lead">
+                    Connect with certified home chefs for balanced, calorie-counted homemade meals. 
+                    Personalized nutrition plans tailored to your fitness and health goals.
+                </p>
+                
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a asp-controller="Auth" asp-action="Register" class="btn btn-success btn-lg px-4 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-2" style="background:#2d6a4f; border-color:#2d6a4f;">
+                        Get Started <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a asp-controller="Home" asp-action="About" class="btn btn-outline-dark btn-lg px-4 rounded-pill fw-bold">
+                        Learn More
+                    </a>
+                </div>
+                
+                <div class="d-flex align-items-center gap-4 mt-5">
+                    <div class="d-flex -space-x-4">
+                        <img src="https://i.pravatar.cc/100?img=1" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px;" alt="User">
+                        <img src="https://i.pravatar.cc/100?img=2" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; margin-left: -15px;" alt="User">
+                        <img src="https://i.pravatar.cc/100?img=3" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; margin-left: -15px;" alt="User">
+                        <div class="rounded-circle bg-light border border-2 border-white d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; margin-left: -15px; font-weight: bold; font-size: 0.8rem;">
+                            5K+
+                        </div>
+                    </div>
+                    <div class="text-muted small fw-semibold">
+                        Happy Customers <br /><span class="text-dark">Rating 4.9/5 ⭐</span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-
-        <!-- FEATURES -->
-        <div class="features">
-            <div class="feature-card">
-                <h4>🔥 Calorie Counted</h4>
-                <p>Clear nutritional info for every meal.</p>
+            
+            <div class="col-lg-6 mt-5 mt-lg-0">
+                <div class="food-circle-wrapper">
+                    <img src="/images/hero/floating_hero_bowl.png" class="floating-img" alt="Premium Healthy Bowl" onerror="this.src='/images/hero/hero-food.png';" />
+                    
+                    <div class="stats-badge">
+                        <div class="h5">100%</div>
+                        <div class="small text-muted fw-bold">Verified Chefs</div>
+                    </div>
+                </div>
             </div>
-
-            <div class="feature-card">
-                <h4>🥗 Fresh Daily</h4>
-                <p>Cooked fresh and delivered same day.</p>
-            </div>
-
-        <div class="feature-card">
-            <h4>🏡 Homemade</h4>
-            <p>Prepared by verified home chefs.</p>
+            
         </div>
     </div>
 </div>
 
+
+<!-- AI RECOMMENDATIONS (DAILY PLAN) -->
+@if (ViewBag.Breakfast != null || ViewBag.Lunch != null || ViewBag.Dinner != null)
+{
+    <section class="recommendations-section" style="background:#f8faff; padding: 5rem 0;">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <span class="badge mb-3 px-3 py-2 rounded-pill" style="background:#dbeafe; color:#1e40af; font-size:0.85rem;"><i class="bi bi-robot"></i> AI Personalised Meals</span>
+                    <h2 class="fw-bold mb-2 text-dark" style="font-size:2.5rem; letter-spacing:-0.5px;">Your Personalized Plan</h2>
+                    <p class="text-muted mb-0" style="font-size:1.1rem;">@ViewBag.RecommendationReason</p>
+                </div>
+                <a href="#mealCategories" class="btn rounded-pill px-4 fw-bold shadow-sm d-none d-md-flex align-items-center gap-2" style="background: white; border: 1px solid #e2e8f0; color: #475569;">
+                    View All Meals <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                
+                @{
+                    var meals = new List<(string Name, string Icon, string Color, NUTRIBITE.Models.Food Food)>
+                    {
+                        ("Breakfast", "bi-sunrise", "#f59e0b", ViewBag.Breakfast),
+                        ("Lunch", "bi-sun", "#ef4444", ViewBag.Lunch),
+                        ("Dinner", "bi-moon-stars-fill", "#3b82f6", ViewBag.Dinner)
+                    };
+                }
+
+                @foreach(var meal in meals.Where(m => m.Food != null))
+                {
+                    <div class="col-lg-4 col-md-6 reveal-up delay-200">
+                        <div class="recommendation-card h-100 shadow-sm border-0 rounded-4 overflow-hidden bg-white position-relative hover-lift">
+                            
+                            <!-- Meal Time Badge -->
+                            <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
+                                <span class="badge rounded-pill px-3 py-2 shadow-sm" style="background: @meal.Color; font-size: 0.85rem; color: white;">
+                                    <i class="bi @meal.Icon me-1"></i> @meal.Name
+                                </span>
+                            </div>
+                            
+                            <!-- Image -->
+                            <div class="position-relative">
+                                <img src="@(string.IsNullOrEmpty(meal.Food.ImagePath) ? "/images/Meals/Standard_Thali.jpeg" : meal.Food.ImagePath)" 
+                                     style="width:100%; height: 240px; object-fit: cover;" 
+                                     onerror="this.onerror=null;this.src='/images/Meals/Standard_Thali.jpeg';" />
+                                     
+                                @if (meal.Food.IsVerified == true)
+                                {
+                                    <div class="position-absolute bottom-0 end-0 m-2">
+                                        <span class="badge bg-white shadow-sm rounded-pill px-2 py-1" style="color:#2d6a4f; font-size: 0.75rem;">
+                                            <i class="bi bi-patch-check-fill"></i> Verified
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="p-4 d-flex flex-column" style="height: calc(100% - 240px);">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="fw-bold mb-0 text-truncate text-dark" style="max-width: 200px;">@meal.Food.Name</h5>
+                                    <span class="fw-bold fs-5" style="color:#2d6a4f;">₹@meal.Food.Price</span>
+                                </div>
+                                <div class="d-flex gap-2 mb-3">
+                                    <span class="badge text-muted" style="background:#f1f5f9; padding: 6px 10px;"><i class="bi bi-fire text-orange"></i> @meal.Food.Calories kcal</span>
+                                    <span class="badge text-muted" style="background:#f1f5f9; padding: 6px 10px;"><i class="bi bi-egg text-warning"></i> @meal.Food.Protein g</span>
+                                </div>
+                                <p class="text-muted small mb-4 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    @(string.IsNullOrEmpty(meal.Food.Description) ? "Nutritious and freshly prepared for your health goals." : meal.Food.Description)
+                                </p>
+                                
+                                <a href="/Menu/Category?name=@Uri.EscapeDataString(meal.Food.Name)" class="btn rounded-pill fw-bold w-100 shadow-sm" style="background:#2d6a4f; color:white; padding: 10px 0;">
+                                    Order @meal.Name
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+            
+            <!-- Mobile View All Button -->
+            <div class="text-center mt-4 d-md-none">
+                 <a href="#mealCategories" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold w-100">
+                    View All Meals
+                </a>
+            </div>
+        </div>
+    </section>
+}
+
+
 <!-- MEAL CATEGORIES -->
-<section class="meals-grid-section soft-section">
-    <div class="container" id="mealCategories">
+<section class="soft-section" id="mealCategories">
+    <div class="container">
 
         <div class="text-center mb-5">
-            <h2 class="section-title">Meal Categories</h2>
-            <p class="text-muted">
-                Choose a meal plan or browse by category
+            <h2 class="section-title">Explore Meal Categories</h2>
+            <p class="text-muted" style="font-size:1.1rem;">
+                Browse by category to find the exact meal plan you need today.
             </p>
         </div>
 
@@ -74,213 +180,130 @@
             }
             else
             {
-                <a class="meal-card" href="/Menu/Category?name=Standard Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Standard_Thali.jpeg" />
-                    </div>
-                    <div class="meal-label">Standard Thali</div>
-                </a>
-
-                <a class="meal-card" href="/Menu/Category?name=Special Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Special_Thali.jpeg" />
-                    </div>
-                    <div class="meal-label">Special Thali</div>
-                </a>
-
-                <a class="meal-card" href="/Menu/Category?name=Deluxe Thali">
-                    <div class="meal-img-wrap">
-                        <img src="~/images/meals/Deluxe_Thali.jpeg" />
-                    </div>
-                    <div class="meal-label">Deluxe Thali</div>
-                </a>
+                var defaultCategories = new[] {
+                    "Standard Thali", "Special Thali", "Deluxe Thali", "Classical Thali", 
+                    "Comfort Thali", "Jain Thali", "Rice Combo", "Salads"
+                };
+                
+                foreach(var cat in defaultCategories)
+                {
+                    <a class="meal-card" href="/Menu/Category?name=@cat">
+                        <div class="meal-img-wrap">
+                            <img src="~/images/Meals/@(cat.Replace(" ", "_")).jpeg" onerror="this.src='/images/Meals/Standard_Thali.jpeg';" />
+                        </div>
+                        <div class="meal-label">@cat</div>
+                    </a>
+                }
             }
         </div>
     </div>
 </section>
-<!-- ===============================
-       AUDIENCE MEALS SECTION
-    ================================= -->
 
+<!-- AUDIENCE MEALS SECTION -->
 <section id="studentMeals">
-
     <div class="container">
 
-        <div class="audience-title text-center mb-5">
+        <div class="audience-title">
             <span></span>
-            <h4>SPECIALLY FOR YOU</h4>
+            <h4>Meals Tailored For You</h4>
             <span></span>
         </div>
 
         <div class="combos-grid">
 
-            <!-- ===============================
-                 STUDENTS
-            ================================ -->
-            <div class="combo-card text-center">
-
+            <!-- STUDENTS -->
+            <div class="combo-card">
                 <div class="combo-image">
-                    <img src="~/images/categories/student.jpeg" alt="Students">
+                    <img src="~/images/categories/student.jpeg" alt="Students" onerror="this.src='/images/hero/hero-food.png';">
                 </div>
-
-                <a asp-controller="Students"
-                   asp-action="Index"
-                   class="btn add-cart">
-                    STUDENTS
-                </a>
-
+                <h5 class="fw-bold mb-3 fs-4 text-dark">Students</h5>
+                <p class="text-muted text-center mb-4 pb-2 border-bottom">Budget-friendly, high-energy meals perfect for intense study sessions.</p>
+                <a asp-controller="Students" asp-action="Index" class="btn add-cart">VIEW PLANS</a>
             </div>
 
-
-            <!-- ===============================
-                 ELDERLY
-            ================================ -->
-            <div class="combo-card text-center">
-
+            <!-- ELDERLY -->
+            <div class="combo-card">
                 <div class="combo-image">
-                    <img src="~/images/categories/elderly.jpeg" alt="Elderly">
+                    <img src="~/images/categories/elderly.jpeg" alt="Elderly" onerror="this.src='/images/hero/hero-food.png';">
                 </div>
-
-                <a asp-controller="Elderly"
-                   asp-action="Index"
-                   class="btn add-cart">
-                    ELDERLY
-                </a>
-
+                <h5 class="fw-bold mb-3 fs-4 text-dark">Elderly</h5>
+                <p class="text-muted text-center mb-4 pb-2 border-bottom">Easily digestible, nutrient-rich meals customized for healthy aging.</p>
+                <a asp-controller="Elderly" asp-action="Index" class="btn add-cart">VIEW PLANS</a>
             </div>
 
-
-            <!-- ===============================
-                 CORPORATE
-            ================================ -->
-            <div class="combo-card text-center">
-
+            <!-- CORPORATE -->
+            <div class="combo-card">
                 <div class="combo-image">
-                    <img src="~/images/categories/corporate.jpeg" alt="Corporate">
+                    <img src="~/images/categories/corporate.jpeg" alt="Corporate" onerror="this.src='/images/hero/hero-food.png';">
                 </div>
-
-                <a asp-controller="Corporate"
-                   asp-action="Index"
-                   class="btn add-cart">
-                    CORPORATE
-                </a>
-
+                <h5 class="fw-bold mb-3 fs-4 text-dark">Corporate</h5>
+                <p class="text-muted text-center mb-4 pb-2 border-bottom">Premium, low-carb executive meals to keep you sharp throughout the workday.</p>
+                <a asp-controller="Corporate" asp-action="Index" class="btn add-cart">VIEW PLANS</a>
             </div>
 
         </div>
 
     </div>
-
 </section>
 
-<!-- ===============================
-       NUTRIBITE INFO SECTION
-================================= -->
-
+<!-- NUTRIBITE INFO SECTION -->
 <section class="nutribite-info">
-
     <div class="container">
-
         <div class="row">
 
             <!-- LEFT SIDE -->
-
-            <div class="col-md-4">
-
+            <div class="col-lg-4 mb-5 mb-lg-0">
                 <div class="brand-block">
-
-                    <img src="~/images/hero/Nutribitelogo.png"
-                         class="footer-logo" />
-
+                    <img src="~/images/hero/Nutribitelogo.png" class="footer-logo" alt="NutriBite" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                    <h3 style="display:none; color:white; font-weight:800; font-size:2rem; margin-bottom:15px; letter-spacing:-1px;">NutriBite<span style="color:#10b981;">.</span></h3>
                     <p>
-                        NutriBite connects people with healthy homemade meals prepared by trusted home chefs, making nutritious and calorie-counted food
+                        NutriBite connects you with passionate home chefs to deliver healthy, perfectly portioned, and macro-counted homemade meals. Because good health begins with great food.
                     </p>
-
                 </div>
-
             </div>
-
 
             <!-- COMPANY -->
-
-            <div class="col-md-3">
-
+            <div class="col-lg-3 col-md-4 mb-4 mb-md-0">
                 <h5>Company</h5>
-
                 <ul class="footer-links">
-
-                    <li>
-                        <a asp-controller="Home" asp-action="About">
-                            About Us
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="#">
-                            Why NutriBite
-                        </a>
-                    </li>
-
-                    <li>
-                        <a asp-controller="Vendor" asp-action="Register">
-                            Join as Vendor
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="#">
-                            Careers
-                        </a>
-                    </li>
-
+                    <li><a asp-controller="Home" asp-action="About">About Us</a></li>
+                    <li><a href="#">Why NutriBite</a></li>
+                    <li><a asp-controller="Vendor" asp-action="Register">Join as Vendor</a></li>
+                    <li><a href="#">Careers</a></li>
                 </ul>
-
             </div>
-
 
             <!-- INFORMATION -->
-
-            <div class="col-md-3">
-
+            <div class="col-lg-3 col-md-4 mb-4 mb-md-0">
                 <h5>Information</h5>
-
                 <ul class="footer-links">
-
-                    <li>
-                        <a href="#">Privacy Policy</a>
-                    </li>
-
-                    <li>
-                        <a href="#">Terms & Conditions</a>
-                    </li>
-
-                    <li>
-                        <a href="#">Cancellation & Refunds</a>
-                    </li>
-
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Cancellation & Refunds</a></li>
+                    <li><a asp-controller="Nutritionists" asp-action="Index">Our Experts</a></li>
                 </ul>
-
             </div>
 
-
             <!-- CONTACT -->
-
-            <div class="col-md-2">
-
-                <h5>Contact Us</h5>
-
+            <div class="col-lg-2 col-md-4">
+                <h5>Contact</h5>
                 <p class="contact-item">
-                    📞 +91 9876543210
+                    <i class="bi bi-telephone text-success"></i> +91 9876543210
                 </p>
-
                 <p class="contact-item">
-                    ✉ support@nutribite.com
+                    <i class="bi bi-envelope text-success"></i> hello@nutribite.com
                 </p>
-
             </div>
 
         </div>
-
+        
+        <div class="border-top mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="border-color: rgba(255,255,255,0.1) !important;">
+            <p class="text-muted small mb-3 mb-md-0">&copy; @DateTime.Now.Year NutriBite Technologies. All rights reserved.</p>
+            <div class="d-flex gap-3">
+                <a href="#" class="text-muted fs-5"><i class="bi bi-instagram hover-text-white transition"></i></a>
+                <a href="#" class="text-muted fs-5"><i class="bi bi-twitter-x hover-text-white transition"></i></a>
+                <a href="#" class="text-muted fs-5"><i class="bi bi-facebook hover-text-white transition"></i></a>
+            </div>
+        </div>
     </div>
-
 </section>

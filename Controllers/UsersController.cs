@@ -147,6 +147,7 @@ namespace NUTRIBITE.Controllers
                 ViewBag.TotalUsers = _context.UserSignups.Count();
                 ViewBag.ActiveUsers = _context.UserSignups.Count(u => (u.Status ?? "Active") == "Active");
                 ViewBag.BlockedUsers = _context.UserSignups.Count(u => u.Status == "Blocked");
+                ViewBag.DeletedUsers = _context.UserSignups.Count(u => u.Status == "Deleted");
                 
                 var weekAgo = DateTime.Today.AddDays(-7);
                 ViewBag.NewUsersThisWeek = _context.UserSignups.Count(u => (u.CreatedAt ?? DateTime.MinValue) >= weekAgo);
@@ -209,14 +210,6 @@ namespace NUTRIBITE.Controllers
             var user = _context.UserSignups.Find(userId);
             if (user == null) return NotFound();
             ViewBag.UserId = userId;
-            return View();
-        }
-
-        // CALORIE ANALYTICS VIEW
-        [HttpGet]
-        [AdminAuthorize]
-        public IActionResult CalorieAnalytics()
-        {
             return View();
         }
 
@@ -309,7 +302,6 @@ namespace NUTRIBITE.Controllers
         // EDIT - GET
 
         [HttpGet]
-        [AdminAuthorize]
         public IActionResult GetUserProfileData(int? userId = null)
         {
             try
@@ -362,6 +354,7 @@ namespace NUTRIBITE.Controllers
                 return Json(new
                 {
                     success = true,
+                    authenticated = true,
                     UserId = user.Id,
                     Name = user.Name,
                     Email = user.Email,

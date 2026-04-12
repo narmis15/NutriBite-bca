@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Sales Analytics";
 }
 
@@ -53,12 +53,12 @@
 
     <!-- Table first -->
     <div class="card p-3 mb-3">
-        <h5 class="mb-2">Sales Breakdown</h5>
+        <h5 class="mb-2">Revenue Summary</h5>
         <div class="table-responsive">
             <table id="breakdownTable" class="table admin-table">
                 <thead>
                     <tr>
-                        <th>Period</th>
+                        <th>Date</th>
                         <th>Orders</th>
                         <th>Revenue</th>
                         <th>Avg Order</th>
@@ -154,7 +154,7 @@
                 });
             }
 
-            function fetch() {
+            function loadSalesData() {
                 const q = { from: $from.val(), to: $to.val(), period: $period.val() };
                 $.getJSON(url, q).done(function (res) {
                     renderSummary(res);
@@ -167,8 +167,8 @@
 
             $(function () {
                 initDates();
-                fetch();
-                $('#apply').on('click', fetch);
+                loadSalesData();
+                $('#apply').on('click', loadSalesData);
             });
         })();
     </script>

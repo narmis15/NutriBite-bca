@@ -9,15 +9,16 @@ $(document).on("click", ".add-to-cart-btn", function () {
         return;
     }
 
+    const formData = new URLSearchParams();
+    formData.append("productId", foodId);
+    formData.append("quantity", 1);
+
     fetch("/Cart/AddToCart", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: JSON.stringify({
-            productId: parseInt(foodId),
-            quantity: 1
-        })
+        body: formData
     })
     .then(response => response.json())
     .then(data => {

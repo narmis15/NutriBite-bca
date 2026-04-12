@@ -20,6 +20,7 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
     }
 
     public virtual DbSet<AddCategory> AddCategories { get; set; }
+    public virtual DbSet<MealCategory> MealCategories { get; set; }
 
     public virtual DbSet<AddProduct> AddProducts { get; set; }
 
@@ -62,12 +63,13 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     public virtual DbSet<VendorSignup> VendorSignups { get; set; }
 
-    // New DbSet for Bulk items
     public virtual DbSet<BulkItem> BulkItems { get; set; }
 
     public virtual DbSet<VendorPayout> VendorPayouts { get; set; }
 
     public virtual DbSet<PaymentAuditLog> PaymentAuditLogs { get; set; }
+
+    public virtual DbSet<Subscription> Subscriptions { get; set; }
 
     public virtual DbSet<Recipe> Recipes { get; set; }
     public virtual DbSet<IngredientsMaster> IngredientsMaster { get; set; }
@@ -91,6 +93,14 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
                   .WithMany(n => n.VerifiedFoods)
                   .HasForeignKey(f => f.NutritionistId)
                   .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<BulkItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("BulkItems");
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
         });
 
         modelBuilder.Entity<Nutritionist>(entity =>
@@ -289,25 +299,13 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__OrderIte__3214EC076F89A167");
-
-            entity.HasIndex(e => e.OrderId, "IX_OrderItems_OrderId");
+            entity.HasKey(e => e.Id);
+            entity.ToTable("OrderItems");
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Instructions).HasMaxLength(1000);
             entity.Property(e => e.ItemName).HasMaxLength(300);
             entity.Property(e => e.Quantity).HasDefaultValue(1);
-
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrderItems_OrderTable");
-        });
-
-        modelBuilder.Entity<OrderItem>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.ToTable("OrderItems");
 
             entity.HasOne(d => d.Order)
                 .WithMany(p => p.OrderItems)
@@ -318,6 +316,11 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
                 .WithMany()
                 .HasForeignKey(d => d.FoodId)
                 .HasConstraintName("FK_OrderItems_Food");
+
+            entity.HasOne(d => d.BulkItemData)
+                .WithMany()
+                .HasForeignKey(d => d.BulkItemId)
+                .HasConstraintName("FK_OrderItems_BulkItem");
         });
 
         modelBuilder.Entity<OrderTable>(entity =>
@@ -524,6 +527,12 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
             entity.Property(e => e.MOQ);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+        });
+
+        modelBuilder.Entity<MealCategory>(entity =>
+        {
+            entity.ToTable("MealCategory");
+            entity.HasKey(e => e.MealCategoryId);
         });
 
         OnModelCreatingPartial(modelBuilder);

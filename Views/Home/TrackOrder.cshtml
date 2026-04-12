@@ -127,12 +127,12 @@
                         <div class="step-counter"><i class="bi bi-check2-circle"></i></div>
                         <div class="step-name">Accepted</div>
                     </div>
-                    <div class="stepper-item @(progress >= 75 ? "completed" : "") @(status == "Picked" || status == "In Transit" || status == "Out for Delivery" || deliveryStatus == "Out for Delivery" ? "active" : "")">
+                    <div class="stepper-item @(progress >= 75 ? "completed" : "") @(status == "On the Way" || status == "In Transit" || status == "Out for Delivery" ? "active" : "")">
                         <div class="step-counter"><i class="bi bi-truck"></i></div>
-                        <div class="step-name">@(Model.OrderType == "Delivery" ? "On the Way" : "Picked Up")</div>
+                        <div class="step-name">On the Way</div>
                     </div>
-                    <div class="stepper-item @(progress >= 100 ? "completed" : "") @(status == "Completed" || status == "Delivered" || deliveryStatus == "Delivered" ? "active" : "")">
-                        <div class="step-counter"><i class="bi bi-house-check"></i></div>
+                    <div class="stepper-item @(progress == 100 || status == "Delivered" ? "completed" : "") @(status == "Delivered" ? "active" : "")">
+                        <div class="step-counter"><i class="bi bi-house-heart"></i></div>
                         <div class="step-name">Delivered</div>
                     </div>
                 </div>
@@ -167,16 +167,102 @@
                             <span class="badge @(Model.OrderType == "Delivery" ? "bg-purple" : "bg-secondary")">@Model.OrderType</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Payment</span>
-                            <span class="fw-bold">@Model.PaymentStatus</span>
+                            <span>Payment Status</span>
+                            <span class="fw-bold text-success">@Model.PaymentStatus</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tracking Level</span>
-                            <span class="badge bg-info text-dark">Level @Model.TrackingProgress</span>
+                        
+                        <div class="mt-3 pt-3 border-top">
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span class="text-muted">Item Total</span>
+                                <span>₹@((Model.TotalAmount - Model.DeliveryCharge - Model.GST).ToString("N2"))</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span class="text-muted">Delivery Charge</span>
+                                <span>₹@(Model.DeliveryCharge.ToString("N2"))</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1 small">
+                                <span class="text-muted">GST (5%)</span>
+                                <span>₹@(Model.GST.ToString("N2"))</span>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+                                <span class="fw-bold">Grand Total</span>
+                                <span class="fw-bold text-dark fs-5">₹@Model.TotalAmount.ToString("N2")</span>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between border-top pt-2 mt-2">
-                            <span class="fw-bold">Total Items</span>
-                            <span>@Model.TotalItems</span>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        @if (Model.IsDelivered == true)
+                        {
+                            <div class="alert alert-success d-flex align-items-center rounded-3 shadow-sm border-0 p-3">
+                                <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Delivery Confirmed!</h6>
+                                    <small>This order was successfully delivered and verified via OTP.</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card bg-light border-0 rounded-4 p-4 text-center shadow-sm">
+                                <h5 class="fw-bold text-dark mb-2">Delivery Verification</h5>
+                                <p class="text-muted small mb-4">Please enter the 4-digit OTP sent to your email to confirm delivery.</p>
+                                
+                                <div class="d-flex justify-content-center gap-2 mb-4">
+                                    <input type="text" id="otpInput" class="form-control form-control-lg text-center fw-bold fs-4 shadow-none" 
+                                           maxlength="4" placeholder="0000" style="max-width: 150px; border: 2px solid #e0e0e0; border-radius: 12px;">
+                                </div>
+
+                                <button id="verifyOtpBtn" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm fw-bold">
+                                    Verify & Complete Delivery
+                                </button>
+                                
+                                <div id="otpError" class="text-danger small mt-2 fw-bold" style="display:none;"></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6 class="fw-bold text-muted uppercase small mb-3">Order Details</h6>
+                        <div class="order-items-list">
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                var itemName = item.ItemName;
+                                var itemImage = "/images/Meals/Standard_Thali.jpeg";
+                                
+                                if (item.Food != null && !string.IsNullOrEmpty(item.Food.ImagePath))
+                                {
+                                    itemImage = item.Food.ImagePath;
+                                }
+                                else if (item.BulkItemData != null && !string.IsNullOrEmpty(item.BulkItemData.ImagePath))
+                                {
+                                    itemImage = item.BulkItemData.ImagePath;
+                                }
+
+                                <div class="order-item-card d-flex align-items-center mb-3 p-3 border rounded-3 bg-white shadow-sm" style="cursor: pointer;" onclick="viewFoodDetail(@(item.FoodId ?? 0))">
+                                    <img src="@itemImage" alt="@itemName" class="rounded-3 me-3" style="width: 70px; height: 70px; object-fit: cover;" onerror="this.src='/images/Meals/Standard_Thali.jpeg';" />
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="mb-1 fw-bold">@itemName</h6>
+                                            <span class="fw-bold">₹@((item.PricePerItem > 0 ? item.PricePerItem : 0).ToString("N2"))</span>
+                                        </div>
+                                        <div class="text-muted small">Quantity: @item.Quantity</div>
+                                        @if (!string.IsNullOrEmpty(item.SpecialInstruction))
+                                        {
+                                            <div class="text-success extra-small mt-1">
+                                                <i class="bi bi-info-circle me-1"></i> Note: @item.SpecialInstruction
+                                            </div>
+                                        }
+                                        <div class="text-primary extra-small mt-1">
+                                            <i class="bi bi-eye me-1"></i> Click to view details
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -187,13 +273,194 @@
             </div>
         </div>
     </div>
+    <!-- Food Details Modal -->
+    <div class="modal fade" id="foodDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-0">
+                    <div id="modalLoading" class="text-center py-4">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="mt-2 text-muted">Loading food details...</p>
+                    </div>
+                    <div id="modalContent" style="display: none;">
+                        <img id="modalFoodImage" src="" class="w-100 rounded-4 mb-4 shadow-sm" style="height: 250px; object-fit: cover;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 id="modalFoodName" class="fw-bold text-dark mb-0"></h4>
+                            <span id="modalFoodPrice" class="h5 fw-bold text-success mb-0"></span>
+                        </div>
+                        <div class="d-flex gap-2 mb-3" id="modalNutrients">
+                            <span class="badge bg-light text-dark border rounded-pill px-3" id="modalCalories"></span>
+                            <span class="badge bg-light text-dark border rounded-pill px-3" id="modalProtein"></span>
+                        </div>
+                        <p id="modalFoodDesc" class="text-muted small mb-0"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        // Auto-refresh order status every 30 seconds
+        "use strict";
+
+        const orderId = "@Model.OrderId";
+        const isDelivered = "@(Model.IsDelivered == true)".toLowerCase() === "true";
+
+        // 🎉 Celebration Logic
+        function celebrate() {
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+              const timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              const particleCount = 50 * (timeLeft / duration);
+              // since particles fall down, start a bit higher than random
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // Trigger celebration on load if just delivered
+        if (isDelivered) {
+            setTimeout(celebrate, 500);
+        }
+        
+        // SignalR Setup
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/analyticsHub")
+            .build();
+
+        connection.on("ReceiveUpdate", function (message) {
+            console.log("Real-time order update: ", message);
+            // If the message contains our order ID, refresh the page to show latest status
+            if (message.includes("#" + orderId)) {
+                // Show a brief notification before refreshing
+                const statusBox = document.querySelector('.status-banner');
+                if (statusBox) {
+                    statusBox.style.backgroundColor = "#e8f5e9";
+                    statusBox.innerHTML = `<div class="d-flex align-items-center"><div class="spinner-border spinner-border-sm text-success me-2"></div><strong>Update Received:</strong> ${message}</div>`;
+                }
+                
+                // If it's a delivery notification, celebrate before reload
+                if (message.toLowerCase().includes("delivered")) {
+                    celebrate();
+                }
+
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            }
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+
+        // OTP Verification Logic
+        const verifyBtn = document.getElementById('verifyOtpBtn');
+        const otpInput = document.getElementById('otpInput');
+        const otpError = document.getElementById('otpError');
+
+        if (verifyBtn) {
+            verifyBtn.addEventListener('click', async function() {
+                const otp = otpInput.value;
+                if (!otp || otp.length !== 4) {
+                    otpError.innerText = "Please enter a valid 4-digit OTP.";
+                    otpError.style.display = "block";
+                    return;
+                }
+
+                verifyBtn.disabled = true;
+                verifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...';
+                otpError.style.display = "none";
+
+                try {
+                    const response = await fetch('/Home/VerifyDeliveryOTP', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            orderId: orderId,
+                            otp: otp
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        celebrate();
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        otpError.innerText = data.message;
+                        otpError.style.display = "block";
+                        verifyBtn.disabled = false;
+                        verifyBtn.innerText = "Verify & Complete Delivery";
+                    }
+                } catch (err) {
+                    console.error("Verification error:", err);
+                    otpError.innerText = "An error occurred. Please try again.";
+                    otpError.style.display = "block";
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerText = "Verify & Complete Delivery";
+                }
+            });
+        }
+
+        // Legacy auto-refresh fallback (every 60s)
         setInterval(function() {
             location.reload();
-        }, 30000);
+        }, 60000);
+
+        function viewFoodDetail(foodId) {
+            if (!foodId) return;
+
+            const modal = new bootstrap.Modal(document.getElementById('foodDetailModal'));
+            const loading = document.getElementById('modalLoading');
+            const content = document.getElementById('modalContent');
+            
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            modal.show();
+
+            fetch(`/Home/GetFoodDetail?foodId=${foodId}`)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.success) {
+                        const food = res.data;
+                        document.getElementById('modalFoodImage').src = food.imagePath;
+                        document.getElementById('modalFoodName').innerText = food.name;
+                        document.getElementById('modalFoodPrice').innerText = '₹' + food.price;
+                        document.getElementById('modalFoodDesc').innerText = food.description;
+                        document.getElementById('modalCalories').innerHTML = `<i class="bi bi-fire me-1"></i> ${food.calories} kcal`;
+                        document.getElementById('modalProtein').innerHTML = `<i class="bi bi-capsule me-1"></i> ${food.protein}g Protein`;
+                        
+                        loading.style.display = 'none';
+                        content.style.display = 'block';
+                    } else {
+                        alert("Error: " + res.message);
+                        modal.hide();
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading food detail:", err);
+                    alert("An error occurred while loading details.");
+                    modal.hide();
+                });
+        }
     </script>
 }

@@ -11,6 +11,8 @@ public partial class OrderItem
 
     public int? FoodId { get; set; }
 
+    public int? BulkItemId { get; set; }
+
     public string? ItemName { get; set; }
 
     public int? Quantity { get; set; }
@@ -19,7 +21,10 @@ public partial class OrderItem
 
     public DateTime? CreatedAt { get; set; }
 
+    public decimal PricePerItem { get; set; } = 0.00m;
+
     public string? SpecialInstruction { get; set; }
     public virtual OrderTable Order { get; set; } = null!;
-    public virtual Food Food { get; set; } = null!;
+    public virtual Food? Food { get; set; }
+    public virtual BulkItem? BulkItemData { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿ // location.js - handles automatic geolocation, reverse geocoding coordination and UI updates.
+ // location.js - handles automatic geolocation, reverse geocoding coordination and UI updates.
     // Requires Bootstrap (for modal) and that _LocationSelector partial/modal exists on the page.
     // Uses /Location/SaveLocation and /Location/GetCurrentLocation endpoints.
 
@@ -112,33 +112,98 @@
             });
         }
 
+        let accuracyFailCount = 0;
+        const MAX_ACCURACY_FAILS = 3;
+        const TARGET_ACCURACY_METERS = 35;
+
         async function detectAndSave() {
             if (!navigator.geolocation) {
                 showDetectError('Geolocation not supported by your browser.');
                 return;
             }
 
-            // UI state
             showLoader(true);
             elements.detectedLocation.style.display = 'none';
 
-            // Options: highAccuracy true, timeout 10s
-            const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 };
+            // High precision options
+            const options = { 
+                enableHighAccuracy: true, 
+                timeout: 15000, 
+                maximumAge: 0 
+            };
 
-            const getPosition = () => new Promise((resolve, reject) =>
-                navigator.geolocation.getCurrentPosition(resolve, reject, options)
-            );
+            let watchId = null;
+            let bestPosition = null;
+            let retryCount = 0;
+            const maxRetries = 3;
+
+            const getBestLocation = () => new Promise((resolve, reject) => {
+                // Initial quick grab
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        bestPosition = pos;
+                        console.log("Initial position acquired:", pos.coords.accuracy);
+                        if (pos.coords.accuracy <= TARGET_ACCURACY_METERS) {
+                            resolve(pos);
+                        }
+                    },
+                    (err) => console.warn("Initial position error:", err),
+                    options
+                );
+
+                // Watch for improvements
+                watchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        console.log("Location update:", pos.coords.accuracy);
+                        if (!bestPosition || pos.coords.accuracy < bestPosition.coords.accuracy) {
+                            bestPosition = pos;
+                        }
+                        
+                        // If we hit our target accuracy, stop watching and resolve
+                        if (pos.coords.accuracy <= TARGET_ACCURACY_METERS) {
+                            navigator.geolocation.clearWatch(watchId);
+                            resolve(pos);
+                        }
+                    },
+                    (err) => {
+                        console.error("Watch error:", err);
+                        if (bestPosition) resolve(bestPosition);
+                        else reject(err);
+                    },
+                    options
+                );
+
+                // Safety timeout: after 10s, take the best we've found
+                setTimeout(() => {
+                    if (watchId) navigator.geolocation.clearWatch(watchId);
+                    if (bestPosition) resolve(bestPosition);
+                    else reject({ code: 3, message: "Location timeout" });
+                }, 10000);
+            });
 
             try {
-                const pos = await getPosition();
+                const pos = await getBestLocation();
                 const lat = +pos.coords.latitude;
                 const lon = +pos.coords.longitude;
+                const accuracy = pos.coords.accuracy;
 
-                // send to server to reverse geocode and save in session
+                console.log(`Best location resolved: ${lat}, ${lon} (Accuracy: ${accuracy}m)`);
+
+                // Accuracy monitoring logic
+                if (accuracy > TARGET_ACCURACY_METERS) {
+                    accuracyFailCount++;
+                    if (accuracyFailCount >= MAX_ACCURACY_FAILS) {
+                        showAlertBootstrap('warning', `<i class="bi bi-exclamation-triangle-fill"></i> Accuracy is ${Math.round(accuracy)}m. Try moving near a window.`);
+                        accuracyFailCount = 0;
+                    }
+                } else {
+                    accuracyFailCount = 0;
+                }
+
                 const res = await fetch(api.save, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ latitude: lat, longitude: lon })
+                    body: JSON.stringify({ latitude: lat, longitude: lon, accuracy: accuracy })
                 });
 
                 const payload = await res.json();
@@ -152,18 +217,13 @@
                 elements.detectedAddress.innerText = full;
                 elements.detectedLocation.style.display = '';
                 updateNavbarLocationDisplay(full || `${location?.City || ''} ${location?.Pincode || ''}`);
-                // close modal after a second to give user feedback
                 setTimeout(() => elements.modal?.hide(), 900);
+
             } catch (err) {
-                console.error(err);
-                if (err && err.code === 1) {
-                    // permission denied
-                    showDetectError('Location permission denied. Please allow location or search manually.');
-                } else if (err && err.code === 3) {
-                    showDetectError('Location request timed out. Try again or search manually.');
-                } else {
-                    showDetectError(err?.message || 'Unable to detect location.');
-                }
+                console.error("Final geolocation error:", err);
+                if (err.code === 1) showDetectError('Location permission denied.');
+                else if (err.code === 3) showDetectError('Location timeout. Try manually.');
+                else showDetectError(err.message || 'Unable to detect location.');
             } finally {
                 showLoader(false);
             }

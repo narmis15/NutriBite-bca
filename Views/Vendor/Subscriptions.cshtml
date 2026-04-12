@@ -1,0 +1,96 @@
+@model IEnumerable<NUTRIBITE.Models.Subscription>
+
+@{
+    ViewData["Title"] = "Active Subscriptions";
+    Layout = "~/Views/Shared/_VendorLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Active Subscriptions</h2>
+            <p class="text-muted mb-0">Monitor recurring orders from customers subscribed to your foods.</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="bi bi-calendar-x text-muted border rounded-circle p-4" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="fw-bold text-muted mt-4">No Active Subscriptions</h4>
+            <p class="text-muted">You currently do not have any customers subscribed to your meals.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 text-secondary small fw-bold text-uppercase">Customer</th>
+                            <th class="text-secondary small fw-bold text-uppercase">Subscribed Food</th>
+                            <th class="text-secondary small fw-bold text-uppercase">Frequency</th>
+                            <th class="text-secondary small fw-bold text-uppercase">Delivery Pref</th>
+                            <th class="text-secondary small fw-bold text-uppercase">Start Date</th>
+                            <th class="text-secondary small fw-bold text-uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sub in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@(sub.User?.Name ?? "Unknown")</div>
+                                    <div class="small text-muted">@(sub.User?.Email ?? "-")</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if (sub.Food != null)
+                                        {
+                                            <img src="@(string.IsNullOrEmpty(sub.Food.ImagePath) ? "/images/Meals/Standard_Thali.jpeg" : sub.Food.ImagePath)" 
+                                                 alt="@sub.Food.Name" 
+                                                 class="rounded" style="width:40px; height:40px; object-fit:cover;"
+                                                 onerror="this.onerror=null;this.src='/images/Meals/Standard_Thali.jpeg';" />
+                                            <div>
+                                                <div class="fw-bold text-dark">@sub.Food.Name</div>
+                                                <div class="text-success small fw-bold">₹@sub.PricePerDelivery / delivery</div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted fst-italic">Food unavailable</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                        @sub.SubscriptionType
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="small text-dark fw-medium"><i class="bi bi-clock me-1 text-muted"></i>@DateTime.Today.Add(sub.DeliveryTimePreference).ToString("hh:mm tt")</div>
+                                </td>
+                                <td>
+                                    <div class="small text-muted">@sub.StartDate.ToString("MMM dd, yyyy")</div>
+                                </td>
+                                <td>
+                                    @if(sub.Status == "Active")
+                                    {
+                                        <span class="badge bg-success-subtle text-success px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary px-2 py-1">@sub.Status</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

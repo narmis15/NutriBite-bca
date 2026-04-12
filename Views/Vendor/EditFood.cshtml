@@ -1,98 +1,211 @@
-﻿@{
-    ViewData["Title"] = "Vendor";
+@model NUTRIBITE.Models.Food
+
+@{
+    ViewData["Title"] = "Edit Food";
     Layout = "~/Views/Shared/_VendorLayout.cshtml";
 }
-@section Styles {
-    <link rel="stylesheet" href="~/css/vendor-dashboard.css" asp-append-version="true" />
-}
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {
-            background: #f3faef;
-            font-family: 'Segoe UI', sans-serif;
-        }
 
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
+<div class="vendor-card">
+    <div class="form-header">
+        <h2>Edit Food Settings</h2>
+        <p>Update the details and pricing for @Model.Name.</p>
+    </div>
 
-        h2 {
-            color: #63B34E;
-            text-align: center;
-            margin-bottom: 25px;
-        }
+    <form method="post"
+          asp-action="EditFood"
+          enctype="multipart/form-data"
+          class="add-food-form">
+          <input type="hidden" name="id" value="@Model.Id" />
 
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
+        <div class="row g-4">
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            margin-bottom: 18px;
-        }
+            <!-- LEFT SIDE -->
+            <div class="col-lg-7">
 
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #63B34E;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h2>Edit Food</h2>
-
-        <form>
-            <label>Food Name</label>
-            <input type="text" value="Healthy Veg Bowl">
-
-            <label>Description</label>
-            <textarea rows="3">Fresh vegetables with grains</textarea>
-
-            <div class="row">
-                <div>
-                    <label>Calories</label>
-                    <input type="number" value="350">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input name="Name" type="text" class="form-control" value="@Model.Name" required />
                 </div>
-                <div>
-                    <label>Price (₹)</label>
-                    <input type="number" value="199">
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="Description"
+                              class="form-control"
+                              rows="4"
+                              required>@Model.Description</textarea>
                 </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Price (₹)</label>
+                            <input name="Price"
+                                   type="number"
+                                   step="0.01"
+                                   class="form-control"
+                                   value="@Model.Price"
+                                   required />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Audience Type</label>
+                            <select name="FoodType" class="form-control" asp-for="FoodType">
+                                <option value="General">General</option>
+                                <option value="Student">Student</option>
+                                <option value="Elderly">Elderly</option>
+                                <option value="Corporate">Corporate</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Calories</label>
+                            <input name="Calories"
+                                   type="number"
+                                   class="form-control"
+                                   value="@Model.Calories"
+                                   required />
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="Status" class="form-control" asp-for="Status">
+                                <option value="Available">Available</option>
+                                <option value="Out of Stock">Out of Stock</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <label>Diet Type</label>
-            <select>
-                <option selected>Vegetarian</option>
-                <option>Vegan</option>
-                <option>High Protein</option>
-            </select>
+            <!-- RIGHT SIDE (IMAGE) -->
+            <div class="col-lg-5">
+                <div class="image-upload-wrapper">
+                    <label class="d-block mb-2">Current Photo</label>
 
-            <button>Update Food</button>
-        </form>
-    </div>
-</body>
-</html>
+                    <div class="image-preview" id="previewContainer">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img src="@Model.ImagePath" id="imgPreview" alt="Food preview" style="max-width:100%; border-radius: 8px;"/>
+                        }
+                        else
+                        {
+                            <img src="" id="imgPreview" alt="Food preview" style="display:none; max-width:100%; border-radius: 8px;"/>
+                            <i class="fas fa-cloud-upload-alt" id="uploadIcon" style="display:block"></i>
+                            <span id="uploadText" style="display:block">Replace Image (Optional)</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <input type="file"
+                               name="ProductPic"
+                               id="ProductPic"
+                               class="form-control form-control-sm"
+                               accept="image/*"
+                               onchange="previewImage(this);" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="form-actions text-end">
+            <a href="/Vendor/MyFood" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('#imgPreview').attr('src', e.target.result).show();
+                    $('#uploadIcon').hide();
+                    $('#uploadText').hide();
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}
+
+<style>
+    .vendor-card {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .form-header h2 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    .form-header p {
+        color: #777;
+        margin-bottom: 25px;
+    }
+    .form-group label {
+        font-weight: 500;
+        color: #444;
+        margin-bottom: 8px;
+    }
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+    }
+    .image-upload-wrapper {
+        background: #f9f9f9;
+        border: 2px dashed #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        height: 100%;
+    }
+    .image-preview {
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+    }
+    .image-preview i {
+        font-size: 3rem;
+        color: #bbb;
+        margin-bottom: 10px;
+    }
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 6px;
+    }
+    .btn-outline {
+        border: 1px solid #ccc;
+        padding: 10px 25px;
+        border-radius: 6px;
+        color: #555;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+    .btn-outline:hover {
+        background: #f5f5f5;
+        color: #333;
+    }
+</style>

@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Order Reports";
 }
 
@@ -41,7 +41,6 @@
                         <th data-key="OrderDate">Date</th>
                         <th data-key="CustomerName">Customer</th>
                         <th data-key="ItemsCount">Items</th>
-                        <th data-key="PickupSlot">Pickup Slot</th>
                         <th data-key="Amount">Amount</th>
                         <th data-key="PaymentStatus">Payment</th>
                         <th data-key="Status">Status</th>
@@ -94,9 +93,12 @@
                     tr.append('<td>' + date + '</td>');
                     tr.append('<td>' + (r.customerName || '-') + '</td>');
                     tr.append('<td>' + (r.itemsCount || 0) + '</td>');
-                    tr.append('<td>' + (r.pickupSlot || '-') + '</td>');
                     tr.append('<td>₹' + (Number(r.amount).toFixed(2)) + '</td>');
-                    tr.append('<td>' + (r.paymentStatus || '-') + '</td>');
+                    let paymentDisplay = r.paymentStatus || '-';
+                    if (paymentDisplay.trim() === 'PaidToVendor' || paymentDisplay.trim() === 'Paid') {
+                        paymentDisplay = '<span class="text-success fw-bold">Paid (Admin Received)</span>';
+                    }
+                    tr.append('<td>' + paymentDisplay + '</td>');
                     tr.append('<td>' + (r.status || '-') + '</td>');
                     $tbody.append(tr);
                 });

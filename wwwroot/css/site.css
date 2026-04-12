@@ -1,4 +1,4 @@
-﻿
+
 html, body {
     margin: 0;
     padding: 0;
@@ -210,7 +210,7 @@ html, body {
 /* Header styling: full-width green band with white text */
 .vendor-table thead th {
     background-color: #63B34E; /* primary green */
-    color: #ffffff;
+    color: #000000;
     font-weight: 700;
     padding: 14px 18px;
     text-align: left;

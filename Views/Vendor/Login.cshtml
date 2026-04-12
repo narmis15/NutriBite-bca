@@ -34,7 +34,10 @@
 
                     <div class="mb-3">
                         <label>Password</label>
-                        <input type="password" name="Password" class="form-control" required />
+                        <div class="input-group">
+                            <input id="password" type="password" name="Password" class="form-control custom-input" required />
+                            <button id="togglePassword" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-success w-100 mt-2">
@@ -87,4 +90,31 @@
             });
         </script>
     }
+}
+@if (TempData["VendorSuccess"] == null)
+{
+    @section Scripts {
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script>
+            $('#togglePassword').on('click', function () {
+                const $pwd = $('#password');
+                const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
+                $pwd.attr('type', type);
+                $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
+            });
+        </script>
+    }
+}
+else
+{
+    <script>
+        $(document).ready(function() {
+            $('#togglePassword').on('click', function () {
+                const $pwd = $('#password');
+                const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
+                $pwd.attr('type', type);
+                $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
+            });
+        });
+    </script>
 }

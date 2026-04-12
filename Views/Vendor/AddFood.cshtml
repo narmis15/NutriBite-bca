@@ -78,7 +78,7 @@
                 </div>
 
                 <div class="row g-3 mt-1">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label>Calories</label>
                             <input name="Calories"
@@ -88,13 +88,41 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
-                            <label>Preparation Time</label>
+                            <label>Prep Time</label>
                             <input name="PreparationTime"
                                    type="text"
                                    class="form-control"
                                    required />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Daily Limit</label>
+                            <input name="DailyLimit"
+                                   type="number"
+                                   class="form-control"
+                                   placeholder="Unlimited" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label class="d-block mb-2">Dietary Badges</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="IsVegan" id="badgeVegan" value="true">
+                            <label class="form-check-label" for="badgeVegan">Vegan</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="IsGlutenFree" id="badgeGluten" value="true">
+                            <label class="form-check-label" for="badgeGluten">Gluten-Free</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="IsNutFree" id="badgeNut" value="true">
+                            <label class="form-check-label" for="badgeNut">Nut-Free</label>
                         </div>
                     </div>
                 </div>

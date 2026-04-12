@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using global::NUTRIBITE.Models;
 using global::NUTRIBITE.Services;
 using System.Threading.Tasks;
@@ -12,11 +14,13 @@ namespace NUTRIBITE.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IGoogleAuthService _googleAuthService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(ApplicationDbContext context, IGoogleAuthService googleAuthService)
+        public AuthController(ApplicationDbContext context, IGoogleAuthService googleAuthService, IEmailService emailService)
         {
             _context = context;
             _googleAuthService = googleAuthService;
+            _emailService = emailService;
         }
 
         // =========================
@@ -108,13 +112,54 @@ namespace NUTRIBITE.Controllers
                 return Json(new { success = false, message = "Email and password are required." });
             }
 
+            // ⭐ ADMIN LOGIN CHECK
+            if (email.Trim() == "Nutribite123@gmail.com" && password == "NutriBite//26")
+            {
+                HttpContext.Session.SetInt32("UserId", 0); // System Admin ID
+                HttpContext.Session.SetString("Admin", email.Trim());
+                HttpContext.Session.SetString("UserName", "System Admin");
+                HttpContext.Session.SetString("UserRole", "Admin");
+                return Json(new { success = true, isAdmin = true, userName = "System Admin" });
+            }
+
             var user = _context.UserSignups
                 .FirstOrDefault(u =>
                     u.Email == email.Trim() &&
                     u.Password == password);
 
             if (user == null)
+            {
+                // Fallback for Vendor table if not found in UserSignup
+                // ⭐ UPDATED: Using plain text comparison for testing
+                var vendorOnly = _context.VendorSignups
+                    .FirstOrDefault(v => v.Email == email.Trim() && v.PasswordHash == password);
+
+                if (vendorOnly != null)
+                {
+                    if (vendorOnly.IsRejected) return Json(new { success = false, message = "Your vendor account was rejected." });
+                    if (!vendorOnly.IsApproved) return Json(new { success = false, message = "Waiting for admin approval." });
+
+                    HttpContext.Session.SetInt32("UserId", vendorOnly.VendorId); // Use VendorId as UserId for session consistency if needed, but better to have separate VendorId
+                    HttpContext.Session.SetInt32("VendorId", vendorOnly.VendorId);
+                    HttpContext.Session.SetString("VendorEmail", vendorOnly.Email);
+                    HttpContext.Session.SetString("UserName", vendorOnly.VendorName);
+                    HttpContext.Session.SetString("UserRole", "Vendor");
+                    return Json(new { success = true, isVendor = true, userName = vendorOnly.VendorName });
+                }
+
                 return Json(new { success = false, message = "Invalid email or password." });
+            }
+
+            // ⭐ ACCOUNT STATUS CHECK
+            if (user.Status == "Deleted")
+            {
+                return Json(new { success = false, message = "This account has been deleted. Please contact support if this is an error." });
+            }
+
+            if (user.Status == "Blocked")
+            {
+                return Json(new { success = false, message = "Your account has been blocked. Please contact support." });
+            }
 
             // ⭐ VENDOR APPROVAL CHECK
             if (user.Role == "Vendor" && user.Status != "Approved")
@@ -146,13 +191,49 @@ namespace NUTRIBITE.Controllers
         }
 
         // =========================
+        // DELETE ACCOUNT
+        // =========================
+        [HttpGet]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (!userId.HasValue)
+                return RedirectToAction("Login");
+
+            var user = _context.UserSignups
+                .FirstOrDefault(u => u.Id == userId.Value);
+
+            if (user != null)
+            {
+                // 1. Notify Admin via System Log (ActivityLog)
+                var log = new ActivityLog
+                {
+                    Action = "Account Deleted",
+                    Details = $"User {user.Name} ({user.Email}) has requested to delete their account.",
+                    Timestamp = DateTime.Now,
+                    AdminEmail = "admin@nutribite.com",
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
+                };
+                _context.ActivityLogs.Add(log);
+
+                // 2. Perform Soft Deletion (Status Update)
+                user.Status = "Deleted";
+                await _context.SaveChangesAsync();
+            }
+
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Public");
+        }
+
+        // =========================
         // LOGOUT
         // =========================
         [HttpGet]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Public");
         }
 
         // =========================
@@ -231,6 +312,20 @@ namespace NUTRIBITE.Controllers
                 });
             }
             return Json(new { success = false, message = result.Error });
+        }
+
+        // ================= PASSWORD HASH =================
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                    builder.Append(b.ToString("x2"));
+
+                return builder.ToString();
+            }
         }
     }
 }

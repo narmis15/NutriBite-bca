@@ -3,6 +3,7 @@
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 }
 
 <div class="card-glass p-4">
@@ -12,6 +13,7 @@
             <i class="bi bi-arrow-left me-1"></i> Back to Management
         </a>
     </div>
+    @Html.AntiForgeryToken()
 
     <div id="orderDetailsContainer">
         <div class="text-center py-5" id="loadingState">
@@ -32,7 +34,7 @@
         const loadingState = document.getElementById('loadingState');
         const initialState = document.getElementById('initialState');
 
-        if (!orderId) {
+        if (!orderId || orderId === '0') {
             loadingState.classList.add('d-none');
             initialState.classList.remove('d-none');
             return;
@@ -78,26 +80,39 @@
         }
 
         function renderOrder(data) {
+            // Support both PascalCase and camelCase property names
+            const orderId = data.OrderId ?? data.orderId;
+            const status = data.Status ?? data.status;
+            const orderDateTime = data.OrderDateTime ?? data.orderDateTime;
+            const customerName = data.CustomerName ?? data.customerName;
+            const customerPhone = data.CustomerPhone ?? data.customerPhone;
+            const deliveryAddress = data.DeliveryAddress ?? data.deliveryAddress;
+            const deliveryNotes = data.DeliveryNotes ?? data.deliveryNotes;
+            const paymentMode = data.PaymentMode ?? data.paymentMode;
+            const amount = data.Amount ?? data.amount;
+            const commissionAmount = data.CommissionAmount ?? data.commissionAmount;
+            const vendorAmount = data.VendorAmount ?? data.vendorAmount;
+            const transactionId = data.TransactionId ?? data.transactionId;
+            const isRefunded = data.IsRefunded ?? data.isRefunded;
+            const refundStatus = data.RefundStatus ?? data.refundStatus;
+            const items = data.Items ?? data.items ?? [];
+            const deliveryPersonId = data.DeliveryPersonId ?? data.deliveryPersonId;
+
             let html = `<div class="row g-4">
                 <div class="col-md-7">
                     <div class="info-group mb-4">
                         <h5 class="border-bottom pb-2 mb-3">Order Information</h5>
                         <dl class="row mb-0">
                             <dt class="col-sm-4 text-muted fw-normal">Order ID</dt>
-                            <dd class="col-sm-8 fw-bold">#${data.OrderId}</dd>
+                            <dd class="col-sm-8 fw-bold">#${orderId}</dd>
 
                             <dt class="col-sm-4 text-muted fw-normal">Status</dt>
                             <dd class="col-sm-8">
-                                <span class="badge rounded-pill bg-info text-dark">${escapeHtml(data.Status)}</span>
-                            </dd>
-
-                            <dt class="col-sm-4 text-muted fw-normal">Type</dt>
-                            <dd class="col-sm-8">
-                                <span class="badge ${data.OrderType === 'Delivery' ? 'bg-purple' : 'bg-secondary'}">${data.OrderType}</span>
+                                <span class="badge rounded-pill bg-info text-dark">${escapeHtml(status)}</span>
                             </dd>
 
                             <dt class="col-sm-4 text-muted fw-normal">Date & Time</dt>
-                            <dd class="col-sm-8">${escapeHtml(data.OrderDateTime)}</dd>
+                            <dd class="col-sm-8">${escapeHtml(orderDateTime)}</dd>
                         </dl>
                     </div>
 
@@ -105,19 +120,15 @@
                         <h5 class="border-bottom pb-2 mb-3">Customer Details</h5>
                         <dl class="row mb-0">
                             <dt class="col-sm-4 text-muted fw-normal">Name</dt>
-                            <dd class="col-sm-8">${escapeHtml(data.CustomerName)}</dd>
+                            <dd class="col-sm-8">${escapeHtml(customerName)}</dd>
 
                             <dt class="col-sm-4 text-muted fw-normal">Phone</dt>
-                            <dd class="col-sm-8">${escapeHtml(data.CustomerPhone)}</dd>
+                            <dd class="col-sm-8">${escapeHtml(customerPhone)}</dd>
                             
-                            ${data.OrderType === 'Delivery' 
-                                ? `<dt class="col-sm-4 text-muted fw-normal">Delivery Address</dt>
-                                   <dd class="col-sm-8">${escapeHtml(data.DeliveryAddress)}</dd>
-                                   <dt class="col-sm-4 text-muted fw-normal">Delivery Notes</dt>
-                                   <dd class="col-sm-8"><em class="text-muted small">${escapeHtml(data.DeliveryNotes || 'No notes provided')}</em></dd>`
-                                : `<dt class="col-sm-4 text-muted fw-normal">Pickup Slot</dt>
-                                   <dd class="col-sm-8">${escapeHtml(data.PickupSlot)}</dd>`
-                            }
+                            <dt class="col-sm-4 text-muted fw-normal">Delivery Address</dt>
+                            <dd class="col-sm-8">${escapeHtml(deliveryAddress || 'Local Address')}</dd>
+                            <dt class="col-sm-4 text-muted fw-normal">Delivery Notes</dt>
+                            <dd class="col-sm-8"><em class="text-muted small">${escapeHtml(deliveryNotes || 'No notes provided')}</em></dd>
                         </dl>
                     </div>
                 </div>
@@ -127,33 +138,41 @@
                         <h5 class="border-bottom pb-2 mb-3">Payment Summary</h5>
                         <dl class="row mb-0">
                             <dt class="col-sm-6 text-muted fw-normal">Payment Mode</dt>
-                            <dd class="col-sm-6 text-end">${escapeHtml(data.PaymentMode || 'N/A')}</dd>
+                            <dd class="col-sm-6 text-end">${escapeHtml(paymentMode || 'N/A')}</dd>
 
                             <dt class="col-sm-6 text-muted fw-normal">Total Amount</dt>
-                            <dd class="col-sm-6 text-end fw-bold">₹${data.Amount}</dd>
+                            <dd class="col-sm-6 text-end fw-bold">₹${amount}</dd>
 
                             <dt class="col-sm-6 text-muted fw-normal small">Commission (10%)</dt>
-                            <dd class="col-sm-6 text-end small text-danger">- ₹${data.CommissionAmount}</dd>
+                            <dd class="col-sm-6 text-end small text-danger">- ₹${commissionAmount}</dd>
 
                             <dt class="col-sm-6 text-muted fw-normal">Vendor Payout</dt>
-                            <dd class="col-sm-6 text-end text-success fw-bold">₹${data.VendorAmount}</dd>
+                            <dd class="col-sm-6 text-end text-success fw-bold">₹${vendorAmount}</dd>
                         </dl>
-                        ${data.TransactionId ? `
+                        
+                        ${isRefunded || refundStatus === "Completed" ? `
+                        <div class="mt-3 pt-2 border-top">
+                            <div class="alert alert-success m-0 p-2 text-center fw-bold">
+                                <i class="bi bi-arrow-return-left me-1"></i> Payment Refunded
+                            </div>
+                        </div>` : ''}
+
+                        ${transactionId ? `
                         <div class="mt-3 pt-2 border-top">
                             <small class="text-muted d-block mb-1">Transaction ID</small>
-                            <code class="small text-break">${escapeHtml(data.TransactionId)}</code>
+                            <code class="small text-break">${escapeHtml(transactionId)}</code>
                         </div>` : ''}
                     </div>
 
                     <div class="info-group">
                         <h5 class="border-bottom pb-2 mb-3">Order Items</h5>
                         <div class="list-group list-group-flush">
-                            ${(data.Items || []).map(i => `
+                            ${items.map(i => `
                                 <div class="list-group-item bg-transparent px-0 border-0">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <span>${escapeHtml(i.Name)} <span class="text-muted small">x${i.Quantity}</span></span>
+                                        <span>${escapeHtml(i.name || i.Name)} <span class="text-muted small">x${i.quantity || i.Quantity}</span></span>
                                     </div>
-                                    ${i.Instructions ? `<small class="text-muted d-block mt-1"><i class="bi bi-chat-left-text me-1"></i>${escapeHtml(i.Instructions)}</small>` : ''}
+                                    ${(i.instructions || i.Instructions) ? `<small class="text-muted d-block mt-1"><i class="bi bi-chat-left-text me-1"></i>${escapeHtml(i.instructions || i.Instructions)}</small>` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -162,18 +181,21 @@
             </div>`;
 
             let btns = [];
-            if (data.Status === "Accepted") {
-                btns.push('<button class="btn btn-warning action-btn" data-action="MarkReady" data-id="' + data.OrderId + '"><i class="bi bi-check-circle me-1"></i> Mark Ready</button>');
-            } else if (data.Status === "Ready for Pickup" && data.OrderType === "Pickup") {
-                btns.push('<button class="btn btn-primary action-btn" data-action="MarkPicked" data-id="' + data.OrderId + '"><i class="bi bi-hand-thumbs-up me-1"></i> Mark Picked</button>');
-            } else if (data.Status === "Ready for Delivery" && data.OrderType === "Delivery") {
-                btns.push('<button class="btn btn-primary action-btn" data-action="MarkPicked" data-id="' + data.OrderId + '"><i class="bi bi-truck me-1"></i> Mark In Transit</button>');
+            if (status === "Accepted") {
+                btns.push('<button class="btn btn-warning action-btn" data-action="MarkReady" data-id="' + orderId + '"><i class="bi bi-check-circle me-1"></i> Mark Ready</button>');
+            } else if (status === "Ready for Delivery") {
+                btns.push('<button class="btn btn-primary action-btn" data-action="MarkPicked" data-id="' + orderId + '"><i class="bi bi-truck me-1"></i> Mark In Transit</button>');
             }
 
-            if (data.OrderType === "Delivery" && (data.Status === "Accepted" || data.Status === "Ready for Delivery")) {
-                if (!data.DeliveryPersonId) {
-                    btns.push('<button class="btn btn-info assign-delivery-btn" data-id="' + data.OrderId + '"><i class="bi bi-person-plus me-1"></i> Assign Delivery</button>');
+            if (status === "Accepted" || status === "Ready for Delivery") {
+                if (!deliveryPersonId) {
+                    btns.push('<button class="btn btn-info assign-delivery-btn" data-id="' + orderId + '"><i class="bi bi-person-plus me-1"></i> Assign Delivery</button>');
                 }
+            }
+
+            if (status === "Cancelled" && (!isRefunded && refundStatus !== "Completed")) {
+                // Add Razorpay Refund Mockup Button
+                btns.push('<button class="btn btn-danger action-btn refund-btn" onclick="initiateRazorpayRefund(' + orderId + ', \'' + escapeHtml(customerName) + '\', ' + amount + ')"><i class="bi bi-arrow-counterclockwise me-1"></i> Refund via Razorpay</button>');
             }
 
             if (btns.length > 0) {
@@ -182,6 +204,38 @@
 
             container.innerHTML = html;
         }
+
+        window.initiateRazorpayRefund = function(orderId, customer, amount) {
+            Swal.fire({
+                title: 'Processing Refund',
+                html: 'Connecting to Razorpay gateway for <b>' + customer + '</b>...<br/><br/><h3 class="text-danger">- ₹' + amount + '</h3>',
+                icon: 'info',
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            }).then((result) => {
+                // Trigger backend after simulation completes
+                $.post({
+                    url: '/Admin/UpdateRefundStatus',
+                    data: { 
+                        orderId: orderId, 
+                        status: 'Completed',
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').length > 0 ? $('input[name="__RequestVerificationToken"]').val() : ''
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire("Refund Completed", "Amount reversed successfully to customer.", "success")
+                            .then(() => fetchOrderDetails(orderId));
+                        } else {
+                            Swal.fire("Refund Failed", res.message || "An error occurred", "error");
+                        }
+                    }
+                });
+            });
+        };
 
         fetchOrderDetails(orderId);
     })();

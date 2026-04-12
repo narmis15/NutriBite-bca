@@ -13,5 +13,6 @@ namespace NUTRIBITE.Models
         public decimal? Protein { get; set; }
         public decimal? Carbs { get; set; }
         public decimal? Fats { get; set; }
+        public int? OrderId { get; set; }
     }
 }

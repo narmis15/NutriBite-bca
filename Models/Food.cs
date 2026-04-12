@@ -42,6 +42,14 @@ public partial class Food
     public double? Carbs { get; set; }   // in grams
     public double? Fat { get; set; }     // in grams
 
+    // Phase 1: Daily Stock Limits
+    public int? DailyLimit { get; set; }
+
+    // Phase 2: Dietary Badges
+    public bool IsGlutenFree { get; set; } = false;
+    public bool IsVegan { get; set; } = false;
+    public bool IsNutFree { get; set; } = false;
+
     public virtual Nutritionist? Nutritionist { get; set; }
 
     public virtual Recipe? Recipe { get; set; }

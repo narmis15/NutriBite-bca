@@ -80,13 +80,24 @@
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 small">
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2"></i> View Details</a></li>
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i> Edit Profile</a></li>
-                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" asp-action="VendorDetails" asp-route-id="@vendor.VendorId"><i class="bi bi-eye me-2"></i> View Details</a></li>
                                             @if (!vendor.IsApproved && !vendor.IsRejected)
                                             {
-                                                <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-circle me-2"></i> Approve</a></li>
-                                                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i> Reject</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <form asp-action="ApproveVendor" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@vendor.VendorId" />
+                                                        <button type="submit" class="dropdown-item text-success"><i class="bi bi-check-circle me-2"></i> Approve</button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form asp-action="RejectVendor" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@vendor.VendorId" />
+                                                        <button type="submit" class="dropdown-item text-danger"><i class="bi bi-x-circle me-2"></i> Reject</button>
+                                                    </form>
+                                                </li>
                                             }
                                         </ul>
                                     </div>

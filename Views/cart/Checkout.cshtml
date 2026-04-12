@@ -1,25 +1,64 @@
 @{
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
     ViewData["Title"] = "Checkout — NutriBite";
+    
+    var subtotal = (ViewBag.Subtotal as decimal?) ?? 0m;
+    var deliveryCharge = (ViewBag.DeliveryCharge as decimal?) ?? 0m;
+    var gst = (ViewBag.GST as decimal?) ?? 0m;
     var totalAmount = (ViewBag.TotalAmount as decimal?) ?? 0m;
+    
     var totalInvariant = totalAmount.ToString(System.Globalization.CultureInfo.InvariantCulture);
-    var totalDisplay = totalAmount.ToString("N2");
 }
 
 <div class="container py-4">
     <h2 class="mb-3">Checkout</h2>
 
-    <div class="card p-4 mb-3">
-        <h4>Order Summary</h4>
-        <div class="d-flex justify-content-between mt-2">
-            <div>Items total</div>
-            <div>₹@totalDisplay</div>
+    <div class="card p-4 mb-3 border-0 shadow-sm">
+        <h4 class="fw-bold mb-3">Order Summary</h4>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span>₹@subtotal.ToString("N2")</span>
         </div>
-        <hr />
-        <div class="d-flex justify-content-between fw-bold">
-            <div>Total</div>
-            <div>₹@totalDisplay</div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Delivery Fee</span>
+            @if (deliveryCharge == 0)
+            {
+                <span class="text-success fw-bold">FREE</span>
+            }
+            else
+            {
+                <span>₹@deliveryCharge.ToString("N2")</span>
+            }
         </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">GST (5%)</span>
+            <span>₹@gst.ToString("N2")</span>
+        </div>
+        <hr class="my-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">Grand Total</h5>
+            <h5 class="fw-bold text-dark mb-0 fs-4">
+                @if (ViewBag.IsBulkOrder == true)
+                {
+                    <span class="text-danger small text-decoration-line-through me-2">₹@(((decimal)ViewBag.OriginalTotal).ToString("N2"))</span>
+                    <br/><span class="small text-muted">(50% Advance Deposit)</span>
+                }
+                ₹@totalAmount.ToString("N2")
+            </h5>
+        </div>
+        @if (subtotal < 500 && ViewBag.IsBulkOrder != true)
+        {
+            <div class="mt-3 p-2 bg-light rounded-3 small text-center text-primary">
+                <i class="bi bi-info-circle me-1"></i> Add items worth <b>₹@(500 - subtotal)</b> more for <b>FREE Delivery!</b>
+            </div>
+        }
+        @if (ViewBag.IsBulkOrder == true)
+        {
+            <div class="mt-3 p-2 bg-warning bg-opacity-10 rounded-3 small text-center text-warning" style="color: #c98800 !important;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> <b>Notice:</b> Bulk orders require a 24-hour lead time for fulfillment. 
+                You are paying a 50% upfront deposit to confirm the order.
+            </div>
+        }
     </div>
 
     <div class="card p-4 mb-3 shadow-sm border-0">
@@ -34,9 +73,20 @@
                         <i class="bi bi-geo-alt-fill"></i> Get Current Location
                     </button>
                 </div>
-                <textarea id="deliveryAddress" class="form-control mb-3 border-2 shadow-sm" rows="3" 
-                          placeholder="Example: Flat 402, Green Valley Apts, Sector 12, Noida..." 
-                          style="font-size: 1.1rem;"></textarea>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-8">
+                        <textarea id="deliveryAddress" class="form-control border-2 shadow-sm" rows="3" 
+                                  placeholder="Example: Flat 402, Green Valley Apts, Sector 12, Noida..." 
+                                  style="font-size: 1.1rem;"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label small fw-bold text-muted mb-1">Pincode</label>
+                            <input type="text" id="deliveryPincode" class="form-control border-2 shadow-sm" 
+                                   placeholder="226020" maxlength="6" style="font-size: 1.1rem; font-weight: bold; color: #2d6a4f;">
+                        </div>
+                    </div>
+                </div>
                 
                 <label class="form-label fw-bold text-dark mb-2">
                     <i class="bi bi-chat-left-text"></i> Delivery Notes (Optional)
@@ -54,21 +104,12 @@
     <div class="card p-4 mb-3 shadow-sm border-0">
         <h4 class="mb-3">Payment Method</h4>
         <div class="row g-3">
-            <div class="col-md-6">
-                <div class="form-check card-glass p-3 border rounded-3 h-100">
+            <div class="col-md-12">
+                <div class="form-check card-glass p-3 border rounded-3 h-100 bg-light bg-opacity-50">
                     <input class="form-check-input ms-0" type="radio" name="paymentMethod" id="payOnline" value="Online" checked>
                     <label class="form-check-label ms-4 w-100" for="payOnline">
-                        <div class="fw-bold">Pay Online</div>
+                        <div class="fw-bold text-success"><i class="bi bi-shield-check"></i> Secure Online Payment</div>
                         <small class="text-muted">UPI, Cards, Net Banking (via Razorpay)</small>
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-check card-glass p-3 border rounded-3 h-100">
-                    <input class="form-check-input ms-0" type="radio" name="paymentMethod" id="payCOD" value="COD">
-                    <label class="form-check-label ms-4 w-100" for="payCOD">
-                        <div class="fw-bold">Cash on Delivery</div>
-                        <small class="text-muted">Pay when you receive your meal</small>
                     </label>
                 </div>
             </div>
@@ -77,7 +118,7 @@
 
     <div class="mb-4">
         <button id="payNowBtn" class="btn btn-primary btn-lg px-5 shadow-sm">
-            Proceed to Pay ₹@totalDisplay
+            Proceed to Pay ₹@totalAmount.ToString("N2")
         </button>
         <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-secondary ms-2">Back to Cart</a>
     </div>
@@ -95,21 +136,18 @@
     const alertsRoot = document.getElementById('paymentAlerts');
 
     function updateButtonText() {
-        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-        if (paymentMethod === 'COD') {
-            payBtn.innerText = 'Confirm Order (COD) ₹' + parseFloat('@totalInvariant').toFixed(2);
-        } else {
-            payBtn.innerText = 'Proceed to Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
-        }
+        payBtn.innerText = 'Proceed to Pay ₹' + parseFloat('@totalInvariant').toFixed(2);
     }
 
-    // Toggle Payment Method UI
-    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-        radio.addEventListener('change', updateButtonText);
-    });
+    // Toggle Payment Method UI (Simplified since only Online exists)
+    updateButtonText();
 
     // Geolocation Handler
-    document.getElementById('getLocationBtn').addEventListener('click', function() {
+    let accuracyFailCount = 0;
+    const MAX_ACCURACY_FAILS = 3;
+    const TARGET_ACCURACY_METERS = 15;
+
+    document.getElementById('getLocationBtn').addEventListener('click', async function() {
         const btn = this;
         const addressField = document.getElementById('deliveryAddress');
         
@@ -121,36 +159,112 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Fetching...';
 
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                try {
-                    // Reverse Geocoding using Nominatim (OpenStreetMap)
-                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`);
-                    const data = await response.json();
-                    if (data && data.display_name) {
-                        addressField.value = data.display_name;
-                        addressField.classList.remove('is-invalid');
-                        addressField.classList.add('is-valid');
-                    } else {
-                        addressField.value = `Latitude: ${latitude}, Longitude: ${longitude}`;
+        const options = { 
+            enableHighAccuracy: true, 
+            timeout: 15000, 
+            maximumAge: 0 
+        };
+
+        let watchId = null;
+        let bestPosition = null;
+
+        const getBestLocation = () => new Promise((resolve, reject) => {
+            // Initial quick grab
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    bestPosition = pos;
+                    if (pos.coords.accuracy <= TARGET_ACCURACY_METERS) resolve(pos);
+                },
+                (err) => console.warn("Initial position error:", err),
+                options
+            );
+
+            // Watch for improvements
+            watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    if (!bestPosition || pos.coords.accuracy < bestPosition.coords.accuracy) {
+                        bestPosition = pos;
                     }
-                } catch (error) {
-                    console.error('Reverse geocoding failed:', error);
-                    addressField.value = `Latitude: ${latitude}, Longitude: ${longitude}`;
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Get Current Location';
+                    if (pos.coords.accuracy <= TARGET_ACCURACY_METERS) {
+                        navigator.geolocation.clearWatch(watchId);
+                        resolve(pos);
+                    }
+                },
+                (err) => {
+                    if (bestPosition) resolve(bestPosition);
+                    else reject(err);
+                },
+                options
+            );
+
+            // Safety timeout
+            setTimeout(() => {
+                if (watchId) navigator.geolocation.clearWatch(watchId);
+                if (bestPosition) resolve(bestPosition);
+                else reject({ code: 3, message: "Location timeout" });
+            }, 10000);
+        });
+
+        try {
+            const position = await getBestLocation();
+            const { latitude, longitude, accuracy } = position.coords;
+            console.log(`Location detected: ${latitude}, ${longitude} (Accuracy: ${accuracy}m)`);
+
+            if (accuracy > TARGET_ACCURACY_METERS) {
+                accuracyFailCount++;
+                if (accuracyFailCount >= MAX_ACCURACY_FAILS) {
+                    showAlert('warning', `<i class="bi bi-exclamation-triangle"></i> Accuracy is ${Math.round(accuracy)}m. Please verify the pincode manually.`);
+                    accuracyFailCount = 0;
                 }
-            },
-            (error) => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-geo-alt"></i> Get Current Location';
-                let msg = 'Unable to retrieve your location';
-                if (error.code === 1) msg = 'Location access denied. Please enable location permissions.';
-                alert(msg);
+            } else {
+                accuracyFailCount = 0;
             }
-        );
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, {
+                    headers: { 'Accept-Language': 'en-US,en;q=0.9' }
+                });
+                const data = await response.json();
+                
+                // Phase 3: Store for backend geofencing
+                window.checkoutLat = latitude;
+                window.checkoutLng = longitude;
+                
+                if (data && data.display_name) {
+                    // Extract pincode if available
+                    const pincode = data.address?.postcode || "";
+                    if (pincode) {
+                        document.getElementById('deliveryPincode').value = pincode;
+                        document.getElementById('deliveryPincode').classList.add('is-valid');
+                    }
+
+                    // Remove pincode from display name if it exists to avoid duplication
+                    let finalAddress = data.display_name;
+                    if (pincode && finalAddress.includes(pincode)) {
+                        finalAddress = finalAddress.replace(new RegExp(`,?\\s*${pincode}`, 'g'), '').trim();
+                    }
+
+                    addressField.value = finalAddress;
+                    addressField.classList.remove('is-invalid');
+                    addressField.classList.add('is-valid');
+                    
+                    showAlert('success', '<i class="bi bi-check-circle"></i> Location detected. Please verify your Pincode and Address.', 3000);
+                } else {
+                    addressField.value = `Latitude: ${latitude}, Longitude: ${longitude}`;
+                }
+            } catch (error) {
+                console.error('Reverse geocoding failed:', error);
+                addressField.value = `Latitude: ${latitude}, Longitude: ${longitude}`;
+            }
+            
+        } catch (error) {
+            console.error(`Geolocation failed:`, error);
+            if (error.code === 1) alert('Location access denied. Please enable permissions.');
+            else alert('Unable to retrieve your location. Please enter it manually.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Get Current Location';
+        }
     });
 
     function clearAlerts() {
@@ -214,7 +328,8 @@
     async function finalizeOrderOnServer(clearCart = true) {
         const orderType = 'Delivery';
         const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-        const deliveryAddress = document.getElementById('deliveryAddress').value;
+        let deliveryAddress = document.getElementById('deliveryAddress').value;
+        const deliveryPincode = document.getElementById('deliveryPincode').value;
         const deliveryNotes = document.getElementById('deliveryNotes').value;
 
         if (!deliveryAddress.trim()) {
@@ -223,6 +338,16 @@
         } else {
             document.getElementById('deliveryAddress').classList.remove('is-invalid');
         }
+
+        if (!deliveryPincode.trim() || deliveryPincode.length < 6) {
+            document.getElementById('deliveryPincode').classList.add('is-invalid');
+            throw new Error('Please enter a valid 6-digit Pincode.');
+        } else {
+            document.getElementById('deliveryPincode').classList.remove('is-invalid');
+        }
+
+        // Combine address and pincode for final storage
+        const finalFullAddress = `${deliveryAddress.trim()}, Pincode: ${deliveryPincode.trim()}`;
 
         // Create local order and clear cart using existing flow
         const response = await fetch('/Cart/Checkout', {
@@ -234,10 +359,12 @@
             body: new URLSearchParams({ 
                 pickupSlot: '',
                 orderType: orderType,
-                deliveryAddress: deliveryAddress,
+                deliveryAddress: finalFullAddress,
                 deliveryNotes: deliveryNotes,
                 paymentMethod: paymentMethod,
-                clearCart: clearCart
+                clearCart: clearCart,
+                latitude: window.checkoutLat || '',
+                longitude: window.checkoutLng || ''
             }).toString()
         });
 
@@ -263,14 +390,6 @@
                 showAlert('danger', 'Cart total invalid. Please add items to cart.');
                 payBtn.disabled = false;
                 updateButtonText();
-                return;
-            }
-
-            if (paymentMethod === 'COD') {
-                // COD Flow: No Razorpay, just finalize order
-                await finalizeOrderOnServer();
-                showAlert('success', '<strong>Order placed successfully!</strong> Redirecting to success page...', 4000);
-                setTimeout(() => { window.location.href = '/Cart/Success'; }, 2000);
                 return;
             }
 

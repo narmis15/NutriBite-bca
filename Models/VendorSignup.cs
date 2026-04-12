@@ -32,4 +32,7 @@ public partial class VendorSignup
     public string? LogoPath { get; set; }
 
     public string? UpiId { get; set; }
+
+    // Phase 3: Geofencing
+    public double? MaxDeliveryRadiusKm { get; set; } = 5.0; // Default to 5km
 }

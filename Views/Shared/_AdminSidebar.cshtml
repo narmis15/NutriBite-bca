@@ -4,7 +4,7 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
     // Orders active state
-    var ordersActions = new[] { "OrderManagement", "OrderDetails", "CancelledOrders" };
+    var ordersActions = new[] { "OrderManagement", "OrderDetails", "CancelledOrders", "Subscriptions" };
     var ordersOpen = currentController == "Admin" && ordersActions.Contains(currentAction);
 
     // Vendor active state
@@ -20,7 +20,7 @@
     var reportsOpen = currentController == "Reports" && reportsActions.Contains(currentAction);
 
     // Users active state
-    var usersActions = new[] { "Index", "BlockedUsers", "CalorieAnalytics" };
+    var usersActions = new[] { "Index", "BlockedUsers" };
     var usersOpen = (currentController == "Users") && usersActions.Contains(currentAction);
 
     // Delivery active state
@@ -29,8 +29,6 @@
 }
 
 <div class="sidebar">
-    <h4><i class="bi bi-shield-check"></i> NUTRIBITE</h4>
-
     <a asp-controller="Admin" asp-action="Dashboard" class="@(currentController == "Admin" && currentAction == "Dashboard" ? "active" : "")">
         <i class="bi bi-grid-1x2-fill"></i>
         <span class="menu-text">Admin Home</span>
@@ -44,8 +42,9 @@
             <i class="bi bi-chevron-down menu-arrow"></i>
         </div>
         <div class="submenu">
-            <a asp-controller="Admin" asp-action="OrderManagement" class="@(currentAction == "OrderManagement" ? "active" : "")">Management</a>
-            <a asp-controller="Admin" asp-action="CancelledOrders" class="@(currentAction == "CancelledOrders" ? "active" : "")">Cancelled</a>
+            <a asp-controller="Admin" asp-action="OrderManagement" class="@(currentController == "Admin" && (currentAction == "OrderManagement" || currentAction == "OrderDetails") ? "active" : "")">Management</a>
+            <a asp-controller="Admin" asp-action="CancelledOrders" class="@(currentController == "Admin" && currentAction == "CancelledOrders" ? "active" : "")">Cancelled</a>
+            <a asp-controller="Admin" asp-action="Subscriptions" class="@(currentController == "Admin" && currentAction == "Subscriptions" ? "active" : "")">Subscriptions</a>
         </div>
     </div>
 
@@ -57,9 +56,9 @@
             <i class="bi bi-chevron-down menu-arrow"></i>
         </div>
         <div class="submenu">
-            <a asp-controller="Admin" asp-action="NewVendorRequest" class="@(currentAction == "NewVendorRequest" ? "active" : "")">New Requests</a>
-            <a asp-controller="Admin" asp-action="ManageVendor" class="@(currentAction == "ManageVendor" ? "active" : "")">Manage All</a>
-            <a asp-controller="Admin" asp-action="Payouts" class="@(currentAction == "Payouts" ? "active" : "")">Payouts</a>
+            <a asp-controller="Admin" asp-action="NewVendorRequest" class="@(currentController == "Admin" && currentAction == "NewVendorRequest" ? "active" : "")">New Requests</a>
+            <a asp-controller="Admin" asp-action="ManageVendor" class="@(currentController == "Admin" && currentAction == "ManageVendor" ? "active" : "")">Manage All</a>
+            <a asp-controller="Admin" asp-action="Payouts" class="@(currentController == "Admin" && currentAction == "Payouts" ? "active" : "")">Payouts</a>
         </div>
     </div>
 
@@ -71,9 +70,8 @@
             <i class="bi bi-chevron-down menu-arrow"></i>
         </div>
         <div class="submenu">
-            <a asp-controller="Admin" asp-action="AddFoodCategory" class="@(currentAction == "AddFoodCategory" ? "active" : "")">Add Category</a>
-            <a asp-controller="Admin" asp-action="ViewCategory" class="@(currentAction == "ViewCategory" ? "active" : "")">View Categories</a>
-            <a asp-controller="Admin" asp-action="ViewMealCategory" class="@(currentAction == "ViewMealCategory" ? "active" : "")">Meal Categories</a>
+            <a asp-controller="Admin" asp-action="AddFoodCategory" class="@(currentController == "Admin" && currentAction == "AddFoodCategory" ? "active" : "")">Add Category</a>
+            <a asp-controller="Admin" asp-action="ViewMealCategory" class="@(currentController == "Admin" && (currentAction == "ViewMealCategory" || currentAction == "EditMealCategory") ? "active" : "")">Meal Categories</a>
         </div>
     </div>
 
@@ -81,14 +79,14 @@
     <div class="menu-item has-submenu @(reportsOpen ? "open" : "")">
         <div class="menu-link">
             <i class="bi bi-bar-chart-line-fill"></i>
-            <span class="menu-text">Analytics</span>
+            <span class="menu-text">Reports</span>
             <i class="bi bi-chevron-down menu-arrow"></i>
         </div>
         <div class="submenu">
-            <a asp-controller="Reports" asp-action="Dashboard" class="@(currentController == "Reports" && currentAction == "Dashboard" ? "active" : "")">Overview</a>
             <a asp-controller="Reports" asp-action="OrderReports" class="@(currentController == "Reports" && currentAction == "OrderReports" ? "active" : "")">Order Reports</a>
             <a asp-controller="Reports" asp-action="SalesAnalytics" class="@(currentController == "Reports" && currentAction == "SalesAnalytics" ? "active" : "")">Sales Analytics</a>
             <a asp-controller="Reports" asp-action="PaymentReports" class="@(currentController == "Reports" && currentAction == "PaymentReports" ? "active" : "")">Payment History</a>
+            <a asp-controller="Reports" asp-action="SystemLogs" class="@(currentController == "Reports" && currentAction == "SystemLogs" ? "active" : "")">System Logs</a>
         </div>
     </div>
 
@@ -102,7 +100,6 @@
         <div class="submenu">
             <a asp-controller="Users" asp-action="Index" class="@(currentController == "Users" && currentAction == "Index" ? "active" : "")">Directory</a>
             <a asp-controller="Users" asp-action="BlockedUsers" class="@(currentController == "Users" && currentAction == "BlockedUsers" ? "active" : "")">Blocked</a>
-            <a asp-controller="Users" asp-action="CalorieAnalytics" class="@(currentController == "Users" && currentAction == "CalorieAnalytics" ? "active" : "")">Calories</a>
         </div>
     </div>
 
@@ -114,16 +111,11 @@
             <i class="bi bi-chevron-down menu-arrow"></i>
         </div>
         <div class="submenu">
-            <a asp-controller="Admin" asp-action="DeliveryDashboard" class="@(currentAction == "DeliveryDashboard" ? "active" : "")">Live Map</a>
-            <a asp-controller="Admin" asp-action="DeliveryOptimization" class="@(currentAction == "DeliveryOptimization" ? "active" : "")">Optimization</a>
+            <a asp-controller="Admin" asp-action="DeliveryDashboard" class="@(currentController == "Admin" && currentAction == "DeliveryDashboard" ? "active" : "")">Delivery</a>
         </div>
     </div>
 
     <div style="margin-top: auto; border-top: 1px solid #1e293b; padding-top: 1rem;">
-        <a asp-controller="Admin" asp-action="Profile" class="@(currentController == "Admin" && currentAction == "Profile" ? "active" : "")">
-            <i class="bi bi-person-circle"></i>
-            <span class="menu-text">Settings</span>
-        </a>
         <a asp-controller="Admin" asp-action="Logout" class="text-danger">
             <i class="bi bi-box-arrow-right"></i>
             <span class="menu-text">Logout</span>
