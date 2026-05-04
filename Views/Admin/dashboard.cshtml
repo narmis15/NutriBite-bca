@@ -8,19 +8,43 @@
 }
 
 <div class="dashboard-wrapper">
+    @Html.AntiForgeryToken()
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-5 pb-2 border-bottom">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-3">
         <div>
-            <h1 class="h2 mb-2 fw-bold text-dark" style="letter-spacing: -1px;">System Dashboard</h1>
-            <p class="text-muted mb-0 fs-6">Complete overview of operations, revenue, and system stability.</p>
+            <h1 class="h2 mb-1 fw-bold text-dark" style="letter-spacing: -1px;">Admin Dashboard</h1>
+            <p class="text-muted mb-0 fs-6">Operational intelligence & financial health monitoring.</p>
         </div>
-        <div class="d-flex gap-3">
-            <div class="bg-white p-2 rounded-pill border shadow-sm d-flex align-items-center px-4" style="font-size: 0.9rem;">
-                <i class="bi bi-calendar-check text-primary me-2"></i>
-                <span class="fw-semibold text-secondary">@DateTime.Now.ToString("dd MMMM, yyyy")</span>
+        
+        <div class="d-flex gap-2 align-items-center bg-white p-2 rounded-4 shadow-sm border">
+            <div class="d-flex align-items-center px-2 border-end me-2">
+                <i class="bi bi-funnel text-primary me-2"></i>
+                <select id="dashboardPeriod" class="form-select form-select-sm border-0 fw-bold" style="width: auto; background: transparent;">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="alltime">All-Time</option>
+                </select>
             </div>
-            <button id="refreshData" class="btn btn-outline-secondary rounded-pill px-4 shadow-sm fw-bold">
-                <i class="bi bi-arrow-clockwise me-2"></i> Sync Data
+
+            <!-- Historical Navigation moved to Header -->
+            <div id="historicalNav" class="d-flex align-items-center gap-2">
+                <button id="prevPeriod" class="btn btn-sm btn-light rounded-circle" style="width:32px; height:32px; padding:0;">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div class="position-relative d-flex align-items-center">
+                    <span id="currentPeriodLabel" class="fw-bold text-dark px-2" style="min-width: 120px; text-align: center; font-size: 0.9rem;">This Month</span>
+                    <input type="date" id="dateSelector" class="form-control form-control-sm position-absolute opacity-0 start-0 top-0 w-100 h-100" style="cursor:pointer;" title="Select specific date" />
+                </div>
+                <button id="nextPeriod" class="btn btn-sm btn-light rounded-circle" style="width:32px; height:32px; padding:0;">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button id="currentPeriod" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold ms-2" style="font-size: 0.8rem;">Current</button>
+            </div>
+
+            <button id="refreshData" class="btn btn-success rounded-circle ms-2 shadow-sm" style="width:38px; height:38px; padding:0;" title="Sync Data">
+                <i class="bi bi-arrow-clockwise"></i>
             </button>
         </div>
     </div>
@@ -31,14 +55,29 @@
             <div class="stat-header">
                 <div>
                     <div class="stat-value animate-in" id="kpiTotalOrders">0</div>
-                    <div class="stat-label">Total Volume</div>
+                    <div class="stat-label">Orders</div>
                 </div>
                 <div class="stat-icon-wrapper bg-primary-subtle text-primary">
                     <i class="bi bi-box-seam"></i>
                 </div>
             </div>
             <div class="stat-trend text-primary">
-                <i class="bi bi-graph-up me-1"></i> <span id="kpiTodayOrders" class="fw-bold me-1">0</span> orders today
+                <i class="bi bi-clock-history me-1"></i> <span id="kpiPeriodText1">for selected period</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiActiveSubscriptions">0</div>
+                    <div class="stat-label">Active Subscriptions</div>
+                </div>
+                <div class="stat-icon-wrapper bg-info-subtle text-info" style="background-color: #e0f2fe; color: #0284c7;">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-info" style="color: #0284c7;">
+                <i class="bi bi-arrow-repeat me-1"></i> Recurring Revenue
             </div>
         </div>
 
@@ -46,100 +85,151 @@
             <div class="stat-header">
                 <div>
                     <div class="stat-value animate-in" id="kpiTotalRevenue">₹0</div>
-                    <div class="stat-label">Gross Revenue</div>
+                    <div class="stat-label">Total Money Earned</div>
                 </div>
                 <div class="stat-icon-wrapper bg-success-subtle text-success">
                     <i class="bi bi-currency-rupee"></i>
                 </div>
             </div>
             <div class="stat-trend text-success">
-                <i class="bi bi-arrow-up-right-circle-fill me-1"></i> ₹<span id="kpiTodayRevenue" class="fw-bold me-1">0</span> today
+                <i class="bi bi-arrow-up-right-circle-fill me-1"></i> <span id="kpiPeriodText2">for selected period</span>
             </div>
         </div>
 
         <div class="stat-card">
             <div class="stat-header">
                 <div>
-                    <div class="stat-value animate-in" id="kpiTotalCommission">₹0</div>
-                    <div class="stat-label">Net Commission</div>
+                    <div class="stat-value animate-in" id="kpiTotalProfit">₹0</div>
+                    <div class="stat-label">My Profit</div>
                 </div>
                 <div class="stat-icon-wrapper bg-info-subtle text-info">
-                    <i class="bi bi-wallet2"></i>
+                    <i class="bi bi-graph-up-arrow"></i>
                 </div>
             </div>
             <div class="stat-trend text-info">
-                <i class="bi bi-arrow-up-right-circle-fill me-1"></i> ₹<span id="kpiTodayCommission" class="fw-bold me-1">0</span> today
+                <i class="bi bi-percent me-1"></i> <span id="kpiProfitMargin" class="fw-bold">0%</span> Net Margin
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiTotalLoss">₹0</div>
+                    <div class="stat-label">Money Lost</div>
+                </div>
+                <div class="stat-icon-wrapper bg-danger-subtle text-danger">
+                    <i class="bi bi-graph-down-arrow"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-danger">
+                <i class="bi bi-x-circle-fill me-1"></i> From Cancellations
             </div>
         </div>
         
         <div class="stat-card">
             <div class="stat-header">
                 <div>
-                    <div class="stat-value animate-in" id="kpiTotalVendors">0</div>
-                    <div class="stat-label">Kitchen Partners</div>
+                    <div class="stat-value animate-in" id="kpiPendingPayments">₹0</div>
+                    <div class="stat-label">Vendor Payouts</div>
                 </div>
-                <div class="stat-icon-wrapper" style="background:#fef3c7; color:#d97706;">
-                    <i class="bi bi-shop"></i>
+                <div class="stat-icon-wrapper bg-warning-subtle text-warning">
+                    <i class="bi bi-wallet2"></i>
                 </div>
             </div>
-            <div class="stat-trend" style="color:#d97706;">
-                <i class="bi bi-patch-check-fill me-1"></i> Highly verified network
+            <div class="stat-trend text-warning">
+                <i class="bi bi-hourglass-split me-1"></i> Pending Payment
             </div>
         </div>
 
         <div class="stat-card">
             <div class="stat-header">
                 <div>
-                    <div class="stat-value animate-in" id="kpiDeliveryAgents">0</div>
-                    <div class="stat-label">Logistics Fleet</div>
+                    <div class="stat-value animate-in" id="kpiVendorsHeader">0</div>
+                    <div class="stat-label">Total Vendors</div>
                 </div>
                 <div class="stat-icon-wrapper bg-secondary-subtle text-secondary">
-                    <i class="bi bi-truck"></i>
+                    <i class="bi bi-shop"></i>
                 </div>
             </div>
             <div class="stat-trend text-secondary">
-                <i class="bi bi-geo-alt-fill me-1"></i> Active agents on ground
+                <i class="bi bi-people-fill me-1"></i> Active Partners
             </div>
         </div>
 
-        <div class="stat-card" style="border: 2px solid #10b981;">
+        <div class="stat-card">
             <div class="stat-header">
                 <div>
-                    <div class="stat-value animate-in text-success" id="kpiHealth">100%</div>
-                    <div class="stat-label">System Health</div>
+                    <div class="stat-value animate-in" id="kpiTotalCustomers">0</div>
+                    <div class="stat-label">Total Customers</div>
                 </div>
-                <div class="stat-icon-wrapper bg-success text-white shadow-sm">
-                    <i class="bi bi-shield-check"></i>
+                <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+                    <i class="bi bi-people"></i>
                 </div>
             </div>
-            <div class="stat-trend text-success">
-                <i class="bi bi-check-circle-fill me-1"></i> All systems operational
+            <div class="stat-trend text-primary">
+                <i class="bi bi-person-check-fill me-1"></i> Registered Users
             </div>
         </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value animate-in" id="kpiTotalCategories">0</div>
+                    <div class="stat-label">Total Categories</div>
+                </div>
+                <div class="stat-icon-wrapper bg-info-subtle text-info">
+                    <i class="bi bi-tags"></i>
+                </div>
+            </div>
+            <div class="stat-trend text-info">
+                <i class="bi bi-box-seam-fill me-1"></i> Inventory Catalog
+            </div>
+        </div>
+
     </div>
 
     <!-- Main Bento Grid -->
     <div class="dashboard-bento-grid">
-        <!-- Revenue & Growth (Area Chart) -->
-        <div class="bento-item col-span-8">
+        <!-- Separated Financial Charts -->
+        <div class="bento-item col-span-12">
             <div class="widget-header">
-                <h3 class="widget-title"><i class="bi bi-graph-up-arrow text-primary me-2"></i> Revenue & Scale</h3>
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-light border rounded-pill px-3" type="button" data-bs-toggle="dropdown">
-                        Last 14 Days <i class="bi bi-chevron-down ms-1"></i>
-                    </button>
-                    <ul class="dropdown-menu shadow">
-                        <li><a class="dropdown-item" href="#">Last 7 Days</a></li>
-                        <li><a class="dropdown-item" href="#">Last 30 Days</a></li>
-                    </ul>
-                </div>
+                <h3 class="widget-title"><i class="bi bi-graph-up-arrow text-primary me-2"></i> Separated Financial Performance</h3>
             </div>
-            <div class="chart-container" style="height: 300px !important;">
-                <canvas id="revenueChart"></canvas>
+            <div class="row w-100 m-0">
+                <div class="col-md-12 mb-4">
+                    <h5 class="fw-bold fs-6 mb-2 text-center text-muted">Revenue & Profit</h5>
+                    <div class="chart-container" style="height: 320px;"><canvas id="revenueChart"></canvas></div>
+                </div>
+                <div class="col-md-6 ps-0 mb-3" style="padding-right: 10px;">
+                    <h5 class="fw-bold fs-6 mb-2 text-center text-muted">Orders Volume</h5>
+                    <div class="chart-container" style="height: 280px;"><canvas id="ordersChart"></canvas></div>
+                </div>
+                <div class="col-md-6 pe-0 mb-3" style="padding-left: 10px;">
+                    <h5 class="fw-bold fs-6 mb-2 text-center text-muted">Loss from Cancellations</h5>
+                    <div class="chart-container" style="height: 280px;"><canvas id="lossChart"></canvas></div>
+                </div>
             </div>
         </div>
 
-        <!-- System Performance Mini Widgets -->
+        <!-- Top Performing Vendors -->
+        <div class="bento-item col-span-4">
+            <h3 class="widget-title mb-4"><i class="bi bi-star-fill text-warning me-2"></i> Top Vendors (30d)</h3>
+            <div id="topVendorsList" class="vendor-mini-list">
+                <!-- Injected via JS -->
+                <div class="text-center py-4 text-muted">Loading data...</div>
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts -->
+        <div class="bento-item col-span-4">
+            <h3 class="widget-title mb-4"><i class="bi bi-exclamation-octagon-fill text-danger me-2"></i> Stock Alerts</h3>
+            <div id="lowStockList" class="stock-mini-list">
+                <!-- Injected via JS -->
+                <div class="text-center py-4 text-muted">No stock alerts</div>
+            </div>
+        </div>
+
+        <!-- User Metrics Mini Widgets -->
         <div class="bento-item col-span-4">
             <h3 class="widget-title mb-4"><i class="bi bi-speedometer2 text-info me-2"></i> User Metrics</h3>
             <div class="d-flex flex-column gap-3">
@@ -153,7 +243,7 @@
                             <span class="small fw-bold text-dark" id="kpiSessions">0</span>
                         </div>
                         <div class="progress progress-thin bg-light border">
-                            <div class="progress-bar" style="width: 75%; background-color:#8b5cf6;"></div>
+                            <div id="kpiSessionsProgress" class="progress-bar" style="width: 0%; background-color:#8b5cf6; transition: width 1s ease;"></div>
                         </div>
                     </div>
                 </div>
@@ -167,7 +257,7 @@
                             <span class="small fw-bold text-dark" id="kpiConversion">0%</span>
                         </div>
                         <div class="progress progress-thin bg-light border">
-                            <div class="progress-bar" style="width: 45%; background-color:#ec4899;"></div>
+                            <div id="kpiConversionProgress" class="progress-bar" style="width: 0%; background-color:#ec4899; transition: width 1s ease;"></div>
                         </div>
                     </div>
                 </div>
@@ -220,6 +310,19 @@
                 <canvas id="userRegChart"></canvas>
             </div>
         </div>
+
+        <!-- Vendor Financials (Grouped Bar Chart) -->
+        <div class="bento-item col-span-8">
+            <div class="widget-header">
+                <h3 class="widget-title"><i class="bi bi-cash-stack text-warning me-2"></i> Vendor Earnings vs Admin Payouts</h3>
+                <div class="badge bg-warning-subtle text-warning border border-warning rounded-pill px-3 py-2">
+                    <i class="bi bi-info-circle me-1"></i> Tracking Payout Efficiency
+                </div>
+            </div>
+            <div class="chart-container" style="height: 350px !important;">
+                <canvas id="vendorFinanceChart"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -234,76 +337,267 @@
     }
     .extra-small { font-size: 0.7rem; }
     .fw-600 { font-weight: 600; }
+    .bi-spin {
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
 </style>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
+        Chart.register(ChartDataLabels);
         let charts = {};
+        const $period = document.getElementById('dashboardPeriod');
+        const $dataTypeRadios = document.querySelectorAll('input[name="dataType"]');
+        let currentRefDate = new Date();
 
-        async function updateDashboard() {
+        async function updateDashboard(hardSync = false) {
             const btn = document.getElementById('refreshData');
+            const icon = btn.querySelector('i');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Syncing...';
+            icon.classList.add('bi-spin');
+
+            if (hardSync) {
+                try {
+                    // Call the backend sync to fix any zero-data orders
+                    const syncResp = await fetch('/Admin/SyncDashboardData', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    });
+                    const syncData = await syncResp.json();
+                    if (syncData.success && syncData.message.includes('synchronized')) {
+                        console.log(syncData.message);
+                    }
+                } catch (e) { console.error('Hard sync failed', e); }
+            }
+
+            const period = document.getElementById('dashboardPeriod').value;
+            const refDateStr = currentRefDate.toISOString().split('T')[0];
+            
+            updatePeriodLabel(period, currentRefDate);
 
             try {
-                const response = await fetch('/Reports/GetDashboardData');
+                const response = await fetch(`/Reports/GetDashboardData?period=${period}&refDate=${refDateStr}${hardSync ? '&noCache=true' : ''}`);
                 const data = await response.json();
                 
                 if (data.success) {
-                    renderSummary(data.summary);
-                    renderCharts(data.charts);
+                    renderSummary(data.summary, period, currentRefDate);
+                    renderCharts(data.charts, period);
                     renderAlerts(data.alerts);
                 }
             } catch (error) {
                 console.error('Dashboard update failed:', error);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> Refresh';
+                icon.classList.remove('bi-spin');
             }
         }
 
+        function updatePeriodLabel(period, date) {
+            const label = document.getElementById('currentPeriodLabel');
+            if (!label) return;
+
+            const isCurrent = isSamePeriod(period, date, new Date());
+            
+            if (period === 'daily') {
+                label.innerText = isCurrent ? "Today" : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+            } else if (period === 'weekly') {
+                const start = new Date(date);
+                start.setDate(date.getDate() - date.getDay());
+                const end = new Date(start);
+                end.setDate(start.getDate() + 6);
+                label.innerText = isCurrent ? "This Week" : `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+            } else if (period === 'monthly') {
+                label.innerText = isCurrent ? "This Month" : date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+            } else if (period === 'yearly') {
+                label.innerText = isCurrent ? "This Year" : date.getFullYear();
+            } else {
+                label.innerText = "All-Time";
+            }
+            
+            document.getElementById('historicalNav').style.visibility = (period === 'alltime') ? 'hidden' : 'visible';
+        }
+
+        function renderSummary(s, period, date) {
+            let periodLabel = "this period";
+            const isCurrent = isSamePeriod(period, date, new Date());
+            
+            if (period === 'daily') periodLabel = isCurrent ? "today" : "on this day";
+            else if (period === 'weekly') periodLabel = isCurrent ? "this week" : "that week";
+            else if (period === 'monthly') periodLabel = isCurrent ? "this month" : "that month";
+            else if (period === 'yearly') periodLabel = isCurrent ? "this year" : "that year";
+
+            document.getElementById('kpiPeriodText1').innerText = `Total ${periodLabel}`;
+            document.getElementById('kpiPeriodText2').innerText = `Revenue ${periodLabel}`;
+
+            animateValue('kpiTotalOrders', s.todaysOrders);
+            animateValue('kpiActiveSubscriptions', s.activeSubscriptions || 0);
+            animateValue('kpiTotalRevenue', s.todaysRevenue, '₹');
+            animateValue('kpiTotalProfit', s.todaysCommission || 0, '₹');
+            animateValue('kpiTotalLoss', s.totalLoss || 0, '₹');
+            animateValue('kpiPendingPayments', s.pendingPayouts || 0, '₹');
+            animateValue('kpiVendorsHeader', s.activeVendors || 0);
+            
+            if (document.getElementById('kpiProfitMargin')) {
+                const margin = s.todaysRevenue > 0 ? ((s.todaysCommission || 0) / s.todaysRevenue * 100).toFixed(1) : 0;
+                document.getElementById('kpiProfitMargin').innerText = margin + '%';
+            }
+
+            // Render Top Vendors
+            const $vendorList = document.getElementById('topVendorsList');
+            if (s.topVendors && s.topVendors.length > 0) {
+                $vendorList.innerHTML = s.topVendors.map(v => `
+                    <div class="mini-list-item d-flex flex-column mb-3 p-3 bg-light rounded-4 border">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:36px; height:36px; font-size:0.9rem;">
+                                    ${v.name.substring(0,1)}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">${v.name}</div>
+                                    <div class="extra-small text-muted">${v.orders} orders</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-success">₹${v.sales.toLocaleString()}</div>
+                                <div class="extra-small text-muted">Gross Revenue</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 mt-2">
+                            <div class="flex-fill p-2 bg-white rounded-3 border text-center">
+                                <div class="extra-small text-muted mb-1">Earned</div>
+                                <div class="small fw-bold text-primary">₹${v.earned.toLocaleString()}</div>
+                            </div>
+                            <div class="flex-fill p-2 bg-white rounded-3 border text-center">
+                                <div class="extra-small text-muted mb-1">Paid</div>
+                                <div class="small fw-bold text-success">₹${v.paid.toLocaleString()}</div>
+                            </div>
+                            <div class="flex-fill p-2 bg-white rounded-3 border text-center">
+                                <div class="extra-small text-muted mb-1">Pending</div>
+                                <div class="small fw-bold text-danger">₹${(v.earned - v.paid).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                $vendorList.innerHTML = '<div class="text-center py-4 text-muted">No data for this period</div>';
+            }
+
+            // Render Stock Alerts
+            const $stockList = document.getElementById('lowStockList');
+            if (s.lowStockItems && s.lowStockItems.length > 0) {
+                $stockList.innerHTML = s.lowStockItems.map(item => {
+                    const percent = Math.min(100, Math.round((item.sold / item.limit) * 100));
+                    const color = percent > 90 ? 'danger' : (percent > 75 ? 'warning' : 'info');
+                    return `
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small fw-bold text-dark">${item.name}</span>
+                                <span class="extra-small fw-bold text-${color}">${item.sold}/${item.limit} sold</span>
+                            </div>
+                            <div class="progress progress-thin bg-light border" style="height: 6px;">
+                                <div class="progress-bar bg-${color}" style="width: ${percent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                $stockList.innerHTML = '<div class="text-center py-4 text-muted">No stock alerts today</div>';
+            }
+
+            animateValue('kpiTotalCustomers', s.totalUsers || 0);
+            animateValue('kpiTotalCategories', s.totalCategories || 0);
+            animateValue('kpiActiveDeliveries', s.activeDeliveries || 0);
+
+            if (document.getElementById('kpiHealth')) animateValue('kpiHealth', s.systemHealth, '', '%');
+            if (document.getElementById('kpiSessions')) {
+                document.getElementById('kpiSessions').innerText = s.activeSessions.toLocaleString();
+                // Map Active Sessions to a percentage (e.g., maxing out visually around 100 sessions)
+                const sessionPct = Math.min(100, Math.round((s.activeSessions / 100) * 100));
+                document.getElementById('kpiSessionsProgress').style.width = sessionPct + '%';
+            }
+            if (document.getElementById('kpiConversion')) {
+                document.getElementById('kpiConversion').innerText = s.conversionRate + '%';
+                // Direct percentage mapping for Conversion Rate
+                document.getElementById('kpiConversionProgress').style.width = s.conversionRate + '%';
+            }
+            if (document.getElementById('kpiVendors')) document.getElementById('kpiVendors').innerText = s.activeVendors.toLocaleString();
+        }
+
+        function isSamePeriod(period, d1, d2) {
+            if (period === 'daily') return d1.toDateString() === d2.toDateString();
+            if (period === 'weekly') {
+                const s1 = new Date(d1); s1.setDate(d1.getDate() - d1.getDay());
+                const s2 = new Date(d2); s2.setDate(d2.getDate() - d2.getDay());
+                return s1.toDateString() === s2.toDateString();
+            }
+            if (period === 'monthly') return d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+            if (period === 'yearly') return d1.getFullYear() === d2.getFullYear();
+            return true;
+        }
+
+        function navigatePeriod(direction) {
+            const period = document.getElementById('dashboardPeriod').value;
+            if (period === 'daily') currentRefDate.setDate(currentRefDate.getDate() + direction);
+            else if (period === 'weekly') currentRefDate.setDate(currentRefDate.getDate() + (direction * 7));
+            else if (period === 'monthly') currentRefDate.setMonth(currentRefDate.getMonth() + direction);
+            else if (period === 'yearly') currentRefDate.setFullYear(currentRefDate.getFullYear() + direction);
+            updateDashboard();
+        }
+
+        document.getElementById('prevPeriod').addEventListener('click', () => navigatePeriod(-1));
+        document.getElementById('nextPeriod').addEventListener('click', () => navigatePeriod(1));
+        document.getElementById('currentPeriod').addEventListener('click', () => {
+            currentRefDate = new Date();
+            updateDashboard();
+        });
+        document.getElementById('dateSelector').addEventListener('change', (e) => {
+            if (e.target.value) {
+                currentRefDate = new Date(e.target.value);
+                updateDashboard();
+            }
+        });
+
         function animateValue(id, value, prefix = '', suffix = '') {
             const obj = document.getElementById(id);
-            const start = parseInt(obj.innerHTML.replace(/[^\d]/g, '')) || 0;
-            const end = parseInt(value);
-            if (start === end) return;
+            if (!obj) return;
+            const startStr = obj.innerHTML.replace(/[^\d.]/g, '') || '0';
+            const start = parseFloat(startStr);
+            const end = parseFloat(value);
+            if (isNaN(end) || start === end) {
+                obj.innerHTML = prefix + (isNaN(end) ? value : end.toLocaleString()) + suffix;
+                return;
+            }
             
             let current = start;
             const range = end - start;
-            const increment = end > start ? 1 : -1;
-            const stepTime = Math.abs(Math.floor(1000 / range)) || 20;
+            const duration = 1000;
+            const startTime = performance.now();
             
-            const timer = setInterval(function() {
-                current += Math.ceil(range / 10);
-                if ((range > 0 && current >= end) || (range < 0 && current <= end)) {
-                    current = end;
-                    clearInterval(timer);
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                current = start + range * progress;
+                
+                obj.innerHTML = prefix + current.toLocaleString(undefined, { maximumFractionDigits: (prefix === '₹' ? 2 : 0) }) + suffix;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
                 }
-                obj.innerHTML = prefix + current.toLocaleString() + suffix;
-            }, 30);
+            }
+            requestAnimationFrame(update);
         }
 
-        function renderSummary(s) {
-            animateValue('kpiTotalOrders', s.totalOrders);
-            animateValue('kpiTotalRevenue', s.totalRevenue, '₹');
-            animateValue('kpiTotalCommission', s.totalCommission, '₹');
-            
-            document.getElementById('kpiTodayOrders').innerText = s.todaysOrders;
-            document.getElementById('kpiTodayRevenue').innerText = s.todaysRevenue;
-            document.getElementById('kpiTodayCommission').innerText = s.todaysCommission;
-
-            animateValue('kpiTotalVendors', s.totalVendors);
-            animateValue('kpiDeliveryAgents', s.activeDeliveryAgents);
-            animateValue('kpiHealth', s.systemHealth, '', '%');
-            
-            document.getElementById('kpiSessions').innerText = s.activeSessions;
-            document.getElementById('kpiConversion').innerText = s.conversionRate + '%';
-            document.getElementById('kpiVendors').innerText = s.activeVendors;
-        }
-
-        function renderCharts(c) {
-            // 1. Revenue & Orders (Line/Area)
+        function renderCharts(c, periodLabel) {
+            // 1. Separated Revenue & Profit Chart
             if (charts.revenue) charts.revenue.destroy();
             charts.revenue = new Chart(document.getElementById('revenueChart'), {
                 type: 'line',
@@ -320,23 +614,94 @@
                             yAxisID: 'y'
                         },
                         {
-                            label: 'Orders',
-                            data: c.orders,
+                            label: 'Profit (₹)',
+                            data: c.profit,
                             borderColor: '#10b981',
                             backgroundColor: 'transparent',
-                            borderDash: [5, 5],
+                            fill: false,
                             tension: 0.4,
-                            yAxisID: 'y1'
+                            yAxisID: 'y'
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' } },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        },
+                        datalabels: { display: false }
+                    },
                     scales: {
-                        y: { type: 'linear', display: true, position: 'left', grid: { display: false } },
-                        y1: { type: 'linear', display: true, position: 'right', grid: { display: false } }
+                        x: { display: true, grid: { display: false } },
+                        y: { display: true, position: 'left', grid: { display: false }, ticks: { callback: v => '₹' + v.toLocaleString() } }
+                    }
+                }
+            });
+
+            // Separated Orders Chart
+            if (charts.ordersChart) charts.ordersChart.destroy();
+            charts.ordersChart = new Chart(document.getElementById('ordersChart'), {
+                type: 'bar',
+                data: {
+                    labels: c.labels,
+                    datasets: [
+                        {
+                            label: 'Orders (Count)',
+                            data: c.orders,
+                            backgroundColor: '#0ea5e9',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6 } },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: { display: true, grid: { display: false } },
+                        y: { display: true, position: 'left', grid: { display: false }, ticks: { precision: 0 } }
+                    }
+                }
+            });
+
+            // Separated Loss Chart
+            if (charts.lossChart) charts.lossChart.destroy();
+            charts.lossChart = new Chart(document.getElementById('lossChart'), {
+                type: 'line',
+                data: {
+                    labels: c.labels,
+                    datasets: [
+                        {
+                            label: 'Loss (₹)',
+                            data: c.loss,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 6 } },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: { display: true, grid: { display: false } },
+                        y: { display: true, position: 'left', grid: { display: false }, ticks: { callback: v => '₹' + v.toLocaleString() } }
                     }
                 }
             });
@@ -348,7 +713,7 @@
                 data: {
                     labels: c.labels,
                     datasets: [{
-                        label: 'New Users',
+                        label: 'New Users (Count)',
                         data: c.userReg,
                         backgroundColor: '#4f46e5',
                         borderRadius: 6
@@ -357,12 +722,35 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                    plugins: { 
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => 'New Users: ' + ctx.parsed.y.toLocaleString()
+                            }
+                        },
+                        datalabels: {
+                            color: 'white',
+                            font: { weight: 'bold' },
+                            formatter: (value) => value > 0 ? value.toLocaleString() : ''
+                        }
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { display: false },
+                            title: { display: true, text: 'Number of Users', font: { weight: 'bold' } },
+                            ticks: { precision: 0 }
+                        }, 
+                        x: { 
+                            grid: { display: false },
+                            title: { display: true, text: 'Time Period (' + periodLabel + ')', font: { weight: 'bold' } }
+                        } 
+                    }
                 }
             });
 
-            // 3. Status Dist (Pie)
+            // 3. Status Dist (Doughnut)
             if (charts.statusDist) charts.statusDist.destroy();
             charts.statusDist = new Chart(document.getElementById('statusDistChart'), {
                 type: 'doughnut',
@@ -376,7 +764,23 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right' } },
+                    plugins: { 
+                        legend: { position: 'right', labels: { usePointStyle: true } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString() + ' orders'
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold' },
+                            formatter: (value, ctx) => {
+                                const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = (value / total * 100);
+                                return percentage > 5 ? percentage.toFixed(0) + '%' : '';
+                            }
+                        }
+                    },
                     cutout: '70%'
                 }
             });
@@ -388,6 +792,7 @@
                 data: {
                     labels: c.categories.map(x => x.name.length > 15 ? x.name.substring(0,12)+'...' : x.name),
                     datasets: [{
+                        label: 'Popularity (Orders)',
                         data: c.categories.map(x => x.count),
                         backgroundColor: '#0ea5e9',
                         borderRadius: 4
@@ -397,10 +802,99 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+                    plugins: { 
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => 'Orders: ' + ctx.parsed.x.toLocaleString()
+                            }
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            color: '#555',
+                            font: { weight: 'bold' },
+                            formatter: (value) => value.toLocaleString()
+                        }
+                    },
+                    scales: { 
+                        x: { 
+                            grid: { display: false },
+                            title: { display: true, text: 'Number of Orders', font: { weight: 'bold' } },
+                            ticks: { precision: 0 }
+                        }, 
+                        y: { 
+                            grid: { display: false },
+                            title: { display: true, text: 'Food Categories', font: { weight: 'bold' } }
+                        } 
+                    }
                 }
             });
+
+            // 5. Vendor Financials (Bar)
+            if (charts.vendorFinance) charts.vendorFinance.destroy();
+            charts.vendorFinance = new Chart(document.getElementById('vendorFinanceChart'), {
+                type: 'bar',
+                data: {
+                    labels: c.labels,
+                    datasets: [
+                        {
+                            label: 'Vendor Net Earnings (₹)',
+                            data: c.vendorEarned,
+                            backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                            borderColor: '#4f46e5',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Admin Payouts Made (₹)',
+                            data: c.vendorPaid,
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.dataset.label + ': ₹' + ctx.parsed.y.toLocaleString()
+                            }
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            offset: -2,
+                            font: { size: 10, weight: 'bold' },
+                            formatter: (value) => value > 0 ? '₹' + Math.round(value / 1000) + 'k' : ''
+                        }
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { display: false },
+                            title: { display: true, text: 'Amount (₹)', font: { weight: 'bold' } },
+                            ticks: { callback: v => '₹' + v.toLocaleString() }
+                        }, 
+                        x: { 
+                            grid: { display: false },
+                            title: { display: true, text: 'Time Period (' + periodLabel + ')', font: { weight: 'bold' } }
+                        } 
+                    }
+                }
+            });
+
+        }
+
+        function updateChartVisibility() {
+            // Ensure all chart containers are visible
+            ['revenueChart','ordersChart','lossChart','userRegChart','statusDistChart','categoryChart','vendorFinanceChart']
+                .forEach(id => { const el = document.getElementById(id); if (el) el.closest('.chart-container').style.display = ''; });
         }
 
         function renderAlerts(alerts) {
@@ -426,7 +920,8 @@
             return 'warning';
         }
 
-        document.getElementById('refreshData').addEventListener('click', updateDashboard);
+        document.getElementById('refreshData').addEventListener('click', () => updateDashboard(true));
+        document.getElementById('dashboardPeriod').addEventListener('change', updateDashboard);
 
         // Initial load
         document.addEventListener('DOMContentLoaded', updateDashboard);

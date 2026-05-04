@@ -7,7 +7,17 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="fw-bold text-dark">@ViewBag.BusinessName Dashboard</h2>
-        <p class="text-muted">Welcome back! Here's what's happening with your store today.</p>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening with your store today.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <label class="fw-bold mb-0 text-muted small">View:</label>
+        <select id="periodFilter" class="form-select form-select-sm" style="width: auto;">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="alltime">All-Time</option>
+        </select>
     </div>
 </div>
 
@@ -17,11 +27,11 @@
         <div class="kpi-card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, #2d6a4f, #1b4332); color:white; border-radius: 12px; padding: 1.5rem;">
             <div class="d-flex align-items-center">
                 <div class="kpi-icon bg-white text-success rounded-circle p-3 me-3 opacity-75">
-                    <i class="bi bi-wallet2 fs-3"></i>
+                    <i class="bi bi-graph-up fs-3"></i>
                 </div>
                 <div>
-                    <div class="kpi-value fs-3 fw-bold">₹@ViewBag.NetEarnings</div>
-                    <div class="kpi-label small fw-semibold text-white-50 text-uppercase">Total Received</div>
+                    <div class="kpi-value fs-3 fw-bold">₹ <span id="kpiTotalRevenue">@ViewBag.TotalRevenue</span></div>
+                    <div class="kpi-label small fw-semibold text-white-50 text-uppercase">Earning Report</div>
                 </div>
             </div>
         </div>
@@ -31,11 +41,11 @@
         <div class="kpi-card shadow-sm border-0 h-100 bg-white" style="border-radius: 12px; padding: 1.5rem;">
             <div class="d-flex align-items-center">
                 <div class="kpi-icon bg-secondary-soft text-secondary rounded-circle p-3 me-3">
-                    <i class="bi bi-currency-rupee fs-3"></i>
+                    <i class="bi bi-cash-stack fs-3"></i>
                 </div>
                 <div>
-                    <div class="kpi-value fs-3 fw-bold text-dark">₹@ViewBag.TotalRevenue</div>
-                    <div class="kpi-label text-muted small uppercase fw-semibold">Gross Revenue</div>
+                    <div class="kpi-value fs-3 fw-bold text-dark">₹ <span id="kpiTotalProfit">@ViewBag.TotalProfit</span></div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Total Sale Profit</div>
                 </div>
             </div>
         </div>
@@ -45,11 +55,11 @@
         <div class="kpi-card shadow-sm border-0 h-100 bg-white" style="border-radius: 12px; padding: 1.5rem;">
             <div class="d-flex align-items-center">
                 <div class="kpi-icon bg-warning-soft text-warning rounded-circle p-3 me-3">
-                    <i class="bi bi-hourglass-split fs-3"></i>
+                    <i class="bi bi-wallet2 fs-3"></i>
                 </div>
                 <div>
-                    <div class="kpi-value fs-3 fw-bold text-dark">₹@ViewBag.PendingEarnings</div>
-                    <div class="kpi-label text-muted small uppercase fw-semibold">Pending Payouts</div>
+                    <div class="kpi-value fs-3 fw-bold text-dark">₹ <span id="kpiNetEarnings">@ViewBag.NetEarnings</span></div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Payout Received</div>
                 </div>
             </div>
         </div>
@@ -62,25 +72,37 @@
                     <i class="bi bi-box-seam fs-3"></i>
                 </div>
                 <div>
-                    <div class="kpi-value fs-3 fw-bold text-dark">@ViewBag.TotalOrders</div>
-                    <div class="kpi-label text-muted small uppercase fw-semibold">Total Orders</div>
+                    <div class="kpi-value fs-3 fw-bold text-dark"><span id="kpiTotalOrders">@ViewBag.TotalOrders</span></div>
+                    <div class="kpi-label text-muted small uppercase fw-semibold">Successful Orders</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- CHARTS & TABLES -->
-<div class="row g-4">
-    <!-- Revenue Chart -->
-    <div class="col-lg-8">
-        <div class="vendor-card shadow-sm border-0">
-            <h5 class="fw-bold mb-4">Revenue Overview</h5>
-            <div style="height: 300px;">
-                <canvas id="revenueChart"></canvas>
+    <!-- CHARTS & TABLES -->
+    <div class="row g-4">
+        <!-- Revenue Chart -->
+        <div class="col-lg-8">
+            <div class="vendor-card shadow-sm border-0 p-4" style="background: white; border-radius: 15px;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Revenue & Scale</h5>
+                    <div id="historicalNav" class="d-flex align-items-center gap-2 bg-white px-2 py-1 rounded-pill border shadow-sm">
+                        <button id="prevPeriod" class="btn btn-link p-0 text-success"><i class="bi bi-chevron-left"></i></button>
+                        <span id="currentPeriodLabel" class="fw-bold small px-2" style="min-width: 100px; text-align: center;">This Month</span>
+                        <div class="position-relative">
+                            <i class="bi bi-calendar3 text-success cursor-pointer"></i>
+                            <input type="date" id="dateSelector" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" />
+                        </div>
+                        <button id="nextPeriod" class="btn btn-link p-0 text-success"><i class="bi bi-chevron-right"></i></button>
+                    </div>
+                    <button id="currentBtn" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold">Current</button>
+                </div>
+                <div style="height: 350px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
             </div>
         </div>
-    </div>
 
     <!-- Recent Orders -->
     <div class="col-lg-4">
@@ -124,38 +146,187 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: @Html.Raw(Json.Serialize(ViewBag.ChartLabels)),
-                datasets: [{
-                    label: 'Monthly Revenue (₹)',
-                    data: @Html.Raw(Json.Serialize(ViewBag.ChartData)),
-                    borderColor: '#2d6a4f',
-                    backgroundColor: 'rgba(45, 106, 79, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#2d6a4f'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.05)' }
-                    },
-                    x: {
-                        grid: { display: false }
+        let revenueChart = null;
+        let currentRefDate = new Date();
+
+        async function updateDashboard(period = 'monthly', refDate = null) {
+            if (refDate) currentRefDate = refDate;
+            const dateStr = currentRefDate.toISOString().split('T')[0];
+            updatePeriodLabel(period, currentRefDate);
+
+            try {
+                const response = await fetch(`/Vendor/GetDashboardData?period=${period}&refDate=${dateStr}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderChart(data);
+                    if (data.summary) {
+                        document.getElementById('kpiNetEarnings').innerText = data.summary.netEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                        document.getElementById('kpiTotalRevenue').innerText = data.summary.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                        document.getElementById('kpiTotalProfit').innerText = data.summary.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                        document.getElementById('kpiTotalOrders').innerText = data.summary.totalOrders.toLocaleString();
                     }
                 }
+            } catch (error) {
+                console.error('Failed to update vendor dashboard:', error);
             }
+        }
+
+        function updatePeriodLabel(period, date) {
+            const label = document.getElementById('currentPeriodLabel');
+            if (!label) return;
+
+            const isCurrent = isSamePeriod(period, date, new Date());
+            
+            if (period === 'daily') {
+                label.innerText = isCurrent ? "Today" : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+            } else if (period === 'weekly') {
+                const start = new Date(date);
+                start.setDate(date.getDate() - date.getDay());
+                const end = new Date(start);
+                end.setDate(start.getDate() + 6);
+                label.innerText = isCurrent ? "This Week" : `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+            } else if (period === 'monthly') {
+                label.innerText = isCurrent ? "This Month" : date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+            } else if (period === 'yearly') {
+                label.innerText = isCurrent ? "This Year" : date.getFullYear();
+            } else {
+                label.innerText = "All-Time";
+            }
+        }
+
+        function isSamePeriod(period, d1, d2) {
+            if (period === 'daily') return d1.toDateString() === d2.toDateString();
+            if (period === 'weekly') {
+                const s1 = new Date(d1); s1.setDate(d1.getDate() - d1.getDay());
+                const s2 = new Date(d2); s2.setDate(d2.getDate() - d2.getDay());
+                return s1.toDateString() === s2.toDateString();
+            }
+            if (period === 'monthly') return d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+            if (period === 'yearly') return d1.getFullYear() === d2.getFullYear();
+            return true;
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            if (revenueChart) {
+                revenueChart.data.labels = data.labels;
+                revenueChart.data.datasets[0].data = data.revenue;
+                revenueChart.data.datasets[1].data = data.profit;
+                revenueChart.data.datasets[2].data = data.loss;
+                revenueChart.data.datasets[3].data = data.orders;
+                revenueChart.update();
+                return;
+            }
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+            gradient.addColorStop(0, 'rgba(45, 106, 79, 0.2)');
+            gradient.addColorStop(1, 'rgba(45, 106, 79, 0)');
+
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Revenue (₹)',
+                            data: data.revenue,
+                            borderColor: '#2d6a4f',
+                            backgroundColor: gradient,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Profit (₹)',
+                            data: data.profit,
+                            borderColor: '#10b981',
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Loss (₹)',
+                            data: data.loss,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Orders (Count)',
+                            data: data.orders,
+                            borderColor: '#ffc107',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true } }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            title: { display: true, text: 'Financials (₹)', font: { weight: 'bold' } },
+                            ticks: { callback: v => '₹' + v.toLocaleString() }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Orders', font: { weight: 'bold' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            title: { display: true, text: 'Time Period', font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function navigatePeriod(direction) {
+            const period = document.getElementById('periodFilter').value;
+            if (period === 'daily') currentRefDate.setDate(currentRefDate.getDate() + direction);
+            else if (period === 'weekly') currentRefDate.setDate(currentRefDate.getDate() + (direction * 7));
+            else if (period === 'monthly') currentRefDate.setMonth(currentRefDate.getMonth() + direction);
+            else if (period === 'yearly') currentRefDate.setFullYear(currentRefDate.getFullYear() + direction);
+            updateDashboard(period);
+        }
+
+        document.getElementById('prevPeriod').addEventListener('click', () => navigatePeriod(-1));
+        document.getElementById('nextPeriod').addEventListener('click', () => navigatePeriod(1));
+        document.getElementById('currentBtn').addEventListener('click', () => {
+            currentRefDate = new Date();
+            updateDashboard(document.getElementById('periodFilter').value);
+        });
+        document.getElementById('dateSelector').addEventListener('change', (e) => {
+            if (e.target.value) {
+                currentRefDate = new Date(e.target.value);
+                updateDashboard(document.getElementById('periodFilter').value);
+            }
+        });
+        document.getElementById('periodFilter').addEventListener('change', function() {
+            updateDashboard(this.value);
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDashboard(document.getElementById('periodFilter').value);
         });
     </script>
 }

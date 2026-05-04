@@ -65,7 +65,7 @@
 
 
 <!-- AI RECOMMENDATIONS (DAILY PLAN) -->
-@if (ViewBag.Breakfast != null || ViewBag.Lunch != null || ViewBag.Dinner != null)
+@if (ViewBag.Breakfast != null || ViewBag.MorningSnack != null || ViewBag.Lunch != null || ViewBag.EveningSnack != null || ViewBag.Dinner != null)
 {
     <section class="recommendations-section" style="background:#f8faff; padding: 5rem 0;">
         <div class="container">
@@ -75,9 +75,14 @@
                     <h2 class="fw-bold mb-2 text-dark" style="font-size:2.5rem; letter-spacing:-0.5px;">Your Personalized Plan</h2>
                     <p class="text-muted mb-0" style="font-size:1.1rem;">@ViewBag.RecommendationReason</p>
                 </div>
-                <a href="#mealCategories" class="btn rounded-pill px-4 fw-bold shadow-sm d-none d-md-flex align-items-center gap-2" style="background: white; border: 1px solid #e2e8f0; color: #475569;">
-                    View All Meals <i class="bi bi-arrow-right"></i>
-                </a>
+                <div class="d-none d-md-flex gap-3">
+                    <button onclick="window.location.reload();" class="btn rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; transition: all 0.2s;">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Ideas
+                    </button>
+                    <a href="#mealCategories" class="btn rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" style="background: white; border: 1px solid #e2e8f0; color: #475569; transition: all 0.2s;">
+                        View All Meals <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
             </div>
 
             <div class="row g-4 justify-content-center">
@@ -86,7 +91,9 @@
                     var meals = new List<(string Name, string Icon, string Color, NUTRIBITE.Models.Food Food)>
                     {
                         ("Breakfast", "bi-sunrise", "#f59e0b", ViewBag.Breakfast),
+                        ("Morning Snack", "bi-apple", "#10b981", ViewBag.MorningSnack),
                         ("Lunch", "bi-sun", "#ef4444", ViewBag.Lunch),
+                        ("Evening Snack", "bi-cup-hot", "#8b5cf6", ViewBag.EveningSnack),
                         ("Dinner", "bi-moon-stars-fill", "#3b82f6", ViewBag.Dinner)
                     };
                 }
@@ -144,7 +151,10 @@
             </div>
             
             <!-- Mobile View All Button -->
-            <div class="text-center mt-4 d-md-none">
+            <div class="text-center mt-4 d-md-none d-flex flex-column gap-3">
+                <button onclick="window.location.reload();" class="btn rounded-pill px-4 py-2 fw-bold w-100 shadow-sm" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh Ideas
+                </button>
                  <a href="#mealCategories" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold w-100">
                     View All Meals
                 </a>
@@ -182,7 +192,7 @@
             {
                 var defaultCategories = new[] {
                     "Standard Thali", "Special Thali", "Deluxe Thali", "Classical Thali", 
-                    "Comfort Thali", "Jain Thali", "Rice Combo", "Salads"
+                    "Comfort Thali", "Rice Combo", "Salads"
                 };
                 
                 foreach(var cat in defaultCategories)

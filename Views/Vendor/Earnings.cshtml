@@ -3,31 +3,95 @@
     Layout = "~/Views/Shared/_VendorLayout.cshtml";
 }
 
+<style>
+    .earnings-container { padding: 20px; }
+    .kpi-card { border-radius: 15px; border: none; transition: transform 0.2s; }
+    .kpi-card:hover { transform: translateY(-5px); }
+    .chart-card { border-radius: 15px; border: none; }
+    .period-nav { background: #fff; padding: 10px 20px; border-radius: 50px; display: inline-flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .period-nav button { border: none; background: none; color: #666; transition: color 0.2s; }
+    .period-nav button:hover { color: #000; }
+    .period-label { font-weight: 700; min-width: 150px; text-align: center; }
+</style>
+
 <div class="earnings-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-0">Financial Reports</h2>
+            <p class="text-muted small mb-0">Monitor your sales, profits, and payout history.</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <select id="periodFilter" class="form-select rounded-pill border-0 shadow-sm px-4" style="width: auto;">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="yearly">Yearly</option>
+                <option value="alltime">All-Time</option>
+            </select>
+
+            <div class="period-nav shadow-sm" id="historicalNav">
+                <button id="prevPeriod"><i class="bi bi-chevron-left"></i></button>
+                <div class="position-relative">
+                    <span class="period-label" id="currentPeriodLabel">This Month</span>
+                    <input type="date" id="dateSelector" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;">
+                </div>
+                <button id="nextPeriod"><i class="bi bi-chevron-right"></i></button>
+            </div>
+            
+            <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-file-earmark-pdf me-2"></i> Download Report
+            </button>
+        </div>
+    </div>
+
     <div class="row g-4 mb-4">
         <!-- KPI Cards -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center p-4">
-                <div class="text-muted small text-uppercase fw-bold mb-2">Total Sales</div>
-                <h2 class="text-primary mb-0">₹ <span id="totalEarnings">0.00</span></h2>
+            <div class="card kpi-card shadow-sm text-center p-4 bg-primary text-white">
+                <div class="small text-uppercase fw-bold mb-2 opacity-75">Total Sales (Gross)</div>
+                <h2 class="mb-0 fw-bold">₹ <span id="totalEarnings">0.00</span></h2>
+                <div class="small mt-2 opacity-75"><span id="ordersCount">0</span> Successful Orders</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center p-4">
-                <div class="text-muted small text-uppercase fw-bold mb-2">Total Received</div>
-                <h2 class="text-success mb-0">₹ <span id="totalPaid">0.00</span></h2>
+            <div class="card kpi-card shadow-sm text-center p-4 bg-success text-white">
+                <div class="small text-uppercase fw-bold mb-2 opacity-75">My Profit (Net)</div>
+                <h2 class="mb-0 fw-bold">₹ <span id="totalProfit">0.00</span></h2>
+                <div class="small mt-2 opacity-75">After 10% Commission</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center p-4">
-                <div class="text-muted small text-uppercase fw-bold mb-2">Commission (10%)</div>
-                <h2 class="text-danger mb-0">₹ <span id="totalCommission">0.00</span></h2>
+            <div class="card kpi-card shadow-sm text-center p-4 bg-danger text-white">
+                <div class="small text-uppercase fw-bold mb-2 opacity-75">Money Lost</div>
+                <h2 class="mb-0 fw-bold">₹ <span id="totalLoss">0.00</span></h2>
+                <div class="small mt-2 opacity-75"><span id="cancelledCount">0</span> Cancelled Orders</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm text-center p-4">
-                <div class="text-muted small text-uppercase fw-bold mb-2">Pending Payments</div>
-                <h2 class="text-warning mb-0">₹ <span id="pendingPayments">0.00</span></h2>
+            <div class="card kpi-card shadow-sm text-center p-4 bg-dark text-white">
+                <div class="small text-uppercase fw-bold mb-2 opacity-75">Payout Received</div>
+                <h2 class="mb-0 fw-bold">₹ <span id="totalPaid">0.00</span></h2>
+                <div class="small mt-2 opacity-75">Pending: ₹ <span id="pendingPayments">0.00</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card chart-card shadow-sm p-4 h-100">
+                <h5 class="fw-bold mb-4">Earnings Trend</h5>
+                <div style="height: 350px;">
+                    <canvas id="earningsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card chart-card shadow-sm p-4 h-100">
+                <h5 class="fw-bold mb-4">Financial Breakdown</h5>
+                <div style="height: 350px;">
+                    <canvas id="breakdownChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -35,12 +99,13 @@
     <!-- Payouts Table -->
     <div class="card border-0 shadow-sm p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="mb-0">Payment History</h4>
+            <h4 class="mb-0 fw-bold">Transaction History</h4>
             <div class="d-flex gap-2">
-                <select id="statusFilter" class="form-select form-select-sm" style="width: 150px;">
-                    <option value="">All Payouts</option>
+                <select id="statusFilter" class="form-select form-select-sm rounded-pill px-3" style="width: 150px;">
+                    <option value="">All Status</option>
                     <option value="Pending">Pending</option>
                     <option value="PaidToVendor">Paid</option>
+                    <option value="Cancelled">Cancelled</option>
                 </select>
             </div>
         </div>
@@ -49,28 +114,27 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Details</th>
-                        <th>Payout Period</th>
-                        <th>Total Sales</th>
-                        <th>Commission (10%)</th>
-                        <th>Your Earnings</th>
+                        <th>Transaction Info</th>
+                        <th>Period/Date</th>
+                        <th>Gross Sales</th>
+                        <th>Commission</th>
+                        <th>Net Earnings</th>
                         <th>Status</th>
                         <th>Last Updated</th>
                     </tr>
                 </thead>
                 <tbody id="payoutsBody">
                     <tr>
-                        <td colspan="7" class="text-center py-4">Loading payments...</td>
+                        <td colspan="7" class="text-center py-4">Loading transactions...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <div class="text-muted small">Showing <span id="showingCount">0</span> of <span id="totalCount">0</span> payouts</div>
+            <div class="text-muted small">Showing <span id="showingCount">0</span> of <span id="totalCount">0</span> transactions</div>
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm mb-0" id="pagination">
-                    <!-- Pagination injected here -->
                 </ul>
             </nav>
         </div>
@@ -78,52 +142,117 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let currentPage = 1;
         const pageSize = 20;
+        let currentRefDate = new Date();
+        let charts = {};
 
-        async function loadEarnings() {
-            console.log('Fetching earnings data...');
+        async function updateEarnings() {
+            const period = document.getElementById('periodFilter').value;
+            const refDateStr = currentRefDate.toISOString().split('T')[0];
+            
+            updatePeriodLabel(period, currentRefDate);
+            
             try {
-                const response = await fetch('/Vendor/GetEarningsData');
+                const response = await fetch(`/Vendor/GetEarningsData?period=${period}&refDate=${refDateStr}`);
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('Earnings data received:', data);
-                    if (data.success === false) {
-                        console.error('API Error:', data.message);
-                        return;
+                    if (data.success) {
+                        renderSummary(data.summary);
+                        renderCharts(data.charts, period);
                     }
-                    document.getElementById('totalEarnings').textContent = (data.totalEarnings || 0).toFixed(2);
-                    document.getElementById('totalPaid').textContent = (data.totalPaid || 0).toFixed(2);
-                    document.getElementById('totalCommission').textContent = (data.totalCommissionDeducted || 0).toFixed(2);
-                    document.getElementById('pendingPayments').textContent = (data.pendingPayments || 0).toFixed(2);
-                } else {
-                    console.error('Failed to fetch earnings:', response.status);
                 }
+                loadPayouts(1);
             } catch (error) {
-                console.error('Error loading earnings:', error);
+                console.error('Error updating earnings:', error);
             }
         }
 
+        function updatePeriodLabel(period, date) {
+            const label = document.getElementById('currentPeriodLabel');
+            const isCurrent = isSamePeriod(period, date, new Date());
+            
+            if (period === 'daily') label.innerText = isCurrent ? "Today" : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+            else if (period === 'weekly') {
+                const start = new Date(date); start.setDate(date.getDate() - date.getDay());
+                const end = new Date(start); end.setDate(start.getDate() + 6);
+                label.innerText = isCurrent ? "This Week" : `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+            }
+            else if (period === 'monthly') label.innerText = isCurrent ? "This Month" : date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+            else if (period === 'yearly') label.innerText = isCurrent ? "This Year" : date.getFullYear();
+            else label.innerText = "All-Time";
+            
+            document.getElementById('historicalNav').style.visibility = (period === 'alltime') ? 'hidden' : 'visible';
+        }
+
+        function isSamePeriod(period, d1, d2) {
+            if (period === 'daily') return d1.toDateString() === d2.toDateString();
+            if (period === 'monthly') return d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+            if (period === 'yearly') return d1.getFullYear() === d2.getFullYear();
+            return false;
+        }
+
+        function renderSummary(s) {
+            document.getElementById('totalEarnings').textContent = (s.totalEarnings || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+            document.getElementById('totalProfit').textContent = (s.totalProfit || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+            document.getElementById('totalPaid').textContent = (s.totalPaid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+            document.getElementById('totalLoss').textContent = (s.totalLoss || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+            document.getElementById('pendingPayments').textContent = (s.pendingPayments || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+            document.getElementById('ordersCount').textContent = s.ordersCount || 0;
+            document.getElementById('cancelledCount').textContent = s.cancelledCount || 0;
+        }
+
+        function renderCharts(c, period) {
+            // Line Chart
+            if (charts.earnings) charts.earnings.destroy();
+            charts.earnings = new Chart(document.getElementById('earningsChart'), {
+                type: 'line',
+                data: {
+                    labels: c.labels,
+                    datasets: [
+                        { label: 'Revenue', data: c.revenue, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.4 },
+                        { label: 'My Profit', data: c.profit, borderColor: '#10b981', backgroundColor: 'transparent', fill: false, tension: 0.4 },
+                        { label: 'Loss', data: c.loss, borderColor: '#ef4444', backgroundColor: 'transparent', fill: false, tension: 0.4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Time Period', font: { weight: 'bold' } } } } }
+            });
+
+            // Pie Chart
+            if (charts.breakdown) charts.breakdown.destroy();
+            const total = c.revenue.reduce((a, b) => a + b, 0);
+            const profit = c.profit.reduce((a, b) => a + b, 0);
+            const loss = c.loss.reduce((a, b) => a + b, 0);
+            
+            charts.breakdown = new Chart(document.getElementById('breakdownChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Net Profit', 'Admin Commission', 'Loss (Cancelled)'],
+                    datasets: [{
+                        data: [profit, (total - profit), loss],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+            });
+        }
+
         async function loadPayouts(page = 1) {
-            console.log('Fetching payouts data for page:', page);
             const status = document.getElementById('statusFilter').value;
+            const period = document.getElementById('periodFilter').value;
+            const refDateStr = currentRefDate.toISOString().split('T')[0];
+            
             try {
-                const response = await fetch(`/Vendor/GetPayoutsData?page=${page}&pageSize=${pageSize}&status=${status}`);
+                const response = await fetch(`/Vendor/GetPayoutsData?page=${page}&pageSize=${pageSize}&status=${status}&period=${period}&refDate=${refDateStr}`);
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('Payouts data received:', data);
-                    if (data.success === false) {
-                        console.error('API Error:', data.message);
-                        return;
-                    }
                     renderPayouts(data.items || []);
                     renderPagination(data.totalItems || 0, data.page || 1, data.pageSize || 20);
                     document.getElementById('showingCount').textContent = (data.items || []).length;
                     document.getElementById('totalCount').textContent = data.totalItems || 0;
                     currentPage = data.page || 1;
-                } else {
-                    console.error('Failed to fetch payouts:', response.status);
                 }
             } catch (error) {
                 console.error('Error loading payouts:', error);
@@ -133,27 +262,25 @@
         function renderPayouts(payouts) {
             const body = document.getElementById('payoutsBody');
             if (payouts.length === 0) {
-                body.innerHTML = '<tr><td colspan="7" class="text-center py-4">No payouts found.</td></tr>';
+                body.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No transactions found for this period.</td></tr>';
                 return;
             }
 
             body.innerHTML = payouts.map(p => `
                 <tr>
                     <td>
-                        ${p.id === 0 ? `<span class="badge bg-warning-subtle text-warning border">Live Balance</span>` :
-                          (p.orderId ? `<span class="badge bg-light text-dark border">Order #${p.orderId}</span>` : `<span class="badge bg-primary">Aggregate Payout</span>`)}
-                        <div class="text-muted extra-small">ID: ${p.id === 0 ? 'ACC-NEW' : '#' + p.id}</div>
+                        <span class="badge ${p.id === 0 ? 'bg-light text-dark border' : 'bg-primary'}">${p.payoutMonth}</span>
+                        ${p.orderId ? `<div class="text-muted extra-small mt-1">Order #${p.orderId}</div>` : ''}
                     </td>
-                    <td>
-                        <div class="fw-bold">${p.payoutMonth || 'N/A'}</div>
-                        <div class="text-muted small">${p.orderDate ? new Date(p.orderDate).toLocaleDateString() : ''}</div>
+                    <td class="small">
+                        ${p.orderDate ? new Date(p.orderDate).toLocaleDateString() : 'Aggregate Payout'}
                     </td>
                     <td>₹${p.totalSales.toFixed(2)}</td>
                     <td class="text-danger">- ₹${p.commissionDeducted.toFixed(2)}</td>
                     <td class="fw-bold text-success">₹${p.amount.toFixed(2)}</td>
                     <td>
-                        <span class="badge ${p.status === 'Pending' || p.status === 'Accruing' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'}">
-                            ${p.status === 'PaidToVendor' ? 'Paid' : (p.status === 'Accruing' ? 'Live Balance' : p.status)}
+                        <span class="badge rounded-pill ${p.status === 'PaidToVendor' ? 'bg-success' : (p.status === 'Cancelled' ? 'bg-danger' : 'bg-warning')}">
+                            ${p.status === 'PaidToVendor' ? 'Paid' : p.status}
                         </span>
                     </td>
                     <td class="text-muted small">${new Date(p.updatedAt).toLocaleString()}</td>
@@ -164,22 +291,30 @@
         function renderPagination(totalItems, page, size) {
             const totalPages = Math.ceil(totalItems / size);
             const pagination = document.getElementById('pagination');
-            
             let html = '';
             for (let i = 1; i <= totalPages; i++) {
-                html += `
-                    <li class="page-item ${i === page ? 'active' : ''}">
-                        <button class="page-link" onclick="loadPayouts(${i})">${i}</button>
-                    </li>
-                `;
+                html += `<li class="page-item ${i === page ? 'active' : ''}"><button class="page-link" onclick="loadPayouts(${i})">${i}</button></li>`;
             }
             pagination.innerHTML = html;
         }
 
+        function navigatePeriod(direction) {
+            const period = document.getElementById('periodFilter').value;
+            if (period === 'daily') currentRefDate.setDate(currentRefDate.getDate() + direction);
+            else if (period === 'weekly') currentRefDate.setDate(currentRefDate.getDate() + (direction * 7));
+            else if (period === 'monthly') currentRefDate.setMonth(currentRefDate.getMonth() + direction);
+            else if (period === 'yearly') currentRefDate.setFullYear(currentRefDate.getFullYear() + direction);
+            updateEarnings();
+        }
+
+        document.getElementById('prevPeriod').addEventListener('click', () => navigatePeriod(-1));
+        document.getElementById('nextPeriod').addEventListener('click', () => navigatePeriod(1));
+        document.getElementById('dateSelector').addEventListener('change', (e) => { if (e.target.value) { currentRefDate = new Date(e.target.value); updateEarnings(); } });
+        document.getElementById('periodFilter').addEventListener('change', updateEarnings);
         document.getElementById('statusFilter').addEventListener('change', () => loadPayouts(1));
 
         // Initial Load
-        loadEarnings();
-        loadPayouts();
+        updateEarnings();
     </script>
 }
+

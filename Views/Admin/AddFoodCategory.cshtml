@@ -3,151 +3,255 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="fw-bold mb-1">Add Food Category</h2>
-                    <p class="text-muted small mb-0">Create new categories to organize your food inventory.</p>
-                </div>
-                <a asp-action="ViewCategory" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Back to List
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-soft: #e2e8f0;
+        }
+
+        body { font-family: 'Outfit', sans-serif; background-color: var(--background); }
+
+        .premium-card {
+            background: var(--surface);
+            border-radius: 24px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+            padding: 2.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .premium-input {
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        .premium-input:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            outline: none;
+        }
+
+        .suggestion-pill {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-pill:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .suggestion-pill.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-dark);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .upload-zone {
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #f0fdf4;
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: pointer;
+        }
+
+        .btn-premium {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 100px;
+            padding: 1rem 2rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+            width: 100%;
+        }
+
+        .btn-premium:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(16, 185, 129, 0.5);
+            color: white;
+        }
+    </style>
+}
+
+<div class="container-fluid py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4 mx-auto" style="max-width: 800px;">
+                <a asp-action="ViewCategory" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Inventory
                 </a>
             </div>
-
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <form asp-action="AddFoodCategory" method="post" enctype="multipart/form-data">
-                        
-                        <div class="row g-4">
-                            <!-- PRODUCT CATEGORY -->
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold">Product Category</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-tag"></i></span>
-                                    <select name="ProductCategory" class="form-select" id="productCatSelect">
-                                        <option>Veg</option>
-                                        <option>Non-Veg</option>
-                                        <option>Eggitarian</option>
-                                        <option>Jain</option>
-                                        <option>Vegan</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    <input type="text" name="CustomProductCategory" id="customProductCat" 
-                                           class="form-control d-none" placeholder="Enter custom category name" />
-                                </div>
-                            </div>
-
-                            <!-- MEAL CATEGORY -->
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold">Meal Category</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-egg-fried"></i></span>
-                                    <select name="MealCategory" class="form-select" id="mealCatSelect">
-                                        @if (ViewBag.SpecifiedCategories != null)
-                                        {
-                                            foreach (var cat in (string[])ViewBag.SpecifiedCategories)
-                                            {
-                                                <option>@cat</option>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <option>Special Thali</option>
-                                            <option>Deluxe Thali</option>
-                                            <option>Classical Thali</option>
-                                            <option>Comfort Thali</option>
-                                            <option>Standard Thali</option>
-                                            <option>Jain Thali</option>
-                                            <option>Rice Combo</option>
-                                            <option>Healthy</option>
-                                            <option>Breakfast</option>
-                                            <option>Low Calorie Meals</option>
-                                            <option>Protein Meal</option>
-                                            <option>Salads</option>
-                                        }
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    <input type="text" name="CustomMealCategory" id="customMealCat" 
-                                           class="form-control d-none" placeholder="Enter custom meal name" />
-                                </div>
-                            </div>
-
-                            <!-- IMAGE UPLOAD -->
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold">Category Image</label>
-                                <div class="upload-zone p-4 text-center border-dashed rounded bg-light">
-                                    <i class="bi bi-cloud-arrow-up display-4 text-primary mb-2"></i>
-                                    <input type="file" name="CategoryImage" class="form-control mt-2" accept="image/*" />
-                                    <p class="small text-muted mt-2 mb-0">Allowed formats: JPG, PNG, WEBP (Max 2MB)</p>
-                                </div>
-                            </div>
-
-                            <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">
-                                    <i class="bi bi-check-circle me-2"></i> Create Category
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    @if (ViewBag.Success != null)
-                    {
-                        <div class="alert alert-success mt-4 border-0 shadow-sm d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill me-2 fs-4"></i>
-                            <div>@ViewBag.Success</div>
-                        </div>
-                    }
-                    @if (ViewBag.Error != null)
-                    {
-                        <div class="alert alert-danger mt-4 border-0 shadow-sm d-flex align-items-center">
-                            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
-                            <div>@ViewBag.Error</div>
-                        </div>
-                    }
+            
+            <div class="premium-card">
+                <div class="text-center mb-5">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-grid-fill display-5"></i>
+                    </div>
+                    <h2 class="header-title">Create Food Category</h2>
+                    <p class="text-muted fw-medium">Input category details smoothly without clunky dropdowns.</p>
                 </div>
+
+                @if (ViewBag.Success != null)
+                {
+                    <div class="alert alert-success rounded-4 border-0 shadow-sm d-flex align-items-center mb-4">
+                        <i class="bi bi-check-circle-fill me-3 fs-3"></i>
+                        <div class="fw-bold fs-6">@ViewBag.Success</div>
+                    </div>
+                }
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger rounded-4 border-0 shadow-sm d-flex align-items-center mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                        <div class="fw-bold fs-6">@ViewBag.Error</div>
+                    </div>
+                }
+
+                <form asp-action="AddFoodCategory" method="post" enctype="multipart/form-data">
+                    <div class="row g-4">
+                        <!-- Product Category -->
+                        <div class="col-12">
+                            <label class="form-label"><i class="bi bi-tag-fill text-primary me-2"></i>Product Base Type</label>
+                            <input type="text" name="CustomProductCategory" id="productCatInput" class="form-control premium-input" placeholder="e.g., Veg, Vegan, Non-Veg" required />
+                            <input type="hidden" name="ProductCategory" value="Other" /> <!-- Backend expects \"Other\" if Custom is used -->
+                            
+                            <div class="mt-3" id="productPills">
+                                <span class="suggestion-pill" data-target="productCatInput">Veg</span>
+                                <span class="suggestion-pill" data-target="productCatInput">Non-Veg</span>
+                                <span class="suggestion-pill" data-target="productCatInput">Eggitarian</span>
+                                <span class="suggestion-pill" data-target="productCatInput">Vegan</span>
+                            </div>
+                        </div>
+
+                        <!-- Meal Category -->
+                        <div class="col-12 mt-4">
+                            <label class="form-label"><i class="bi bi-egg-fried text-warning me-2"></i>Specific Meal Identity</label>
+                            <input type="text" name="CustomMealCategory" id="mealCatInput" class="form-control premium-input" placeholder="e.g., Deluxe Thali, Breakfast, Standard Rice" required />
+                            <input type="hidden" name="MealCategory" value="Other" /> <!-- Backend expects \"Other\" if Custom is used -->
+                            
+                            <div class="mt-3" id="mealPills">
+                                <span class="suggestion-pill" data-target="mealCatInput">Special Thali</span>
+                                <span class="suggestion-pill" data-target="mealCatInput">Standard Thali</span>
+                                <span class="suggestion-pill" data-target="mealCatInput">Comfort Thali</span>
+                                <span class="suggestion-pill" data-target="mealCatInput">Rice Combo</span>
+                                <span class="suggestion-pill" data-target="mealCatInput">Breakfast</span>
+                                <span class="suggestion-pill" data-target="mealCatInput">Healthy</span>
+                                <span class="suggestion-pill" data-target="mealCatInput">Protein Meal</span>
+                                <span class="suggestion-pill" data-target="mealCatInput">Salads</span>
+                                @if (ViewBag.SpecifiedCategories != null)
+                                {
+                                    foreach (var cat in (string[])ViewBag.SpecifiedCategories)
+                                    {
+                                        <span class="suggestion-pill" data-target="mealCatInput">@cat</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Image Upload -->
+                        <div class="col-12 mt-4">
+                            <label class="form-label"><i class="bi bi-image-fill text-info me-2"></i>Category Thumbnail</label>
+                            <div class="upload-zone">
+                                <i class="bi bi-cloud-arrow-up display-4 text-primary opacity-75 mb-3 d-block"></i>
+                                <h5 class="fw-bold text-dark">Drag & Drop or Click to Upload</h5>
+                                <p class="text-muted small">Supports JPG, PNG, WEBP (Max 2MB)</p>
+                                <input type="file" name="CategoryImage" accept="image/*" id="fileUpload" />
+                            </div>
+                            <div id="fileNameDisplay" class="text-center mt-2 fw-medium text-success" style="display: none;"></div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="col-12 mt-5">
+                            <button type="submit" class="btn-premium">
+                                <i class="bi bi-save2-fill me-2"></i> Save & Publish Category
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .border-dashed {
-        border: 2px dashed #dee2e6 !important;
-    }
-    .upload-zone:hover {
-        border-color: #22c55e !important;
-        background-color: rgba(34, 197, 94, 0.05) !important;
-    }
-    .form-select:focus, .form-control:focus {
-        border-color: #22c55e;
-        box-shadow: 0 0 0 0.25rem rgba(34, 197, 94, 0.25);
-    }
-</style>
-
 @section Scripts {
     <script>
-        document.getElementById('productCatSelect').addEventListener('change', function() {
-            const customInput = document.getElementById('customProductCat');
-            if (this.value === 'Other') {
-                customInput.classList.remove('d-none');
-                customInput.required = true;
-            } else {
-                customInput.classList.add('d-none');
-                customInput.required = false;
-            }
-        });
+        $(document).ready(function() {
+            $('.suggestion-pill').on('click', function() {
+                const targetId = $(this).data('target');
+                $('#' + targetId).val($(this).text()).focus();
+                
+                // Active state styling logic
+                $(this).siblings().removeClass('active');
+                $(this).addClass('active');
+            });
 
-        document.getElementById('mealCatSelect').addEventListener('change', function() {
-            const customInput = document.getElementById('customMealCat');
-            if (this.value === 'Other') {
-                customInput.classList.remove('d-none');
-                customInput.required = true;
-            } else {
-                customInput.classList.add('d-none');
-                customInput.required = false;
-            }
+            // Make uploaded file name visible
+            $('#fileUpload').on('change', function() {
+                if(this.files.length > 0) {
+                    $('#fileNameDisplay').text("Attached: " + this.files[0].name).slideDown();
+                } else {
+                    $('#fileNameDisplay').slideUp();
+                }
+            });
         });
     </script>
 }

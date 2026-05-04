@@ -2,136 +2,616 @@
     ViewData["Title"] = "Payment Reports";
 }
 
-<link rel="stylesheet" href="~/css/reports.css" />
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-<div class="table-wrapper reports-page">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    .premium-admin-page { 
+        padding: 30px; 
+        background: #f8fafc; 
+        min-height: calc(100vh - 60px); 
+        font-family: 'Outfit', sans-serif;
+        color: #334155;
+    }
+    
+    .premium-title {
+        font-size: 1.85rem;
+        font-weight: 700;
+        background: linear-gradient(to right, #0f172a, #475569);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    /* Cards */
+    .glass-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    /* KPI Widgets */
+    .kpi-widget { position: relative; overflow: hidden; padding: 26px; height: 100%; display: flex; flex-direction: column; justify-content: center;}
+    
+    .kpi-glow {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        filter: blur(55px);
+        opacity: 0.15;
+        top: -50px;
+        right: -40px;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+    .kpi-widget:hover .kpi-glow { opacity: 0.35; }
+
+    .glow-success { background: #10b981; }
+    .glow-danger { background: #ef4444; }
+    .glow-warning { background: #f59e0b; }
+    .glow-info { background: #3b82f6; }
+
+    .kpi-icon-wrapper {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+    
+    .icon-success { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .icon-danger { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .icon-warning { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .icon-info { background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
+
+    .kpi-value { font-size: 2.2rem; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 4px; }
+    .kpi-label { font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; }
+    .kpi-subtext { font-size: 0.8rem; color: #94a3b8; font-weight: 400; margin-top: auto; padding-top: 8px;}
+
+    /* Filter Controls */
+    .filter-section {
+        background: #ffffff;
+        padding: 20px 24px;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        margin-bottom: 30px;
+    }
+    
+    .filter-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: block; font-weight: 600; color: #64748b; }
+    .glass-input, .glass-select {
+        background: #f8fafc;
+        border: 1px solid rgba(0,0,0,0.05);
+        color: #334155;
+        border-radius: 12px;
+        padding: 8px 12px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 500;
+        outline: none;
+        width: 100%;
+        transition: all 0.2s;
+    }
+    .glass-input:focus, .glass-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    
+    .btn-apply {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 8px 24px;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        height: 100%;
+        width: 100%;
+    }
+    .btn-apply:hover { box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35); transform: translateY(-2px); color: white;}
+    .btn-apply:active { transform: translateY(0); }
+    
+    .btn-reset {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 8px 24px;
+        transition: all 0.2s ease;
+        height: 100%;
+        width: 100%;
+    }
+    .btn-reset:hover { background: #e2e8f0; color: #0f172a; }
+
+    /* Chart Container */
+    .chart-container-wrapper { padding: 24px; }
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .chart-title { font-weight: 700; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+    .chart-container { height: 380px; position: relative; width: 100%; }
+
+    /* Period Nav */
+    .period-nav {
+        background: #f1f5f9;
+        padding: 6px;
+        border-radius: 100px;
+        display: inline-flex; align-items: center; gap: 8px; 
+    }
+    .nav-btn {
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.05);
+        color: #475569;
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .nav-btn:hover { background: #3b82f6; border-color: #3b82f6; color: #fff; transform: scale(1.05); }
+    #currentPeriodLabel { color: #334155; font-weight: 600; font-size: 0.9rem; min-width: 120px; text-align: center; }
+
+    /* Table Styles */
+    .table-container-wrapper { padding: 0; overflow: hidden; }
+    .table-header { padding: 24px; border-bottom: 1px solid rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; background: #ffffff;}
+    
+    .glass-table { border-collapse: separate; border-spacing: 0; width: 100%; margin-bottom: 0; }
+    .glass-table th {
+        background: #f8fafc;
+        color: #64748b; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+        padding: 16px 24px;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        white-space: nowrap;
+    }
+    .glass-table td {
+        padding: 18px 24px;
+        color: #334155; font-weight: 500; font-size: 0.95rem;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+        vertical-align: middle;
+        transition: background 0.2s;
+    }
+    .glass-table tbody tr:hover td { background: #f8fafc; }
+    .glass-table tbody tr:last-child td { border-bottom: none; }
+
+    .status-chip { padding: 6px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block;}
+    .status-success { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status-failed { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .status-refunded { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .status-cancelled { background: rgba(100, 116, 139, 0.1); color: #475569; border: 1px solid rgba(100, 116, 139, 0.2); }
+    .status-unknown { background: #f1f5f9; color: #64748b; }
+
+    .transaction-id { font-family: 'Monaco', 'Consolas', monospace; font-size: 0.8rem; color: #475569; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0;}
+    .amount-cell { font-weight: 700; color: #0f172a; }
+
+    /* Custom Scrollbar */
+    .table-responsive::-webkit-scrollbar { height: 8px; width: 8px; }
+    .table-responsive::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    .table-responsive::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .table-responsive::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Overrides */
+    body { background-color: #f8fafc; }
+    .content { background-color: transparent !important; }
+    .topbar { background-color: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.04) !important; color: #0f172a !important; }
+</style>
+
+<div class="premium-admin-page">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-4">
         <div>
-            <h4>Payment Reports</h4>
-            <small class="text-muted">Monitor successful payments, failures, refunds and cancellations</small>
+            <h2 class="premium-title mb-1">Payment History</h2>
+            <p class="mb-0" style="color: #64748b; font-weight: 400; letter-spacing: 0.3px;">Track all incoming transactions, refunds, and financial logs.</p>
         </div>
-
-        <div class="d-flex gap-2 align-items-center">
-            <label class="mb-0 small">From</label>
-            <input id="fromDate" type="date" class="form-control form-control-sm" />
-            <label class="mb-0 small ms-2">To</label>
-            <input id="toDate" type="date" class="form-control form-control-sm" />
-            <select id="statusFilter" class="form-select form-select-sm ms-2">
-                <option value="All">All</option>
-                <option value="Success">Success</option>
-                <option value="Failed">Failed</option>
-                <option value="Refunded">Refunded</option>
-                <option value="Cancelled">Cancelled</option>
-            </select>
-            <button id="apply" class="btn btn-sm btn-approve ms-2">Apply</button>
+        <div>
+            <button onclick="window.print()" class="btn-reset d-flex align-items-center gap-2 shadow-sm rounded-pill" style="padding: 10px 24px;">
+                <i class="bi bi-file-earmark-pdf fs-5"></i> Export Financials
+            </button>
         </div>
     </div>
 
-    <div class="row g-3 mb-3">
-        <div class="col-md-3">
-            <div class="summary-card p-3">
-                <div class="title">Successful</div>
-                <div id="countSuccess" class="value">-</div>
-                <div class="sub text-muted">Payments completed</div>
+    <!-- Search & Filter Bar -->
+    <div class="filter-section">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="filter-label">Customer</label>
+                <div class="position-relative">
+                    <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-slate-400" style="color: #94a3b8;"></i>
+                    <input id="searchUsername" type="text" class="glass-input ps-5" placeholder="Name/ID" />
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="summary-card p-3">
-                <div class="title">Failed</div>
-                <div id="countFailed" class="value">-</div>
-                <div class="sub text-muted">Failed transactions</div>
+            <div class="col-md-3">
+                <label class="filter-label">Gateway Ref</label>
+                <div class="position-relative">
+                    <i class="bi bi-hash position-absolute top-50 translate-middle-y ms-3 text-slate-400" style="color: #94a3b8;"></i>
+                    <input id="searchRef" type="text" class="glass-input ps-5" placeholder="Txn ID" />
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="summary-card p-3">
-                <div class="title">Refunded</div>
-                <div id="countRefunded" class="value">-</div>
-                <div class="sub text-muted">Refunds issued</div>
+            <div class="col-md-3">
+                <label class="filter-label">Date Range</label>
+                <div class="d-flex align-items-center gap-2">
+                    <input id="fromDate" type="date" class="glass-input" />
+                    <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">TO</span>
+                    <input id="toDate" type="date" class="glass-input" />
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="summary-card p-3">
-                <div class="title">Cancelled</div>
-                <div id="countCancelled" class="value">-</div>
-                <div class="sub text-muted">Order cancellations</div>
+            <div class="col-md-3 d-flex gap-2" style="height: 40px;">
+                <button id="apply" class="btn-apply w-100 d-flex justify-content-center align-items-center gap-2">
+                    <i class="bi bi-funnel-fill"></i> Apply
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="card p-3">
-        <h5 class="mb-2">Payments</h5>
+    <!-- KPI Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="glass-card kpi-widget">
+                <div class="kpi-glow glow-success"></div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-label">Successful</div>
+                    <div class="kpi-icon-wrapper icon-success"><i class="bi bi-check-circle-fill"></i></div>
+                </div>
+                <div id="countSuccess" class="kpi-value">0</div>
+                <div class="kpi-subtext"><i class="bi bi-shield-check me-1 text-success"></i> Cleared payments</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card kpi-widget">
+                <div class="kpi-glow glow-danger"></div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-label">Failed</div>
+                    <div class="kpi-icon-wrapper icon-danger"><i class="bi bi-x-circle-fill"></i></div>
+                </div>
+                <div id="countFailed" class="kpi-value">0</div>
+                <div class="kpi-subtext"><i class="bi bi-exclamation-triangle me-1 text-danger"></i> Dropped transactions</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card kpi-widget">
+                <div class="kpi-glow glow-warning"></div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-label">Refunded</div>
+                    <div class="kpi-icon-wrapper icon-warning"><i class="bi bi-arrow-counterclockwise"></i></div>
+                </div>
+                <div id="countRefunded" class="kpi-value">0</div>
+                <div class="kpi-subtext"><i class="bi bi-wallet2 me-1 text-warning"></i> Money returned</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card kpi-widget">
+                <div class="kpi-glow glow-info"></div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-label">Cancelled</div>
+                    <div class="kpi-icon-wrapper icon-info"><i class="bi bi-slash-circle"></i></div>
+                </div>
+                <div id="countCancelled" class="kpi-value">0</div>
+                <div class="kpi-subtext"><i class="bi bi-info-circle me-1 text-info"></i> Order voids</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trend Chart Removed -->
+
+    <!-- Transaction Table -->
+    <div class="glass-card table-container-wrapper">
+        <div class="table-header">
+            <div class="chart-title mb-0">
+                <span class="bg-info bg-opacity-10 text-info p-2 rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;"><i class="bi bi-list-columns-reverse"></i></span>
+                Transaction Ledger
+            </div>
+            <div class="badge" style="background: #e0f2fe; color: #0284c7; padding: 6px 14px; border-radius: 100px; font-weight: 600; letter-spacing: 0.5px;">
+                Real-time Sync
+            </div>
+        </div>
         <div class="table-responsive">
-            <table id="paymentsTable" class="table admin-table">
+            <table id="paymentsTable" class="glass-table">
                 <thead>
                     <tr>
-                        <th>Payment ID</th>
+                        <th class="ps-4">Transaction Details</th>
                         <th>Order</th>
-                        <th>Date</th>
                         <th>Customer</th>
+                        <th>Transaction ID</th>
                         <th>Method</th>
                         <th>Amount</th>
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
             </table>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
+        Chart.register(ChartDataLabels);
+        
+        // Light theme defaults for Chart.js
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.font.family = "'Outfit', sans-serif";
+
         (function () {
             const api = '/Reports/GetPaymentReportsData';
-            const $from = $('#fromDate'), $to = $('#toDate'), $status = $('#statusFilter');
+            const $from = $('#fromDate'), $to = $('#toDate'), $status = $('#statusFilter'), $period = $('#period');
+            const $user = $('#searchUsername'), $ref = $('#searchRef');
 
             function initDates() {
-                const today = new Date();
-                const start = new Date(); start.setDate(today.getDate() - 13);
-                $from.val(start.toISOString().slice(0,10));
-                $to.val(today.toISOString().slice(0,10));
+                $from.val('');
+                $to.val('');
             }
 
             function statusChip(s) {
                 if (!s) return '<span class="status-chip status-unknown">Unknown</span>';
-                if (s === 'Success') return '<span class="status-chip status-success">Success</span>';
-                if (s === 'Failed') return '<span class="status-chip status-failed">Failed</span>';
-                if (s === 'Refunded') return '<span class="status-chip status-refunded">Refunded</span>';
-                if (s === 'Cancelled') return '<span class="status-chip status-cancelled">Cancelled</span>';
+                if (s === 'Success' || s === 'Completed' || s === 'Paid') return '<span class="status-chip status-success"><i class="bi bi-check-circle me-1"></i>Success</span>';
+                if (s === 'Failed' || s === 'Error') return '<span class="status-chip status-failed"><i class="bi bi-x-circle me-1"></i>Failed</span>';
+                if (s === 'Refunded') return '<span class="status-chip status-refunded"><i class="bi bi-arrow-counterclockwise me-1"></i>Refunded</span>';
+                if (s === 'Cancelled') return '<span class="status-chip status-cancelled"><i class="bi bi-slash-circle me-1"></i>Cancelled</span>';
                 return '<span class="status-chip status-unknown">' + s + '</span>';
             }
 
             function render(model) {
-                $('#countSuccess').text(model.totalSuccess ?? model.TotalSuccess ?? 0);
-                $('#countFailed').text(model.totalFailed ?? model.TotalFailed ?? 0);
-                $('#countRefunded').text(model.totalRefunded ?? model.TotalRefunded ?? 0);
-                $('#countCancelled').text(model.totalCancelled ?? model.TotalCancelled ?? 0);
+                $('#countSuccess').text((model.totalSuccess ?? model.TotalSuccess ?? 0).toLocaleString());
+                $('#countFailed').text((model.totalFailed ?? model.TotalFailed ?? 0).toLocaleString());
+                $('#countRefunded').text((model.totalRefunded ?? model.TotalRefunded ?? 0).toLocaleString());
+                if ($('#countCancelled').length) {
+                    $('#countCancelled').text((model.totalCancelled ?? model.TotalCancelled ?? 0).toLocaleString());
+                }
 
                 const $tbody = $('#paymentsTable tbody').empty();
-                (model.payments || model.Payments || []).forEach(p => {
-                    const date = new Date(p.paymentDate || p.PaymentDate).toLocaleString();
+                const payments = model.payments || model.Payments || [];
+                if (payments.length === 0) {
+                    $tbody.append('<tr><td colspan="7" class="text-center py-5" style="color: #64748b;"><i class="bi bi-inbox fs-1 d-block mb-3" style="opacity: 0.3;"></i>No matching payments found</td></tr>');
+                    return;
+                }
+
+                payments.forEach(p => {
+                    const date = new Date(p.paymentDate || p.PaymentDate).toLocaleString(undefined, {
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
                     const tr = $('<tr></tr>');
-                    tr.append('<td>' + (p.paymentId || p.PaymentId) + '</td>');
-                    tr.append('<td><a href="/Admin/OrderDetails?orderId=' + (p.orderId || p.OrderId) + '">#' + (p.orderId || p.OrderId) + '</a></td>');
-                    tr.append('<td>' + date + '</td>');
-                    tr.append('<td>' + (p.customerName || p.CustomerName) + '</td>');
-                    tr.append('<td>' + (p.method || p.Method) + '</td>');
-                    tr.append('<td>₹' + (Number(p.amount || p.Amount).toFixed(2)) + '</td>');
+                    tr.append('<td class="ps-4"><div><div class="fw-bold" style="color: #0f172a;">#' + (p.paymentId || p.PaymentId) + '</div><div style="font-size: 0.8rem; color: #94a3b8;">' + date + '</div></div></td>');
+                    tr.append('<td><a href="/Admin/OrderDetails?orderId=' + (p.orderId || p.OrderId) + '" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Order #' + (p.orderId || p.OrderId) + '</a></td>');
+                    tr.append('<td><div class="fw-bold" style="color: #334155;">' + (p.customerName || p.CustomerName) + '</div></td>');
+                    tr.append('<td><div class="transaction-id">' + (p.gatewayRef || p.GatewayRef || 'N/A') + '</div></td>');
+                    tr.append('<td><span class="badge-soft-primary">' + (p.method || p.Method) + '</span></td>');
+                    tr.append('<td class="amount-cell">₹' + Number(p.amount || p.Amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</td>');
                     tr.append('<td>' + statusChip(p.status || p.Status) + '</td>');
                     $tbody.append(tr);
                 });
             }
 
+            let paymentsChart = null;
+            let currentRefDate = new Date();
+
+            function updatePeriodLabel(period, date) {
+                const label = document.getElementById('currentPeriodLabel');
+                if (!label) return;
+
+                const isCurrent = isSamePeriod(period, date, new Date());
+                
+                if (period === 'daily' || period === 'today') {
+                    label.innerText = isCurrent ? "Today" : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                } else if (period === 'weekly') {
+                    const start = new Date(date);
+                    start.setDate(date.getDate() - date.getDay());
+                    const end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    label.innerText = isCurrent ? "This Week" : `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+                } else if (period === 'monthly') {
+                    label.innerText = isCurrent ? "This Month" : date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+                } else if (period === 'yearly') {
+                    label.innerText = isCurrent ? "This Year" : date.getFullYear();
+                } else {
+                    label.innerText = "All-Time";
+                }
+            }
+
+            function isSamePeriod(period, d1, d2) {
+                if (period === 'daily' || period === 'today') return d1.toDateString() === d2.toDateString();
+                if (period === 'weekly') {
+                    const s1 = new Date(d1); s1.setDate(d1.getDate() - d1.getDay());
+                    const s2 = new Date(d2); s2.setDate(d2.getDate() - d2.getDay());
+                    return s1.toDateString() === s2.toDateString();
+                }
+                if (period === 'monthly') return d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+                if (period === 'yearly') return d1.getFullYear() === d2.getFullYear();
+                return true;
+            }
+
+            function renderTrend(trendData) {
+                const ctx = document.getElementById('paymentsTrendChart').getContext('2d');
+                const periodLabel = $period.find('option:selected').text();
+                
+                const labels = trendData.labels || [];
+                const successAmount = trendData.successAmount || trendData.revenue || [];
+                const cancelledCount = trendData.cancelledCount || [];
+                const refundedCount = trendData.refundedCount || [];
+
+                if (paymentsChart) {
+                    paymentsChart.data.labels = labels;
+                    if(paymentsChart.data.datasets.length > 0) paymentsChart.data.datasets[0].data = successAmount;
+                    if(paymentsChart.data.datasets.length > 1) paymentsChart.data.datasets[1].data = cancelledCount;
+                    if(paymentsChart.data.datasets.length > 2) paymentsChart.data.datasets[2].data = refundedCount;
+                    
+                    paymentsChart.options.scales.x.title.text = 'Time Period (' + periodLabel + ')';
+                    paymentsChart.update();
+                    return;
+                }
+
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+                gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+                paymentsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Payment Done (₹)',
+                                data: successAmount,
+                                borderColor: '#3b82f6',
+                                backgroundColor: gradient,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#3b82f6',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Cancelled (Count)',
+                                data: cancelledCount,
+                                borderColor: '#dc2626',
+                                backgroundColor: 'transparent',
+                                tension: 0.4,
+                                pointRadius: 3,
+                                borderDash: [5, 5],
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Refunded (Count)',
+                                data: refundedCount,
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'transparent',
+                                tension: 0.4,
+                                pointRadius: 3,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { 
+                            legend: { 
+                                display: true,
+                                position: 'top',
+                                labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, color: '#334155', font: {family: "'Outfit', sans-serif", weight: '600'} }
+                            },
+                            datalabels: { display: false },
+                            tooltip: {
+                                backgroundColor: '#ffffff',
+                                titleColor: '#0f172a',
+                                bodyColor: '#334155',
+                                borderColor: 'rgba(0,0,0,0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                boxPadding: 6,
+                                usePointStyle: true
+                            }
+                        },
+                        scales: { 
+                            x: { 
+                                title: { display: true, text: 'Time Period (' + periodLabel + ')', color: '#64748b', font: { weight: '600', size: 11, family: "'Outfit', sans-serif" } },
+                                grid: { color: 'rgba(0, 0, 0, 0.04)', drawBorder: false },
+                                ticks: { color: '#64748b' }
+                            }, 
+                            y: { 
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                title: { display: false },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false, borderDash: [5, 5] },
+                                ticks: { color: '#64748b', callback: (val) => '₹' + (val >= 1000 ? (val/1000) + 'k' : val) }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                title: { display: false },
+                                grid: { drawOnChartArea: false },
+                                ticks: { color: '#64748b', stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+
             function loadPaymentData() {
-                $.getJSON(api, { from: $from.val(), to: $to.val(), status: $status.val() })
-                 .done(function (res) { render(res); })
-                 .fail(function () { alert('Failed to load payment data'); });
+                const periodRaw = $period.val();
+                let actualPeriod = periodRaw === 'today' ? 'daily' : periodRaw;
+                updatePeriodLabel(periodRaw, currentRefDate);
+
+                $('.chart-container').css('opacity', '0.5');
+
+                $.getJSON(api, { 
+                    from: $from.val(), 
+                    to: $to.val(), 
+                    status: 'All', 
+                    period: actualPeriod,
+                    username: $user.val(),
+                    gatewayRef: $ref.val(),
+                    refDate: currentRefDate.toISOString().split('T')[0]
+                })
+                 .done(function (res) { 
+                     $('.chart-container').css('opacity', '1');
+                     if (res.success) {
+                         render(res);
+                         renderTrend(res.trend || {});
+                     } else {
+                         alert('Error: ' + (res.message || 'Failed to load data'));
+                     }
+                 })
+                 .fail(function () { 
+                     $('.chart-container').css('opacity', '1');
+                     alert('Failed to load payment data'); 
+                 });
             }
 
             $(function () {
                 initDates();
                 loadPaymentData();
                 $('#apply').on('click', loadPaymentData);
+                $('#reset').on('click', function() {
+                    $user.val(''); $ref.val('');
+                    $status.val('All'); $period.val('monthly');
+                    currentRefDate = new Date();
+                    initDates();
+                    loadPaymentData();
+                });
+                
+                $('#prevPeriod').on('click', () => navigatePeriod(-1));
+                $('#nextPeriod').on('click', () => navigatePeriod(1));
+                $('#dateSelector').on('change', (e) => {
+                    if (e.target.value) {
+                        currentRefDate = new Date(e.target.value);
+                        loadPaymentData();
+                    }
+                });
+
+                function navigatePeriod(direction) {
+                    const period = $period.val();
+                    if (period === 'daily' || period === 'today') currentRefDate.setDate(currentRefDate.getDate() + direction);
+                    else if (period === 'weekly') currentRefDate.setDate(currentRefDate.getDate() + (direction * 7));
+                    else if (period === 'monthly') currentRefDate.setMonth(currentRefDate.getMonth() + direction);
+                    else if (period === 'yearly') currentRefDate.setFullYear(currentRefDate.getFullYear() + direction);
+                    loadPaymentData();
+                }
+
+                $period.on('change', function() {
+                    loadPaymentData();
+                });
             });
         })();
     </script>

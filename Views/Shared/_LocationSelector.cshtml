@@ -1,42 +1,57 @@
-﻿@* Partial: location selector modal. Include this partial near navbar in _PublicLayout.cshtml *@
+@* Partial: location selector modal. Include this partial near navbar in _PublicLayout.cshtml *@
 <!-- dynamic NUTRIBITE.Models.UserLocation-->
 
 <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="locationModalLabel">Choose delivery location</h5>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 p-4 pb-0">
+                <h5 class="modal-title fw-bold" id="locationModalLabel">Choose delivery location</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
 
-                <div id="locationLoader" class="text-center my-3" style="display:none;">
-                    <div class="spinner-border text-success" role="status"></div>
-                    <div class="mt-2">Detecting your location…</div>
+                <button id="btnDetectNow" type="button" class="btn btn-success w-100 py-3 rounded-4 fw-bold shadow-sm mb-4 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-crosshair"></i> Detect current location
+                </button>
+
+                <div id="locationLoader" class="text-center my-4" style="display:none;">
+                    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
+                    <div class="mt-3 fw-medium text-muted">Detecting your precise location...</div>
+                    <div class="small text-muted">Please stay near a window for better accuracy</div>
                 </div>
 
-                <div id="detectedLocation" style="display:none;">
-                    <p class="small text-muted">Detected address:</p>
-                    <p id="detectedAddress" class="fw-semibold"></p>
-                    <button id="confirmDetected" class="btn btn-success btn-sm">Use this location</button>
+                <div id="detectedLocation" class="bg-light p-3 rounded-4 mb-4 border border-dashed border-success" style="display:none;">
+                    <p class="small text-muted mb-1 fw-bold text-uppercase" style="letter-spacing: 0.05em;">📍 Detected address</p>
+                    <p id="detectedAddress" class="fw-semibold text-dark mb-3"></p>
+                    <button id="confirmDetected" class="btn btn-success w-100 rounded-pill fw-bold">Use this location</button>
                 </div>
 
-                <hr />
-
-                <div>
-                    <label class="form-label">Search for address</label>
-                    <input id="locationSearchInput" class="form-control" placeholder="Enter area, city, pincode..." autocomplete="off" />
-                    <div id="searchResults" class="list-group mt-2"></div>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <hr class="flex-grow-1">
+                    <span class="text-muted small fw-bold">OR SEARCH MANUALLY</span>
+                    <hr class="flex-grow-1">
                 </div>
 
-                <div class="mt-3">
-                    <small class="text-muted">If location access is denied you can search and save an address manually.</small>
+                <div class="position-relative">
+                    <label class="form-label text-muted small fw-bold mb-2">Search for area, city, or pincode</label>
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-light border-0 rounded-start-4"><i class="bi bi-search text-muted"></i></span>
+                        <input id="locationSearchInput" class="form-control bg-light border-0 py-3" placeholder="e.g. Khadra, Lucknow..." autocomplete="off" />
+                        <button id="btnSearchLocationOk" class="btn btn-success rounded-end-4 px-4 fw-bold" type="button">OK</button>
+                    </div>
+                    <div id="locationSearchResults" class="list-group mt-2 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded-3">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-info-circle text-success mt-1"></i>
+                        <small class="text-muted">If automatic detection is inaccurate, please use the search bar above to set your location precisely.</small>
+                    </div>
                 </div>
 
             </div>
-            <div class="modal-footer">
-                <button id="btnDetectNow" type="button" class="btn btn-outline-success">Detect current location</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer border-top-0 p-4 pt-0">
+                <button type="button" class="btn btn-light w-100 py-2 rounded-pill fw-bold text-muted" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

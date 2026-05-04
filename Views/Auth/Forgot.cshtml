@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Forgot Password - NutriBite";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
@@ -7,45 +7,57 @@
     <link rel="stylesheet" href="~/css/auth.css" />
 }
 
-<div class="forgot-wrapper">
-    <div class="forgot-container">
-
+<div class="login-wrapper">
+    <div class="login-container">
+        
         <!-- LEFT SIDE -->
-        <div class="forgot-left">
-            <h2>Reset Your Password 🔐</h2>
+        <div class="login-left">
+            <h2>Account Recovery</h2>
+            <div class="leaf-icon">🔑</div>
             <p>
-                Don’t worry! It happens.
-                Enter your registered email address
-                and we’ll send you instructions to reset your password.
+                Enter your registered email address and a new password to instantly recover your account.
+                This works for both Users and Vendors!
             </p>
         </div>
 
         <!-- RIGHT SIDE -->
-        <div class="forgot-right">
-
+        <div class="login-right">
             <h4 class="brand">NutriBite</h4>
-            <h5 class="mb-4">Forgot Password</h5>
+            <h5 class="mb-4">Reset Password 🛡️</h5>
 
-            <div id="forgotError" class="alert alert-danger small" style="display:none;"></div>
-            <div id="forgotSuccess" class="alert alert-success small" style="display:none;"></div>
+            <div id="resetError" class="alert alert-danger small" style="display:none;"></div>
+            <div id="resetSuccess" class="alert alert-success small" style="display:none;"></div>
 
-            <form id="forgotForm" method="post" action="javascript:void(0);">
+            <form id="resetForm" method="post" asp-controller="Auth" asp-action="ResetPassword">
                 @Html.AntiForgeryToken()
 
                 <div class="mb-3">
-                    <label for="email" class="form-label small">Email Address</label>
+                    <label for="email" class="form-label small">Registered Email</label>
                     <input id="email" name="email" type="email" class="form-control custom-input" required />
                 </div>
 
-                <div class="d-grid">
-                    <button id="forgotBtn" class="btn btn-success custom-btn">
-                        Send Reset Instructions
-                    </button>
+                <div class="mb-3">
+                    <label for="newPassword" class="form-label small">New Password</label>
+                    <div class="input-group has-validation">
+                        <input id="newPassword" name="newPassword" type="password" class="form-control custom-input" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" title="Must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." />
+                        <button id="togglePassword" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Password must be at least 8 characters, include an uppercase, a lowercase, and a number.
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mt-3 small text-center">
-                    Remembered your password?
-                    <a href="/login" class="link-success">Login here</a>
+                <div class="mb-4">
+                    <label for="confirmPassword" class="form-label small">Confirm New Password</label>
+                    <input id="confirmPassword" name="confirmPassword" type="password" class="form-control custom-input" required />
+                </div>
+
+                <div class="d-grid">
+                    <button id="resetBtn" class="btn btn-success custom-btn">Reset Password</button>
+                </div>
+
+                <div class="mt-4 text-center small">
+                    <a href="/Auth/Login" class="link-success"><i class="bi bi-arrow-left"></i> Back to Login</a>
                 </div>
 
             </form>
@@ -57,35 +69,53 @@
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
-        (function () {
+        $('#togglePassword').on('click', function () {
+            const $pwd = $('#newPassword');
+            const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
+            $pwd.attr('type', type);
+            $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
+        });
 
-            $('#forgotForm').on('submit', function (e) {
-                e.preventDefault();
-                $('#forgotError').hide();
-                $('#forgotSuccess').hide();
+        $('#resetForm').on('submit', function (e) {
+            e.preventDefault();
+            $('#resetError').hide().text('');
+            $('#resetSuccess').hide().text('');
 
-                var email = $('#email').val().trim();
-                if (!email) {
-                    $('#forgotError').text('Please enter your email.').show();
-                    return;
-                }
+            const email = $('#email').val().trim();
+            const pwd = $('#newPassword').val();
+            const cpwd = $('#confirmPassword').val();
 
-                var token = $('input[name="__RequestVerificationToken"]').first().val() || '';
+            if (!email || !pwd || !cpwd) {
+                $('#resetError').text('All fields are required.').show();
+                return;
+            }
 
-                $.post('/Auth/Forgot', { email: email, __RequestVerificationToken: token })
-                    .done(function (res) {
-                        if (res && res.success) {
-                            $('#forgotSuccess').text(res.message || 'If an account exists, instructions were sent.').show();
-                        } else {
-                            $('#forgotError').text(res && res.message ? res.message : 'Unable to process request.').show();
-                        }
-                    })
-                    .fail(function () {
-                        $('#forgotError').text('Unable to reach server. Please try again.').show();
-                    });
+            if (pwd !== cpwd) {
+                $('#resetError').text('Passwords do not match.').show();
+                return;
+            }
 
-            });
+            if (!this.checkValidity()) {
+                $(this).addClass('was-validated');
+                return;
+            }
+            $(this).removeClass('was-validated');
 
-        })();
+            var token = $('input[name="__RequestVerificationToken"]').first().val() || '';
+
+            $.post('/Auth/ResetPassword', { email: email, newPassword: pwd, __RequestVerificationToken: token })
+                .done(function (res) {
+                    if (res && res.success) {
+                        $('#resetSuccess').text(res.message || 'Password reset successfully! Redirecting...').show();
+                        setTimeout(function () {
+                            window.location.href = res.redirect || '/Auth/Login';
+                        }, 2000);
+                    } else {
+                        $('#resetError').text(res && res.message ? res.message : 'Reset failed.').show();
+                    }
+                }).fail(function () {
+                    $('#resetError').text('Unable to reach server.').show();
+                });
+        });
     </script>
 }

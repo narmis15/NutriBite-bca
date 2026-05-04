@@ -97,6 +97,23 @@
         align-items: center;
         margin-bottom: 30px;
     }
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+    .star-rating input { display: none; }
+    .star-rating label {
+        font-size: 25px;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+        margin-right: 5px;
+    }
+    .star-rating label:before { content: "\f586"; font-family: "bootstrap-icons"; }
+    .star-rating input:checked ~ label:before,
+    .star-rating label:hover ~ label:before,
+    .star-rating label:hover:before { content: "\f588"; color: #f59e0b; }
 </style>
 
 <div class="container py-5">
@@ -141,30 +158,32 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-4 mb-md-0">
-                        @if (Model.OrderType == "Delivery")
+                        <h6 class="fw-bold text-muted uppercase small mb-3">Delivery Address</h6>
+                        <p class="mb-1 fw-bold">@Model.CustomerName</p>
+                        <p class="text-muted small mb-0">@Model.DeliveryAddress</p>
+                        @if (!string.IsNullOrEmpty(Model.DeliveryNotes))
                         {
-                            <h6 class="fw-bold text-muted uppercase small mb-3">Delivery Address</h6>
-                            <p class="mb-1 fw-bold">@Model.CustomerName</p>
-                            <p class="text-muted small mb-0">@Model.DeliveryAddress</p>
-                            @if (!string.IsNullOrEmpty(Model.DeliveryNotes))
-                            {
-                                <div class="mt-2 p-2 bg-light rounded small">
-                                    <i class="bi bi-chat-left-text me-1"></i> @Model.DeliveryNotes
-                                </div>
-                            }
+                            <div class="mt-2 p-2 bg-light rounded small">
+                                <i class="bi bi-chat-left-text me-1"></i> @Model.DeliveryNotes
+                            </div>
                         }
-                        else
-                        {
-                            <h6 class="fw-bold text-muted uppercase small mb-3">Pickup Details</h6>
-                            <p class="mb-1 fw-bold">@Model.CustomerName</p>
-                            <p class="text-muted small mb-0">Ready for pickup at your selected slot: <strong>@Model.PickupSlot</strong></p>
-                        }
+
+                        <h6 class="fw-bold text-muted uppercase small mt-4 mb-2">Delivery Agent</h6>
+                        <div class="d-flex align-items-center bg-light p-2 rounded-3 border">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="bi bi-person-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold text-dark">Rahul Sharma</p>
+                                <p class="text-muted small mb-0"><i class="bi bi-telephone-fill text-success me-1"></i> +91 98765 43210</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <h6 class="fw-bold text-muted uppercase small mb-3">Order Summary</h6>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Order Type</span>
-                            <span class="badge @(Model.OrderType == "Delivery" ? "bg-purple" : "bg-secondary")">@Model.OrderType</span>
+                            <span class="badge @(Model.OrderType != null && Model.OrderType.StartsWith("Delivery") ? "bg-purple" : "bg-secondary")" style="background-color: #6f42c1; color: white;">@(Model.OrderType?.Split('-')[0].Trim() ?? "Delivery")</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Payment Status</span>
@@ -196,11 +215,20 @@
                     <div class="col-12">
                         @if (Model.IsDelivered == true)
                         {
-                            <div class="alert alert-success d-flex align-items-center rounded-3 shadow-sm border-0 p-3">
-                                <i class="bi bi-check-circle-fill fs-4 me-3"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Delivery Confirmed!</h6>
-                                    <small>This order was successfully delivered and verified via OTP.</small>
+                            <div class="alert alert-success rounded-3 shadow-sm border-0 p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-check-circle-fill fs-3 text-success me-3"></i>
+                                    <div>
+                                        <h5 class="fw-bold mb-0">Delivery Confirmed!</h5>
+                                        <small class="text-muted">This order was successfully delivered and verified via OTP.</small>
+                                    </div>
+                                </div>
+                                <hr />
+                                <div class="text-center mt-3">
+                                    <p class="mb-2 fw-bold text-dark">How was your meal?</p>
+                                    <button class="btn btn-warning rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#ratingModal">
+                                        <i class="bi bi-star-fill me-1"></i> Rate This Order
+                                    </button>
                                 </div>
                             </div>
                         }
@@ -212,7 +240,7 @@
                                 
                                 <div class="d-flex justify-content-center gap-2 mb-4">
                                     <input type="text" id="otpInput" class="form-control form-control-lg text-center fw-bold fs-4 shadow-none" 
-                                           maxlength="4" placeholder="0000" style="max-width: 150px; border: 2px solid #e0e0e0; border-radius: 12px;">
+                                           maxlength="6" placeholder="000000" style="max-width: 150px; border: 2px solid #e0e0e0; border-radius: 12px;">
                                 </div>
 
                                 <button id="verifyOtpBtn" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm fw-bold">
@@ -295,8 +323,66 @@
                             <span class="badge bg-light text-dark border rounded-pill px-3" id="modalCalories"></span>
                             <span class="badge bg-light text-dark border rounded-pill px-3" id="modalProtein"></span>
                         </div>
-                        <p id="modalFoodDesc" class="text-muted small mb-0"></p>
+                        <p id="modalFoodDesc" class="text-muted small mb-3 border-bottom pb-3"></p>
+                        <div id="recipeSection" style="display: none;">
+                            <h6 class="fw-bold text-dark"><i class="bi bi-list-stars text-warning me-2"></i>Ingredients</h6>
+                            <p id="modalIngredients" class="small text-muted mb-3"></p>
+
+                            <h6 class="fw-bold text-dark"><i class="bi bi-journal-text text-info me-2"></i>Recipe Steps</h6>
+                            <p id="modalSteps" class="small text-muted"></p>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div class="modal fade" id="ratingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-star me-2 text-warning"></i>Rate Your Items</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="ratingForm">
+                        <div class="rating-items-list mb-3" style="max-height: 400px; overflow-y: auto;">
+                            @foreach(var item in Model.OrderItems.Where(x => x.FoodId != null))
+                            {
+                                <div class="rating-item-card p-3 mb-3 border bg-light rounded-3">
+                                    <h6 class="fw-bold">@item.ItemName</h6>
+                                    <input type="hidden" class="rating-food-id" value="@item.FoodId" />
+                                    <input type="hidden" class="rating-vid" value="@(item.Food?.VendorId ?? 1)" />
+                                    <div class="mb-2">
+                                        <label class="small text-muted mb-1 d-block">Rating</label>
+                                        <div class="star-rating">
+                                            <input type="radio" id="star5_@item.FoodId" name="rating_@item.FoodId" value="5" class="rating-score" checked />
+                                            <label for="star5_@item.FoodId" title="5 stars"></label>
+                                            
+                                            <input type="radio" id="star4_@item.FoodId" name="rating_@item.FoodId" value="4" class="rating-score" />
+                                            <label for="star4_@item.FoodId" title="4 stars"></label>
+                                            
+                                            <input type="radio" id="star3_@item.FoodId" name="rating_@item.FoodId" value="3" class="rating-score" />
+                                            <label for="star3_@item.FoodId" title="3 stars"></label>
+                                            
+                                            <input type="radio" id="star2_@item.FoodId" name="rating_@item.FoodId" value="2" class="rating-score" />
+                                            <label for="star2_@item.FoodId" title="2 stars"></label>
+                                            
+                                            <input type="radio" id="star1_@item.FoodId" name="rating_@item.FoodId" value="1" class="rating-score" />
+                                            <label for="star1_@item.FoodId" title="1 star"></label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <textarea class="form-control form-control-sm rating-message" rows="2" placeholder="Leave a comment (optional)"></textarea>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div id="ratingError" class="text-danger small fw-bold mb-3" style="display:none;"></div>
+                        <div id="ratingSuccess" class="text-success small fw-bold mb-3" style="display:none;"></div>
+                        <button type="submit" class="btn btn-warning w-100 rounded-pill fw-bold" id="submitRatingBtn">Submit Ratings</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -449,6 +535,16 @@
                         document.getElementById('modalCalories').innerHTML = `<i class="bi bi-fire me-1"></i> ${food.calories} kcal`;
                         document.getElementById('modalProtein').innerHTML = `<i class="bi bi-capsule me-1"></i> ${food.protein}g Protein`;
                         
+                        
+                        const recipeSection = document.getElementById('recipeSection');
+                        if (food.ingredients || food.steps) {
+                            recipeSection.style.display = 'block';
+                            document.getElementById('modalIngredients').innerText = food.ingredients || "Not provided.";
+                            document.getElementById('modalSteps').innerText = food.steps || "Not provided.";
+                        } else {
+                            recipeSection.style.display = 'none';
+                        }
+
                         loading.style.display = 'none';
                         content.style.display = 'block';
                     } else {
@@ -461,6 +557,87 @@
                     alert("An error occurred while loading details.");
                     modal.hide();
                 });
+        }
+
+        // Automatic Progression Simulation
+        if (!isDelivered && "@status" !== "Cancelled" && "@status" !== "Completed") {
+            setInterval(async () => {
+                try {
+                    const res = await fetch(`/Home/SimulateOrderProgress?orderId=${orderId}`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success && data.newStatus) {
+                        console.log("Auto-progressed to: " + data.newStatus);
+                        // Briefly show notification and reload
+                        const statusBox = document.querySelector('.status-banner');
+                        if (statusBox) {
+                            statusBox.style.backgroundColor = "#e8f5e9";
+                            statusBox.innerHTML = `<div class="d-flex align-items-center"><div class="spinner-border spinner-border-sm text-success me-2"></div><strong>Simulated Update:</strong> Order moved to ${data.newStatus}</div>`;
+                        }
+                        setTimeout(() => location.reload(), 2000);
+                    }
+                } catch(e) { }
+            }, 10000); // Check every 10 seconds for progression
+        }
+
+        // Rating Form Submission
+        const ratingForm = document.getElementById('ratingForm');
+        if (ratingForm) {
+            ratingForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('submitRatingBtn');
+                const err = document.getElementById('ratingError');
+                const succ = document.getElementById('ratingSuccess');
+                
+                err.style.display = 'none';
+                succ.style.display = 'none';
+                btn.disabled = true;
+
+                const ratingCards = document.querySelectorAll('.rating-item-card');
+                const ratings = [];
+
+                ratingCards.forEach(card => {
+                    const foodId = card.querySelector('.rating-food-id').value;
+                    const vid = card.querySelector('.rating-vid').value;
+                    const checkedScore = card.querySelector('.rating-score:checked');
+                    const score = checkedScore ? checkedScore.value : 5;
+                    const msg = card.querySelector('.rating-message').value;
+                    
+                    if(foodId && vid) {
+                        ratings.push({ FoodId: parseInt(foodId), Vid: parseInt(vid) || 1, Ratings: parseInt(score), Message: msg });
+                    }
+                });
+
+                if (ratings.length === 0) {
+                    err.innerText = "No items to rate.";
+                    err.style.display = 'block';
+                    btn.disabled = false;
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/Home/SubmitRating', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ OrderId: parseInt(orderId), Ratings: ratings })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        succ.innerText = data.message;
+                        succ.style.display = 'block';
+                        setTimeout(() => {
+                            bootstrap.Modal.getInstance(document.getElementById('ratingModal')).hide();
+                        }, 2000);
+                    } else {
+                        err.innerText = "Error: " + data.message;
+                        err.style.display = 'block';
+                        btn.disabled = false;
+                    }
+                } catch(e) {
+                    err.innerText = "An error occurred during submission.";
+                    err.style.display = 'block';
+                    btn.disabled = false;
+                }
+            });
         }
     </script>
 }

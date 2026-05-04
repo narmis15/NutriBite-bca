@@ -5,9 +5,36 @@
 <link rel="stylesheet" href="~/css/reports.css" />
 
 <div class="reports-dashboard">
-    <div class="dashboard-header">
-        <h3>Reports & Analytics — Dashboard</h3>
-        <small class="text-muted">Summary of today's activity and recent alerts</small>
+    <div class="dashboard-header d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>Reports & Analytics — Dashboard</h3>
+            <small class="text-muted">Summary of today's activity and recent alerts</small>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <label class="mb-0 small fw-bold">View:</label>
+            <select id="dashboardPeriod" class="form-select form-select-sm" style="width: auto;">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="yearly">Yearly</option>
+                <option value="alltime">All-Time</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Historical Navigation -->
+    <div id="historicalNav" class="d-flex justify-content-center align-items-center gap-3 mb-4 py-2 bg-light rounded-pill mx-auto" style="max-width: 500px; border: 1px solid #dee2e6;">
+        <button id="prevPeriod" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm" style="width:32px; height:32px; padding:0;">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <div class="d-flex align-items-center gap-2">
+            <span id="currentPeriodLabel" class="fw-bold text-dark px-3" style="min-width: 150px; text-align: center;">This Month</span>
+            <input type="date" id="dateSelector" class="form-control form-control-sm border-0 bg-transparent" style="width:35px; padding:0; cursor:pointer;" title="Select specific date" />
+        </div>
+        <button id="nextPeriod" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm" style="width:32px; height:32px; padding:0;">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+        <button id="currentPeriod" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold">Current</button>
     </div>
 
     <div id="summaryCards" class="summary-cards row g-3 mb-4">
@@ -55,21 +82,78 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         (function () {
-            const url = '/Reports/GetDashboardData';
+            const baseUrl = '/Reports/GetDashboardData';
+            const $period = $('#dashboardPeriod');
+            let currentRefDate = new Date();
 
-            function severityClass(s) {
-                if (s === 'high') return 'badge bg-danger';
-                if (s === 'medium') return 'badge bg-warning text-dark';
-                return 'badge bg-secondary';
+            function updatePeriodLabel(period, date) {
+                const label = document.getElementById('currentPeriodLabel');
+                if (!label) return;
+
+                const isCurrent = isSamePeriod(period, date, new Date());
+                
+                if (period === 'daily') {
+                    label.innerText = isCurrent ? "Today" : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                } else if (period === 'weekly') {
+                    const start = new Date(date);
+                    start.setDate(date.getDate() - date.getDay());
+                    const end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    label.innerText = isCurrent ? "This Week" : `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+                } else if (period === 'monthly') {
+                    label.innerText = isCurrent ? "This Month" : date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+                } else if (period === 'yearly') {
+                    label.innerText = isCurrent ? "This Year" : date.getFullYear();
+                } else {
+                    label.innerText = "All-Time";
+                }
+                
+                document.getElementById('historicalNav').style.display = (period === 'alltime') ? 'none' : 'flex';
+            }
+
+            function isSamePeriod(period, d1, d2) {
+                if (period === 'daily') return d1.toDateString() === d2.toDateString();
+                if (period === 'weekly') {
+                    const s1 = new Date(d1); s1.setDate(d1.getDate() - d1.getDay());
+                    const s2 = new Date(d2); s2.setDate(d2.getDate() - d2.getDay());
+                    return s1.toDateString() === s2.toDateString();
+                }
+                if (period === 'monthly') return d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+                if (period === 'yearly') return d1.getFullYear() === d2.getFullYear();
+                return true;
+            }
+
+            function navigatePeriod(direction) {
+                const period = $period.val();
+                if (period === 'daily') currentRefDate.setDate(currentRefDate.getDate() + direction);
+                else if (period === 'weekly') currentRefDate.setDate(currentRefDate.getDate() + (direction * 7));
+                else if (period === 'monthly') currentRefDate.setMonth(currentRefDate.getMonth() + direction);
+                else if (period === 'yearly') currentRefDate.setFullYear(currentRefDate.getFullYear() + direction);
+                fetchDashboardData();
             }
 
             function renderSummary(summary) {
                 const container = $('#summaryCards').empty();
                 if (!summary) return;
-                summary.forEach(s => {
+
+                const period = $period.val();
+                let periodText = "for this period";
+                if (period === 'daily') periodText = "today";
+                else if (period === 'weekly') periodText = "this week";
+                else if (period === 'monthly') periodText = "this month";
+                else if (period === 'yearly') periodText = "this year";
+
+                // Define summary cards explicitly to ensure labeling and units
+                const cards = [
+                    { title: "Orders", value: summary.todaysOrders, icon: "bi-cart-check", sub: "Total orders " + periodText },
+                    { title: "Revenue", value: '₹' + summary.todaysRevenue.toLocaleString(), icon: "bi-currency-rupee", sub: "Gross sales " + periodText },
+                    { title: "Profit", value: '₹' + (summary.todaysCommission || 0).toLocaleString(), icon: "bi-graph-up-arrow", sub: "Platform earnings " + periodText },
+                    { title: "Avg Delivery", value: summary.avgDeliveryTime + "m", icon: "bi-stopwatch", sub: "Order-to-door time" }
+                ];
+
+                cards.forEach(s => {
                     const col = $('<div class="col-md-3"></div>');
-                    const trendHtml = s.trend ? `<div class="mt-2 small ${s.trendClass || 'text-success'}">${s.trend}</div>` : '';
-                    const iconHtml = s.icon ? `<i class="bi ${s.icon} fs-4"></i>` : (s.Icon || '');
+                    const iconHtml = `<i class="bi ${s.icon} fs-4"></i>`;
                     
                     const card = $(`
                         <div class="summary-card p-3 h-100 bg-white shadow-sm border rounded-3">
@@ -78,9 +162,9 @@
                                     ${iconHtml}
                                 </div>
                                 <div>
-                                    <div class="text-muted small fw-bold text-uppercase">${s.title || s.Title}</div>
-                                    <div class="h4 mb-0 fw-bold">${s.value || s.Value}</div>
-                                    ${trendHtml}
+                                    <div class="text-muted small fw-bold text-uppercase">${s.title}</div>
+                                    <div class="h4 mb-0 fw-bold">${s.value}</div>
+                                    <div class="mt-1 small text-muted">${s.sub}</div>
                                 </div>
                             </div>
                         </div>`);
@@ -90,14 +174,21 @@
             }
 
             let ordersChart = null;
-            function renderTrend(trend) {
-                const labels = trend.map(t => t.label || t.Label);
-                const dataOrders = trend.map(t => t.orders ?? t.Orders);
+            function renderTrend(charts, periodLabel) {
+                const labels = charts.labels || [];
+                const dataOrders = charts.orders || [];
+                const dataRevenue = charts.revenue || [];
+                const dataProfit = charts.profit || [];
+                const dataLoss = charts.loss || [];
                 const ctx = document.getElementById('ordersTrendChart').getContext('2d');
 
                 if (ordersChart) {
                     ordersChart.data.labels = labels;
                     ordersChart.data.datasets[0].data = dataOrders;
+                    ordersChart.data.datasets[1].data = dataRevenue;
+                    ordersChart.data.datasets[2].data = dataProfit;
+                    ordersChart.data.datasets[3].data = dataLoss;
+                    ordersChart.options.scales.x.title.text = 'Time Period (' + periodLabel + ')';
                     ordersChart.update();
                     return;
                 }
@@ -106,27 +197,120 @@
                     type: 'line',
                     data: {
                         labels: labels,
-                        datasets: [{
-                            label: 'Orders',
-                            data: dataOrders,
-                            borderColor: '#16a34a',
-                            backgroundColor: 'rgba(22,163,74,0.08)',
-                            pointRadius: 3,
-                            tension: 0.25,
-                            fill: true
-                        }]
+                        datasets: [
+                            {
+                                label: 'Orders (Count)',
+                                data: dataOrders,
+                                borderColor: '#16a34a',
+                                backgroundColor: 'transparent',
+                                borderDash: [5, 5],
+                                tension: 0.3,
+                                fill: false,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Revenue (₹)',
+                                data: dataRevenue,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37,99,235,0.08)',
+                                pointRadius: 4,
+                                tension: 0.3,
+                                fill: true,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Profit (₹)',
+                                data: dataProfit,
+                                borderColor: '#10b981',
+                                backgroundColor: 'transparent',
+                                pointRadius: 4,
+                                tension: 0.3,
+                                fill: false,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'Loss (₹)',
+                                data: dataLoss,
+                                borderColor: '#ef4444',
+                                backgroundColor: 'transparent',
+                                pointRadius: 4,
+                                tension: 0.3,
+                                fill: false,
+                                yAxisID: 'y1'
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
                         plugins: {
-                            legend: { display: false }
+                            legend: { 
+                                display: true,
+                                position: 'top',
+                                labels: { boxWidth: 12, usePointStyle: true }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.datasetIndex === 1) { // Revenue
+                                            label += '₹' + context.parsed.y.toLocaleString();
+                                        } else {
+                                            label += context.parsed.y.toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
                         },
                         scales: {
-                            x: { grid: { display: false } },
-                            y: { beginAtZero: true, grid: { color: '#f3f4f6' } }
+                            x: { 
+                                grid: { display: false },
+                                title: { display: true, text: 'Time Period (' + periodLabel + ')', font: { weight: 'bold' } }
+                            },
+                            y: { 
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true, 
+                                grid: { color: '#f3f4f6' },
+                                title: { display: true, text: 'Number of Orders', font: { weight: 'bold' } }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: { drawOnChartArea: false },
+                                title: { display: true, text: 'Revenue (₹)', font: { weight: 'bold' } }
+                            }
                         }
                     }
+                });
+            }
+
+            function fetchDashboardData() {
+                const period = $period.val();
+                const refDateStr = currentRefDate.toISOString().split('T')[0];
+                updatePeriodLabel(period, currentRefDate);
+                
+                $.getJSON(baseUrl, { period: period, refDate: refDateStr }).done(function (res) {
+                    if (res.success) {
+                        renderSummary(res.summary);
+                        renderTrend(res.charts, period);
+                        renderAlerts(res.alerts);
+                    } else {
+                        alert('Error: ' + res.message);
+                    }
+                }).fail(function () {
+                    $('#summaryCards').html('<div class="text-danger col-12">Failed to load dashboard data</div>');
                 });
             }
 
@@ -148,14 +332,22 @@
                 });
             }
 
-            // fetch and render
+            // Initial load
             $(function () {
-                $.getJSON(url).done(function (res) {
-                    renderSummary(res.summary || res.Summary);
-                    renderTrend(res.trend || res.Trend);
-                    renderAlerts(res.alerts || res.Alerts);
-                }).fail(function () {
-                    $('#summaryCards').html('<div class="text-danger">Failed to load dashboard data</div>');
+                fetchDashboardData();
+                $period.on('change', fetchDashboardData);
+
+                $('#prevPeriod').on('click', () => navigatePeriod(-1));
+                $('#nextPeriod').on('click', () => navigatePeriod(1));
+                $('#currentPeriod').on('click', () => {
+                    currentRefDate = new Date();
+                    fetchDashboardData();
+                });
+                $('#dateSelector').on('change', (e) => {
+                    if (e.target.value) {
+                        currentRefDate = new Date(e.target.value);
+                        fetchDashboardData();
+                    }
                 });
             });
         })();

@@ -48,9 +48,12 @@
 
                 <div class="mb-3">
                     <label for="password" class="form-label small">Password</label>
-                    <div class="input-group">
-                        <input id="password" name="password" type="password" class="form-control custom-input" required />
+                    <div class="input-group has-validation">
+                        <input id="password" name="password" type="password" class="form-control custom-input" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" title="Must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." />
                         <button id="togglePassword" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Password must be at least 8 characters, include an uppercase, a lowercase, and a number.
+                        </div>
                     </div>
                 </div>
 
@@ -63,17 +66,7 @@
                     <div><a href="/Auth/Forgot">Forgot password?</a></div>
                 </div>
 
-                <div class="auth-divider">or continue with</div>
 
-                <div class="social-login">
-                    <a href="/Auth/GoogleLogin" class="social-btn" id="googleLoginBtn">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" />
-                        <span>Continue with Google</span>
-                    </a>
-                    <div id="demoHint" class="mt-2 text-center small text-muted" style="display:none;">
-                        <i class="bi bi-info-circle"></i> <span id="demoMsg"></span>
-                    </div>
-                </div>
 
             </form>
         </div>
@@ -115,6 +108,14 @@
                     return;
                 }
 
+                if (!this.checkValidity()) {
+                    $(this).addClass('was-validated');
+                    // We don't use this.reportValidity() which shows native tooltips, 
+                    // instead we let Bootstrap 'was-validated' show the red text feedback.
+                    return;
+                }
+
+                $(this).removeClass('was-validated');
                 var token = $('input[name="__RequestVerificationToken"]').first().val() || '';
 
                 $.post('/Auth/Login', { email: email, password: password, __RequestVerificationToken: token })

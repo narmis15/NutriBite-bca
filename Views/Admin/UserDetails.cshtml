@@ -1,0 +1,371 @@
+@model NUTRIBITE.Models.UserSignup
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    
+    var orders = ViewBag.Orders as List<NUTRIBITE.Models.OrderTable> ?? new List<NUTRIBITE.Models.OrderTable>();
+    var health = ViewBag.HealthSurvey as NUTRIBITE.Models.HealthSurvey;
+    var logs = ViewBag.ActivityLog as List<NUTRIBITE.Models.ActivityLog> ?? new List<NUTRIBITE.Models.ActivityLog>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="@Url.Action("Users", "Admin")" class="text-decoration-none text-muted mb-2 d-inline-block">
+            <i class="bi bi-arrow-left me-1"></i> Back to Users
+        </a>
+        <h2 class="fw-bold mb-0">User Details</h2>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Profile & Health -->
+    <div class="col-lg-8">
+        <!-- Stats overview -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-primary text-white">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="fs-1 me-3 opacity-75"><i class="bi bi-bag-check"></i></div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">@orders.Count</h3>
+                            <small class="text-white-50 text-uppercase fw-bold">Total Orders</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-success text-white">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="fs-1 me-3 opacity-75"><i class="bi bi-currency-rupee"></i></div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">₹@orders.Where(o => o.Status != "Cancelled").Sum(o => o.TotalAmount)</h3>
+                            <small class="text-white-50 text-uppercase fw-bold">Total Spent</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm bg-info text-white">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="fs-1 me-3 opacity-75"><i class="bi bi-pie-chart"></i></div>
+                        <div>
+                            <h3 class="mb-0 fw-bold">@health?.RecommendedCalories kcal</h3>
+                            <small class="text-white-50 text-uppercase fw-bold">Daily Goal</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs mb-3" id="userTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">Payment History</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab">Activity Log</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="userTabsContent">
+            <!-- Payment History Tab -->
+            <div class="tab-pane fade show active" id="payments" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between">
+                        <h6 class="fw-bold">Transaction Overview</h6>
+                        <!-- Placeholder for chart controls -->
+                    </div>
+                    <div class="card-body">
+                        <!-- New Transaction Trend Chart -->
+                        <div style="height: 200px;">
+                            <canvas id="paymentTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-3">Date</th>
+                                    <th>Payment Method</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in orders)
+                                {
+                                    <tr>
+                                        <td class="ps-3">@(order.CreatedAt?.ToString("dd MMM yyyy, hh:mm tt"))</td>
+                                        <td>
+                                            <i class="bi bi-credit-card-2-front me-2"></i> UPI
+                                        </td>
+                                        <td>₹@order.TotalAmount</td>
+                                        <td>
+                                            @if (order.Status == "Cancelled")
+                                            {
+                                                <span class="badge bg-danger">Failed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Success</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a href="@Url.Action("OrderDetails", "Admin", new { orderId = order.OrderId })" class="btn btn-sm btn-outline-secondary border-0">
+                                                <i class="bi bi-receipt"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!orders.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">No payment history found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Tab -->
+            <div class="tab-pane fade" id="activity" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        @if (!logs.Any())
+                        {
+                            <div class="text-center py-5">
+                                <div class="mb-3"><i class="bi bi-clipboard2-x text-muted" style="font-size:2.5rem;"></i></div>
+                                <h6 class="fw-bold text-muted">No activity recorded yet.</h6>
+                                <p class="text-muted small">Orders, subscriptions and system events will appear here.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="timeline-log">
+                                @foreach (var log in logs)
+                                {
+                                    string badgeClass = "secondary";
+                                    string icon = "bi-activity";
+
+                                    @if (log.Action?.Contains("Order Placed") == true || log.Action?.Contains("Order Delivered") == true)
+                                    {
+                                        badgeClass = "success";
+                                        icon = "bi-bag-check-fill";
+                                    }
+                                    else if (log.Action?.Contains("Cancelled") == true)
+                                    {
+                                        badgeClass = "danger";
+                                        icon = "bi-x-circle-fill";
+                                    }
+                                    else if (log.Action?.Contains("Subscription") == true)
+                                    {
+                                        badgeClass = "primary";
+                                        icon = "bi-arrow-repeat";
+                                    }
+                                    else if (log.Action?.Contains("Health Survey") == true)
+                                    {
+                                        badgeClass = "info";
+                                        icon = "bi-heart-pulse-fill";
+                                    }
+                                    else if (log.Action?.Contains("Account Created") == true)
+                                    {
+                                        badgeClass = "warning";
+                                        icon = "bi-person-fill-add";
+                                    }
+                                    else if (log.Action?.Contains("Email") == true || log.Action?.Contains("Refund") == true)
+                                    {
+                                        badgeClass = "warning";
+                                        icon = "bi-envelope-fill";
+                                    }
+
+                                    <div class="d-flex gap-3 mb-4 align-items-start">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-@(badgeClass)-subtle text-@(badgeClass) d-flex align-items-center justify-content-center shadow-sm" style="width:40px;height:40px;">
+                                                <i class="bi @icon" style="font-size:1rem;"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 border-start ps-3" style="border-color:#e2e8f0 !important;">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="badge bg-@(badgeClass)-subtle text-@(badgeClass) border border-@(badgeClass)-subtle px-2">@log.Action</span>
+                                                <small class="text-muted ms-2 text-nowrap">
+                                                    @log.Timestamp.ToString("dd MMM yyyy, hh:mm tt")
+                                                </small>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(log.Details))
+                                            {
+                                                <p class="mb-0 text-muted small mt-1">@log.Details</p>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Calorie Chart & Profile -->
+    <div class="col-lg-4">
+        <!-- Calorie Tracking Chart -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0"><i class="bi bi-activity text-success me-2"></i>Calorie Intake</h6>
+                <select id="calorieFilter" class="form-select form-select-sm" style="width: auto;" onchange="updateCalorieChart(this.value)">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                </select>
+            </div>
+            <div class="card-body">
+                <canvas id="calorieChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3 shadow" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                    @(Model.Name?.Substring(0, 1).ToUpper() ?? "U")
+                </div>
+                <h4 class="fw-bold mb-1">@Model.Name</h4>
+                <p class="text-muted mb-3">@Model.Email</p>
+                
+                <div class="d-flex justify-content-between text-start border-top pt-3 mt-3">
+                    <div>
+                        <small class="text-muted d-block fw-bold mb-1">Phone</small>
+                        <span>@(string.IsNullOrEmpty(Model.Phone) ? "Not provided" : Model.Phone)</span>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted d-block fw-bold mb-1">Joined</small>
+                        <span>@(Model.CreatedAt?.ToString("MMM dd, yyyy") ?? "Unknown")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const calorieData = @Html.Raw(Json.Serialize(ViewBag.CalorieEntries ?? new List<NUTRIBITE.Models.DailyCalorieEntry>()));
+        const orderData = @Html.Raw(Json.Serialize(orders.Select(o => new { o.CreatedAt, o.TotalAmount, o.Status })));
+        
+        let calorieChart = null;
+        let paymentTrendChart = null;
+
+        function initPaymentTrend() {
+            const ctx = document.getElementById('paymentTrendChart').getContext('2d');
+            
+            // Group orders by date
+            const grouped = {};
+            orderData.forEach(o => {
+                if (o.status !== "Cancelled") {
+                    const dateStr = new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                    grouped[dateStr] = (grouped[dateStr] || 0) + Number(o.totalAmount);
+                }
+            });
+
+            const labels = Object.keys(grouped).reverse().slice(-10); // Last 10 days with activity
+            const dataPoints = Object.values(grouped).reverse().slice(-10);
+
+            paymentTrendChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Spent (₹)',
+                        data: dataPoints,
+                        backgroundColor: '#0d6efd',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `₹${context.parsed.y.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            title: { display: true, text: 'Amount (₹)', font: { weight: 'bold' } },
+                            ticks: { callback: (value) => '₹' + value }
+                        },
+                        x: { 
+                            title: { display: true, text: 'Date', font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCalorieChart(days) {
+            const ctx = document.getElementById('calorieChart').getContext('2d');
+            
+            const pastDate = new Date();
+            pastDate.setDate(pastDate.getDate() - parseInt(days));
+
+            const filteredData = calorieData.filter(d => new Date(d.date) >= pastDate);
+            
+            const grouped = {};
+            filteredData.forEach(d => {
+                const dateStr = new Date(d.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                grouped[dateStr] = (grouped[dateStr] || 0) + d.calories;
+            });
+
+            const labels = Object.keys(grouped);
+            const dataPoints = Object.values(grouped);
+
+            if (calorieChart) {
+                calorieChart.destroy();
+            }
+
+            calorieChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Calories Consumed',
+                        data: dataPoints,
+                        borderColor: '#198754',
+                        backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#198754'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            title: { display: true, text: 'Calories (kcal)', font: { weight: 'bold' } }
+                        },
+                        x: { 
+                            title: { display: true, text: 'Date', font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCalorieChart(7);
+            initPaymentTrend();
+        });
+    </script>
+}

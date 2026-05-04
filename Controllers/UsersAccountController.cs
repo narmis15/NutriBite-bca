@@ -9,10 +9,24 @@ using NUTRIBITE.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 
+using System.Security.Cryptography;
+using System.Text;
+
 namespace NUTRIBITE.Controllers
 {
     public partial class UsersController : Controller
     {
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                    builder.Append(b.ToString("x2"));
+                return builder.ToString();
+            }
+        }
         private int? ResolveUserId()
         {
             return HttpContext.Session.GetInt32("UserId");
@@ -122,6 +136,36 @@ namespace NUTRIBITE.Controllers
             return RedirectToAction("MyProfile", "Home");
         }
 
+        // ================= UPDATE PASSWORD =================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            var uid = ResolveUserId();
+            if (!uid.HasValue) return Json(new { success = false, message = "Not authenticated." });
+
+            if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+                return Json(new { success = false, message = "All fields are required." });
+
+            if (newPassword != confirmPassword)
+                return Json(new { success = false, message = "New password and confirm password do not match." });
+
+            var user = await _context.UserSignups.FindAsync(uid.Value);
+            if (user == null) return Json(new { success = false, message = "User not found." });
+
+            if (user.Password != HashPassword(currentPassword))
+                return Json(new { success = false, message = "Current password is incorrect." });
+
+            // Basic strength check (ideally share this logic)
+            if (newPassword.Length < 8 || !newPassword.Any(char.IsUpper) || !newPassword.Any(char.IsLower) || !newPassword.Any(char.IsDigit))
+                return Json(new { success = false, message = "Password must be at least 8 chars long with uppercase, lowercase, and a number." });
+
+            user.Password = HashPassword(newPassword);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
         // ================= UPDATE CALORIE GOAL =================
         [HttpPost]
         public IActionResult UpdateCalorieGoal(int goal)
@@ -151,6 +195,50 @@ namespace NUTRIBITE.Controllers
             DateTime end = DateTime.Today;
             DateTime start = end.AddDays(-(Math.Max(1, days) - 1));
 
+            // Auto-generate daily meal records from active subscriptions
+            var activeSubscriptions = _context.Subscriptions
+                .Where(s => s.UserId == uid.Value && s.Status == "Active")
+                .ToList();
+
+            foreach (var sub in activeSubscriptions)
+            {
+                if (!sub.FoodId.HasValue) continue;
+
+                var subStart = sub.StartDate.Date;
+                var subEnd = sub.EndDate?.Date ?? end;
+
+                // For each day in the requested range that falls within the subscription period
+                for (var date = start; date <= end; date = date.AddDays(1))
+                {
+                    if (date >= subStart && date <= subEnd)
+                    {
+                        // Check if a meal record already exists for this subscription on this day
+                        bool exists = _context.Meals.Any(m => 
+                            m.UserId == uid.Value && 
+                            m.FoodId == sub.FoodId.Value && 
+                            m.MealDate.Date == date);
+
+                        if (!exists)
+                        {
+                            _context.Meals.Add(new Meal
+                            {
+                                UserId = uid.Value,
+                                FoodId = sub.FoodId.Value,
+                                MealDate = date,
+                                Slot = "Subscription Delivery",
+                                CreatedAt = DateTime.Now
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // Save the newly generated history records
+            if (_context.ChangeTracker.HasChanges())
+            {
+                _context.SaveChanges();
+            }
+
             var history = _context.Meals
                 .Where(m => m.UserId == uid.Value &&
                             m.MealDate >= start &&
@@ -173,7 +261,6 @@ namespace NUTRIBITE.Controllers
             return Json(new { authenticated = true, history });
         }
 
-        // ================= DELETE ACCOUNT =================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccount()
@@ -185,6 +272,17 @@ namespace NUTRIBITE.Controllers
             var user = _context.UserSignups.FirstOrDefault(u => u.Id == uid.Value);
             if (user == null)
                 return RedirectToAction("Login", "Auth");
+
+            // Notify Admin via System Log (ActivityLog) BEFORE deletion so info is available
+            var log = new ActivityLog
+            {
+                Action = "Account Deleted",
+                Details = $"User {user.Name} ({user.Email}) has permanently deleted their account and all associated data.",
+                Timestamp = DateTime.Now,
+                AdminEmail = "admin@nutribite.com",
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
+            };
+            _context.ActivityLogs.Add(log);
 
             var surveys = _context.HealthSurveys.Where(h => h.UserId == uid.Value);
             var entries = _context.DailyCalorieEntries.Where(d => d.UserId == uid.Value);
@@ -202,7 +300,7 @@ namespace NUTRIBITE.Controllers
 
             HttpContext.Session.Clear();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Public");
         }
 
         // ================= STATIC VIEWS =================

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using global::NUTRIBITE.Models;
 using global::NUTRIBITE.Models.Users;
 using global::NUTRIBITE.Filters;
+using global::NUTRIBITE.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using global::NUTRIBITE.Services;
-
 using Microsoft.AspNetCore.Identity;
 
 namespace NUTRIBITE.Controllers
@@ -199,7 +199,20 @@ namespace NUTRIBITE.Controllers
         {
             var user = _context.UserSignups.FirstOrDefault(u => u.Id == id);
             if (user == null) return NotFound();
-            return View(user);
+
+            var orders = _context.OrderTables.Where(o => o.UserId == id).ToList();
+            var activityHistory = _context.ActivityLogs.AsEnumerable().Where(a => a.Details != null && a.Details.Contains($"(ID: {id})")).ToList();
+            var healthSurvey = _context.HealthSurveys.FirstOrDefault(h => h.UserId == id);
+
+            var viewModel = new UserDetailsViewModel
+            {
+                User = user,
+                Orders = orders,
+                ActivityHistory = activityHistory,
+                HealthSurvey = healthSurvey ?? new HealthSurvey()
+            };
+
+            return View(viewModel);
         }
 
         // PROFILE VIEW
@@ -298,8 +311,6 @@ namespace NUTRIBITE.Controllers
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
-
-        // EDIT - GET
 
         [HttpGet]
         public IActionResult GetUserProfileData(int? userId = null)

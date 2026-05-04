@@ -1,4 +1,4 @@
-﻿namespace NUTRIBITE.Models.Reports
+namespace NUTRIBITE.Models.Reports
 {
     public class SalesReportModel
     {
@@ -6,6 +6,7 @@
         public decimal TotalRevenue { get; set; }
         public decimal AverageOrderValue { get; set; }
         public decimal Profit { get; set; }
+        public decimal TotalLoss { get; set; }
 
         // Trend points for chart (re-uses shared TrendPoint)
         public TrendPoint[] Trend { get; set; } = Array.Empty<TrendPoint>();
@@ -21,5 +22,6 @@
         public decimal Revenue { get; set; }
         public decimal AvgOrderValue { get; set; }
         public decimal Profit { get; set; }
+        public decimal Loss { get; set; }
     }
 }

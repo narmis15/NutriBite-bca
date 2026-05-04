@@ -1,4 +1,5 @@
 @model List<NUTRIBITE.Models.CartItem>
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
 
 @{
     ViewData["Title"] = "Your Cart";
@@ -120,11 +121,51 @@
 
                     @{
                         var total = Model.Sum(x => x.Price * x.Quantity);
+                        var thresholdStr = Config["BulkDiscount:ThresholdAmount"];
+                        var discountStr = Config["BulkDiscount:DiscountPercentage"];
+                        decimal discountApplied = 0m;
+                        
+                        if (decimal.TryParse(thresholdStr, out decimal threshold) && decimal.TryParse(discountStr, out decimal discountPercent))
+                        {
+                            if (total >= threshold)
+                            {
+                                discountApplied = total * (discountPercent / 100m);
+                            }
+                        }
+                        
+                        var subtotalAfterDiscount = total - discountApplied;
+                        // Based on Checkout rules
+                        var deliveryCharge = subtotalAfterDiscount > 500 ? 0m : 40m;
+                        var gst = subtotalAfterDiscount * 0.05m;
+                        var finalTotal = subtotalAfterDiscount + deliveryCharge + gst;
                     }
 
-                    <div class="d-flex justify-content-between">
-                        <span>Total:</span>
-                        <span class="fw-bold">₹ @total</span>
+                    <div class="d-flex justify-content-between mb-2 small text-muted">
+                        <span>Item Total:</span>
+                        <span>₹ @total.ToString("N2")</span>
+                    </div>
+
+                    @if (discountApplied > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-success"><i class="bi bi-tag-fill me-1"></i> Bulk Discount:</span>
+                            <span class="text-success fw-bold">-₹ @discountApplied.ToString("N2")</span>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between mb-2 small text-muted">
+                        <span>Delivery Charge:</span>
+                        <span>@(deliveryCharge == 0 ? "FREE" : $"₹ {deliveryCharge:N2}")</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3 small text-muted">
+                        <span>GST (5%):</span>
+                        <span>₹ @gst.ToString("N2")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between border-top pt-3">
+                        <span class="fw-bold fs-5">Grand Total:</span>
+                        <span class="fw-bold fs-5 text-dark">₹ @finalTotal.ToString("N2")</span>
                     </div>
 
                     <!-- Navigate to GET Checkout so Razorpay flow can run -->

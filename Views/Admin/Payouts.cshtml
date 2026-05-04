@@ -1,381 +1,695 @@
 @{
-    ViewData["Title"] = "Vendor Payouts Management";
+    ViewData["Title"] = "Financial Ledger - Vendor Payouts";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid p-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark">Vendor Payouts</h2>
-            <p class="text-muted">Manage and verify payments to vendors across the platform.</p>
+@Html.AntiForgeryToken()
+
+<div class="payouts-container px-4 py-4">
+    <!-- Header Section -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h2 class="h3 fw-bold text-dark mb-1">Vendor Payments</h2>
+            <p class="text-muted small mb-0">Manage vendor settlements and platform commissions.</p>
         </div>
-        <div class="d-flex gap-2">
-            <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event"></i></span>
-                <input type="date" id="payoutDayPicker" class="form-control border-start-0" value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" />
-                <button id="btnProcessDaily" class="btn btn-primary text-nowrap">
-                    Process Daily
+        <div class="col-auto">
+            <div class="d-flex gap-2">
+                <button id="refreshTable" class="btn btn-action-light shadow-sm" title="Refresh Data">
+                    <i class="bi bi-arrow-clockwise"></i>
                 </button>
-            </div>
-            <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-range"></i></span>
-                <input type="month" id="payoutMonthPicker" class="form-control border-start-0" value="@DateTime.Now.AddMonths(-1).ToString("yyyy-MM")" />
-                <button id="btnProcessMonthly" class="btn btn-success text-nowrap">
-                    Process Monthly
+                <button class="btn btn-action-outline fw-600" data-bs-toggle="modal" data-bs-target="#generatePayoutModal">
+                    <i class="bi bi-gear me-2"></i> Batch Generate
+                </button>
+                <button id="btnPayAll" class="btn btn-action-primary shadow-sm d-none fw-600">
+                    <i class="bi bi-lightning-charge-fill me-2"></i> Pay All
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="card border-0 shadow-sm p-3 mb-4">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-3">
-                <label class="small fw-bold text-muted mb-1">Status</label>
-                <select id="statusFilter" class="form-select">
-                    <option value="" selected>All Statuses</option>
-                    <option value="Pending">Pending</option>
-                    <option value="PaidToVendor">Paid</option>
-                </select>
+    <!-- Stats Section -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card-clean">
+                <div class="stat-label-clean">Total Disbursed</div>
+                <div class="stat-value-clean text-success" id="statDisbursed">₹0</div>
             </div>
-            <div class="col-md-3">
-                <label class="small fw-bold text-muted mb-1">Search Vendor</label>
-                <input type="text" id="vendorSearch" class="form-control" placeholder="Vendor Name or Email..." />
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-clean">
+                <div class="stat-label-clean">Pending Settlements</div>
+                <div class="stat-value-clean text-warning" id="statPending">₹0</div>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button id="applyFilters" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-clean">
+                <div class="stat-label-clean">Platform Earnings</div>
+                <div class="stat-value-clean text-primary" id="statCommission">₹0</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-clean">
+                <div class="stat-label-clean">Settlement Rate</div>
+                <div class="stat-value-clean text-info" id="statEfficiency">0%</div>
             </div>
         </div>
     </div>
 
-    <!-- Payouts Table -->
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">Details</th>
-                        <th>Vendor</th>
-                        <th>Period</th>
-                        <th>Total Sales</th>
-                        <th>Commission (10%)</th>
-                        <th>Vendor Amount</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="payoutsBody">
-                    <tr>
-                        <td colspan="8" class="text-center py-5">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- Filter & Table Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box-clean">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="payoutSearch" placeholder="Search vendor name or email...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="statusFilter" class="form-select select-clean">
+                        <option value="">All Statuses</option>
+                        <option value="Accruing">Accruing (Live)</option>
+                        <option value="Pending">Pending Processing</option>
+                        <option value="PaidToVendor">Settled (Paid)</option>
+                    </select>
+                </div>
+            </div>
         </div>
-        
-        <div class="card-footer bg-white border-0 py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-muted small">Showing <span id="showingCount">0</span> of <span id="totalCount">0</span> payouts</div>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm mb-0" id="pagination">
-                        <!-- Pagination injected here -->
-                    </ul>
-                </nav>
+        <div class="card-body px-0 pt-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="payoutsTable">
+                    <thead class="bg-light-subtle text-muted extra-small text-uppercase fw-bold">
+                        <tr>
+                            <th class="ps-4" style="width: 120px;">ID</th>
+                            <th>Vendor Partner</th>
+                            <th>Period</th>
+                            <th class="text-end">Gross Sales</th>
+                            <th class="text-end">Fee (10%)</th>
+                            <th class="text-end">Net Payout</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payoutsBody" class="border-top-0">
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                                <span class="text-muted small">Loading ledger...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div class="modal fade" id="payoutModal" tabindex="-1">
+<style>
+    :root {
+        --admin-primary: #4f46e5;
+        --admin-success: #10b981;
+        --admin-bg: #f8fafc;
+        --admin-border: #e2e8f0;
+    }
+
+    .payouts-container {
+        font-family: 'Inter', -apple-system, sans-serif;
+        background-color: var(--admin-bg);
+        min-height: 100vh;
+    }
+
+    /* Clean Buttons */
+    .btn-action-primary {
+        background-color: var(--admin-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 24px;
+        transition: all 0.2s ease;
+    }
+    .btn-action-primary:hover {
+        background-color: #4338ca;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        color: white;
+    }
+
+    .btn-action-outline {
+        background-color: transparent;
+        color: var(--admin-primary);
+        border: 1.5px solid var(--admin-primary);
+        border-radius: 12px;
+        padding: 9px 22px;
+        transition: all 0.2s ease;
+    }
+    .btn-action-outline:hover {
+        background-color: rgba(79, 70, 229, 0.05);
+        color: #4338ca;
+    }
+
+    .btn-action-light {
+        background-color: white;
+        color: #64748b;
+        border: 1.5px solid var(--admin-border);
+        border-radius: 12px;
+        padding: 10px 14px;
+    }
+
+    /* Stats Cards */
+    .stat-card-clean {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid var(--admin-border);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .stat-label-clean {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+    .stat-value-clean {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    /* Form Elements */
+    .search-box-clean {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .search-box-clean i {
+        position: absolute;
+        left: 14px;
+        color: #94a3b8;
+    }
+    .search-box-clean input {
+        width: 100%;
+        padding: 10px 10px 10px 40px;
+        border-radius: 12px;
+        border: 1.5px solid var(--admin-border);
+        font-size: 0.9rem;
+        background-color: #fcfcfd;
+    }
+    .search-box-clean input:focus {
+        outline: none;
+        border-color: var(--admin-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .select-clean {
+        border-radius: 12px;
+        border: 1.5px solid var(--admin-border);
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1e293b;
+        background-color: #fcfcfd;
+    }
+
+    /* Table Styling */
+    .table thead th {
+        padding: 16px;
+        background-color: #f8fafc;
+        color: #64748b;
+        border-bottom: 1.5px solid var(--admin-border);
+    }
+    .table tbody td {
+        padding: 16px;
+        color: #1e293b;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    /* Small UI Elements */
+    .fw-600 { font-weight: 600; }
+    .extra-small { font-size: 0.7rem; }
+    .avatar-clean {
+        width: 36px;
+        height: 36px;
+        background: #f1f5f9;
+        color: var(--admin-primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .status-badge-clean {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .status-accruing { background: #eff6ff; color: #2563eb; }
+    .status-pending { background: #fffbeb; color: #d97706; }
+    .status-paid { background: #f0fdf4; color: #16a34a; }
+
+    .pulse-clean {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: pulse-op 2s infinite;
+    }
+    @@keyframes pulse-op {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        70% { transform: scale(1.5); opacity: 0; }
+        100% { transform: scale(0.95); opacity: 0; }
+    }
+</style>
+
+<!-- Modal: Generate Payouts -->
+<div class="modal fade" id="generatePayoutModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Confirm Payout</h5>
+            <div class="modal-header border-bottom py-3">
+                <h5 class="modal-title fw-bold">Generate Settlement Batch</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to mark this payout as <strong>Paid</strong>? This action will update the vendor's records and cannot be undone.</p>
-                <div class="p-3 bg-light rounded">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Vendor:</span>
-                        <span id="modalVendor" class="fw-bold"></span>
+            <div class="modal-body p-4">
+                <div class="alert alert-info border-0 bg-info-subtle small mb-4">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    Generating a batch will consolidate all "Completed" orders for the selected period into a single payout record for each vendor.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Settlement Cycle</label>
+                    <select id="payoutType" class="form-select">
+                        <option value="daily">Daily Cycle (Yesterday)</option>
+                        <option value="monthly" selected>Monthly Cycle (Last Month)</option>
+                    </select>
+                </div>
+                <div id="datePickers">
+                    <div id="monthlyPickers">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Year</label>
+                                <select id="payoutYear" class="form-select">
+                                    <option value="2024" selected>2024</option>
+                                    <option value="2025">2025</option>
+                                </select>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Month</label>
+                                <select id="payoutMonth" class="form-select">
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5" selected>May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">Amount:</span>
-                        <span id="modalAmount" class="fw-bold text-success"></span>
+                    <div id="dailyPickers" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Select Date</label>
+                            <input type="date" id="payoutDate" class="form-control" value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" />
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="confirmPayoutBtn" class="btn btn-success px-4">Confirm Payment</button>
+            <div class="modal-footer bg-light border-0 py-3">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmGenerate" class="btn btn-primary rounded-pill px-4 fw-bold">Generate Now</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        let currentPage = 1;
-        const pageSize = 20;
-        let selectedPayoutId = null;
-        const token = $('input[name="__RequestVerificationToken"]').first().val() || '';
-        const payoutModal = new bootstrap.Modal(document.getElementById('payoutModal'));
+        $(function () {
+            loadPayouts();
 
-        async function loadPayouts(page = 1) {
-            const status = document.getElementById('statusFilter').value;
-            const search = document.getElementById('vendorSearch').value;
-            const body = document.getElementById('payoutsBody');
-            
-            // Show loading spinner
-            body.innerHTML = `<tr><td colspan="7" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-                <div class="mt-2 text-muted small">Loading payouts...</div>
-            </td></tr>`;
+            $('#refreshTable').on('click', loadPayouts);
+            $('#statusFilter').on('change', loadPayouts);
+            $('#payoutSearch').on('keyup', debounce(loadPayouts, 500));
 
-            try {
-                const response = await fetch(`/Admin/GetPayoutsList?page=${page}&pageSize=${pageSize}&status=${status}&search=${search}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    renderPayouts(data.items);
-                    renderPagination(data.totalItems, data.page, data.pageSize);
-                    document.getElementById('showingCount').textContent = data.items.length;
-                    document.getElementById('totalCount').textContent = data.totalItems;
-                    currentPage = data.page;
-                } else if (response.status === 401) {
-                    body.innerHTML = '<tr><td colspan="7" class="text-center py-5"><div class="text-danger fw-bold">Unauthorized. Please log in as Admin.</div></td></tr>';
-                } else {
-                    body.innerHTML = '<tr><td colspan="7" class="text-center py-5"><div class="text-danger">Error loading data (Status: ' + response.status + '). Please try again.</div></td></tr>';
+            $('#btnPayAll').on('click', function() {
+                const pendingAmount = parseFloat($('#statPending').text().replace('₹', '').replace(/,/g, ''));
+                if (pendingAmount <= 0) {
+                    Swal.fire('Info', 'No pending settlements found.', 'info');
+                    return;
                 }
-            } catch (error) {
-                console.error('Error loading payouts:', error);
-                body.innerHTML = '<tr><td colspan="7" class="text-center py-5"><div class="text-danger">Network error. Please check your connection.</div></td></tr>';
-            }
-        }
 
-        function renderPayouts(payouts) {
-            const body = document.getElementById('payoutsBody');
-            if (payouts.length === 0) {
-                body.innerHTML = '<tr><td colspan="8" class="text-center py-5">No payouts found matching your filters.</td></tr>';
-                return;
-            }
+                confirmBatchPayout(pendingAmount);
+            });
 
-            body.innerHTML = payouts.map(p => `
-                <tr>
-                    <td class="ps-4">
-                        ${p.id === 0 ? `<span class="badge bg-warning-subtle text-warning border">Unprocessed Balance</span>` : 
-                          (p.period && p.period.length > 7 ? `<span class="badge bg-info-subtle text-info border">Daily Payout</span>` : `<span class="badge bg-primary">Monthly Aggregate</span>`)}
-                        <div class="text-muted extra-small">ID: ${p.id === 0 ? 'ACC-NEW' : '#' + p.id}</div>
-                    </td>
-                    <td>
-                        <div class="fw-bold">${p.vendorName}</div>
-                        <div class="text-muted small">${p.vendorEmail}</div>
-                    </td>
-                    <td>
-                        <div class="fw-bold">${p.period || 'N/A'}</div>
-                    </td>
-                    <td>₹${p.totalSales.toFixed(2)}</td>
-                    <td class="text-danger">- ₹${p.commission.toFixed(2)}</td>
-                    <td class="fw-bold text-success">₹${p.amount.toFixed(2)}</td>
-                    <td>
-                        <span class="badge ${p.status === 'Pending' || p.status === 'Accruing' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'} rounded-pill px-3">
-                            ${p.status === 'PaidToVendor' ? 'Paid' : (p.status === 'Accruing' ? 'Live Balance' : p.status)}
-                        </span>
-                    </td>
-                    <td class="text-end pe-4">
-                        ${p.status === 'Pending' || p.status === 'Accruing' ? `
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" onclick="initiateRazorpayPayout(${p.id}, '${p.vendorName}', ${p.amount}, ${p.vendorId})">
-                                <i class="bi bi-credit-card me-1"></i> Pay Now
-                            </button>
-                        ` : `
-                            <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold" disabled>
-                                <i class="bi bi-check-circle-fill me-1"></i> Paid
-                            </button>
-                        `}
-                    </td>
-                </tr>
-            `).join('');
-        }
+            $('#payoutType').on('change', function() {
+                if ($(this).val() === 'daily') {
+                    $('#dailyPickers').show();
+                    $('#monthlyPickers').hide();
+                } else {
+                    $('#dailyPickers').hide();
+                    $('#monthlyPickers').show();
+                }
+            });
 
-        function renderPagination(totalItems, page, size) {
-            const totalPages = Math.ceil(totalItems / size);
-            const pagination = document.getElementById('pagination');
-            
-            let html = '';
-            for (let i = 1; i <= totalPages; i++) {
-                html += `
-                    <li class="page-item ${i === page ? 'active' : ''}">
-                        <button class="page-link" onclick="loadPayouts(${i})">${i}</button>
-                    </li>
-                `;
-            }
-            pagination.innerHTML = html;
-        }
+            $('#confirmGenerate').on('click', function() {
+                const type = $('#payoutType').val();
+                let url = '';
+                let data = {};
 
-        async function initiateRazorpayPayout(id, name, amount, vendorId) {
-            // Mocking the Razorpay Payout UI
-            const modalHtml = `
-                <div class="modal fade" id="payoutModal" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow">
-                            <div class="modal-body text-center p-5">
-                                <div class="mb-4">
-                                    <i class="bi bi-info-circle text-info display-1"></i>
-                                </div>
-                                <h3 class="mb-3">Secure Checkout</h3>
-                                <p class="text-muted">Mocking payment to <strong>${name}</strong>...</p>
-                                <div class="display-4 fw-bold text-success mb-4">₹${amount.toFixed(2)}</div>
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            const payoutModal = new bootstrap.Modal(document.getElementById('payoutModal'));
-            payoutModal.show();
+                if (type === 'daily') {
+                    url = '/Admin/GenerateDailyPayouts';
+                    data = { date: $('#payoutDate').val() };
+                } else {
+                    url = '/Admin/GenerateMonthlyPayouts';
+                    data = { year: $('#payoutYear').val(), month: $('#payoutMonth').val() };
+                }
 
-            // Simulate network delay for payment processing
-            setTimeout(async () => {
-                try {
-                    const response = await fetch(`/Admin/UpdatePayoutStatus?payoutId=${id}&status=PaidToVendor`, {
-                        method: 'POST',
-                        headers: {
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Processing...');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                    success: function(res) {
+                        if (res.success) {
+                            Swal.fire('Success', res.message, 'success');
+                            loadPayouts();
+                            bootstrap.Modal.getInstance(document.getElementById('generatePayoutModal')).hide();
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
                         }
-                    });
-
-                    if (response.ok) {
-                        // Success Feedback
-                        const modalBody = document.querySelector('#payoutModal .modal-body');
-                        modalBody.innerHTML = `
-                            <div class="mb-4">
-                                <i class="bi bi-check-circle-fill text-success display-1 pulse"></i>
-                            </div>
-                            <h3 class="mb-3">Payment Successful!</h3>
-                            <p class="text-muted">Funds have been transferred to ${name}.</p>
-                            <div class="alert alert-success small py-2 mb-4">
-                                <strong>Transaction ID:</strong> PAY_${Math.random().toString(36).substr(2, 9).toUpperCase()}
-                            </div>
-                            <button type="button" class="btn btn-success rounded-pill px-5" data-bs-dismiss="modal">Done</button>
-                        `;
-                        
-                        // Refresh the table when modal is closed
-                        document.getElementById('payoutModal').addEventListener('hidden.bs.modal', function () {
-                            document.getElementById('payoutModal').remove();
-                            loadPayouts(currentPage);
-                        });
-                    } else {
-                        throw new Error('Payment processing failed');
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Failed to communicate with server', 'error');
+                    },
+                    complete: function() {
+                        $('#confirmGenerate').prop('disabled', false).html('Generate Now');
                     }
-                } catch (error) {
-                    payoutModal.hide();
-                    document.getElementById('payoutModal').remove();
-                    alert('Error processing payment: ' + error.message);
-                }
-            }, 2500);
-        }
-
-        async function processPayoutInternal(payoutId, vendorId) {
-            try {
-                const response = await fetch(`/Admin/UpdatePayoutStatus`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        payoutId: payoutId || 0,
-                        vendorId: vendorId || 0,
-                        status: 'PaidToVendor',
-                        __RequestVerificationToken: token
-                    })
                 });
+            });
+        });
 
-                const res = await response.json();
-                if (res.success) {
-                    if (typeof notify !== 'undefined') notify.success('Payout processed successfully through Razorpay.');
-                    else alert('Payout processed successfully through Razorpay.');
-                    loadPayouts(currentPage);
+        function loadPayouts() {
+            const $body = $('#payoutsBody');
+            const search = $('#payoutSearch').val();
+            const status = $('#statusFilter').val();
+
+            $.getJSON('/Admin/GetPayoutsList', { search, status }, function (res) {
+                $body.empty();
+                
+                let totalDisbursed = 0;
+                let totalPending = 0;
+                let totalCommission = 0;
+                let pendingCount = 0;
+
+                if (res.items.length === 0) {
+                    $body.append('<tr><td colspan="8" class="text-center py-5 text-muted small">No payout records found.</td></tr>');
                 } else {
-                    if (typeof notify !== 'undefined') notify.error(res.message || 'Failed to process payout. Please try again.');
-                    else alert(res.message || 'Failed to process payout. Please try again.');
+                    res.items.forEach(item => {
+                        const amount = parseFloat(item.amount);
+                        const commission = parseFloat(item.commission);
+                        const sales = parseFloat(item.totalSales);
+                        
+                        if (item.status === 'PaidToVendor') {
+                            totalDisbursed += amount;
+                        } else {
+                            totalPending += amount;
+                            pendingCount++;
+                        }
+                        totalCommission += commission;
+
+                        const statusBadge = getStatusBadge(item.status);
+                        const actions = getActions(item);
+
+                        $body.append(`
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="font-monospace text-primary fw-bold small">#${item.id === 0 ? 'ACC' : item.id}</div>
+                                    <div class="extra-small text-muted mt-1">${new Date(item.createdAt).toLocaleDateString()}</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar-clean">${item.vendorName.substring(0,1)}</div>
+                                        <div>
+                                            <div class="fw-bold text-dark small">${item.vendorName}</div>
+                                            <div class="extra-small text-muted">${item.vendorEmail}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border-0 small fw-600">${item.period}</span></td>
+                                <td class="text-end fw-bold small">₹${sales.toLocaleString()}</td>
+                                <td class="text-end text-primary fw-600 small">₹${commission.toLocaleString()}</td>
+                                <td class="text-end fw-bold text-dark">₹${amount.toLocaleString()}</td>
+                                <td class="text-center">${statusBadge}</td>
+                                <td class="text-end pe-4">${actions}</td>
+                            </tr>
+                        `);
+                    });
                 }
-            } catch (error) {
-                console.error('Error processing payout:', error);
+
+                $('#statDisbursed').text('₹' + totalDisbursed.toLocaleString());
+                $('#statPending').text('₹' + totalPending.toLocaleString());
+                $('#statCommission').text('₹' + totalCommission.toLocaleString());
+                
+                if (totalPending > 0) {
+                    $('#btnPayAll').removeClass('d-none').html(`<i class="bi bi-lightning-charge-fill me-2"></i> Pay All (${pendingCount})`);
+                } else {
+                    $('#btnPayAll').addClass('d-none');
+                }
+
+                const efficiency = (totalDisbursed + totalPending) > 0 ? 
+                    Math.round((totalDisbursed / (totalDisbursed + totalPending)) * 100) : 0;
+                $('#statEfficiency').text(efficiency + '%');
+            });
+        }
+
+        async function confirmBatchPayout(amount) {
+            const { value: confirmed } = await Swal.fire({
+                title: 'Batch Settlement',
+                html: `You are about to settle a total of <b>₹${amount.toLocaleString()}</b> across all pending vendors.<br><br><div class="alert alert-info py-2 small border-0"><i class="bi bi-shield-lock-fill me-2"></i> This will simulate a secure Razorpay batch disbursement.</div>`,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Proceed to Pay All',
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#6c757d'
+            });
+
+            if (confirmed) {
+                Swal.fire({
+                    title: 'Initializing Razorpay...',
+                    html: '<div class="text-center"><div class="spinner-border text-primary mb-3" role="status"></div><p>Generating bulk settlement invoice...</p></div>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
+
+                $.ajax({
+                    url: '/Admin/GeneratePayoutRazorpayOrder',
+                    type: 'POST',
+                    data: { amount: amount },
+                    headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                    success: function(res) {
+                        if (res.success) {
+                            Swal.close();
+                            var options = {
+                                "key": res.keyId,
+                                "amount": res.amount,
+                                "currency": res.currency,
+                                "name": "NutriBite Bulk Settlement",
+                                "description": `Payout to All Vendors`,
+                                "order_id": res.orderId,
+                                "handler": function (response){
+                                    Swal.fire({
+                                        title: 'Processing Batch Payment',
+                                        html: '<div class="text-center"><div class="progress mb-3" style="height: 10px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%"></div></div><p>Disbursing funds to vendor partners...</p></div>',
+                                        showConfirmButton: false,
+                                        allowOutsideClick: false
+                                    });
+
+                                    $.ajax({
+                                        url: '/Admin/ProcessBatchPayout',
+                                        type: 'POST',
+                                        headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                                        success: function(batchRes) {
+                                            if (batchRes.success) {
+                                                Swal.fire({
+                                                    title: 'Batch Disbursed!',
+                                                    html: `<b>${batchRes.message}</b><br><br><div class="p-3 bg-light rounded font-monospace small text-start border"><div class="mb-1 text-uppercase text-muted fw-bold">Transaction Report</div><div>Status: <span class="text-success fw-bold">SUCCESS</span></div><div>Razorpay TXN: ${response.razorpay_payment_id}</div></div>`,
+                                                    icon: 'success'
+                                                });
+                                                loadPayouts();
+                                            } else {
+                                                Swal.fire('Error', batchRes.message, 'error');
+                                            }
+                                        },
+                                        error: function() {
+                                            Swal.fire('Error', 'Gateway timeout during batch processing.', 'error');
+                                        }
+                                    });
+                                },
+                                "prefill": {
+                                    "name": "Admin NutriBite",
+                                    "email": "admin@nutribite.com"
+                                },
+                                "theme": {
+                                    "color": "#4f46e5"
+                                }
+                            };
+                            var rzp = new Razorpay(options);
+                            rzp.on('payment.failed', function (response){
+                                Swal.fire('Error', response.error.description, 'error');
+                            });
+                            rzp.open();
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Failed to generate Razorpay order for batch payment.', 'error');
+                    }
+                });
             }
         }
 
-        document.getElementById('applyFilters').addEventListener('click', () => loadPayouts(1));
-
-        document.getElementById('btnProcessDaily').addEventListener('click', async () => {
-            const val = document.getElementById('payoutDayPicker').value;
-            if(!val) return;
-            
-            if(!confirm(`Are you sure you want to process daily payouts for ${val}?`)) return;
-
-            const btn = document.getElementById('btnProcessDaily');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
-
-            try {
-                const response = await fetch(`/Admin/GenerateDailyPayouts?date=${val}`, { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        __RequestVerificationToken: token
-                    })
-                });
-                const res = await response.json();
-                alert(res.message);
-                if(res.success) loadPayouts(1);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Process Daily';
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'PaidToVendor': return '<span class="status-badge-clean status-paid">Settled</span>';
+                case 'Pending': return '<span class="status-badge-clean status-pending">Pending</span>';
+                case 'Accruing': return '<span class="status-badge-clean status-accruing"><div class="pulse-clean"></div>Accruing</span>';
+                default: return `<span class="badge bg-secondary rounded-pill">${status}</span>`;
             }
-        });
+        }
 
-        document.getElementById('btnProcessMonthly').addEventListener('click', async () => {
-            const val = document.getElementById('payoutMonthPicker').value;
-            if(!val) return;
-            const [year, month] = val.split('-');
-            
-            if(!confirm(`Are you sure you want to process monthly payouts for ${val}?`)) return;
-
-            const btn = document.getElementById('btnProcessMonthly');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
-
-            try {
-                const response = await fetch(`/Admin/GenerateMonthlyPayouts?year=${year}&month=${month}`, { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        __RequestVerificationToken: token
-                    })
-                });
-                const res = await response.json();
-                alert(res.message);
-                if(res.success) loadPayouts(1);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-gear-fill"></i> Process Monthly';
+        function getActions(item) {
+            if (item.status === 'PaidToVendor') {
+                return '<button class="btn btn-sm btn-light border-0 text-success fw-bold px-3" disabled><i class="bi bi-check2-all me-1"></i> Success</button>';
             }
-        });
+            
+            return `
+                <button class="btn btn-sm btn-action-primary py-1 px-3 small fw-bold" onclick="processPayout(${item.id || 0}, ${item.vendorId}, '${item.vendorName}', ${item.amount})">
+                    Pay Now
+                </button>
+            `;
+        }
 
-        // Initial Load
-        loadPayouts();
+        async function processPayout(payoutId, vendorId, name, amount) {
+            const { value: confirmed } = await Swal.fire({
+                title: 'Confirm Settlement',
+                html: `Are you sure you want to settle <b>₹${amount.toLocaleString()}</b> to <b>${name}</b>?<br><small class="text-muted">This will simulate a bank transfer and mark the record as settled.</small>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Authorize Payment',
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#d33'
+            });
+
+            if (confirmed) {
+                Swal.fire({
+                    title: 'Creating Invoice...',
+                    html: 'Contacting Razorpay...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                $.ajax({
+                    url: '/Admin/GeneratePayoutRazorpayOrder',
+                    type: 'POST',
+                    data: { amount: amount },
+                    headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                    success: function(res) {
+                        if (res.success) {
+                            Swal.close();
+                            var options = {
+                                "key": res.keyId,
+                                "amount": res.amount,
+                                "currency": res.currency,
+                                "name": "NutriBite Settlement",
+                                "description": `Payout to ${name}`,
+                                "order_id": res.orderId,
+                                "handler": function (response){
+                                    Swal.fire({
+                                        title: 'Processing...',
+                                        html: 'Updating ledger...',
+                                        allowOutsideClick: false,
+                                        didOpen: () => Swal.showLoading()
+                                    });
+                                    $.ajax({
+                                        url: '/Admin/UpdatePayoutStatus',
+                                        type: 'POST',
+                                        data: { 
+                                            payoutId: payoutId, 
+                                            vendorId: vendorId, 
+                                            status: 'PaidToVendor' 
+                                        },
+                                        headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                                        success: function(updateRes) {
+                                            if (updateRes.success) {
+                                                Swal.fire({
+                                                    title: 'Payment Successful',
+                                                    html: `Funds disbursed successfully.<br><div class="bg-light p-2 mt-2 rounded font-monospace small text-start border"><div class="mb-1 text-uppercase text-muted fw-bold">Transaction Report</div><div>Status: <span class="text-success fw-bold">SUCCESS</span></div><div>Razorpay TXN: ${response.razorpay_payment_id}</div></div>`,
+                                                    icon: 'success'
+                                                });
+                                                loadPayouts();
+                                            } else {
+                                                Swal.fire('Error', updateRes.message, 'error');
+                                            }
+                                        }
+                                    });
+                                },
+                                "prefill": {
+                                    "name": "Admin",
+                                    "email": "admin@nutribite.com"
+                                },
+                                "theme": {
+                                    "color": "#4f46e5"
+                                }
+                            };
+                            var rzp = new Razorpay(options);
+                            rzp.on('payment.failed', function (response){
+                                Swal.fire('Error', response.error.description, 'error');
+                            });
+                            rzp.open();
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Gateway timeout or connection error.', 'error');
+                    }
+                });
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
     </script>
+    
+    <style>
+        .pulse-blue { animation: pulse-blue-anim 2s infinite; }
+        @@keyframes pulse-blue-anim {
+            0% { box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(13, 202, 240, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(13, 202, 240, 0); }
+        }
+        .fw-600 { font-weight: 600; }
+        .extra-small { font-size: 0.75rem; }
+    </style>
 }

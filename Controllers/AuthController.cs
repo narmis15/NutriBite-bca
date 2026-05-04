@@ -55,6 +55,21 @@ namespace NUTRIBITE.Controllers
                 return Json(new { success = false, message = "All fields are required." });
             }
 
+            if (!IsValidEmail(email))
+            {
+                return Json(new { success = false, message = "Invalid email format." });
+            }
+
+            if (!email.Trim().EndsWith(".com", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(new { success = false, message = "Email must end with .com." });
+            }
+
+            if (!IsStrongPassword(password))
+            {
+                return Json(new { success = false, message = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character." });
+            }
+
             var exists = _context.UserSignups
                 .Any(u => u.Email == email.Trim());
 
@@ -65,7 +80,7 @@ namespace NUTRIBITE.Controllers
             {
                 Name = name.Trim(),
                 Email = email.Trim(),
-                Password = password,
+                Password = HashPassword(password), // Hash the password
                 Role = "User", // ⭐ DEFAULT ROLE
                 CreatedAt = DateTime.Now
             };
@@ -100,6 +115,56 @@ namespace NUTRIBITE.Controllers
         }
 
         // =========================
+        // GET: /Auth/Forgot
+        // =========================
+        [HttpGet]
+        public IActionResult Forgot()
+        {
+            return View();
+        }
+
+        // =========================
+        // POST: /Auth/ResetPassword
+        // =========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetPassword(string email, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(newPassword))
+            {
+                return Json(new { success = false, message = "Email and new password are required." });
+            }
+
+            var trimmedEmail = email.Trim();
+            bool found = false;
+
+            // Check UserSignup
+            var user = _context.UserSignups.FirstOrDefault(u => u.Email == trimmedEmail);
+            if (user != null)
+            {
+                user.Password = HashPassword(newPassword);
+                found = true;
+            }
+
+            // Check VendorSignup
+            var vendor = _context.VendorSignups.FirstOrDefault(v => v.Email == trimmedEmail);
+            if (vendor != null)
+            {
+                vendor.PasswordHash = HashPassword(newPassword);
+                found = true;
+            }
+
+            if (!found)
+            {
+                return Json(new { success = false, message = "Email address not found in our system." });
+            }
+
+            _context.SaveChanges();
+
+            return Json(new { success = true, message = "Password reset successfully!", redirect = "/Auth/Login" });
+        }
+
+        // =========================
         // POST: /Auth/Login
         // =========================
         [HttpPost]
@@ -112,6 +177,11 @@ namespace NUTRIBITE.Controllers
                 return Json(new { success = false, message = "Email and password are required." });
             }
 
+            if (!IsValidEmail(email))
+            {
+                return Json(new { success = false, message = "Invalid email format." });
+            }
+
             // ⭐ ADMIN LOGIN CHECK
             if (email.Trim() == "Nutribite123@gmail.com" && password == "NutriBite//26")
             {
@@ -122,20 +192,30 @@ namespace NUTRIBITE.Controllers
                 return Json(new { success = true, isAdmin = true, userName = "System Admin" });
             }
 
-            var user = _context.UserSignups
-                .FirstOrDefault(u =>
-                    u.Email == email.Trim() &&
-                    u.Password == password);
-
-            if (user == null)
+            var user = _context.UserSignups.FirstOrDefault(u => u.Email == email.Trim());
+            
+            if (user != null)
+            {
+                if (user.Password != HashPassword(password))
+                {
+                    return Json(new { success = false, message = "Password not match." });
+                }
+                if (user.Status == "Blocked")
+                {
+                    return Json(new { success = false, message = "Your account has been temporarily blocked by an Administrator." });
+                }
+            }
+            else
             {
                 // Fallback for Vendor table if not found in UserSignup
-                // ⭐ UPDATED: Using plain text comparison for testing
-                var vendorOnly = _context.VendorSignups
-                    .FirstOrDefault(v => v.Email == email.Trim() && v.PasswordHash == password);
-
+                var vendorOnly = _context.VendorSignups.FirstOrDefault(v => v.Email == email.Trim());
+                
                 if (vendorOnly != null)
                 {
+                    if (vendorOnly.PasswordHash != HashPassword(password))
+                    {
+                        return Json(new { success = false, message = "Password not match." });
+                    }
                     if (vendorOnly.IsRejected) return Json(new { success = false, message = "Your vendor account was rejected." });
                     if (!vendorOnly.IsApproved) return Json(new { success = false, message = "Waiting for admin approval." });
 
@@ -146,8 +226,8 @@ namespace NUTRIBITE.Controllers
                     HttpContext.Session.SetString("UserRole", "Vendor");
                     return Json(new { success = true, isVendor = true, userName = vendorOnly.VendorName });
                 }
-
-                return Json(new { success = false, message = "Invalid email or password." });
+                
+                return Json(new { success = false, message = "Email not found." });
             }
 
             // ⭐ ACCOUNT STATUS CHECK
@@ -191,39 +271,12 @@ namespace NUTRIBITE.Controllers
         }
 
         // =========================
-        // DELETE ACCOUNT
+        // DELETE ACCOUNT (DEPRECATED)
         // =========================
         [HttpGet]
-        public async Task<IActionResult> DeleteAccount()
+        public IActionResult DeleteAccount()
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-
-            if (!userId.HasValue)
-                return RedirectToAction("Login");
-
-            var user = _context.UserSignups
-                .FirstOrDefault(u => u.Id == userId.Value);
-
-            if (user != null)
-            {
-                // 1. Notify Admin via System Log (ActivityLog)
-                var log = new ActivityLog
-                {
-                    Action = "Account Deleted",
-                    Details = $"User {user.Name} ({user.Email}) has requested to delete their account.",
-                    Timestamp = DateTime.Now,
-                    AdminEmail = "admin@nutribite.com",
-                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
-                };
-                _context.ActivityLogs.Add(log);
-
-                // 2. Perform Soft Deletion (Status Update)
-                user.Status = "Deleted";
-                await _context.SaveChangesAsync();
-            }
-
-            HttpContext.Session.Clear();
-            return RedirectToAction("Index", "Public");
+            return RedirectToAction("MyProfile", "Home");
         }
 
         // =========================
@@ -326,6 +379,29 @@ namespace NUTRIBITE.Controllers
 
                 return builder.ToString();
             }
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool IsStrongPassword(string password)
+        {
+            // Minimum 8 characters, at least one uppercase, one lowercase, one digit, one special character
+            return password.Length >= 8 &&
+                   password.Any(char.IsUpper) &&
+                   password.Any(char.IsLower) &&
+                   password.Any(char.IsDigit) &&
+                   password.Any(ch => !char.IsLetterOrDigit(ch));
         }
     }
 }

@@ -11,6 +11,69 @@
             <h2 class="fw-bold text-dark mb-1">Platform Subscriptions</h2>
             <p class="text-muted mb-0">Oversee all recurring meal subscriptions across the entire platform.</p>
         </div>
+        <div class="d-flex gap-3">
+            <select id="monthFilter" class="form-select rounded-pill shadow-sm" style="width: 180px; border: 1px solid #e9ecef;">
+                <option value="">All Months</option>
+                <option value="2026-03">March 2026</option>
+                <option value="2026-04">April 2026</option>
+                <option value="2026-05">May 2026</option>
+            </select>
+        </div>
+    </div>
+
+    @{
+        var totalSubs = Model.Count();
+        var activeSubs = Model.Count(s => s.Status == "Active");
+        var cancelledSubs = Model.Count(s => s.Status == "Cancelled");
+        var monthlySubs = Model.Count(s => s.SubscriptionType == "Monthly");
+    }
+
+    <!-- KPI Summary Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white p-3 shadow-sm h-100 border-0 rounded-4" style="--bs-bg-opacity: 0.9;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-bold text-uppercase mb-1" style="opacity: 0.8">Total Subscriptions</div>
+                        <div class="h4 fw-bold mb-0">@totalSubs</div>
+                    </div>
+                    <div class="h3 mb-0" style="opacity: 0.3"><i class="bi bi-card-checklist"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white p-3 shadow-sm h-100 border-0 rounded-4" style="--bs-bg-opacity: 0.9;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-bold text-uppercase mb-1" style="opacity: 0.8">Active</div>
+                        <div class="h4 fw-bold mb-0">@activeSubs</div>
+                    </div>
+                    <div class="h3 mb-0" style="opacity: 0.3"><i class="bi bi-play-circle-fill"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white p-3 shadow-sm h-100 border-0 rounded-4" style="--bs-bg-opacity: 0.9;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-bold text-uppercase mb-1" style="opacity: 0.8">Monthly Plans</div>
+                        <div class="h4 fw-bold mb-0">@monthlySubs</div>
+                    </div>
+                    <div class="h3 mb-0" style="opacity: 0.3"><i class="bi bi-calendar-month"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white p-3 shadow-sm h-100 border-0 rounded-4" style="--bs-bg-opacity: 0.9;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small fw-bold text-uppercase mb-1" style="opacity: 0.8">Cancelled</div>
+                        <div class="h4 fw-bold mb-0">@cancelledSubs</div>
+                    </div>
+                    <div class="h3 mb-0" style="opacity: 0.3"><i class="bi bi-x-circle-fill"></i></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (!Model.Any())
@@ -38,10 +101,10 @@
                             <th class="text-secondary small fw-bold text-uppercase">Status</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="subsTableBody">
                         @foreach (var sub in Model)
                         {
-                            <tr>
+                            <tr data-date="@sub.StartDate.ToString("yyyy-MM")">
                                 <td class="ps-4">
                                     <div class="fw-bold text-dark">@(sub.User?.Name ?? "Unknown")</div>
                                     <div class="small text-muted">@(sub.User?.Email ?? "-")</div>
@@ -101,3 +164,22 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#monthFilter").on("change", function () {
+                var monthText = $(this).val();
+
+                $("#subsTableBody tr").each(function () {
+                    var rowDate = $(this).data("date") || "";
+                    if (monthText) {
+                        $(this).toggle(rowDate === monthText);
+                    } else {
+                        $(this).show();
+                    }
+                });
+            });
+        });
+    </script>
+}

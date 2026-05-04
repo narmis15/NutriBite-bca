@@ -7,7 +7,7 @@ namespace NUTRIBITE.Services
 {
     public interface IOrderService
     {
-        Task<IEnumerable<object>> GetActiveOrdersAsync();
+        Task<IEnumerable<object>> GetActiveOrdersAsync(DateTime? from = null, DateTime? to = null);
         Task<OrderDetailsViewModel> GetOrderDetailsAsync(int orderId);
         Task<bool> UpdateOrderStatusAsync(int orderId, string newStatus);
         Task<IEnumerable<object>> GetCancelledOrdersAsync();
@@ -24,7 +24,7 @@ namespace NUTRIBITE.Services
         Task<bool> VerifyOrderOTPAsync(int orderId, int otp);
         Task<IEnumerable<object>> GetAvailableDeliveryPersonnelAsync();
         Task<IEnumerable<object>> GetDeliveriesForPersonAsync(int deliveryPersonId);
-        Task<object> GetDeliveryDashboardDataAsync();
+        Task<System.Dynamic.ExpandoObject> GetDeliveryDashboardDataAsync(string period = "daily", DateTime? refDate = null, DateTime? startDate = null, DateTime? endDate = null);
 
         System.Linq.IQueryable<NUTRIBITE.Models.OrderTable> GetOrderQueryable();
     }

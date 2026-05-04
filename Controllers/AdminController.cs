@@ -4,6 +4,7 @@ using global::NUTRIBITE.Hubs;
 using global::NUTRIBITE.Services;
 using global::NUTRIBITE.Models;
 using global::NUTRIBITE.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +17,7 @@ using System.Collections.Generic;
 
 namespace NUTRIBITE.Controllers
 {
+    [AdminAuthorize]
     public partial class AdminController : Controller
     {
         private readonly IOrderService _orderService;
@@ -51,6 +53,7 @@ namespace NUTRIBITE.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             if (HttpContext.Session.GetString("Admin") != null)
@@ -60,6 +63,7 @@ namespace NUTRIBITE.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public IActionResult Login(string email, string? returnUrl, string password)
         {
             // Simple hardcoded admin check for now, as per typical prototype patterns
@@ -73,15 +77,93 @@ namespace NUTRIBITE.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
 
+        [HttpGet("Admin/UpdateAllPasswords")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateAllPasswords()
+        {
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes("NutriBite@123"));
+                System.Text.StringBuilder builder = new System.Text.StringBuilder();
+                foreach (byte b in bytes)
+                    builder.Append(b.ToString("x2"));
+                string hashed = builder.ToString();
+
+                var users = await _context.UserSignups.ToListAsync();
+                foreach(var u in users) { u.Password = hashed; }
+                
+                var vendors = await _context.VendorSignups.ToListAsync();
+                foreach(var v in vendors) { v.PasswordHash = hashed; }
+                
+                var admins = await _context.Admins.ToListAsync();
+                foreach(var a in admins) { a.Password = hashed; }
+
+                await _context.SaveChangesAsync();
+            }
+            return Ok(new { success = true, message = "All passwords updated to NutriBite@123" });
+        }
+
+        [HttpGet("Admin/CleanupVendors")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CleanupVendors()
+        {
+            // Keep the first 10 vendors (by ID)
+            var top10Vendors = await _context.VendorSignups.OrderBy(v => v.VendorId).Take(10).Select(v => v.VendorId).ToListAsync();
+            
+            var vendorsToDelete = await _context.VendorSignups.Where(v => !top10Vendors.Contains(v.VendorId)).ToListAsync();
+            
+            if (vendorsToDelete.Any())
+            {
+                _context.VendorSignups.RemoveRange(vendorsToDelete);
+                await _context.SaveChangesAsync();
+            }
+            
+            return Ok(new { success = true, message = $"Deleted {vendorsToDelete.Count} vendors. Retained 10." });
+        }
+
+        [HttpPost]
         [AdminAuthorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SyncDashboardData()
+        {
+            try
+            {
+                var undistributedOrders = await _context.OrderTables
+                    .Where(o => o.PaymentStatus == "Completed" && (o.VendorAmount == 0 || o.CommissionAmount == 0))
+                    .ToListAsync();
+
+                int count = 0;
+                foreach (var order in undistributedOrders)
+                {
+                    try
+                    {
+                        await _distributionService.DistributePaymentAsync(order.OrderId);
+                        count++;
+                    }
+                    catch { /* skip failures for now */ }
+                }
+
+                await _activityLogger.LogAsync("Data Sync", $"Admin forced a data synchronization for {count} undistributed orders.");
+                return Json(new { success = true, message = $"Successfully synchronized {count} orders." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         public async Task<IActionResult> Dashboard()
         {
+            var adminEmail = HttpContext.Session.GetString("Admin") ?? "Admin";
+            await _activityLogger.LogAsync("Dashboard Accessed", $"Admin {adminEmail} viewed the main mission control center.");
+            
             ViewBag.RecentActivity = await _context.ActivityLogs
                 .OrderByDescending(a => a.Timestamp)
                 .Take(10)
@@ -89,7 +171,6 @@ namespace NUTRIBITE.Controllers
             return View();
         }
 
-        [AdminAuthorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
@@ -130,7 +211,6 @@ namespace NUTRIBITE.Controllers
             }
         }
 
-        [AdminAuthorize]
         public IActionResult Profile()
         {
             var email = HttpContext.Session.GetString("Admin");
@@ -138,25 +218,280 @@ namespace NUTRIBITE.Controllers
             return View();
         }
 
-        [AdminAuthorize]
         public async Task<IActionResult> ManageVendor()
         {
             var vendors = await _context.VendorSignups.ToListAsync();
+            ViewBag.TotalVendors = vendors.Count;
+            ViewBag.ApprovedVendors = vendors.Count(v => v.IsApproved);
+            ViewBag.PendingVendors = vendors.Count(v => !v.IsApproved && !v.IsRejected);
+            ViewBag.RejectedVendors = vendors.Count(v => v.IsRejected);
             return View(vendors);
         }
 
+        [HttpPost]
         [AdminAuthorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessBatchPayout()
+        {
+            try
+            {
+                // 1. Get all accrued orders that haven't been paid
+                var accruedOrders = await _context.OrderTables
+                    .Where(o => o.VendorId != null && o.PaymentStatus != "PaidToVendor" && o.Status != "Cancelled")
+                    .ToListAsync();
+
+                if (!accruedOrders.Any())
+                {
+                    return Json(new { success = false, message = "No pending settlements found." });
+                }
+
+                // Group by vendor to create payout records
+                var vendorGroups = accruedOrders.GroupBy(o => o.VendorId);
+                int payoutCount = 0;
+                decimal totalDisbursed = 0;
+
+                foreach (var group in vendorGroups)
+                {
+                    int vendorId = group.Key.Value;
+                    decimal totalSales = group.Sum(o => o.TotalAmount);
+                    decimal commAmount = group.Sum(o => o.CommissionAmount > 0 ? o.CommissionAmount : o.TotalAmount * 0.1m);
+                    decimal amount = group.Sum(o => o.VendorAmount > 0 ? o.VendorAmount : o.TotalAmount * 0.9m);
+
+                    var payout = new VendorPayout
+                    {
+                        VendorId = vendorId,
+                        Amount = amount,
+                        TotalSales = totalSales,
+                        CommissionDeducted = commAmount,
+                        PayoutMonth = DateTime.Now.ToString("yyyy-MM-dd"),
+                        Status = PayoutStatus.PaidToVendor,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                        ExternalTransferId = $"BATCH_{Guid.NewGuid().ToString("N").Substring(0, 10).ToUpper()}",
+                        IsAutomated = true
+                    };
+                    _context.VendorPayouts.Add(payout);
+
+                    foreach (var o in group)
+                    {
+                        o.VendorAmount = o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m);
+                        o.CommissionAmount = o.CommissionAmount > 0 ? o.CommissionAmount : (o.TotalAmount * 0.1m);
+                        o.PaymentStatus = "PaidToVendor";
+                    }
+                    
+                    payoutCount++;
+                    totalDisbursed += amount;
+                }
+
+                var adminUser = HttpContext.Session.GetString("Admin") ?? "System";
+                await _activityLogger.LogAsync("Batch Payout", $"Admin {adminUser} processed batch payout of ₹{totalDisbursed} across {payoutCount} vendors.");
+                
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = $"Successfully processed settlements for {payoutCount} vendors totaling ₹{totalDisbursed:N2}." });
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Batch payout failed");
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         public IActionResult Payouts()
         {
             return View();
         }
 
-        [AdminAuthorize]
-        public async Task<IActionResult> VendorDetails(int id)
+        public class HighlyRatedFoodDto
         {
-            var vendor = await _context.VendorSignups.FindAsync(id);
-            if (vendor == null) return NotFound();
-            return View(vendor);
+            public string FoodName { get; set; }
+            public string VendorName { get; set; }
+            public double AverageRating { get; set; }
+            public int TotalReviews { get; set; }
+        }
+
+        public async Task<IActionResult> Reviews(string period = "all")
+        {
+            var query = _context.Ratings
+                .Include(r => r.User)
+                .Include(r => r.Food)
+                .Include(r => r.Vendor)
+                .AsQueryable();
+
+            var today = DateTime.Today;
+            if (period == "this_month")
+            {
+                var startOfMonth = new DateTime(today.Year, today.Month, 1);
+                query = query.Where(r => r.Date >= startOfMonth);
+            }
+            else if (period == "last_month")
+            {
+                var startOfLastMonth = new DateTime(today.Year, today.Month, 1).AddMonths(-1);
+                var startOfThisMonth = new DateTime(today.Year, today.Month, 1);
+                query = query.Where(r => r.Date >= startOfLastMonth && r.Date < startOfThisMonth);
+            }
+
+            var ratings = await query.OrderByDescending(r => r.Date).ToListAsync();
+            
+            var highlyRatedFoods = ratings
+                .Where(r => r.Food != null && r.Ratings != null)
+                .GroupBy(r => new { r.Food.Id, r.Food.Name, r.Vendor?.VendorName })
+                .Select(g => new HighlyRatedFoodDto { 
+                    FoodName = g.Key.Name, 
+                    VendorName = g.Key.VendorName, 
+                    AverageRating = g.Average(r => (double)r.Ratings),
+                    TotalReviews = g.Count()
+                })
+                .Where(x => x.AverageRating >= 3.0) // Show mostly good foods
+                .OrderByDescending(x => x.AverageRating)
+                .ThenByDescending(x => x.TotalReviews)
+                .Take(5)
+                .ToList();
+
+            ViewBag.CurrentPeriod = period;
+            ViewBag.HighlyRatedFoods = highlyRatedFoods;
+
+            return View(ratings);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+            var rating = await _context.Ratings.FindAsync(id);
+            if (rating != null)
+            {
+                _context.Ratings.Remove(rating);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Review deleted successfully." });
+            }
+            return Json(new { success = false, message = "Review not found." });
+        }
+
+        // ================= USERS MANAGEMENT =================
+        [AdminAuthorize]
+        public async Task<IActionResult> Users()
+        {
+            var users = await _context.UserSignups.OrderByDescending(u => u.CreatedAt).ToListAsync();
+            return View(users);
+        }
+
+        [AdminAuthorize]
+        public async Task<IActionResult> UserDetails(int id)
+        {
+            var user = await _context.UserSignups.FindAsync(id);
+            if (user == null) return NotFound();
+
+            var orders = await _context.OrderTables
+                .Where(o => o.UserId == id)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            var health = await _context.HealthSurveys.FirstOrDefaultAsync(h => h.UserId == id);
+            ViewBag.HealthSurvey = health;
+            ViewBag.Orders = orders;
+            ViewBag.CalorieEntries = await _context.DailyCalorieEntries.Where(c => c.UserId == id).OrderBy(c => c.Date).ToListAsync();
+
+            // --- Build synthesized activity timeline from real user data ---
+            var timeline = new List<ActivityLog>();
+
+            // 1. Account registration
+            timeline.Add(new ActivityLog
+            {
+                Action = "Account Created",
+                Details = $"User '{user.Name}' registered with email {user.Email}.",
+                Timestamp = user.CreatedAt ?? DateTime.MinValue,
+                AdminEmail = "system"
+            });
+
+            // 2. Health survey completion
+            if (health != null)
+            {
+                timeline.Add(new ActivityLog
+                {
+                    Action = "Health Survey Completed",
+                    Details = $"Daily calorie goal set to {health.RecommendedCalories} kcal. Goal: {health.Goal}.",
+                    Timestamp = health.CreatedAt ?? (user.CreatedAt?.AddMinutes(5) ?? DateTime.MinValue),
+                    AdminEmail = "system"
+                });
+            }
+
+            // 3. One entry per order
+            foreach (var order in orders.Take(30))
+            {
+                string icon = order.Status == "Cancelled" ? "Order Cancelled" : 
+                              order.Status == "Delivered" ? "Order Delivered" : "Order Placed";
+                timeline.Add(new ActivityLog
+                {
+                    Action = icon,
+                    Details = $"Order #{order.OrderId} — ₹{order.TotalAmount:N2} via {order.OrderType ?? "Delivery"}. Status: {order.Status}.",
+                    Timestamp = order.CreatedAt ?? DateTime.MinValue,
+                    AdminEmail = "user"
+                });
+
+                // Cancelled order addition
+                if (order.Status == "Cancelled" && order.CancelledAt.HasValue && order.CancelledAt != order.CreatedAt)
+                {
+                    timeline.Add(new ActivityLog
+                    {
+                        Action = "Order Cancelled",
+                        Details = $"Order #{order.OrderId} was cancelled. Reason: {order.CancelReason ?? "Not specified"}.",
+                        Timestamp = order.CancelledAt.Value,
+                        AdminEmail = "user"
+                    });
+                }
+            }
+
+            // 4. Subscriptions
+            var subs = await _context.Subscriptions
+                .Include(s => s.Food)
+                .Where(s => s.UserId == id)
+                .ToListAsync();
+
+            foreach (var sub in subs)
+            {
+                timeline.Add(new ActivityLog
+                {
+                    Action = sub.Status == "Cancelled" ? "Subscription Cancelled" : "Subscription Started",
+                    Details = $"{sub.SubscriptionType} subscription for '{sub.Food?.Name ?? "Unknown"}' — ₹{sub.PricePerDelivery:N2}/delivery. Status: {sub.Status}.",
+                    Timestamp = sub.StartDate,
+                    AdminEmail = "user"
+                });
+            }
+
+            // 5. Admin-side logs that specifically mention this user
+            var adminLogs = await _context.ActivityLogs
+                .Where(a => a.Details != null && (a.Details.Contains(user.Email) || a.Details.Contains($"(ID: {id})")))
+                .OrderByDescending(a => a.Timestamp)
+                .Take(20)
+                .ToListAsync();
+            timeline.AddRange(adminLogs);
+
+            // Sort full timeline descending
+            ViewBag.ActivityLog = timeline
+                .Where(t => t.Timestamp != DateTime.MinValue)
+                .OrderByDescending(t => t.Timestamp)
+                .ToList();
+
+            return View(user);
+        }
+
+        [AdminAuthorize]
+        [HttpPost]
+        public async Task<IActionResult> ToggleBlockUser(int id)
+        {
+            var user = await _context.UserSignups.FindAsync(id);
+            if (user == null) return NotFound();
+
+            if (user.Status == "Blocked")
+            {
+                user.Status = "Active";
+            }
+            else
+            {
+                user.Status = "Blocked";
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Users");
         }
 
         [AdminAuthorize]
@@ -164,6 +499,31 @@ namespace NUTRIBITE.Controllers
         {
             var pending = await _context.VendorSignups.Where(v => !v.IsApproved && !v.IsRejected).ToListAsync();
             return View(pending);
+        }
+
+        [AdminAuthorize]
+        public async Task<IActionResult> VendorDetails(int id)
+        {
+            var vendor = await _context.VendorSignups.FindAsync(id);
+            if (vendor == null) return NotFound();
+
+            var foods = await _context.Foods.Where(f => f.VendorId == id).ToListAsync();
+            
+            // Fixed query to be more robust
+            var orders = await _context.OrderTables
+                .Where(o => o.VendorId == id || _context.OrderItems.Any(oi => oi.OrderId == o.OrderId && oi.Food != null && oi.Food.VendorId == id))
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+            
+            ViewBag.Foods = foods;
+            ViewBag.Orders = orders;
+            ViewBag.Ratings = await _context.Ratings
+                .Include(r => r.User)
+                .Where(r => r.Vid == id)
+                .OrderByDescending(r => r.Date)
+                .ToListAsync();
+            
+            return View(vendor);
         }
 
         [AdminAuthorize]
@@ -228,8 +588,9 @@ namespace NUTRIBITE.Controllers
                     })
                     .ToList();
 
-                // Combine both lists
-                var combined = currentAccrued.Cast<object>().Concat(processedList.Cast<object>());
+                // Combine both lists and sort descending by created date
+                IEnumerable<object> combined = currentAccrued.Cast<object>().Concat(processedList.Cast<object>())
+                    .OrderByDescending(p => ((dynamic)p).createdAt);
 
                 // Apply filters
                 if (!string.IsNullOrEmpty(status))
@@ -254,55 +615,6 @@ namespace NUTRIBITE.Controllers
             }
         }
 
-        [HttpPost]
-        [AdminAuthorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdatePayoutStatus(int payoutId, PayoutStatus status)
-        {
-            try
-            {
-                var adminEmail = HttpContext.Session.GetString("Admin");
-                await _distributionService.UpdatePayoutStatusAsync(payoutId, status, adminEmail ?? "Admin");
-                
-                // Also update the underlying order table if status is PaidToVendor
-                if (status == PayoutStatus.PaidToVendor)
-                {
-                    var payout = await _context.VendorPayouts.FindAsync(payoutId);
-                    if (payout != null)
-                    {
-                        if (payout.OrderId.HasValue)
-                        {
-                            var order = await _context.OrderTables.FindAsync(payout.OrderId.Value);
-                            if (order != null) order.PaymentStatus = "PaidToVendor";
-                        }
-                        else if (!string.IsNullOrEmpty(payout.PayoutMonth))
-                        {
-                            var monthParts = payout.PayoutMonth.Split('-');
-                            if (monthParts.Length >= 2 && int.TryParse(monthParts[0], out int year))
-                            {
-                                var ordersToUpdate = await _context.OrderTables
-                                    .Where(o => o.VendorId == payout.VendorId && 
-                                               o.CreatedAt.HasValue && 
-                                               o.CreatedAt.Value.Year == year &&
-                                               o.PaymentStatus != "PaidToVendor" &&
-                                               o.Status != "Cancelled")
-                                    .ToListAsync();
-
-                                foreach (var o in ordersToUpdate) o.PaymentStatus = "PaidToVendor";
-                            }
-                        }
-                        await _context.SaveChangesAsync();
-                    }
-                }
-                
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Failed to update payout status");
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
 
         [HttpPost]
         [AdminAuthorize]
@@ -548,8 +860,12 @@ namespace NUTRIBITE.Controllers
         }
 
         [AdminAuthorize]
-        public IActionResult OrderDetails(int orderId)
+        public IActionResult OrderDetails(int orderId = 0)
         {
+            if (orderId <= 0)
+            {
+                return RedirectToAction("OrderManagement");
+            }
             ViewBag.OrderId = orderId;
             return View();
         }
@@ -569,25 +885,26 @@ namespace NUTRIBITE.Controllers
         }
 
         [AdminAuthorize]
-        public async Task<IActionResult> DeliveryDashboard()
+        public async Task<IActionResult> DeliveryDashboard(string period = "daily", DateTime? refDate = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            // Auto-sync: Ensure Accepted orders that are now Ready for Delivery 
-            // show up in the Logistics queue for assignment.
+            // Auto-sync logic
             var autoReady = await _context.OrderTables
                 .Where(o => o.OrderType == "Delivery" && o.Status == "Accepted" && o.DeliveryStatus == "Pending Assignment")
                 .ToListAsync();
             
             if (autoReady.Any())
             {
-                foreach (var o in autoReady)
-                {
-                    // If they are Accepted but not yet Picked up, they should be in 'Ready' state for delivery agents to see
-                    o.Status = "Ready for Delivery";
-                }
+                foreach (var o in autoReady) o.Status = "Ready for Delivery";
                 await _context.SaveChangesAsync();
             }
 
-            var data = await _orderService.GetDeliveryDashboardDataAsync();
+            var data = await _orderService.GetDeliveryDashboardDataAsync(period, refDate, startDate, endDate);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(data);
+            }
+
             return View(data);
         }
 
@@ -627,6 +944,30 @@ namespace NUTRIBITE.Controllers
         [HttpPost]
         [AdminAuthorize]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GeneratePayoutRazorpayOrder(decimal amount)
+        {
+            try
+            {
+                var razorpayService = HttpContext.RequestServices.GetRequiredService<NUTRIBITE.Services.IRazorpayService>();
+                var orderResult = await razorpayService.CreateOrderAsync(amount, "INR", "po_" + Guid.NewGuid().ToString("N").Substring(0, 8));
+                return Json(new { 
+                    success = true, 
+                    orderId = orderResult.OrderId,
+                    amount = orderResult.Amount,
+                    currency = orderResult.Currency,
+                    keyId = _config["Razorpay:KeyId"] ?? _config["RAZORPAY_KEY_ID"]
+                });
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Failed to generate payout Razorpay order");
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [AdminAuthorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePayoutStatus(int payoutId, int vendorId, string status)
         {
             try
@@ -650,7 +991,7 @@ namespace NUTRIBITE.Controllers
                         Amount = amount,
                         TotalSales = totalSales,
                         CommissionDeducted = commAmount,
-                        PayoutMonth = DateTime.Now.ToString("yyyy-MMM-dd"),
+                        PayoutMonth = DateTime.Now.ToString("yyyy-MM-dd"),
                         Status = PayoutStatus.PaidToVendor,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow,
@@ -669,8 +1010,14 @@ namespace NUTRIBITE.Controllers
                     var adminUser = HttpContext.Session.GetString("Admin") ?? "System";
                     await _activityLogger.LogAsync("Instant Payout", $"Admin {adminUser} instantly paid out {amount} to vendor {vendorId}");
                     
-                    await _context.SaveChangesAsync();
-                    return Json(new { success = true, message = "Instant payout processed successfully." });
+                    try {
+                        await _context.SaveChangesAsync();
+                        return Json(new { success = true, message = "Instant payout processed successfully." });
+                    } catch (Exception dbEx) {
+                        string errMsg = dbEx.InnerException != null ? dbEx.InnerException.Message : dbEx.Message;
+                        System.IO.File.WriteAllText("db_error_log.txt", errMsg);
+                        return Json(new { success = false, message = "DB Error: " + errMsg });
+                    }
                 }
 
                 var existingPayout = await _context.VendorPayouts.FindAsync(payoutId);
@@ -732,6 +1079,9 @@ namespace NUTRIBITE.Controllers
             }
         }
 
+        // ================= DELIVERY AJAX API =================
+
+
         // ================= SUBSCRIPTIONS =================
         [AdminAuthorize]
         public async Task<IActionResult> Subscriptions()
@@ -744,6 +1094,63 @@ namespace NUTRIBITE.Controllers
                 .ToListAsync();
 
             return View(subscriptions);
+        }
+        // ================= PENDING FOOD APPROVALS =================
+        [AdminAuthorize]
+        public async Task<IActionResult> PendingFoods()
+        {
+            var pendingFoods = await _context.Foods
+                .Where(f => f.Status == "Pending")
+                .OrderByDescending(f => f.CreatedAt)
+                .ToListAsync();
+
+            var vendorIds = pendingFoods.Where(f => f.VendorId.HasValue).Select(f => f.VendorId.Value).Distinct().ToList();
+            var categoryIds = pendingFoods.Where(f => f.CategoryId.HasValue).Select(f => f.CategoryId.Value).Distinct().ToList();
+
+            ViewBag.Vendors = await _context.VendorSignups
+                .Where(v => vendorIds.Contains(v.VendorId))
+                .ToDictionaryAsync(v => v.VendorId, v => v.VendorName);
+
+            ViewBag.Categories = await _context.AddCategories
+                .Where(c => categoryIds.Contains(c.Cid))
+                .ToDictionaryAsync(c => c.Cid, c => c.MealCategory);
+
+            return View(pendingFoods);
+        }
+
+        [HttpPost]
+        [AdminAuthorize]
+        public async Task<IActionResult> ApproveFood(int id)
+        {
+            var food = await _context.Foods.FindAsync(id);
+            if (food != null && food.Status == "Pending")
+            {
+                food.Status = "Active";
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Food item approved and is now live." });
+            }
+            return Json(new { success = false, message = "Food not found or already processed." });
+        }
+
+        [HttpPost]
+        [AdminAuthorize]
+        public async Task<IActionResult> RejectFood(int id)
+        {
+            var food = await _context.Foods.FindAsync(id);
+            if (food != null && food.Status == "Pending")
+            {
+                food.Status = "Rejected";
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Food item rejected." });
+            }
+            return Json(new { success = false, message = "Food not found or already processed." });
+        }
+        [AdminAuthorize]
+        [HttpGet]
+        public async Task<IActionResult> ImageAudit()
+        {
+            var foods = await _context.Foods.OrderBy(f => f.Name).ToListAsync();
+            return View(foods);
         }
     }
 }

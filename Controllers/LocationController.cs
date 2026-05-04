@@ -22,20 +22,42 @@ namespace NUTRIBITE.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        private void SaveToStorage(string lat, string lon, string city, string area, string state, string pincode, string address)
+        {
+            // Save to Session
+            HttpContext.Session.SetString("UserLatitude", lat);
+            HttpContext.Session.SetString("UserLongitude", lon);
+            HttpContext.Session.SetString("UserCity", city);
+            HttpContext.Session.SetString("UserArea", area);
+            HttpContext.Session.SetString("UserState", state);
+            HttpContext.Session.SetString("UserPincode", pincode);
+            HttpContext.Session.SetString("UserAddress", address);
+
+            // Save to Persistent Cookies (valid for 30 days)
+            var options = new CookieOptions { Expires = DateTimeOffset.UtcNow.AddDays(30) };
+            HttpContext.Response.Cookies.Append("UserLatitude", lat, options);
+            HttpContext.Response.Cookies.Append("UserLongitude", lon, options);
+            HttpContext.Response.Cookies.Append("UserCity", city, options);
+            HttpContext.Response.Cookies.Append("UserArea", area, options);
+            HttpContext.Response.Cookies.Append("UserState", state, options);
+            HttpContext.Response.Cookies.Append("UserPincode", pincode, options);
+            HttpContext.Response.Cookies.Append("UserAddress", address, options);
+        }
+
         // GET /Location/GetCurrentLocation
-        // Returns stored session location if available (prevents repeated prompting).
+        // Returns stored session/cookie location if available (prevents repeated prompting).
         [HttpGet]
         public IActionResult GetCurrentLocation()
         {
             try
             {
-                var lat = HttpContext.Session.GetString("UserLatitude");
-                var lon = HttpContext.Session.GetString("UserLongitude");
-                var city = HttpContext.Session.GetString("UserCity");
-                var address = HttpContext.Session.GetString("UserAddress");
-                var pincode = HttpContext.Session.GetString("UserPincode");
-                var area = HttpContext.Session.GetString("UserArea");
-                var state = HttpContext.Session.GetString("UserState");
+                var lat = HttpContext.Session.GetString("UserLatitude") ?? HttpContext.Request.Cookies["UserLatitude"];
+                var lon = HttpContext.Session.GetString("UserLongitude") ?? HttpContext.Request.Cookies["UserLongitude"];
+                var city = HttpContext.Session.GetString("UserCity") ?? HttpContext.Request.Cookies["UserCity"];
+                var address = HttpContext.Session.GetString("UserAddress") ?? HttpContext.Request.Cookies["UserAddress"];
+                var pincode = HttpContext.Session.GetString("UserPincode") ?? HttpContext.Request.Cookies["UserPincode"];
+                var area = HttpContext.Session.GetString("UserArea") ?? HttpContext.Request.Cookies["UserArea"];
+                var state = HttpContext.Session.GetString("UserState") ?? HttpContext.Request.Cookies["UserState"];
 
                 if (string.IsNullOrEmpty(lat) || string.IsNullOrEmpty(lon))
                     return Json(new { success = false });
@@ -61,7 +83,7 @@ namespace NUTRIBITE.Controllers
 
         // POST /Location/SaveLocation
         // Body: { latitude, longitude }
-        // Returns structured address and stores it in session.
+        // Returns structured address and stores it.
         [HttpPost]
         public async Task<IActionResult> SaveLocation([FromBody] SaveLocationRequest req)
         {
@@ -79,14 +101,15 @@ namespace NUTRIBITE.Controllers
                 if (location == null)
                     return StatusCode(502, new { success = false, message = "Geocoding failed" });
 
-                // Save into session
-                HttpContext.Session.SetString("UserLatitude", location.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                HttpContext.Session.SetString("UserLongitude", location.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                HttpContext.Session.SetString("UserCity", location.City ?? "");
-                HttpContext.Session.SetString("UserArea", location.Area ?? "");
-                HttpContext.Session.SetString("UserState", location.State ?? "");
-                HttpContext.Session.SetString("UserPincode", location.Pincode ?? "");
-                HttpContext.Session.SetString("UserAddress", location.FullAddress ?? "");
+                SaveToStorage(
+                    location.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    location.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    location.City ?? "",
+                    location.Area ?? "",
+                    location.State ?? "",
+                    location.Pincode ?? "",
+                    location.FullAddress ?? ""
+                );
 
                 return Json(new { success = true, location });
             }
@@ -105,13 +128,15 @@ namespace NUTRIBITE.Controllers
 
             try
             {
-                HttpContext.Session.SetString("UserLatitude", req.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                HttpContext.Session.SetString("UserLongitude", req.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                HttpContext.Session.SetString("UserCity", req.City ?? "");
-                HttpContext.Session.SetString("UserArea", req.Area ?? "");
-                HttpContext.Session.SetString("UserState", req.State ?? "");
-                HttpContext.Session.SetString("UserPincode", req.Pincode ?? "");
-                HttpContext.Session.SetString("UserAddress", req.FullAddress ?? "");
+                SaveToStorage(
+                    req.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    req.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    req.City ?? "",
+                    req.Area ?? "",
+                    req.State ?? "",
+                    req.Pincode ?? "",
+                    req.FullAddress ?? ""
+                );
 
                 return Json(new { success = true });
             }

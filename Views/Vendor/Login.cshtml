@@ -25,7 +25,12 @@
                 <h3 class="brand">NutriBite</h3>
                 <h5 class="mb-3">Welcome Back 👋</h5>
 
-                <form method="post" asp-action="Login">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger small py-2 mb-3">@ViewBag.Error</div>
+                }
+
+                <form method="post" asp-action="Login" id="vendorLoginForm" novalidate>
 
                     <div class="mb-3">
                         <label>Email</label>
@@ -34,9 +39,14 @@
 
                     <div class="mb-3">
                         <label>Password</label>
-                        <div class="input-group">
-                            <input id="password" type="password" name="Password" class="form-control custom-input" required />
+                        <div class="input-group has-validation">
+                            <input id="password" type="password" name="Password" class="form-control custom-input" required 
+                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" 
+                                   title="Must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." />
                             <button id="togglePassword" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                            <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                                Password must be at least 8 characters, include an uppercase, a lowercase, and a number.
+                            </div>
                         </div>
                     </div>
 
@@ -46,7 +56,7 @@
 
                     <div class="auth-links">
                         <a href="/Vendor/Register">Sign up</a>
-                        <a asp-controller="Vendor" asp-action="ForgotPassword">
+                        <a href="/Auth/Forgot">
                             Forgot password?
                         </a>
                     </div>
@@ -102,6 +112,12 @@
                 $pwd.attr('type', type);
                 $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
             });
+            $('#vendorLoginForm').on('submit', function (e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    $(this).addClass('was-validated');
+                }
+            });
         </script>
     }
 }
@@ -114,6 +130,13 @@ else
                 const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
                 $pwd.attr('type', type);
                 $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
+            });
+
+            $('#vendorLoginForm').on('submit', function (e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    $(this).addClass('was-validated');
+                }
             });
         });
     </script>

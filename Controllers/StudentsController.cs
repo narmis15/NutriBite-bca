@@ -66,6 +66,27 @@ namespace NUTRIBITE.Controllers
                     .Take(10)
                     .ToList();
             }
+            // Force update images to v2 to bypass browser cache
+            var updates = new Dictionary<string, string> {
+                { "Exam Topper Combo", "/images/menu items/exam_combo_v2.png" },
+                { "Quick Bite Rice Bowl", "/images/menu items/quick_bowl_v2.png" },
+                { "Pocket Friendly Thali", "/images/menu items/thali_v2.png" },
+                { "Protein-Packed Soya Chunk Curry", "/images/menu items/soya_curry_v2.png" },
+                { "Paneer Bhurji with 3 Phulkas", "/images/menu items/paneer_bhurji_v2.png" },
+                { "Egg Thali", "/images/menu items/egg_thali_v2.png" },
+                { "Late Night Khichdi Bowl", "/images/menu items/khichdi_v2.png" },
+                { "Curd Rice with Pomegranate", "/images/menu items/curd_rice_v2.png" }
+            };
+
+            bool changed = false;
+            foreach (var kvp in updates) {
+                var item = _context.Foods.FirstOrDefault(f => f.Name == kvp.Key && f.FoodType == "Student");
+                if (item != null && item.ImagePath != kvp.Value) {
+                    item.ImagePath = kvp.Value;
+                    changed = true;
+                }
+            }
+            if (changed) _context.SaveChanges();
 
             return View(foods);
         }

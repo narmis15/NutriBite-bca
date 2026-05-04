@@ -20,30 +20,7 @@
     </div>
 </section>
 
-<section class="filter-bar-wrap" aria-label="Elderly filters">
-    <div class="filter-bar container" role="region" aria-label="Filters" id="elderlyFilterBar">
-        <div class="filter-item">
-            <label for="priceRange">Budget: <span id="priceValue">₹75</span></label>
-            <input id="priceRange" type="range" min="50" max="150" value="100" />
-        </div>
-
-        <div class="filter-item toggle-item">
-            <label><input id="highProtein" type="checkbox" /> High Protein</label>
-        </div>
-
-        <div class="filter-item toggle-item">
-            <label><input id="under500" type="checkbox" /> Under 500 kcal</label>
-        </div>
-
-        <div class="filter-item toggle-item">
-            <label><input id="vegOnly" type="checkbox" /> Veg Only</label>
-        </div>
-
-        <div class="filter-item">
-            <button id="resetFilters" class="btn reset-btn">Reset</button>
-        </div>
-    </div>
-</section>
+@* Filter bar removed as requested *@
 
 @section Styles {
     <style>
@@ -117,13 +94,6 @@
                     <div class="combo-content">
                         <h3 class="combo-title">@food.Name</h3>
 
-                        <div class="nutrition-grid">
-                            <div class="nutrition-item"><span>Protein:</span> <strong>@(food.Protein ?? 0)g</strong></div>
-                            <div class="nutrition-item"><span>Carbs:</span> <strong>@(food.Carbs ?? 0)g</strong></div>
-                            <div class="nutrition-item"><span>Fat:</span> <strong>@(food.Fat ?? 0)g</strong></div>
-                            <div class="nutrition-item"><span>Prep:</span> <strong>@food.PreparationTime</strong></div>
-                        </div>
-
                         <div class="combo-price">₹<strong>@food.Price</strong></div>
                         
                         @if (food.Nutritionist != null)
@@ -157,8 +127,6 @@
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const priceRange = document.getElementById("priceRange");
-            const priceValue = document.getElementById("priceValue");
             const highProtein = document.getElementById("highProtein");
             const under500 = document.getElementById("under500");
             const vegOnly = document.getElementById("vegOnly");
@@ -166,9 +134,6 @@
             const comboCards = document.querySelectorAll(".combo-card");
 
             function applyFilters() {
-                const maxPrice = parseInt(priceRange.value);
-                priceValue.textContent = "₹" + maxPrice;
-
                 comboCards.forEach(card => {
                     const price = parseInt(card.dataset.price);
                     const calories = parseInt(card.dataset.calories);
@@ -176,7 +141,6 @@
 
                     let visible = true;
 
-                    if (price > maxPrice) visible = false;
                     if (highProtein.checked && calories < 600) visible = false;
                     if (under500.checked && calories >= 500) visible = false;
                     if (vegOnly.checked && !isVeg) visible = false;
@@ -185,14 +149,12 @@
                 });
             }
 
-            if(priceRange) priceRange.addEventListener("input", applyFilters);
             if(highProtein) highProtein.addEventListener("change", applyFilters);
             if(under500) under500.addEventListener("change", applyFilters);
             if(vegOnly) vegOnly.addEventListener("change", applyFilters);
 
             if(resetBtn) {
                 resetBtn.addEventListener("click", () => {
-                    priceRange.value = 75;
                     highProtein.checked = false;
                     under500.checked = false;
                     vegOnly.checked = false;

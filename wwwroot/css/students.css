@@ -76,50 +76,7 @@
     object-fit: cover;
 }
 
-/* ===============================
-   FILTER BAR
-================================= */
 
-.filter-bar-wrap {
-    position: sticky;
-    top: 72px;
-    z-index: 90;
-    margin-bottom: 40px;
-}
-
-.filter-bar {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 16px 20px;
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    box-shadow: 0 12px 30px rgba(6,95,70,0.05);
-}
-
-/* filter items */
-
-.filter-item {
-    display: flex;
-    flex-direction: column;
-    font-size: 14px;
-    color: #24303a;
-}
-
-    .filter-item label {
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
-
-#priceRange {
-    width: 220px;
-}
-
-/* toggle alignment */
-.toggle-item input[type="checkbox"] {
-    margin-right: 8px;
-    transform: translateY(2px);
-}
 
 /* ===============================
    GRID SYSTEM
@@ -295,11 +252,7 @@
         max-width: 320px;
     }
 
-    .filter-bar {
-        overflow-x: auto;
-        padding: 12px;
-        gap: 12px;
-    }
+
 
     .combos-grid {
         gap: 20px;

@@ -4,13 +4,13 @@ namespace NUTRIBITE.Models
     {
         public int OrderId { get; set; }
 
-        public string CustomerName { get; set; }
+        public required string CustomerName { get; set; }
 
         public string? CustomerPhone { get; set; }
 
         public string? DeliveryAddress { get; set; }
 
-        public string FoodItem { get; set; }
+        public required string FoodItem { get; set; }
 
         public string? OrderType { get; set; }
 
@@ -20,7 +20,7 @@ namespace NUTRIBITE.Models
 
         public decimal? Amount { get; set; }
 
-        public string Status { get; set; }
+        public required string Status { get; set; }
 
         public DateTime? Date { get; set; }
     }

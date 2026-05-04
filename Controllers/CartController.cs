@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using global::NUTRIBITE.Services;
 using global::NUTRIBITE.Models;
+using Razorpay.Api;
 
 namespace NUTRIBITE.Controllers
 {
@@ -16,12 +17,16 @@ namespace NUTRIBITE.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IActivityLogger _activityLogger;
         private readonly IEmailService _emailService;
+        private readonly IPaymentDistributionService _distributionService;
+        private readonly Microsoft.Extensions.Configuration.IConfiguration _config;
 
-        public CartController(ApplicationDbContext context, IActivityLogger activityLogger, IEmailService emailService)
+        public CartController(ApplicationDbContext context, IActivityLogger activityLogger, IEmailService emailService, IPaymentDistributionService distributionService, Microsoft.Extensions.Configuration.IConfiguration config)
         {
             _context = context;
             _activityLogger = activityLogger;
             _emailService = emailService;
+            _distributionService = distributionService;
+            _config = config;
         }
 
         // ================= ADD TO CART =================
@@ -158,6 +163,44 @@ namespace NUTRIBITE.Controllers
                     }
                 }
 
+                // --- Calorie Check Logic (BEFORE DOING ANYTHING) ---
+                if (!finalIsBulk)
+                {
+                    var food = _context.Foods.FirstOrDefault(f => f.Id == finalProductId);
+                    if (food != null && food.Calories.HasValue)
+                    {
+                        var today = DateTime.Today;
+                        var survey = _context.HealthSurveys.FirstOrDefault(s => s.UserId == uid.Value);
+                        int recommended = survey != null ? (int)survey.RecommendedCalories : 2000;
+
+                        int todayConsumed = _context.DailyCalorieEntries
+                            .Where(d => d.UserId == uid.Value && d.Date == today)
+                            .Sum(d => (int?)d.Calories) ?? 0;
+
+                        // Calculate current cart calories WITHOUT the new item yet
+                        var cartItemPids = _context.Carttables
+                            .Where(c => c.Uid == uid.Value && !c.IsBulk)
+                            .Select(c => new { c.Pid, c.Qty })
+                            .ToList();
+                            
+                        var pids = cartItemPids.Select(c => c.Pid).ToList();
+                        var foodCalories = _context.Foods
+                            .Where(f => pids.Contains(f.Id))
+                            .ToDictionary(f => f.Id, f => f.Calories ?? 0);
+
+                        int cartCalories = cartItemPids.Sum(c => c.Qty * (foodCalories.ContainsKey(c.Pid) ? foodCalories[c.Pid] : 0));
+                        int additionalCalories = food.Calories.Value * finalQuantity;
+
+                        int totalExpected = todayConsumed + cartCalories + additionalCalories;
+
+                        // BLOCK IF EXCEEDED
+                        if (totalExpected > recommended)
+                        {
+                            return Json(new { success = false, message = $"WARNING: Calorie Limit Exceeded! Adding this item ({additionalCalories} kcal) puts your today's total at {totalExpected} kcal (Goal: {recommended} kcal). Please adjust your intake!" });
+                        }
+                    }
+                }
+
                 // Check if item already exists in cart
                 var existingItem = _context.Carttables
                     .FirstOrDefault(c => c.Uid == uid.Value && c.Pid == finalProductId && c.IsBulk == finalIsBulk);
@@ -182,7 +225,7 @@ namespace NUTRIBITE.Controllers
 
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true });
+                return Json(new { success = true, message = "Item added to cart successfully!" });
             }
             catch (Exception ex)
             {
@@ -291,6 +334,63 @@ namespace NUTRIBITE.Controllers
             return Json(new { success = true, count });
         }
 
+        // ================= REORDER =================
+        [HttpPost]
+        public async Task<IActionResult> Reorder(int orderId)
+        {
+            var uid = HttpContext.Session.GetInt32("UserId");
+            if (!uid.HasValue)
+                return Json(new { success = false, message = "Please login first" });
+
+            try
+            {
+                var orderItems = await _context.OrderItems
+                    .Where(oi => oi.OrderId == orderId)
+                    .ToListAsync();
+
+                if (!orderItems.Any())
+                    return Json(new { success = false, message = "Order not found" });
+
+                foreach (var item in orderItems)
+                {
+                    var existing = await _context.Carttables
+                        .FirstOrDefaultAsync(c => c.Uid == uid.Value && c.Pid == (item.FoodId ?? item.BulkItemId ?? 0) && c.IsBulk == (item.BulkItemId.HasValue));
+
+                    if (existing != null)
+                    {
+                        existing.Qty += item.Quantity ?? 1;
+                    }
+                    else
+                    {
+                        _context.Carttables.Add(new Carttable
+                        {
+                            Uid = uid.Value,
+                            Pid = item.FoodId ?? item.BulkItemId ?? 0,
+                            IsBulk = item.BulkItemId.HasValue,
+                            Qty = item.Quantity ?? 1,
+                            Date = DateTime.Now
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
+        private decimal GetBulkDiscountedPrice(decimal basePrice, int quantity)
+        {
+            if (quantity >= 500) return basePrice * 0.70m;
+            if (quantity >= 200) return basePrice * 0.78m;
+            if (quantity >= 100) return basePrice * 0.85m;
+            if (quantity >= 50) return basePrice * 0.92m;
+            return basePrice;
+        }
 
         // ================= CART PAGE =================
         [HttpGet]
@@ -318,11 +418,12 @@ namespace NUTRIBITE.Controllers
                         var bulk = _context.BulkItems.FirstOrDefault(b => b.Id == row.Pid);
                         if (bulk != null)
                         {
+                            decimal discountedPrice = GetBulkDiscountedPrice(bulk.Price, row.Qty);
                             allItems.Add(new CartItem
                             {
                                 Id = row.Crid,
                                 Name = bulk.Name + " (Bulk)",
-                                Price = bulk.Price,
+                                Price = discountedPrice,
                                 Quantity = row.Qty,
                                 ImageUrl = bulk.ImagePath ?? "/images/default-bulk.png",
                                 IsBulk = true,
@@ -373,6 +474,7 @@ namespace NUTRIBITE.Controllers
                 return RedirectToAction("Index");
 
             decimal subtotal = 0m;
+            int totalOrderCalories = 0;
 
             foreach (var c in cartRows)
             {
@@ -380,21 +482,45 @@ namespace NUTRIBITE.Controllers
                 {
                     var bulk = _context.BulkItems.FirstOrDefault(b => b.Id == c.Pid);
                     if (bulk != null)
-                        subtotal += bulk.Price * c.Qty;
+                        subtotal += GetBulkDiscountedPrice(bulk.Price, c.Qty) * c.Qty;
                 }
                 else
                 {
                     var food = _context.Foods.FirstOrDefault(f => f.Id == c.Pid);
                     if (food != null)
+                    {
                         subtotal += food.Price * c.Qty;
+                        totalOrderCalories += (food.Calories ?? 0) * c.Qty;
+                    }
                 }
             }
 
             decimal deliveryCharge = subtotal > 500 ? 0 : 40;
-            decimal gst = subtotal * 0.05m;
-            decimal totalAmount = subtotal + deliveryCharge + gst;
+            
+            // Apply Overall Bulk Discount from appsettings
+            var thresholdAmountStr = _config["BulkDiscount:ThresholdAmount"];
+            var discountPercentageStr = _config["BulkDiscount:DiscountPercentage"];
+            
+            decimal discountApplied = 0m;
+            decimal subtotalAfterDiscount = subtotal;
 
-            bool isBulkOrder = cartRows.Any(c => c.IsBulk);
+            if (decimal.TryParse(thresholdAmountStr, out decimal thresholdAmount) && 
+                decimal.TryParse(discountPercentageStr, out decimal discountPercent))
+            {
+                if (subtotal >= thresholdAmount)
+                {
+                    discountApplied = subtotal * (discountPercent / 100m);
+                    subtotalAfterDiscount = subtotal - discountApplied;
+                    ViewBag.DiscountApplied = true;
+                    ViewBag.DiscountAmount = discountApplied;
+                    ViewBag.DiscountPercentage = discountPercent;
+                }
+            }
+
+            decimal gst = subtotalAfterDiscount * 0.05m;
+            decimal totalAmount = subtotalAfterDiscount + deliveryCharge + gst;
+
+            bool isBulkOrder = cartRows.Any(c => c.IsBulk) || discountApplied > 0;
             ViewBag.IsBulkOrder = isBulkOrder;
 
             // Phase 1: Enforce 50% frontend deposit if it's a Bulk Order
@@ -405,69 +531,198 @@ namespace NUTRIBITE.Controllers
             }
 
             ViewBag.Subtotal = subtotal;
+            ViewBag.SubtotalAfterDiscount = subtotalAfterDiscount;
             ViewBag.DeliveryCharge = deliveryCharge;
             ViewBag.GST = gst;
-            ViewBag.TotalAmount = totalAmount; 
+            ViewBag.TotalAmount = totalAmount;
 
-            return View();
+            var user = _context.UserSignups.FirstOrDefault(u => u.Id == uid.Value);
+            
+            // Prefer dynamically selected location over profile address
+            var sessionAddress = HttpContext.Session.GetString("UserAddress") ?? HttpContext.Request.Cookies["UserAddress"];
+            ViewBag.SavedAddress = !string.IsNullOrEmpty(sessionAddress) ? sessionAddress : (user?.Address ?? "");
+
+            // Calorie Warning Data
+            var survey = _context.HealthSurveys.FirstOrDefault(h => h.UserId == uid.Value);
+            int calorieLimit = survey?.RecommendedCalories ?? 2000;
+            int consumedToday = _context.DailyCalorieEntries
+                .Where(ce => ce.UserId == uid.Value && ce.Date.Date == DateTime.Today)
+                .Sum(ce => ce.Calories);
+
+            ViewBag.OrderCalories = totalOrderCalories;
+            ViewBag.CaloriesConsumedToday = consumedToday;
+            ViewBag.CalorieLimit = calorieLimit;
+
+            var model = new CheckoutViewModel();
+            model.User = new CheckoutUserViewModel
+            {
+                Name = user?.Name ?? "Customer",
+                Address = !string.IsNullOrEmpty(sessionAddress) ? sessionAddress : user?.Address,
+                Email = user?.Email,
+                PhoneNumber = user?.Phone
+            };
+
+            foreach (var c in cartRows)
+            {
+                if (c.IsBulk)
+                {
+                    var bulk = _context.BulkItems.FirstOrDefault(b => b.Id == c.Pid);
+                    if (bulk != null)
+                    {
+                        model.CartItems.Add(new CheckoutCartItem
+                        {
+                            FoodName = bulk.Name + " (Bulk)",
+                            Price = GetBulkDiscountedPrice(bulk.Price, c.Qty),
+                            Quantity = c.Qty,
+                            ImageUrl = bulk.ImagePath
+                        });
+                    }
+                }
+                else
+                {
+                    var food = _context.Foods.FirstOrDefault(f => f.Id == c.Pid);
+                    if (food != null)
+                    {
+                        model.CartItems.Add(new CheckoutCartItem
+                        {
+                            FoodName = food.Name,
+                            Price = food.Price,
+                            Quantity = c.Qty,
+                            ImageUrl = food.ImagePath
+                        });
+                    }
+                }
+            }
+
+            return View(model);
         }
 
 
-        // ================= CHECKOUT =================
+
+        // ================= PREPARE RAZORPAY ORDER =================
         [HttpPost]
-        public async Task<IActionResult> Checkout(string deliveryAddress = "", string deliveryNotes = "", string paymentMethod = "Online", bool clearCart = true, double? latitude = null, double? longitude = null)
+        public IActionResult CreateRazorpayOrder()
         {
             var uid = HttpContext.Session.GetInt32("UserId");
-
-            if (!uid.HasValue)
-                return RedirectToAction("Login", "Auth");
+            if (!uid.HasValue) return Json(new { success = false, message = "Please login" });
 
             try
             {
-                var user = _context.UserSignups
-                    .FirstOrDefault(u => u.Id == uid.Value);
+                var cartItems = _context.Carttables.Where(c => c.Uid == uid.Value).ToList();
+                if (!cartItems.Any()) return Json(new { success = false, message = "Cart is empty" });
 
-                var cartItems = _context.Carttables
-                    .Where(c => c.Uid == uid.Value)
-                    .ToList();
-
-                if (!cartItems.Any())
+                decimal foodTotal = 0m;
+                foreach (var item in cartItems)
                 {
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                        return Json(new { success = false, message = "Your cart is empty." });
-                    return RedirectToAction("Index");
-                }
-
-                // Phase 3: Geofencing Check
-                // Attempt to get vendor tied to this cart
-                var firstCartItem = cartItems.FirstOrDefault(c => !c.IsBulk);
-                if (firstCartItem != null && latitude.HasValue && longitude.HasValue)
-                {
-                    var food = _context.Foods.FirstOrDefault(f => f.Id == firstCartItem.Pid);
-                    if (food != null && food.VendorId.HasValue)
+                    if (item.IsBulk)
                     {
-                        var vendor = _context.VendorSignups.FirstOrDefault(v => v.VendorId == food.VendorId.Value);
-                        if (vendor != null && vendor.MaxDeliveryRadiusKm.HasValue)
-                        {
-                            // Mock Coordinates for the Vendor Kitchen (Central Lucknow)
-                            double vendorLat = 26.8467;
-                            double vendorLng = 80.9462;
-                            
-                            // Haversine mock calculation
-                            double dLat = (latitude.Value - vendorLat) * Math.PI / 180.0;
-                            double dLon = (longitude.Value - vendorLng) * Math.PI / 180.0;
-                            double a = Math.Sin(dLat/2) * Math.Sin(dLat/2) + Math.Cos(vendorLat * Math.PI / 180.0) * Math.Cos(latitude.Value * Math.PI / 180.0) * Math.Sin(dLon/2) * Math.Sin(dLon/2);
-                            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1-a));
-                            double distanceKm = 6371 * c;
-
-                            if (distanceKm > vendor.MaxDeliveryRadiusKm.Value)
-                            {
-                                return Json(new { success = false, message = $"Delivery not available! You are {distanceKm:F1}km away. This vendor only serves within {vendor.MaxDeliveryRadiusKm.Value}km." });
-                            }
-                        }
+                        var bulk = _context.BulkItems.FirstOrDefault(b => b.Id == item.Pid);
+                        if (bulk != null) foodTotal += GetBulkDiscountedPrice(bulk.Price, item.Qty) * item.Qty;
+                    }
+                    else
+                    {
+                        var food = _context.Foods.FirstOrDefault(f => f.Id == item.Pid);
+                        if (food != null) foodTotal += food.Price * item.Qty;
                     }
                 }
 
+                // Apply Overall Bulk Discount
+                var thresholdAmountStr = _config["BulkDiscount:ThresholdAmount"];
+                var discountPercentageStr = _config["BulkDiscount:DiscountPercentage"];
+                decimal subtotalAfterDiscount = foodTotal;
+
+                if (decimal.TryParse(thresholdAmountStr, out decimal thresholdAmount) && 
+                    decimal.TryParse(discountPercentageStr, out decimal discountPercent))
+                {
+                    if (foodTotal >= thresholdAmount)
+                    {
+                        subtotalAfterDiscount = foodTotal - (foodTotal * (discountPercent / 100m));
+                    }
+                }
+
+                decimal deliveryCharge = foodTotal > 500 ? 0 : 40;
+                decimal gst = subtotalAfterDiscount * 0.05m;
+                decimal finalTotal = subtotalAfterDiscount + deliveryCharge + gst;
+
+                if (cartItems.Any(c => c.IsBulk) || subtotalAfterDiscount < foodTotal)
+                {
+                    finalTotal = finalTotal / 2; // 50% upfront for bulk
+                }
+
+                // Initialize Razorpay Client
+                var keyId = _config["Razorpay:KeyId"];
+                var keySecret = _config["Razorpay:KeySecret"];
+                
+                if (string.IsNullOrEmpty(keyId) || string.IsNullOrEmpty(keySecret))
+                    return Json(new { success = false, message = "Payment configuration missing" });
+
+                var client = new RazorpayClient(keyId, keySecret);
+                
+                Dictionary<string, object> options = new Dictionary<string, object>();
+                options.Add("amount", (long)Math.Round(finalTotal * 100)); // Use long for large amounts and round correctly
+                options.Add("currency", "INR");
+                options.Add("receipt", "rcpt_" + Guid.NewGuid().ToString().Substring(0, 8));
+
+                Razorpay.Api.Order order = client.Order.Create(options);
+                string orderId = order["id"].ToString();
+
+                _activityLogger.LogAsync("Razorpay Order Created", $"Order {orderId} created for User {uid} with amount {finalTotal}");
+
+                return Json(new { 
+                    success = true, 
+                    razorpayOrderId = orderId, 
+                    amount = finalTotal,
+                    keyId = keyId
+                });
+            }
+            catch (Exception ex)
+            {
+                _activityLogger.LogAsync("Razorpay Order Failed", $"Failed to create Razorpay order for User {uid}: {ex.Message}");
+                return Json(new { success = false, message = "Could not initialize payment gateway. Please try again." });
+            }
+        }
+
+        // ================= CONFIRM PAYMENT AND CREATE ORDER =================
+        [HttpPost]
+        public async Task<IActionResult> ConfirmPayment(string razorpayPaymentId, string razorpayOrderId, string razorpaySignature, string deliveryAddress, string deliveryNotes = "", string deliverySchedule = "One-time", bool clearCart = true)
+        {
+            var uid = HttpContext.Session.GetInt32("UserId");
+            if (!uid.HasValue) return Json(new { success = false, message = "Please login" });
+
+            try
+            {
+                // Verify Signature
+                var keyId = _config["Razorpay:KeyId"];
+                var keySecret = _config["Razorpay:KeySecret"];
+                
+                if (string.IsNullOrEmpty(keyId) || string.IsNullOrEmpty(keySecret))
+                    return Json(new { success = false, message = "Payment configuration missing" });
+
+                // Initialize client to set static credentials for Utils
+                var client = new RazorpayClient(keyId, keySecret);
+
+                Dictionary<string, string> attributes = new Dictionary<string, string>();
+                attributes.Add("razorpay_payment_id", razorpayPaymentId);
+                attributes.Add("razorpay_order_id", razorpayOrderId);
+                attributes.Add("razorpay_signature", razorpaySignature);
+
+                try
+                {
+                    Utils.verifyPaymentSignature(attributes);
+                }
+                catch (Exception sigEx)
+                {
+                    _activityLogger.LogAsync("Payment Failed", $"Signature verification failed for Order {razorpayOrderId}: {sigEx.Message}");
+                    return Json(new { success = false, message = "Payment verification failed. Please contact support." });
+                }
+
+                // Payment is valid, now create the internal order
+                var user = _context.UserSignups.FirstOrDefault(u => u.Id == uid.Value);
+                var cartItems = await _context.Carttables.Where(c => c.Uid == uid.Value).ToListAsync();
+
+                if (!cartItems.Any()) return Json(new { success = false, message = "Cart empty during confirmation" });
+
+                // Reuse the same logic as before to calculate totals
                 int totalItems = 0;
                 int totalCalories = 0;
                 decimal foodTotal = 0m;
@@ -477,35 +732,41 @@ namespace NUTRIBITE.Controllers
                     if (item.IsBulk)
                     {
                         var bulk = _context.BulkItems.FirstOrDefault(b => b.Id == item.Pid);
-                        if (bulk == null) continue;
-
-                        totalItems += item.Qty;
-                        totalCalories += 0; 
-                        foodTotal += bulk.Price * item.Qty;
+                        if (bulk != null)
+                        {
+                            totalItems += item.Qty;
+                            foodTotal += GetBulkDiscountedPrice(bulk.Price, item.Qty) * item.Qty;
+                        }
                     }
                     else
                     {
                         var food = _context.Foods.FirstOrDefault(f => f.Id == item.Pid);
-                        if (food == null) continue;
-
-                        totalItems += item.Qty;
-                        totalCalories += (food.Calories ?? 0) * item.Qty;
-                        foodTotal += food.Price * item.Qty;
+                        if (food != null)
+                        {
+                            totalItems += item.Qty;
+                            totalCalories += (food.Calories ?? 0) * item.Qty;
+                            foodTotal += food.Price * item.Qty;
+                        }
                     }
                 }
 
-                // Calculations for realism
                 decimal deliveryCharge = foodTotal > 500 ? 0 : 40;
-                decimal gst = foodTotal * 0.05m; // 5% GST
-                decimal finalTotal = foodTotal + deliveryCharge + gst;
+                var thresholdAmountStr = _config["BulkDiscount:ThresholdAmount"];
+                var discountPercentageStr = _config["BulkDiscount:DiscountPercentage"];
+                decimal subtotalAfterDiscount = foodTotal;
 
-                bool isBulk = cartItems.Any(c => c.IsBulk);
-                string orderType = isBulk ? "Bulk Order (50% Deposit Paid)" : "Delivery";
-                
-                if (isBulk)
+                if (decimal.TryParse(thresholdAmountStr, out decimal thresholdAmount) && 
+                    decimal.TryParse(discountPercentageStr, out decimal discountPercent))
                 {
-                    finalTotal = finalTotal / 2; // For Bulk, charge 50% upfront
+                    if (foodTotal >= thresholdAmount)
+                        subtotalAfterDiscount = foodTotal - (foodTotal * (discountPercent / 100m));
                 }
+
+                decimal gst = subtotalAfterDiscount * 0.05m;
+                decimal finalTotal = subtotalAfterDiscount + deliveryCharge + gst;
+                bool isBulk = cartItems.Any(c => c.IsBulk) || subtotalAfterDiscount < foodTotal;
+                
+                if (isBulk) finalTotal = finalTotal / 2;
 
                 var otp = new Random().Next(1234, 10000);
 
@@ -515,62 +776,51 @@ namespace NUTRIBITE.Controllers
                     CustomerName = user?.Name,
                     CustomerPhone = user?.Phone,
                     TotalItems = totalItems,
-                    PickupSlot = null,
-                    OrderType = orderType,
+                    OrderType = isBulk ? $"Bulk Order (50% Deposit) - {deliverySchedule}" : $"Delivery - {deliverySchedule}",
                     DeliveryAddress = deliveryAddress,
                     DeliveryNotes = deliveryNotes,
-                    DeliveryStatus = "Pending Assignment",
+                    DeliveryStatus = "Order Confirmed",
                     TotalCalories = totalCalories,
                     TotalAmount = finalTotal,
                     DeliveryCharge = deliveryCharge,
                     GST = gst,
-                    PaymentStatus = "Pending",
-                    Status = "Pending Payment",
-                    TrackingProgress = 0,
-                    IsFlagged = false,
+                    PaymentStatus = "Completed",
+                    Status = "Accepted",
+                    TrackingProgress = 10,
                     CreatedAt = DateTime.Now,
                     DeliveryOTP = otp,
                     IsDelivered = false,
-                    OrderStatus = "Pending Payment"
+                    OrderStatus = "Preparing"
                 };
 
                 _context.OrderTables.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Send Order Confirmation Email with OTP
-                if (user != null && !string.IsNullOrEmpty(user.Email))
+                // Distribute payment to vendor and admin
+                try
                 {
-                    var emailBody = $@"
-                        <div style='font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
-                            <h2 style='color: #2d6a4f;'>Order Confirmed!</h2>
-                            <p>Hello {user.Name}, your order <b>#{order.OrderId}</b> has been placed successfully.</p>
-                            <hr>
-                            <h3>Delivery OTP: <span style='color: #2d6a4f; font-size: 24px;'>{otp}</span></h3>
-                            <p style='color: #666;'>Please share this OTP with our delivery partner only when you receive your meal.</p>
-                            <hr>
-                            <h4>Order Summary:</h4>
-                            <p>Food Total: ₹{foodTotal:N2}</p>
-                            <p>Delivery Charge: ₹{deliveryCharge:N2}</p>
-                            <p>GST (5%): ₹{gst:N2}</p>
-                            <p style='font-size: 18px; font-weight: bold;'>Total Amount: ₹{finalTotal:N2}</p>
-                            <p>Delivery Address: {deliveryAddress}</p>
-                            <br>
-                            <p>Thank you for choosing NutriBite!</p>
-                        </div>";
-                    
-                    var result = await _emailService.SendEmailAsync(user.Email, $"Order Confirmed - NutriBite #{order.OrderId}", emailBody);
-                    if (!result)
-                    {
-                        var emailError = _emailService.GetLastError();
-                        Console.WriteLine($"[ORDER EMAIL FAIL] Order #{order.OrderId}: {emailError}");
-                        await _activityLogger.LogAsync("Email Failed", $"Failed to send order confirmation for #{order.OrderId}. Error: {emailError}");
-                    }
+                    await _distributionService.DistributePaymentAsync(order.OrderId);
+                }
+                catch (Exception distEx)
+                {
+                    // Log but don't fail the whole order creation
+                    await _activityLogger.LogAsync("Distribution Error", $"Failed to distribute payment for order #{order.OrderId}: {distEx.Message}");
                 }
 
-                // Log order activity for dashboard alerts
-                await _activityLogger.LogAsync("Order Placed", $"New order #{order.OrderId} placed by {order.CustomerName} for ₹{order.TotalAmount:N2}");
+                // CREATE PAYMENT RECORD (For Payment History)
+                var payment = new Models.Payment
+                {
+                    OrderId = order.OrderId,
+                    PaymentMode = "Razorpay",
+                    Amount = finalTotal,
+                    TransactionId = razorpayPaymentId,
+                    IsRefunded = false,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                _context.Payments.Add(payment);
 
-                // ADD ORDER ITEMS + CALORIE TRACKING
+                // Add Items and Calories
                 foreach (var item in cartItems)
                 {
                     var orderItem = new OrderItem
@@ -588,7 +838,7 @@ namespace NUTRIBITE.Controllers
                         {
                             orderItem.BulkItemId = bulk.Id;
                             orderItem.ItemName = bulk.Name + " (Bulk)";
-                            orderItem.PricePerItem = bulk.Price;
+                            orderItem.PricePerItem = GetBulkDiscountedPrice(bulk.Price, item.Qty);
                         }
                     }
                     else
@@ -607,44 +857,55 @@ namespace NUTRIBITE.Controllers
                                 FoodName = food.Name,
                                 Calories = (food.Calories ?? 0) * item.Qty,
                                 MealType = "Order",
-                                Protein = 0,
-                                Carbs = 0,
-                                Fats = 0,
                                 OrderId = order.OrderId
                             });
                         }
                     }
-
                     _context.OrderItems.Add(orderItem);
                 }
 
+                // Clear Cart
+                _context.Carttables.RemoveRange(cartItems);
                 await _context.SaveChangesAsync();
 
-                // CLEAR CART if requested
-                if (clearCart)
+                // Log activity
+                await _activityLogger.LogAsync("Payment Confirmed", $"Payment {razorpayPaymentId} for order #{order.OrderId} successful.");
+
+                // 📧 Send Confirmation Email (Contains Delivery OTP)
+                try
                 {
-                    _context.Carttables.RemoveRange(cartItems);
-                    await _context.SaveChangesAsync();
+                    if (user != null && !string.IsNullOrEmpty(user.Email))
+                    {
+                        string subject = $"Order Confirmed! NutriBite #{order.OrderId}";
+                        string body = $@"
+                            <div style='font-family: Poppins, sans-serif; padding: 20px; border: 1px solid #eef2f3; border-radius: 10px;'>
+                                <h2 style='color: #2d6a4f;'>Thank you for your order, {user.Name}!</h2>
+                                <p>Your order <strong>#{order.OrderId}</strong> has been successfully placed and is being prepared.</p>
+                                <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                                    <p style='margin: 0;'><strong>Total Amount:</strong> ₹{order.TotalAmount}</p>
+                                    <p style='margin: 0;'><strong>Status:</strong> {order.Status}</p>
+                                    <p style='margin: 0;'><strong>Delivery OTP:</strong> <span style='font-size: 1.25rem; font-weight: bold; color: #2d6a4f;'>{order.DeliveryOTP}</span></p>
+                                </div>
+                                <p>Please share this OTP with your delivery executive to receive your order securely.</p>
+                                <p>You can track your order live on our website.</p>
+                                <br>
+                                <p style='color: #888; font-size: 12px;'>This is an automated message from NutriBite.</p>
+                            </div>";
+                        await _emailService.SendEmailAsync(user.Email, subject, body);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed to send order confirmation email: " + ex.Message);
                 }
 
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
-                    return Json(new { success = true, orderId = order.OrderId });
-                }
-
-                return RedirectToAction("Success");
+                return Json(new { success = true, orderId = order.OrderId });
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Checkout Error: " + ex.Message);
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
-                    return Json(new { success = false, message = "Failed to create order: " + ex.Message });
-                }
-                return View("Error");
+                return Json(new { success = false, message = "Confirmation error: " + ex.Message });
             }
         }
-
 
         // ================= SUCCESS PAGE =================
         public IActionResult Success()

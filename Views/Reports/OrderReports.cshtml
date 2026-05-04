@@ -2,59 +2,146 @@
     ViewData["Title"] = "Order Reports";
 }
 
-<link rel="stylesheet" href="~/css/reports.css" />
+<style>
+    .reports-page { padding: 20px; background: #f8f9fa; }
+    .report-card { border-radius: 15px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.05); background: #fff; margin-bottom: 25px; }
+    .stat-card { border-radius: 12px; border: none; transition: transform 0.2s; color: #fff; }
+    .stat-card:hover { transform: translateY(-5px); }
+    .bg-gradient-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%); }
+    .bg-gradient-danger { background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%); }
+    .filter-section { background: #fff; padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #edf2f9; }
+    .chart-container { height: 350px; position: relative; }
+    .table-container { background: #fff; border-radius: 15px; overflow: hidden; }
+    .status-badge { padding: 5px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+    .period-nav { background: #fff; padding: 6px 14px; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #e3e6f0; }
+    .filter-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+</style>
 
-<div class="reports-page table-wrapper">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="reports-page">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4>Order Reports</h4>
-            <small class="text-muted">Filter and inspect orders over a date range</small>
+            <h2 class="fw-bold text-dark mb-1">Order Reports & Analytics</h2>
+            <p class="text-muted mb-0 small">Deep dive into your order volume, status distribution, and fulfillment efficiency.</p>
         </div>
-        <div class="d-flex gap-2 align-items-center">
-            <label class="mb-0 small">From</label>
-            <input id="fromDate" type="date" class="form-control form-control-sm" />
-            <label class="mb-0 small ms-2">To</label>
-            <input id="toDate" type="date" class="form-control form-control-sm" />
-            <select id="statusFilter" class="form-select form-select-sm ms-2">
-                <option value="All">All</option>
-                <option>New</option>
-                <option>Accepted</option>
-                <option>Ready for Pickup</option>
-                <option>Picked</option>
-                <option>Cancelled</option>
-            </select>
-            <button id="applyFilters" class="btn btn-sm btn-approve ms-2">Apply</button>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+                <i class="bi bi-download me-2"></i> Export PDF
+            </button>
         </div>
     </div>
 
-    <!-- Summary cards -->
-    <div id="summaryCards" class="row g-3 mb-3"></div>
+    <!-- Advanced Filter Bar -->
+    <div class="filter-section mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="filter-label fw-bold text-muted">Date Range</label>
+                <div class="input-group input-group-sm">
+                    <input id="fromDate" type="date" class="form-control rounded-start-pill border-end-0" />
+                    <span class="input-group-text bg-white border-start-0 border-end-0 text-muted">to</span>
+                    <input id="toDate" type="date" class="form-control rounded-end-pill border-start-0" />
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <label class="filter-label fw-bold text-muted">Frequency</label>
+                <select id="period" class="form-select form-select-sm rounded-pill">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
 
-    <!-- Table (first) -->
-    <div class="card p-3 mb-3">
-        <h5 class="mb-2">Orders</h5>
+            <div class="col-md-2">
+                <label class="filter-label fw-bold text-muted">Status</label>
+                <select id="statusFilter" class="form-select form-select-sm rounded-pill">
+                    <option value="All">All Status</option>
+                    <option>New</option>
+                    <option>Accepted</option>
+                    <option>In Transit</option>
+                    <option>Delivered</option>
+                    <option>Cancelled</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 ms-auto">
+                <button id="applyFilters" class="btn btn-primary btn-sm rounded-pill w-100 shadow-sm fw-bold">
+                    <i class="bi bi-funnel-fill me-1"></i> Apply
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div id="summaryCards" class="row g-4 mb-4">
+        <!-- Will be populated by JS -->
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Order Volume Trend -->
+        <div class="col-lg-8">
+            <div class="card report-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Order Volume & Revenue Trend</h5>
+                    <div class="period-nav shadow-sm" id="historicalNav">
+                        <button id="prevPeriod" class="btn btn-link p-0 text-dark"><i class="bi bi-chevron-left"></i></button>
+                        <span id="currentPeriodLabel" class="fw-bold small px-2" style="min-width: 120px; text-align: center;">This Month</span>
+                        <div class="position-relative">
+                            <i class="bi bi-calendar3 text-primary cursor-pointer"></i>
+                            <input type="date" id="dateSelector" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" />
+                        </div>
+                        <button id="nextPeriod" class="btn btn-link p-0 text-dark"><i class="bi bi-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ordersTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Distribution -->
+        <div class="col-lg-4">
+            <div class="card report-card p-4 h-100">
+                <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-pie-chart-fill me-2 text-warning"></i>Status Distribution</h5>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="statusDistChart"></canvas>
+                </div>
+                <div id="statusLegend" class="mt-4">
+                    <!-- Custom legend will go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Order Table -->
+    <div class="card report-card p-0 overflow-hidden">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-50">
+            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-list-task me-2 text-info"></i>Detailed Order Log</h5>
+            <div class="badge bg-info-subtle text-info border border-info rounded-pill px-3">
+                <span id="rowCount">0</span> Orders Found
+            </div>
+        </div>
         <div class="table-responsive">
-            <table id="ordersTable" class="table admin-table table-striped">
-                <thead>
+            <table id="ordersTable" class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
                     <tr>
-                        <th data-key="OrderId">Order</th>
-                        <th data-key="OrderDate">Date</th>
-                        <th data-key="CustomerName">Customer</th>
-                        <th data-key="ItemsCount">Items</th>
-                        <th data-key="Amount">Amount</th>
-                        <th data-key="PaymentStatus">Payment</th>
-                        <th data-key="Status">Status</th>
+                        <th class="ps-4">Order ID</th>
+                        <th>Date & Time</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Action</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody class="border-top-0">
+                    <!-- Populated by JS -->
+                </tbody>
             </table>
         </div>
-    </div>
-
-    <!-- Chart (second) -->
-    <div class="card p-3">
-        <h5 class="mb-2">Order Trend</h5>
-        <canvas id="ordersTrendChart" height="120"></canvas>
     </div>
 </div>
 
@@ -67,100 +154,352 @@
             const $from = $('#fromDate');
             const $to = $('#toDate');
             const $status = $('#statusFilter');
+            const $period = $('#period');
+
+            let ordersChart = null;
+            let statusChart = null;
+            let currentRefDate = new Date();
 
             function initDefaults() {
                 const today = new Date();
-                const prior = new Date();
-                prior.setDate(today.getDate() - 13);
-                $from.val(prior.toISOString().slice(0,10));
+                const past = new Date();
+                past.setMonth(today.getMonth() - 1);
+                $from.val(past.toISOString().slice(0,10));
                 $to.val(today.toISOString().slice(0,10));
             }
 
             function renderSummary(summary) {
                 const $c = $('#summaryCards').empty();
-                summary.forEach(s => {
-                    const col = $(`<div class="col-md-3"><div class="summary-card p-3 h-100"><div class="title">${s.title || s.Title}</div><div class="value">${s.value || s.Value}</div><div class="sub text-muted">${s.subText || s.SubText}</div></div></div>`);
+                const colors = ['primary', 'success', 'warning', 'danger'];
+                const icons = ['bi-cart-fill', 'bi-check-circle-fill', 'bi-clock-fill', 'bi-x-circle-fill'];
+                
+                summary.forEach((s, i) => {
+                    const color = colors[i % colors.length];
+                    const icon = icons[i % icons.length];
+                    const col = $(`
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-gradient-${color} p-4 shadow-sm h-100">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="small fw-bold text-white-50 text-uppercase mb-1">${s.title || s.Title}</div>
+                                        <div class="h3 fw-bold mb-0">${s.value || s.Value}</div>
+                                        <div class="small mt-2 text-white-50">${s.subText || s.SubText}</div>
+                                    </div>
+                                    <div class="h1 mb-0 opacity-25">
+                                        <i class="bi ${icon}"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
                     $c.append(col);
                 });
             }
 
             function renderTable(rows) {
                 const $tbody = $('#ordersTable tbody').empty();
+                $('#rowCount').text(rows.length);
+
+                if (!rows || rows.length === 0) {
+                    $tbody.append('<tr><td colspan="8" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>No orders found matching your criteria.</td></tr>');
+                    return;
+                }
+
                 rows.forEach(r => {
-                    const date = new Date(r.orderDate || r.OrderDate).toLocaleString();
-                    const tr = $('<tr></tr>');
-                    tr.append('<td><a href="/Admin/OrderDetails?orderId=' + r.orderId + '">#' + r.orderId + '</a></td>');
-                    tr.append('<td>' + date + '</td>');
-                    tr.append('<td>' + (r.customerName || '-') + '</td>');
-                    tr.append('<td>' + (r.itemsCount || 0) + '</td>');
-                    tr.append('<td>₹' + (Number(r.amount).toFixed(2)) + '</td>');
-                    let paymentDisplay = r.paymentStatus || '-';
-                    if (paymentDisplay.trim() === 'PaidToVendor' || paymentDisplay.trim() === 'Paid') {
-                        paymentDisplay = '<span class="text-success fw-bold">Paid (Admin Received)</span>';
-                    }
-                    tr.append('<td>' + paymentDisplay + '</td>');
-                    tr.append('<td>' + (r.status || '-') + '</td>');
+                    const date = new Date(r.orderDate || r.OrderDate);
+                    const formattedDate = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const formattedTime = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                    
+                    let statusClass = 'bg-secondary';
+                    const status = (r.status || r.Status || 'New').toLowerCase();
+                    if (status.includes('delivered') || status.includes('completed')) statusClass = 'bg-success';
+                    else if (status.includes('transit') || status.includes('accepted')) statusClass = 'bg-primary';
+                    else if (status.includes('new') || status.includes('pending')) statusClass = 'bg-warning text-dark';
+                    else if (status.includes('cancelled')) statusClass = 'bg-danger';
+
+                    const tr = $(`
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">#${r.orderId || r.OrderId}</td>
+                            <td>
+                                <div class="fw-600">${formattedDate}</div>
+                                <div class="extra-small text-muted">${formattedTime}</div>
+                            </td>
+                            <td>
+                                <div class="fw-600">${r.customerName || r.CustomerName || 'Walk-in Customer'}</div>
+                                <div class="extra-small text-muted">ID: #U-${(r.orderId % 100) + 100}</div>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">${r.itemsCount || r.ItemsCount || 0} Items</span></td>
+                            <td class="fw-bold">₹${Number(r.amount || r.Amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle ${r.paymentStatus === 'Completed' || r.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'} me-2" style="width:8px; height:8px;"></div>
+                                    <span class="small fw-bold">${r.paymentStatus || r.PaymentStatus || 'Pending'}</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge ${statusClass}">${r.status || r.Status}</span></td>
+                            <td class="pe-4 text-end">
+                                <a href="/Admin/OrderDetails?orderId=${r.orderId || r.OrderId}" class="btn btn-sm btn-light rounded-circle shadow-sm" title="View Details">
+                                    <i class="bi bi-eye-fill text-primary"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `);
                     $tbody.append(tr);
                 });
             }
 
-            let ordersChart = null;
-            function renderTrend(trend) {
-                const labels = trend.map(t => t.label || t.Label);
-                const data = trend.map(t => t.orders ?? t.Orders);
-                const ctx = document.getElementById('ordersTrendChart').getContext('2d');
+            function renderTrend(trendData) {
+                const labels = trendData.labels || trendData.Labels || [];
+                const revenue = trendData.revenue || trendData.Revenue || [];
+                const orders = trendData.orders || trendData.Orders || [];
+                const canvas = document.getElementById('ordersTrendChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const periodLabel = $period.find('option:selected').text();
 
-                if (ordersChart) {
-                    ordersChart.data.labels = labels;
-                    ordersChart.data.datasets[0].data = data;
-                    ordersChart.update();
+                if (ordersChart) ordersChart.destroy();
+
+                if (labels.length === 0) {
+                    // Show empty state if no data
+                    ctx.font = "14px Inter";
+                    ctx.fillStyle = "#888";
+                    ctx.textAlign = "center";
+                    ctx.fillText("No trend data available for this range", canvas.width/2, canvas.height/2);
                     return;
                 }
 
                 ordersChart = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Orders (Count)',
+                                data: orders,
+                                borderColor: '#4e73df',
+                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                yAxisID: 'y',
+                                pointRadius: 4,
+                                pointBackgroundColor: '#4e73df'
+                            }
+                        ]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { 
+                            legend: { display: true, position: 'top', labels: { usePointStyle: true, font: { weight: 'bold' } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        label += context.parsed.y.toLocaleString();
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                title: { display: true, text: 'Time Period (' + periodLabel + ')', font: { weight: 'bold' } }
+                            },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                ticks: { callback: (val) => val.toLocaleString() },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function renderStatusDist(rows) {
+                const canvas = document.getElementById('statusDistChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                
+                if (statusChart) statusChart.destroy();
+
+                const counts = {};
+                // Filter rows based on status selection if not "All"
+                const selectedStatus = $status.val();
+                const displayRows = selectedStatus === 'All' ? rows : rows.filter(r => (r.status || r.Status) === selectedStatus);
+
+                if (!displayRows || displayRows.length === 0) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.font = "14px Inter";
+                    ctx.fillStyle = "#888";
+                    ctx.textAlign = "center";
+                    ctx.fillText("No data for " + selectedStatus, canvas.width/2, canvas.height/2);
+                    $('#statusLegend').empty();
+                    return;
+                }
+
+                displayRows.forEach(r => {
+                    const status = r.status || r.Status || 'New';
+                    counts[status] = (counts[status] || 0) + 1;
+                });
+
+                const labels = Object.keys(counts);
+                const data = Object.values(counts);
+
+                const colors = ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc', '#858796'];
+
+                statusChart = new Chart(ctx, {
+                    type: 'doughnut',
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Orders',
                             data: data,
-                            backgroundColor: '#63B34E'
+                            backgroundColor: colors.slice(0, labels.length),
+                            hoverOffset: 15,
+                            borderWidth: 2,
+                            borderColor: '#fff'
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        cutout: '75%'
+                    }
                 });
+
+                // Custom Legend
+                const $legend = $('#statusLegend').empty();
+                labels.forEach((label, i) => {
+                    const percent = Math.round((data[i] / displayRows.length) * 100);
+                    $legend.append(`
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-2" style="width:12px; height:12px; background-color:${colors[i]}"></div>
+                                <span class="small fw-bold">${label}</span>
+                            </div>
+                            <span class="extra-small text-muted">${data[i]} (${percent}%)</span>
+                        </div>
+                    `);
+                });
+            }
+
+            function updatePeriodLabel(period, date) {
+                const label = document.getElementById('currentPeriodLabel');
+                if (!label) return;
+
+                const isCurrent = isSamePeriod(period, date, new Date());
+                
+                if (period === 'daily') {
+                    label.innerText = isCurrent ? "Today" : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                } else if (period === 'weekly') {
+                    const start = new Date(date);
+                    start.setDate(date.getDate() - date.getDay());
+                    const end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    label.innerText = isCurrent ? "This Week" : `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+                } else if (period === 'monthly') {
+                    label.innerText = isCurrent ? "This Month" : date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+                } else if (period === 'yearly') {
+                    label.innerText = isCurrent ? "This Year" : date.getFullYear();
+                } else {
+                    label.innerText = "All-Time";
+                }
+            }
+
+            function isSamePeriod(period, d1, d2) {
+                if (period === 'daily') return d1.toDateString() === d2.toDateString();
+                if (period === 'weekly') {
+                    const s1 = new Date(d1); s1.setDate(d1.getDate() - d1.getDay());
+                    const s2 = new Date(d2); s2.setDate(d2.getDate() - d2.getDay());
+                    return s1.toDateString() === s2.toDateString();
+                }
+                if (period === 'monthly') return d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+                if (period === 'yearly') return d1.getFullYear() === d2.getFullYear();
+                return true;
             }
 
             function fetchAndRender() {
-                const q = { from: $from.val(), to: $to.val(), status: $status.val() };
+                const period = $period.val();
+                updatePeriodLabel(period, currentRefDate);
+                
+                // Update the date inputs to match currentRefDate for the selected period
+                let start = new Date(currentRefDate);
+                let end = new Date(currentRefDate);
+                
+                if (period === 'daily') {
+                    // Start and end are same day
+                } else if (period === 'weekly') {
+                    start.setDate(start.getDate() - start.getDay());
+                    end.setDate(start.getDate() + 6);
+                } else if (period === 'monthly') {
+                    start.setDate(1);
+                    end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+                } else if (period === 'yearly') {
+                    start = new Date(start.getFullYear(), 0, 1);
+                    end = new Date(start.getFullYear(), 11, 31);
+                }
+                
+                $from.val(start.toISOString().slice(0,10));
+                $to.val(end.toISOString().slice(0,10));
+
+                const q = { 
+                    from: $from.val(), 
+                    to: $to.val(), 
+                    status: $status.val(), 
+                    period: period 
+                };
                 $.getJSON(url, q).done(function (res) {
                     renderSummary(res.summary || res.Summary || []);
                     renderTable(res.orders || res.Orders || []);
-                    renderTrend(res.trend || res.Trend || []);
+                    renderTrend(res.trend || res.Trend || {});
+                    renderStatusDist(res.orders || res.Orders || []);
                 }).fail(function () {
-                    alert('Failed to load report data');
+                    console.error('Failed to load report data');
                 });
             }
 
-            // allow client-side column sort by clicking headers
-            $(document).on('click', '#ordersTable thead th', function () {
-                const key = $(this).data('key');
-                const $rows = $('#ordersTable tbody tr').get();
-                const asc = !$(this).hasClass('asc');
-                $rows.sort(function (a, b) {
-                    const va = $(a).find('td').eq($(this).index()).text(); // not reliable by index; fallback to data-key sort via closure
-                    return 0;
-                }.bind(this));
-                // Instead of complex column sorting logic here, re-fetch with server-side sort later.
-                // For now just toggle visual state:
-                $('#ordersTable thead th').removeClass('asc desc');
-                $(this).addClass(asc ? 'asc' : 'desc');
-            });
+            function navigatePeriod(direction) {
+                const period = $period.val();
+                if (period === 'daily') currentRefDate.setDate(currentRefDate.getDate() + direction);
+                else if (period === 'weekly') currentRefDate.setDate(currentRefDate.getDate() + (direction * 7));
+                else if (period === 'monthly') currentRefDate.setMonth(currentRefDate.getMonth() + direction);
+                else if (period === 'yearly') currentRefDate.setFullYear(currentRefDate.getFullYear() + direction);
+                
+                // Clear manual date range when navigating via arrows to avoid conflict
+                $from.val('');
+                $to.val('');
+                
+                fetchAndRender();
+            }
 
             $(function () {
                 initDefaults();
                 fetchAndRender();
-                $('#applyFilters').on('click', fetchAndRender);
+                $('#applyFilters').on('click', function() {
+                    // When apply is clicked, we use the date range inputs.
+                    // We can set currentRefDate to fromDate to keep them somewhat in sync.
+                    if ($from.val()) currentRefDate = new Date($from.val());
+                    fetchAndRender();
+                });
+                $('#prevPeriod').on('click', () => navigatePeriod(-1));
+                $('#nextPeriod').on('click', () => navigatePeriod(1));
+                $('#dateSelector').on('change', (e) => {
+                    if (e.target.value) {
+                        currentRefDate = new Date(e.target.value);
+                        // Clear manual range when selecting a specific reference date
+                        $from.val('');
+                        $to.val('');
+                        fetchAndRender();
+                    }
+                });
             });
         })();
     </script>

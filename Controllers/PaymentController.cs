@@ -285,6 +285,7 @@ namespace NUTRIBITE.Controllers
                         order.Status = "Placed"; // Change from Pending Payment to Placed
                         order.TrackingProgress = 1; // First tracking increment on "Placed"
                         order.TotalAmount = amountMajor; // Ensure TotalAmount is set from payment
+                        order.DeliveryOTP = new Random().Next(100000, 999999); // Generate 6-digit OTP
 
                         // Trigger Distribution
                         // Requirements say "immediately after confirmed"
@@ -338,7 +339,9 @@ namespace NUTRIBITE.Controllers
                                         <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;'>
                                             <p style='margin: 0;'><strong>Total Amount:</strong> ₹{order.TotalAmount}</p>
                                             <p style='margin: 0;'><strong>Status:</strong> {order.Status}</p>
+                                            <p style='margin: 0;'><strong>Delivery OTP:</strong> <span style='font-size: 1.25rem; font-weight: bold; color: #2d6a4f;'>{order.DeliveryOTP}</span></p>
                                         </div>
+                                        <p>Please share this OTP with your delivery executive to receive your order securely.</p>
                                         <p>You can track your order live on our website.</p>
                                         <br>
                                         <p style='color: #888; font-size: 12px;'>This is an automated message from NutriBite.</p>

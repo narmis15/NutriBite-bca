@@ -1,4 +1,5 @@
 @using NUTRIBITE.Models
+@using Microsoft.AspNetCore.Http
 @{
     ViewData["Title"] = "My Profile";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
@@ -17,11 +18,11 @@
     body { background-color: var(--profile-bg); }
 
     .profile-container {
-        max-width: 1200px;
+        max-width: 95%;
         margin: 2rem auto;
         display: flex;
         gap: 2rem;
-        padding: 0 1rem;
+        padding: 0 2rem;
     }
 
     /* Sidebar Styles */
@@ -221,6 +222,15 @@
 </style>
 
 <div class="profile-container">
+    @if (TempData["ProfileSuccess"] != null)
+    {
+        <div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999;">
+            <div class="alert alert-success alert-dismissible fade show rounded-pill shadow px-4" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["ProfileSuccess"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
     <!-- Sidebar -->
     <div class="profile-sidebar">
         <div class="user-brief">
@@ -244,7 +254,7 @@
             <a href="/HealthSurvey" class="nav-item">
                 <i class="bi bi-clipboard-pulse"></i> Health Survey
             </a>
-            <a href="/Auth/DeleteAccount" class="nav-item logout">
+            <a href="#" class="nav-item logout" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
                 <i class="bi bi-trash"></i> Delete Account
             </a>
             <a href="/Auth/Logout" class="nav-item logout">
@@ -276,6 +286,14 @@
                 <div>
                     <div class="info-label">Phone Number</div>
                     <div class="info-value">@(string.IsNullOrEmpty(user?.Phone) || user?.Phone == "-" ? "Not provided" : user.Phone)</div>
+                </div>
+                <div>
+                    <div class="info-label">Address</div>
+                    @{
+                        var sessionAddress = Context.Session.GetString("UserAddress") ?? Context.Request.Cookies["UserAddress"];
+                        var displayAddress = !string.IsNullOrEmpty(sessionAddress) ? sessionAddress : (string.IsNullOrEmpty(user?.Address) ? "Not provided" : user.Address);
+                    }
+                    <div class="info-value">@displayAddress</div>
                 </div>
                 <div>
                     <div class="info-label">Account Status</div>
@@ -318,7 +336,7 @@
             <div class="mini-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Recent Orders</h5>
-                    <a href="/Home/MyOrders" class="text-success small fw-bold text-decoration-none">View All</a>
+                    <a href="#fullOrderHistory" class="text-success small fw-bold text-decoration-none">View All</a>
                 </div>
 
                 @if (ViewBag.RecentOrders != null && ((IEnumerable<OrderTable>)ViewBag.RecentOrders).Any())
@@ -357,6 +375,113 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- FULL ORDER HISTORY -->
+        <div id="fullOrderHistory" class="profile-section-card mt-4">
+            <div class="section-header">
+                <h3>Full Order History</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-3">Order ID</th>
+                            <th>Date & Time</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.AllOrders != null && ((IEnumerable<OrderTable>)ViewBag.AllOrders).Any())
+                        {
+                            var allOrders = ((IEnumerable<OrderTable>)ViewBag.AllOrders).ToList();
+                            for (int i = 0; i < allOrders.Count; i++)
+                            {
+                                var order = allOrders[i];
+                                var rowClass = i >= 5 ? "hidden-order d-none" : "";
+                                <tr class="@rowClass">
+                                    <td class="ps-3 fw-bold text-dark">#@order.OrderId</td>
+                                    <td>@(order.CreatedAt?.ToString("dd MMM yyyy, hh:mm tt"))</td>
+                                    <td class="fw-bold">₹@order.TotalAmount</td>
+                                    <td>
+                                        @if (order.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        }
+                                        else if (order.Status == "Delivered")
+                                        {
+                                            <span class="badge bg-success">Delivered</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info text-dark">@order.Status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="/Home/TrackOrder?orderId=@order.OrderId" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            Track
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No orders found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (ViewBag.AllOrders != null && ((IEnumerable<OrderTable>)ViewBag.AllOrders).Count() > 5)
+            {
+                <div class="text-center mt-3 pt-3 border-top">
+                    <button id="loadMoreOrdersBtn" class="btn btn-outline-success rounded-pill px-4 fw-bold">
+                        <i class="bi bi-chevron-down me-1"></i> View More
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const loadMoreBtn = document.getElementById('loadMoreOrdersBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                const hiddenOrders = document.querySelectorAll('.hidden-order');
+                hiddenOrders.forEach(order => {
+                    order.classList.remove('d-none');
+                });
+                this.style.display = 'none'; // hide the button after loading all
+            });
+        }
+    });
+</script>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            @using (Html.BeginForm("DeleteAccount", "Users", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header border-bottom-0 p-4 pb-0">
+                    <h5 class="modal-title text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="mb-0 fs-5">Are you sure you want to permanently delete your account? This action will completely erase all your data and cannot be undone.</p>
+                </div>
+                <div class="modal-footer border-top-0 d-flex justify-content-center p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 shadow">Yes, Delete Everything</button>
+                </div>
+            }
         </div>
     </div>
 </div>

@@ -88,6 +88,40 @@
         </div>
     </div>
 
+    <!-- Security Settings -->
+    <div class="card profile-card mt-4 border">
+        <div class="card-body p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2"></i>Security Settings</h6>
+            <form id="changePasswordForm">
+                @Html.AntiForgeryToken()
+                <div id="pwdError" class="alert alert-danger small d-none"></div>
+                <div id="pwdSuccess" class="alert alert-success small d-none">Password updated successfully!</div>
+                <div class="mb-3">
+                    <input type="password" class="form-control form-control-sm" id="currentPassword" name="currentPassword" placeholder="Current Password" required />
+                </div>
+                <div class="mb-3">
+                    <div class="input-group has-validation">
+                        <input type="password" class="form-control form-control-sm" id="newPassword" name="newPassword" placeholder="New Password" required 
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" title="Min 8 chars, 1 uppercase, 1 lowercase, 1 digit" />
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Password must be at least 8 characters, include an uppercase, a lowercase, and a number.
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group has-validation">
+                        <input type="password" class="form-control form-control-sm" id="confirmPassword" name="confirmPassword" placeholder="Confirm New Password" required 
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" />
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Passwords must match and meet all requirements.
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill px-4">Update Password</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Danger Zone -->
     <div class="card profile-card mt-4 border border-danger border-opacity-25" style="background-color: #fffafa;">
         <div class="card-body p-4 d-flex justify-content-between align-items-center">
@@ -204,6 +238,37 @@
                         alert('An error occurred while uploading. Please try again.');
                     }
                 });
+            });
+            // Handle Change Password
+            $('#changePasswordForm').on('submit', function(e) {
+                e.preventDefault();
+                $('#pwdError').addClass('d-none');
+                $('#pwdSuccess').addClass('d-none');
+
+                if ($('#newPassword').val() !== $('#confirmPassword').val()) {
+                    $('#pwdError').text('New password and confirm password do not match.').removeClass('d-none');
+                    return;
+                }
+
+                if (!this.checkValidity()) {
+                    $(this).addClass('was-validated');
+                    return;
+                }
+                
+                $(this).removeClass('was-validated');
+
+                $.post('/Users/UpdatePassword', $(this).serialize())
+                    .done(function(res) {
+                        if (res.success) {
+                            $('#pwdSuccess').removeClass('d-none');
+                            $('#changePasswordForm')[0].reset();
+                        } else {
+                            $('#pwdError').text(res.message).removeClass('d-none');
+                        }
+                    })
+                    .fail(function() {
+                        $('#pwdError').text('An error occurred. Please try again.').removeClass('d-none');
+                    });
             });
         });
     </script>

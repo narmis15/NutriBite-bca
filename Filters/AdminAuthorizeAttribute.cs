@@ -20,7 +20,15 @@ namespace NUTRIBITE.Filters
 
             if (string.IsNullOrEmpty(admin))
             {
-                context.Result = new RedirectToActionResult("Login", "Admin", null);
+                if (context.HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest" || 
+                    context.HttpContext.Request.Headers["Accept"].ToString().Contains("application/json"))
+                {
+                    context.Result = new JsonResult(new { success = false, message = "Session expired. Please login again." }) { StatusCode = 401 };
+                }
+                else
+                {
+                    context.Result = new RedirectToActionResult("Login", "Admin", null);
+                }
             }
         }
     }

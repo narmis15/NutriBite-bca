@@ -7,10 +7,10 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
-    // Show Bulk nav on all pages except the landing page
+    // Show Bulk nav on all pages
     bool isLanding = string.Equals(currentController, "Public", System.StringComparison.OrdinalIgnoreCase)
                      && string.Equals(currentAction, "Index", System.StringComparison.OrdinalIgnoreCase);
-    bool showBulkNav = !isLanding;
+    bool showBulkNav = true;
     bool showBackButton = !(string.Equals(currentController, "Home", System.StringComparison.OrdinalIgnoreCase)
                             && string.Equals(currentAction, "Index", System.StringComparison.OrdinalIgnoreCase))
                           && !(string.Equals(currentController, "Public", System.StringComparison.OrdinalIgnoreCase)
@@ -467,6 +467,36 @@
             .public-navbar { padding: 12px 4%; }
         }
     </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.nativeAlert = window.alert;
+        window.alert = function (message) {
+            if (!message) return;
+            
+            let iconHtml = 'info';
+            let titleHtml = 'Notification';
+            
+            if (message.includes("WARNING:")) {
+                iconHtml = 'error';
+                titleHtml = 'Warning!';
+            } else if (message.toLowerCase().includes("failed") || message.toLowerCase().includes("error")) {
+                iconHtml = 'error';
+                titleHtml = 'Oops...';
+            } else if (message.toLowerCase().includes("success") || message.toLowerCase().includes("added to cart")) {
+                iconHtml = 'success';
+                titleHtml = 'Success!';
+            }
+
+            Swal.fire({
+                icon: iconHtml,
+                title: titleHtml,
+                text: message.replace("WARNING: ", ""),
+                confirmButtonColor: '#16a34a',
+                confirmButtonText: 'Okay'
+            });
+        };
+    </script>
 </head>
 
 <body>
@@ -490,7 +520,7 @@
                     <a asp-controller="Home" asp-action="Index" class="@(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
                 }
                 <a asp-controller="Home" asp-action="About" class="@(currentController == "Home" && currentAction == "About" ? "active" : "")">About</a>
-                <a asp-controller="Nutritionists" asp-action="Index" class="@(currentController == "Nutritionists" ? "active" : "")">Experts</a>
+
                 
                 @if (showBulkNav)
                 {
@@ -555,7 +585,7 @@
                     <a asp-controller="Home" asp-action="Index" class="nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
                 }
                 <a asp-controller="Home" asp-action="About" class="nav-link @(currentController == "Home" && currentAction == "About" ? "active" : "")">About</a>
-                <a asp-controller="Nutritionists" asp-action="Index" class="nav-link @(currentController == "Nutritionists" ? "active" : "")">Experts</a>
+
 
                 @* Bulk nav link: appear on Home and Bulk pages, not on the public landing page. Uses Tag Helpers. *@
                 @if (showBulkNav)
@@ -832,7 +862,7 @@
     </script>
 
     <!-- Location script (initialize after DOM) -->
-    <script src="~/js/location.js"></script>
+    <script src="~/js/location.js" asp-append-version="true"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (window.NutriBiteLocation && typeof window.NutriBiteLocation.init === 'function') {

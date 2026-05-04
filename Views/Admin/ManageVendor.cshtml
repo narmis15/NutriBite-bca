@@ -12,12 +12,40 @@
             <p class="text-muted small mb-0">Monitor and manage registered vendors on your platform.</p>
         </div>
         <div class="d-flex gap-2">
-            <a asp-action="NewVendorRequest" class="btn btn-outline-primary">
+            <a asp-action="NewVendorRequest" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
                 <i class="bi bi-person-plus me-1"></i> New Requests
             </a>
-            <a asp-action="Payouts" class="btn btn-primary">
+            <a asp-action="Payouts" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
                 <i class="bi bi-wallet2 me-1"></i> Vendor Payouts
             </a>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 bg-white text-center h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Total Vendors</div>
+                <div class="h3 fw-bold text-primary mb-0">@ViewBag.TotalVendors</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 bg-white text-center h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Approved</div>
+                <div class="h3 fw-bold text-success mb-0">@ViewBag.ApprovedVendors</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 bg-white text-center h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Pending</div>
+                <div class="h3 fw-bold text-warning mb-0">@ViewBag.PendingVendors</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 bg-white text-center h-100">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Rejected</div>
+                <div class="h3 fw-bold text-danger mb-0">@ViewBag.RejectedVendors</div>
+            </div>
         </div>
     </div>
 
@@ -47,7 +75,10 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold">@vendor.VendorName</div>
-                                            <div class="text-muted extra-small">@(vendor.Description ?? "Kitchen Partner")</div>
+                                            <div class="text-muted extra-small">
+                                                <i class="bi bi-person text-primary"></i> 
+                                                @(string.IsNullOrEmpty(vendor.OwnerName) ? (vendor.Description ?? "Kitchen Partner") : vendor.OwnerName)
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -80,7 +111,7 @@
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 small">
-                                            <li><a class="dropdown-item" asp-action="VendorDetails" asp-route-id="@vendor.VendorId"><i class="bi bi-eye me-2"></i> View Details</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Admin" asp-action="VendorDetails" asp-route-id="@vendor.VendorId"><i class="bi bi-eye me-2"></i> View Details</a></li>
                                             @if (!vendor.IsApproved && !vendor.IsRejected)
                                             {
                                                 <li><hr class="dropdown-divider"></li>

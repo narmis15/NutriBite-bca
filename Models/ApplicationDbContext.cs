@@ -419,11 +419,26 @@ public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
             entity.ToTable("Rating");
 
-            entity.Property(e => e.Rid).ValueGeneratedNever();
+            entity.Property(e => e.Rid).ValueGeneratedOnAdd();
             entity.Property(e => e.Date)
                 .HasColumnType("datetime")
                 .HasColumnName("date");
             entity.Property(e => e.Message).IsUnicode(false);
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.Uid)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.Vendor)
+                .WithMany()
+                .HasForeignKey(d => d.Vid)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.Food)
+                .WithMany()
+                .HasForeignKey(d => d.FoodId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<ReviewUser>(entity =>

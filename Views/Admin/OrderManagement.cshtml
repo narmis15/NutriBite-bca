@@ -5,24 +5,67 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .extra-small { font-size: 0.75rem; }
+        .fw-500 { font-weight: 500; }
+        .table-wrapper { border: 1px solid #edf2f7; }
+        .filter-box input:focus { outline: none; }
+        .admin-table thead th { background-color: #f8fafc; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.025em; border-bottom: 1px solid #e2e8f0; }
+        .admin-table tbody td { border-bottom: 1px solid #f1f5f9; padding: 1rem 0.75rem; }
+    </style>
 }
 
 @Html.AntiForgeryToken()
 
-<div class="table-wrapper card-glass p-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-0 fw-bold">Order Management</h3>
-            <p class="text-muted small mb-0">Track and manage incoming meal orders in real-time</p>
+            <h3 class="mb-0 fw-bold text-dark">Order Management</h3>
+            <p class="text-muted small mb-0">Track and manage incoming meal orders</p>
         </div>
 
-        <div class="d-flex align-items-center bg-light p-2 rounded-pill shadow-sm">
-            <span id="liveIndicator" class="live-badge me-2">Live</span>
-            <div class="form-check form-switch me-3 mb-0">
-                <input id="autoRefreshToggle" class="form-check-input" type="checkbox" checked />
-                <label class="form-check-label small text-muted">Auto-refresh</label>
+        <div class="d-flex align-items-center gap-3">
+            <div class="filter-box bg-light p-2 rounded-pill d-flex align-items-center border px-3">
+                <label class="small fw-bold text-muted me-3 mb-0"><i class="bi bi-calendar3 me-1"></i> RANGE:</label>
+                <input id="fromDate" type="date" class="form-control form-control-sm border-0 bg-transparent text-dark mx-1" style="width: 130px;" />
+                <span class="mx-2 text-muted small fw-bold">to</span>
+                <input id="toDate" type="date" class="form-control form-control-sm border-0 bg-transparent text-dark me-3" style="width: 130px;" />
+                <button id="applyFilter" class="btn btn-sm btn-dark rounded-pill px-4 fw-bold">
+                    Filter
+                </button>
             </div>
-            <span id="lastUpdated" class="small text-muted fw-500"></span>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div id="summaryCards" class="row g-4 mb-4">
+        <!-- Will be populated by JS -->
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Order Volume Trend -->
+        <div class="col-lg-8">
+            <div class="card p-4 h-100 border-0 bg-light rounded-4">
+                <div class="d-flex justify-content-end align-items-center mb-4">
+                    <div style="font-size:0.8rem;" class="text-muted" id="trendPeriodLabel">Selected Range</div>
+                </div>
+                <div class="chart-container" style="height: 250px; position: relative;">
+                    <canvas id="ordersTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Distribution -->
+        <div class="col-lg-4">
+            <div class="card p-4 h-100 border-0 bg-light rounded-4">
+                <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-pie-chart-fill me-2 text-warning"></i>Status Distribution</h5>
+                <div class="chart-container" style="height: 200px; position: relative;">
+                    <canvas id="statusDistChart"></canvas>
+                </div>
+                <div id="statusLegend" class="mt-3">
+                    <!-- Custom legend will go here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -75,7 +118,7 @@
                     <th class="ps-4">ID</th>
                     <th>Customer</th>
                     <th>Order Info</th>
-                    <th>Logistics</th>
+                    <th>Address</th>
                     <th>Payment</th>
                     <th>Status</th>
                     <th class="text-end pe-4">Details</th>
@@ -95,26 +138,10 @@
     </div>
 </div>
 
-<!-- Order Details Modal -->
-<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0 pe-4 pt-4">
-                <h5 class="modal-title fw-bold" id="detailTitle">Order Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4" id="detailBody">
-                <div class="text-center py-4">
-                    <div class="spinner-border text-success"></div>
-                    <p class="mt-2">Fetching order information...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 
     <script>
@@ -123,7 +150,168 @@
             const pollIntervalMs = 20000; 
             let pollTimer = null;
             let currentFilter = "All";
+            let ordersChart = null;
+            let statusChart = null;
             const token = $('input[name="__RequestVerificationToken"]').first().val();
+
+            function initDefaults() {
+                const today = new Date();
+                const past = new Date();
+                past.setMonth(today.getMonth() - 1);
+                $('#fromDate').val(past.toISOString().slice(0,10));
+                $('#toDate').val(today.toISOString().slice(0,10));
+            }
+            initDefaults();
+
+            function updateTrendPeriodLabel() {
+                const from = new Date($('#fromDate').val());
+                const to = new Date($('#toDate').val());
+                $('#trendPeriodLabel').text(`${from.toLocaleDateString(undefined, {month:'short', day:'numeric'})} - ${to.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}`);
+            }
+
+            function renderSummary(summary) {
+                const $c = $('#summaryCards').empty();
+                const colors = ['primary', 'success', 'warning', 'danger'];
+                const icons = ['bi-cart-fill', 'bi-currency-rupee', 'bi-percent', 'bi-x-circle-fill'];
+                
+                summary.forEach((s, i) => {
+                    const color = colors[i % colors.length];
+                    const icon = icons[i % icons.length];
+                    const col = $(`
+                        <div class="col-md-3">
+                            <div class="card bg-${color} text-white p-3 shadow-sm h-100 border-0 rounded-4" style="background-opacity: 0.9;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="small fw-bold text-uppercase mb-1" style="opacity: 0.8">${s.title || s.Title}</div>
+                                        <div class="h4 fw-bold mb-0">${s.value || s.Value}</div>
+                                    </div>
+                                    <div class="h3 mb-0" style="opacity: 0.3">
+                                        <i class="bi ${icon}"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    $c.append(col);
+                });
+            }
+
+            function renderTrend(trendData) {
+                const labels = trendData.labels || trendData.Labels || [];
+                const revenue = trendData.revenue || trendData.Revenue || [];
+                const orders = trendData.orders || trendData.Orders || [];
+                const canvas = document.getElementById('ordersTrendChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+
+                if (ordersChart) ordersChart.destroy();
+
+                if (labels.length === 0) {
+                    ctx.font = "14px Inter";
+                    ctx.fillStyle = "#888";
+                    ctx.textAlign = "center";
+                    ctx.fillText("No trend data available for this range", canvas.width/2, canvas.height/2);
+                    return;
+                }
+
+                ordersChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Orders',
+                                data: orders,
+                                borderColor: '#4e73df',
+                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: { 
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { 
+                            x: { 
+                                display: true,
+                                title: { display: true, text: 'Date', font: { weight: 'bold' } }
+                            }, 
+                            y: { 
+                                display: true,
+                                title: { display: true, text: 'Number of Orders', font: { weight: 'bold' } },
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            } 
+                        }
+                    }
+                });
+            }
+
+            function renderStatusDist(rows) {
+                const canvas = document.getElementById('statusDistChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                if (statusChart) statusChart.destroy();
+
+                const counts = {};
+                if (!rows || rows.length === 0) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    $('#statusLegend').empty();
+                    return;
+                }
+
+                rows.forEach(r => {
+                    const status = r.status || r.Status || 'New';
+                    counts[status] = (counts[status] || 0) + 1;
+                });
+
+                const labels = Object.keys(counts);
+                const data = Object.values(counts);
+                const colors = ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc', '#858796'];
+
+                statusChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{ data: data, backgroundColor: colors.slice(0, labels.length), borderWidth: 0 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }, cutout: '75%'
+                    }
+                });
+
+                const $legend = $('#statusLegend').empty();
+                labels.forEach((label, i) => {
+                    const percent = Math.round((data[i] / rows.length) * 100);
+                    $legend.append(`
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-2" style="width:10px; height:10px; background-color:${colors[i]}"></div>
+                                <span class="small fw-bold text-muted">${label}</span>
+                            </div>
+                            <span class="small fw-bold">${percent}%</span>
+                        </div>
+                    `);
+                });
+            }
+
+            function fetchAnalytics() {
+                const q = { 
+                    from: $('#fromDate').val(), 
+                    to: $('#toDate').val(), 
+                    status: 'All', 
+                    period: 'daily' 
+                };
+                $.getJSON('/Reports/GetOrderReportsData', q).done(function (res) {
+                    renderSummary(res.summary || res.Summary || []);
+                    renderTrend(res.trend || res.Trend || {});
+                    renderStatusDist(res.orders || res.Orders || []);
+                    updateTrendPeriodLabel();
+                });
+            }
 
             // SignalR Setup
             const connection = new signalR.HubConnectionBuilder()
@@ -154,7 +342,7 @@
                 const id = order.orderId;
                 const status = order.status;
                 
-                let buttons = `<button class="btn btn-sm btn-outline-secondary rounded-pill me-1 px-3 view-details-btn" data-id="${id}"><i class="bi bi-eye"></i> Details</button>`;
+                let buttons = `<a href="/Admin/OrderDetails?orderId=${id}" class="btn btn-sm btn-outline-secondary rounded-pill me-1 px-3 d-inline-block"><i class="bi bi-eye"></i> Details</a>`;
                 
                 if (status === "Placed" || status === "New") {
                     buttons += `<button class="btn btn-sm btn-success rounded-pill px-3 accept-order-btn" data-id="${id}"><i class="bi bi-check2"></i> Accept</button>`;
@@ -204,101 +392,53 @@
                     const date = order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
 
                     const $tr = $('<tr>').attr('data-id', order.orderId);
-                    $tr.append(`<td class="ps-4 fw-bold text-success">#${order.orderId}</td>`);
+                    $tr.append(`<td class="ps-4 fw-bold text-primary">#${order.orderId}</td>`);
                     $tr.append(`<td>
-                        <div class="fw-bold">${order.customerName || 'Guest User'}</div>
-                        <div class="text-muted small"><i class="bi bi-telephone"></i> ${order.customerPhone || 'N/A'}</div>
+                        <div class="fw-bold text-dark">${order.customerName || 'Guest User'}</div>
+                        <div class="text-muted extra-small"><i class="bi bi-telephone"></i> ${order.customerPhone || 'N/A'}</div>
                     </td>`);
                     $tr.append(`<td>
                         <div class="fw-500">${order.totalItems} Items</div>
-                        <div class="text-muted small"><i class="bi bi-truck"></i> Delivery</div>
+                        <div class="text-muted extra-small"><i class="bi bi-tag"></i> ${order.orderType || 'Delivery'}</div>
                     </td>`);
                     
-                    const addr = order.deliveryAddress ? (order.deliveryAddress.substring(0, 30) + '...') : 'Local Address';
+                    const fullAddr = order.deliveryAddress || 'Local Address';
+                    const addrDisplay = fullAddr.length > 35 ? (fullAddr.substring(0, 32) + '...') : fullAddr;
                     $tr.append(`<td>
-                        <div class="small text-truncate" style="max-width: 200px;" title="${order.deliveryAddress}">${addr}</div>
-                        <div class="text-info small fw-bold mt-1"><i class="bi bi-geo-alt"></i> ${order.deliveryStatus || 'Pending'}</div>
+                        <div class="small text-dark fw-500 text-truncate" style="max-width: 220px;" title="${fullAddr}">${addrDisplay}</div>
+                        <div class="text-muted extra-small mt-1"><i class="bi bi-geo-alt"></i> Delivery Point</div>
                     </td>`);
                     
-                    $tr.append(`<td><span class="fw-bold text-dark">₹${order.totalAmount || '--'}</span><br/><small class="text-success">${order.paymentStatus || 'Paid'}</small></td>`);
+                    $tr.append(`<td><span class="fw-bold text-dark">₹${order.totalAmount || '--'}</span><br/><small class="text-muted extra-small">${order.paymentStatus || 'Paid'}</small></td>`);
                     $tr.append(`<td>${formatBadge(order.status)}</td>`);
                     $tr.append(`<td class="text-end pe-4">${buildActionButtons(order)}</td>`);
 
                     $tbody.append($tr);
                 });
-                $('#lastUpdated').text('Updated: ' + new Date().toLocaleTimeString());
+                // Update stats counts if needed (lastUpdated label is removed)
             }
 
             function fetchOrders() {
-                $('#liveIndicator').text('Updating...');
+                const from = $('#fromDate').val();
+                const to = $('#toDate').val();
+                
                 $.ajax({
                     url: '/Admin/GetActiveOrders',
                     method: 'GET',
+                    data: { from: from, to: to },
                     success: function (data) { 
+                        window.lastOrderList = data;
                         renderOrders(data); 
-                        $('#liveIndicator').text('Live');
                     },
                     error: function (xhr) { 
                         console.error("Fetch orders failed:", xhr);
-                        $('#liveIndicator').text('Offline').addClass('bg-danger');
                     }
                 });
             }
 
-            // Details Modal Logic
-            $(document).on('click', '.view-details-btn', function() {
-                const id = $(this).data('id');
-                $('#detailTitle').text(`Order #${id} - Summary`);
-                $('#orderDetailsModal').modal('show');
-                $('#detailBody').html('<div class="text-center py-5"><div class="spinner-border text-success"></div></div>');
-
-                $.get(`/Admin/GetOrderDetails?orderId=${id}`, function(data) {
-                    if (data.error) {
-                        $('#detailBody').html(`<div class="alert alert-danger">${data.error}</div>`);
-                        return;
-                    }
-
-                    let itemsHtml = '';
-                    data.items.forEach(item => {
-                        itemsHtml += `
-                            <div class="order-item-row d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-bold">${item.name}</div>
-                                    <div class="small text-muted">${item.instructions || 'No special instructions'}</div>
-                                </div>
-                                <div class="fw-bold">x${item.quantity}</div>
-                            </div>`;
-                    });
-
-                    const html = `
-                        <div class="row g-4">
-                            <div class="col-md-7">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-cart3"></i> Items Ordered</h6>
-                                <div class="bg-light p-3 rounded-3 mb-4">
-                                    ${itemsHtml}
-                                </div>
-                                <div class="d-flex justify-content-between px-2">
-                                    <span class="fw-bold">Total Amount</span>
-                                    <span class="fw-bold text-success fs-5">₹${data.amount}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> Information</h6>
-                                <div class="order-meta mb-3">
-                                    <div class="mb-2"><strong>Customer:</strong> ${data.customerName}</div>
-                                    <div class="mb-2"><strong>Phone:</strong> ${data.customerPhone}</div>
-                                    <div class="mb-2"><strong>Address:</strong><br/> ${data.deliveryAddress || 'Local Address'}</div>
-                                    <div class="mb-2"><strong>Payment:</strong> ${data.paymentMode} (${data.transactionId || 'No ID'})</div>
-                                    <div class="mb-2"><strong>Placed At:</strong> ${new Date(data.orderDateTime).toLocaleString()}</div>
-                                </div>
-                                <div class="mt-4 p-3 bg-light rounded-3 text-center">
-                                    <div class="small text-muted mb-1">Current Status</div>
-                                    <div class="fs-5 fw-bold text-uppercase text-success">${data.status}</div>
-                                </div>
-                            </div>
-                        </div>`;
-                    $('#detailBody').html(html);
-                });
+            $('#applyFilter').on('click', function() {
+                fetchOrders();
+                fetchAnalytics();
             });
 
             // Action Buttons Logic
@@ -351,47 +491,12 @@
                 fetchOrders();
             }
             function stopPolling() { clearInterval(pollTimer); pollTimer = null; }
-            $('#autoRefreshToggle').on('change', function () { if ($(this).is(':checked')) startPolling(); else stopPolling(); });
 
             $(function () { 
                 startPolling(); 
-                // Cache data globally for local filtering
-                const origFetch = fetchOrders;
-                fetchOrders = function() {
-                    $.get('/Admin/GetActiveOrders', function(data) {
-                        window.lastOrderList = data;
-                        renderOrders(data);
-                        $('#lastUpdated').text('Updated: ' + new Date().toLocaleTimeString());
-                    });
-                };
+                fetchAnalytics();
             });
 
-            $(document).on('click', '.view-summary-btn', function () {
-                const orderId = $(this).data('id');
-                const order = window.lastOrderList.find(o => o.orderId === orderId);
-
-                if (order) {
-                    $('#detailTitle').text(`Order #${order.orderId} - Summary`);
-
-                    const summaryHtml = `
-                        <div>
-                            <h6>Items Ordered</h6>
-                            <p>${order.items.map(i => i.name).join(', ')}</p> 
-                            <hr />
-                            <h6>Information</h6>
-                            <p><strong>Customer:</strong> ${order.customer.name}</p>
-                            <p><strong>Phone:</strong> ${order.customer.phone}</p>
-                            <p><strong>Address:</strong> ${order.deliveryAddress || 'Local Address'}</p>
-                            <p><strong>Payment:</strong> ${order.paymentStatus || 'Paid'}</p>
-                            <p><strong>Placed At:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-                        </div>
-                    `;
-
-                    $('#detailBody').html(summaryHtml);
-                    var detailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-                    detailsModal.show();
-                }
-            });
         })(jQuery);
     </script>
 }

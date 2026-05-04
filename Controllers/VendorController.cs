@@ -6,9 +6,12 @@ using System.Text;
 using System.Linq;
 using global::NUTRIBITE.Models;
 using global::NUTRIBITE.Services;
+using global::NUTRIBITE.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NUTRIBITE.Controllers
 {
+    [VendorAuthorize]
     public partial class VendorController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -29,10 +32,21 @@ namespace NUTRIBITE.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEarningsData()
+        public async Task<IActionResult> GetEarningsData(string period = "monthly", DateTime? refDate = null)
         {
             var vendorId = GetVendorId();
             if (vendorId == null) return Json(new { success = false, message = "Unauthorized" });
+
+            DateTime referenceDate = refDate ?? DateTime.Today;
+            DateTime rangeStart = referenceDate;
+            DateTime rangeEnd = referenceDate.AddDays(1);
+
+            var periodLower = period?.ToLowerInvariant() ?? "monthly";
+            if (periodLower == "daily") { rangeStart = referenceDate.Date; rangeEnd = rangeStart.AddDays(1); }
+            else if (periodLower == "weekly") { rangeStart = referenceDate.AddDays(-(int)referenceDate.DayOfWeek); rangeEnd = rangeStart.AddDays(7); }
+            else if (periodLower == "monthly") { rangeStart = new DateTime(referenceDate.Year, referenceDate.Month, 1); rangeEnd = rangeStart.AddMonths(1); }
+            else if (periodLower == "yearly") { rangeStart = new DateTime(referenceDate.Year, 1, 1); rangeEnd = rangeStart.AddYears(1); }
+            else if (periodLower == "alltime") { rangeStart = DateTime.MinValue; rangeEnd = DateTime.MaxValue; }
 
             // Use the same robust filter as Dashboard
             var vendorOrderIdsFromItems = _context.OrderItems
@@ -43,43 +57,127 @@ namespace NUTRIBITE.Controllers
                 .Distinct()
                 .ToList();
 
-            var vendorOrders = _context.OrderTables
-                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.Status != "Cancelled")
-                .ToList();
+            var vendorOrders = await _context.OrderTables
+                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.CreatedAt >= rangeStart && o.CreatedAt < rangeEnd)
+                .ToListAsync();
 
-            var payouts = await _distributionService.GetVendorPayoutsAsync(vendorId.Value);
+            var payouts = await _context.VendorPayouts
+                .Where(p => p.VendorId == vendorId.Value && p.CreatedAt >= rangeStart && p.CreatedAt < rangeEnd)
+                .ToListAsync();
             
-            // Total Sales (Gross)
-            decimal totalSales = vendorOrders.Sum(o => o.TotalAmount);
+            // Total Sales (Gross) - Excluding cancelled
+            decimal totalSales = vendorOrders.Where(o => o.Status != "Cancelled").Sum(o => o.TotalAmount);
             
+            // Total Profit (Vendor Share) - Excluding cancelled
+            decimal totalProfit = vendorOrders.Where(o => o.Status != "Cancelled").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
+            
+            // Total Commission (Admin Share) - Excluding cancelled
+            decimal totalCommission = vendorOrders.Where(o => o.Status != "Cancelled").Sum(o => o.CommissionAmount > 0 ? o.CommissionAmount : (o.TotalAmount * 0.1m));
+
+            // Total Loss (Cancelled Orders Value)
+            decimal totalLoss = vendorOrders.Where(o => o.Status == "Cancelled").Sum(o => o.TotalAmount);
+
             // Total Paid (Received)
-            decimal totalPaid = vendorOrders.Where(o => o.PaymentStatus != null && o.PaymentStatus.Trim() == "PaidToVendor").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m))
-                               + payouts.Where(p => p.Status == PayoutStatus.PaidToVendor).Sum(p => p.Amount);
+            decimal totalPaid = payouts.Where(p => p.Status == PayoutStatus.PaidToVendor).Sum(p => p.Amount);
             
-            // Total Commission
-            decimal totalCommission = vendorOrders.Sum(o => o.CommissionAmount > 0 ? o.CommissionAmount : (o.TotalAmount * 0.1m));
-
             // Pending Payments
-            decimal pendingPayments = vendorOrders.Where(o => o.PaymentStatus == null || o.PaymentStatus.Trim() != "PaidToVendor").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m))
-                                     + payouts.Where(p => p.Status == PayoutStatus.Pending).Sum(p => p.Amount);
+            decimal pendingPayments = totalProfit - totalPaid;
+
+            // Trend Data for Chart
+            var trendLabels = new List<string>();
+            var revenueTrend = new List<double>();
+            var profitTrend = new List<double>();
+            var lossTrend = new List<double>();
+
+            if (periodLower == "yearly")
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    var d = new DateTime(referenceDate.Year, 1, 1).AddMonths(i);
+                    trendLabels.Add(d.ToString("MMM"));
+                    var mOrders = vendorOrders.Where(o => o.CreatedAt.Value.Year == d.Year && o.CreatedAt.Value.Month == d.Month).ToList();
+                    revenueTrend.Add((double)mOrders.Where(o => o.Status != "Cancelled").Sum(o => o.TotalAmount));
+                    profitTrend.Add((double)mOrders.Where(o => o.Status != "Cancelled").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    lossTrend.Add((double)mOrders.Where(o => o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                }
+            }
+            else if (periodLower == "monthly")
+            {
+                int daysInMonth = DateTime.DaysInMonth(referenceDate.Year, referenceDate.Month);
+                for (int i = 1; i <= daysInMonth; i++)
+                {
+                    trendLabels.Add(i.ToString());
+                    var dOrders = vendorOrders.Where(o => o.CreatedAt.Value.Year == referenceDate.Year && o.CreatedAt.Value.Month == referenceDate.Month && o.CreatedAt.Value.Day == i).ToList();
+                    revenueTrend.Add((double)dOrders.Where(o => o.Status != "Cancelled").Sum(o => o.TotalAmount));
+                    profitTrend.Add((double)dOrders.Where(o => o.Status != "Cancelled").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    lossTrend.Add((double)dOrders.Where(o => o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                }
+            }
+            else if (periodLower == "weekly")
+            {
+                for (int i = 0; i < 7; i++)
+                {
+                    var d = rangeStart.AddDays(i);
+                    trendLabels.Add(d.ToString("ddd"));
+                    var wOrders = vendorOrders.Where(o => o.CreatedAt >= d.Date && o.CreatedAt < d.Date.AddDays(1)).ToList();
+                    revenueTrend.Add((double)wOrders.Where(o => o.Status != "Cancelled").Sum(o => o.TotalAmount));
+                    profitTrend.Add((double)wOrders.Where(o => o.Status != "Cancelled").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    lossTrend.Add((double)wOrders.Where(o => o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                }
+            }
+            else if (periodLower == "daily")
+            {
+                for (int i = 0; i < 24; i++)
+                {
+                    trendLabels.Add($"{i}:00");
+                    var hOrders = vendorOrders.Where(o => o.CreatedAt >= rangeStart.Date.AddHours(i) && o.CreatedAt < rangeStart.Date.AddHours(i + 1)).ToList();
+                    revenueTrend.Add((double)hOrders.Where(o => o.Status != "Cancelled").Sum(o => o.TotalAmount));
+                    profitTrend.Add((double)hOrders.Where(o => o.Status != "Cancelled").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    lossTrend.Add((double)hOrders.Where(o => o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                }
+            }
 
             return Json(new {
-                totalEarnings = totalSales,
-                totalPaid = totalPaid,
-                totalCommissionDeducted = totalCommission,
-                pendingPayments = pendingPayments
+                success = true,
+                summary = new {
+                    totalEarnings = totalSales,
+                    totalProfit = totalProfit,
+                    totalCommissionDeducted = totalCommission,
+                    totalLoss = totalLoss,
+                    totalPaid = totalPaid,
+                    pendingPayments = pendingPayments,
+                    ordersCount = vendorOrders.Count(o => o.Status != "Cancelled"),
+                    cancelledCount = vendorOrders.Count(o => o.Status == "Cancelled")
+                },
+                charts = new {
+                    labels = trendLabels,
+                    revenue = revenueTrend,
+                    profit = profitTrend,
+                    loss = lossTrend
+                }
             });
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPayoutsData(int page = 1, int pageSize = 10, string status = null)
+        public async Task<IActionResult> GetPayoutsData(int page = 1, int pageSize = 10, string status = null, string period = "monthly", DateTime? refDate = null)
         {
             var vendorId = GetVendorId();
             if (vendorId == null) return Json(new { success = false, message = "Unauthorized" });
 
+            DateTime referenceDate = refDate ?? DateTime.Today;
+            DateTime rangeStart = referenceDate;
+            DateTime rangeEnd = referenceDate.AddDays(1);
+
+            var periodLower = period?.ToLowerInvariant() ?? "monthly";
+            if (periodLower == "daily") { rangeStart = referenceDate.Date; rangeEnd = rangeStart.AddDays(1); }
+            else if (periodLower == "weekly") { rangeStart = referenceDate.AddDays(-(int)referenceDate.DayOfWeek); rangeEnd = rangeStart.AddDays(7); }
+            else if (periodLower == "monthly") { rangeStart = new DateTime(referenceDate.Year, referenceDate.Month, 1); rangeEnd = rangeStart.AddMonths(1); }
+            else if (periodLower == "yearly") { rangeStart = new DateTime(referenceDate.Year, 1, 1); rangeEnd = rangeStart.AddYears(1); }
+            else if (periodLower == "alltime") { rangeStart = DateTime.MinValue; rangeEnd = DateTime.MaxValue; }
+
             // 1. Get official payouts
             var payoutQuery = _context.VendorPayouts
-                .Where(p => p.VendorId == vendorId.Value);
+                .Where(p => p.VendorId == vendorId.Value && p.CreatedAt >= rangeStart && p.CreatedAt < rangeEnd);
 
             if (!string.IsNullOrEmpty(status))
             {
@@ -101,22 +199,24 @@ namespace NUTRIBITE.Controllers
                 .ToList();
 
             var orders = await _context.OrderTables
-                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.Status != "Cancelled")
+                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.CreatedAt >= rangeStart && o.CreatedAt < rangeEnd)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
             var orderPayouts = new List<dynamic>();
             foreach (var o in orders)
             {
+                string orderStatus = (o.Status == "Cancelled") ? "Cancelled" : ((o.PaymentStatus != null && o.PaymentStatus.Trim() == "PaidToVendor") ? "PaidToVendor" : "Pending");
+                if (orderStatus == "PaidToVendor") continue; // Already summarized in the official Batch Payouts below
+
                 if (!officialPayouts.Any(p => p.OrderId == o.OrderId))
                 {
-                    string orderStatus = (o.PaymentStatus != null && o.PaymentStatus.Trim() == "PaidToVendor") ? "PaidToVendor" : "Pending";
                     if (string.IsNullOrEmpty(status) || status == orderStatus)
                     {
                         orderPayouts.Add(new {
                             id = 0,
                             orderId = o.OrderId,
-                            payoutMonth = "Order Settlement",
+                            payoutMonth = o.Status == "Cancelled" ? "Order Cancelled" : "Order Settlement",
                             orderDate = o.CreatedAt,
                             totalSales = o.TotalAmount,
                             commissionDeducted = o.CommissionAmount > 0 ? o.CommissionAmount : (o.TotalAmount * 0.1m),
@@ -169,6 +269,29 @@ namespace NUTRIBITE.Controllers
             }
         }
 
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool IsStrongPassword(string password)
+        {
+            // Minimum 8 characters, at least one uppercase, one lowercase, one digit, one special character
+            return password.Length >= 8 &&
+                   password.Any(char.IsUpper) &&
+                   password.Any(char.IsLower) &&
+                   password.Any(char.IsDigit) &&
+                   password.Any(ch => !char.IsLetterOrDigit(ch));
+        }
+
         // ================= AUTH CHECK =================
         private int? GetVendorId()
         {
@@ -180,12 +303,160 @@ namespace NUTRIBITE.Controllers
             return GetVendorId() != null;
         }
 
-        // ================= REGISTER =================
+        // ================= DASHBOARD DATA (AJAX) =================
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardData(string period = "monthly", DateTime? refDate = null)
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null) return Json(new { success = false, message = "Unauthorized" });
+
+            DateTime referenceDate = refDate ?? DateTime.Today;
+            DateTime rangeStart = referenceDate;
+            DateTime rangeEnd = referenceDate.AddDays(1);
+
+            var periodLower = period?.ToLowerInvariant() ?? "monthly";
+            if (periodLower == "daily") { rangeStart = referenceDate.Date; rangeEnd = rangeStart.AddDays(1); }
+            else if (periodLower == "weekly") { rangeStart = referenceDate.AddDays(-(int)referenceDate.DayOfWeek); rangeEnd = rangeStart.AddDays(7); }
+            else if (periodLower == "monthly") { rangeStart = new DateTime(referenceDate.Year, referenceDate.Month, 1); rangeEnd = rangeStart.AddMonths(1); }
+            else if (periodLower == "yearly") { rangeStart = new DateTime(referenceDate.Year, 1, 1); rangeEnd = rangeStart.AddYears(1); }
+            else if (periodLower == "alltime") { rangeStart = DateTime.MinValue; rangeEnd = DateTime.MaxValue; }
+
+            var vendorOrderIdsFromItems = _context.OrderItems
+                .Include(oi => oi.Food)
+                .Where(oi => (oi.Food != null && oi.Food.VendorId == vendorId) || 
+                             (_context.BulkItems.Any(b => b.Id == oi.BulkItemId && b.VendorId == vendorId)))
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .ToList();
+
+            var vendorOrders = await _context.OrderTables
+                .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.CreatedAt >= rangeStart && o.CreatedAt < rangeEnd)
+                .ToListAsync();
+
+            // Trend Labels
+            var labels = new List<string>();
+            var revenueData = new List<decimal>();
+            var profitData = new List<decimal>();
+            var lossData = new List<decimal>();
+            var orderData = new List<int>();
+
+            if (periodLower == "yearly")
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    var date = new DateTime(referenceDate.Year, 1, 1).AddMonths(i);
+                    labels.Add(date.ToString("MMM"));
+                    var orders = vendorOrders.Where(o => o.CreatedAt.Value.Year == date.Year && o.CreatedAt.Value.Month == date.Month && o.Status != "Cancelled");
+                    revenueData.Add(orders.Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    profitData.Add(orders.Sum(o => (o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)) * 0.4m)); // 40% margin for demo
+                    lossData.Add(vendorOrders.Where(o => o.CreatedAt.Value.Year == date.Year && o.CreatedAt.Value.Month == date.Month && o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                    orderData.Add(orders.Count());
+                }
+            }
+            else if (periodLower == "monthly")
+            {
+                int daysInMonth = DateTime.DaysInMonth(referenceDate.Year, referenceDate.Month);
+                for (int i = 1; i <= daysInMonth; i++)
+                {
+                    labels.Add(i.ToString());
+                    var orders = vendorOrders.Where(o => o.CreatedAt.Value.Year == referenceDate.Year && o.CreatedAt.Value.Month == referenceDate.Month && o.CreatedAt.Value.Day == i && o.Status != "Cancelled");
+                    revenueData.Add(orders.Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    profitData.Add(orders.Sum(o => (o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)) * 0.4m));
+                    lossData.Add(vendorOrders.Where(o => o.CreatedAt.Value.Year == referenceDate.Year && o.CreatedAt.Value.Month == referenceDate.Month && o.CreatedAt.Value.Day == i && o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                    orderData.Add(orders.Count());
+                }
+            }
+            else if (periodLower == "weekly")
+            {
+                for (int i = 0; i < 7; i++)
+                {
+                    var date = rangeStart.AddDays(i);
+                    labels.Add(date.ToString("ddd"));
+                    var orders = vendorOrders.Where(o => o.CreatedAt.Value.Date == date.Date && o.Status != "Cancelled");
+                    revenueData.Add(orders.Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    profitData.Add(orders.Sum(o => (o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)) * 0.4m));
+                    lossData.Add(vendorOrders.Where(o => o.CreatedAt.Value.Date == date.Date && o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                    orderData.Add(orders.Count());
+                }
+            }
+            else if (periodLower == "daily")
+            {
+                for (int i = 0; i < 24; i++)
+                {
+                    labels.Add($"{i}:00");
+                    var orders = vendorOrders.Where(o => o.CreatedAt.Value.Date == rangeStart.Date && o.CreatedAt.Value.Hour == i && o.Status != "Cancelled");
+                    revenueData.Add(orders.Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                    profitData.Add(orders.Sum(o => (o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)) * 0.4m));
+                    lossData.Add(vendorOrders.Where(o => o.CreatedAt.Value.Date == rangeStart.Date && o.CreatedAt.Value.Hour == i && o.Status == "Cancelled").Sum(o => o.TotalAmount));
+                    orderData.Add(orders.Count());
+                }
+            }
+
+            var periodPayouts = await _context.VendorPayouts
+                .Where(p => p.VendorId == vendorId.Value && p.CreatedAt >= rangeStart && p.CreatedAt < rangeEnd)
+                .ToListAsync();
+                
+            decimal processedEarnings = periodPayouts.Where(p => p.Status == PayoutStatus.PaidToVendor).Sum(p => p.Amount);
+            decimal accruedEarnings = vendorOrders.Where(o => o.Status != "Cancelled" && (o.PaymentStatus == null || o.PaymentStatus.Trim() != "PaidToVendor")).Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
+            decimal pendingEarningsCalculated = periodPayouts.Where(p => p.Status == PayoutStatus.Pending).Sum(p => p.Amount) + accruedEarnings;
+
+            return Json(new {
+                success = true,
+                labels,
+                revenue = revenueData,
+                profit = profitData,
+                loss = lossData,
+                orders = orderData,
+                summary = new {
+                    totalRevenue = vendorOrders.Where(o => o.Status != "Cancelled").Sum(o => o.TotalAmount),
+                    netEarnings = processedEarnings,
+                    totalProfit = vendorOrders.Where(o => o.Status != "Cancelled").Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)),
+                    pendingEarnings = pendingEarningsCalculated,
+                    totalOrders = vendorOrders.Count(o => o.Status != "Cancelled")
+                }
+            });
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register() => View();
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult Register(string vendorName, string email, string password)
         {
+            if (string.IsNullOrWhiteSpace(vendorName) ||
+                string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "All fields are required.";
+                return View();
+            }
+
+            if (_context.VendorSignups.Count() >= 10)
+            {
+                ViewBag.Error = "We are currently not accepting new vendor applications. (Capacity Reached)";
+                return View();
+            }
+
+            if (!IsValidEmail(email))
+            {
+                ViewBag.Error = "Invalid email format.";
+                return View();
+            }
+
+            if (!email.Trim().EndsWith(".com", StringComparison.OrdinalIgnoreCase))
+            {
+                ViewBag.Error = "Email must end with .com.";
+                return View();
+            }
+
+            if (!IsStrongPassword(password))
+            {
+                ViewBag.Error = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.";
+                return View();
+            }
+
             if (_context.VendorSignups.Any(v => v.Email == email))
             {
                 ViewBag.Error = "Email already exists!";
@@ -196,7 +467,7 @@ namespace NUTRIBITE.Controllers
             {
                 VendorName = vendorName,
                 Email = email,
-                PasswordHash = password, // ⭐ UPDATED: Storing plain text for testing
+                PasswordHash = HashPassword(password), // Hash the password
                 IsApproved = false,
                 IsRejected = false
             };
@@ -204,21 +475,42 @@ namespace NUTRIBITE.Controllers
             _context.VendorSignups.Add(vendor);
             _context.SaveChanges();
 
-            TempData["VendorSuccess"] = "Your account has been created successfully. It is currently under admin review. You will be able to access full features once your account is verified.";
+            TempData["VendorSuccess"] = "Your account has been created successfully. It is currently under Admin review. Once your profile is approved, you will receive an email notification and you can then log in.";
             return RedirectToAction("Login");
         }
 
         // ================= LOGIN =================
+        [AllowAnonymous]
         public IActionResult Login() => View();
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult Login(string email, string password)
         {
+            if (string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "Email and password are required.";
+                return View();
+            }
+
+            if (!IsValidEmail(email))
+            {
+                ViewBag.Error = "Invalid email format.";
+                return View();
+            }
+
             var vendor = _context.VendorSignups.FirstOrDefault(v => v.Email == email);
 
-            if (vendor == null || vendor.PasswordHash != password)
+            if (vendor == null)
             {
-                ViewBag.Error = "Invalid email or password. Please try again.";
+                ViewBag.Error = "Email not found.";
+                return View();
+            }
+
+            if (vendor.PasswordHash != HashPassword(password))
+            {
+                ViewBag.Error = "Password not match.";
                 return View();
             }
 
@@ -247,7 +539,7 @@ namespace NUTRIBITE.Controllers
         };
 
         // ================= DASHBOARD =================
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(string period = "monthly")
         {
             var vendorId = GetVendorId();
             if (vendorId == null)
@@ -256,12 +548,9 @@ namespace NUTRIBITE.Controllers
             var vendor = _context.VendorSignups.Find(vendorId);
             ViewBag.BusinessName = vendor?.VendorName ?? "Vendor Dashboard";
 
-            // Total Foods: Count both regular food items and bulk items for this vendor
             int totalFoods = _context.Foods.Count(f => f.VendorId == vendorId) + 
-                             _context.BulkItems.Count(b => b.Id == vendorId); // Fixed logic
+                             _context.BulkItems.Count(b => b.Id == vendorId); 
 
-            // GET ALL ORDERS FOR THIS VENDOR
-            // Inclusive logic: by VendorId on OrderTable OR by items in OrderItems
             var vendorOrderIdsFromItems = _context.OrderItems
                 .Include(oi => oi.Food)
                 .Where(oi => (oi.Food != null && oi.Food.VendorId == vendorId) || 
@@ -274,44 +563,59 @@ namespace NUTRIBITE.Controllers
                 .Where(o => (o.VendorId == vendorId || vendorOrderIdsFromItems.Contains(o.OrderId)) && o.Status != "Cancelled")
                 .ToList();
 
-            // Total Orders for this vendor
             int totalOrders = vendorOrders.Count;
-
-            // Total Gross Revenue
             decimal totalRevenue = vendorOrders.Sum(o => o.TotalAmount);
+            decimal totalProfit = vendorOrders.Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
 
-            // Total Received: Orders marked PaidToVendor + official payouts that are Paid
             var payouts = await _distributionService.GetVendorPayoutsAsync(vendorId.Value);
             decimal processedEarnings = payouts.Where(p => p.Status == PayoutStatus.PaidToVendor).Sum(p => p.Amount);
             
-            decimal paidOrdersEarnings = vendorOrders
-                .Where(o => o.PaymentStatus != null && o.PaymentStatus.Trim() == "PaidToVendor")
-                .Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
-            
-            decimal netEarnings = processedEarnings + paidOrdersEarnings;
+            decimal netEarnings = processedEarnings; // Net is only what has actually been paid out
 
-            // Pending Payments: Orders NOT marked PaidToVendor + payouts that are Pending
             decimal accruedEarnings = vendorOrders
                 .Where(o => o.PaymentStatus == null || o.PaymentStatus.Trim() != "PaidToVendor")
                 .Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
             
             decimal pendingEarnings = payouts.Where(p => p.Status == PayoutStatus.Pending).Sum(p => p.Amount) + accruedEarnings;
 
-            // Pending Orders: Orders that are not yet Delivered/Completed
             int pendingOrders = vendorOrders.Count(o => o.Status != "Delivered" && o.Status != "Completed" && o.Status != "Picked");
 
-            // Monthly Net Earnings for chart (using revenue from OrderTables)
-            string[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-            decimal[] chartData = new decimal[12];
+            // Chart Data filtering
+            List<string> chartLabels = new List<string>();
+            List<decimal> chartData = new List<decimal>();
 
-            for (int i = 0; i < 12; i++)
+            if (period == "yearly")
             {
-                // Show monthly revenue based on orders for this year
-                var monthlyRevenue = vendorOrders
-                    .Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == i + 1 && o.CreatedAt.Value.Year == DateTime.Now.Year)
-                    .Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m));
-                
-                chartData[i] = monthlyRevenue;
+                var currentYear = DateTime.Now.Year;
+                for (int i = 0; i < 3; i++)
+                {
+                    int y = currentYear - 2 + i;
+                    chartLabels.Add(y.ToString());
+                    chartData.Add(vendorOrders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Year == y).Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                }
+            }
+            else if (period == "alltime")
+            {
+                var grouped = vendorOrders.Where(o => o.CreatedAt.HasValue).GroupBy(x => x.CreatedAt.Value.Year).OrderBy(x => x.Key).ToList();
+                foreach (var g in grouped)
+                {
+                    chartLabels.Add(g.Key.ToString());
+                    chartData.Add(g.Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                }
+                if (!chartLabels.Any())
+                {
+                    chartLabels.Add(DateTime.Now.Year.ToString());
+                    chartData.Add(0);
+                }
+            }
+            else // monthly implicitly
+            {
+                string[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+                chartLabels.AddRange(months);
+                for (int i = 1; i <= 12; i++)
+                {
+                    chartData.Add(vendorOrders.Where(o => o.CreatedAt.HasValue && o.CreatedAt.Value.Month == i && o.CreatedAt.Value.Year == DateTime.Now.Year).Sum(o => o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m)));
+                }
             }
 
             // Recent Orders for this vendor
@@ -324,6 +628,7 @@ namespace NUTRIBITE.Controllers
                     CustomerName = o.CustomerName ?? "Guest",
                     CustomerPhone = o.CustomerPhone,
                     DeliveryAddress = o.DeliveryAddress,
+                    FoodItem = "See Details",
                     Amount = o.VendorAmount > 0 ? o.VendorAmount : (o.TotalAmount * 0.9m),
                     Status = o.Status ?? "Placed",
                     Date = o.CreatedAt
@@ -334,9 +639,10 @@ namespace NUTRIBITE.Controllers
             ViewBag.TotalOrders = totalOrders;
             ViewBag.TotalRevenue = totalRevenue;     // Gross
             ViewBag.NetEarnings = netEarnings;       // Net
+            ViewBag.TotalProfit = totalProfit;       // Total Vendor Profit
             ViewBag.PendingEarnings = pendingEarnings;
             ViewBag.PendingOrders = pendingOrders;
-            ViewBag.ChartLabels = months;
+            ViewBag.ChartLabels = chartLabels;
             ViewBag.ChartData = chartData;
             ViewBag.RecentOrders = recentOrders;
 
@@ -395,10 +701,11 @@ namespace NUTRIBITE.Controllers
             model.VendorId = vendorId.Value;
             model.ImagePath = imagePath;
             model.CreatedAt = DateTime.Now;
-            model.Status = "Active";
+            model.Status = "Pending";
 
             _context.Foods.Add(model);
             _context.SaveChanges();
+            TempData["Success"] = "Food item added successfully. It is currently pending Admin approval.";
 
             return RedirectToAction("MyFood");
         }
@@ -550,8 +857,33 @@ namespace NUTRIBITE.Controllers
             return View(vendor);
         }
 
+        // ================= UPDATE PASSWORD =================
+        [HttpPost]
+        public async Task<IActionResult> UpdatePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            var vendorId = GetVendorId();
+            if (vendorId == null) return Json(new { success = false, message = "Not authenticated." });
 
+            if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+                return Json(new { success = false, message = "All fields are required." });
 
+            if (newPassword != confirmPassword)
+                return Json(new { success = false, message = "New password and confirm password do not match." });
+
+            var vendor = await _context.VendorSignups.FindAsync(vendorId.Value);
+            if (vendor == null) return Json(new { success = false, message = "Vendor not found." });
+
+            if (vendor.PasswordHash != HashPassword(currentPassword))
+                return Json(new { success = false, message = "Current password is incorrect." });
+
+            if (newPassword.Length < 8 || !newPassword.Any(char.IsUpper) || !newPassword.Any(char.IsLower) || !newPassword.Any(char.IsDigit))
+                return Json(new { success = false, message = "Password must be at least 8 chars long with uppercase, lowercase, and a number." });
+
+            vendor.PasswordHash = HashPassword(newPassword);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
 
         // ================= LOGOUT =================
         public IActionResult Logout()

@@ -1,0 +1,385 @@
+@model List<NUTRIBITE.Models.Rating>
+@{
+    ViewData["Title"] = "Customer Reviews Analytics";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var totalReviews = Model?.Count ?? 0;
+    var avgRating = totalReviews > 0 ? Model.Average(r => (double)(r.Ratings ?? 0)) : 0;
+    var fiveStars = Model?.Count(r => r.Ratings == 5) ?? 0;
+    var fourStars = Model?.Count(r => r.Ratings == 4) ?? 0;
+    var threeStars = Model?.Count(r => r.Ratings == 3) ?? 0;
+    var twoStars = Model?.Count(r => r.Ratings == 2) ?? 0;
+    var oneStars = Model?.Count(r => r.Ratings == 1) ?? 0;
+    
+    var positiveCount = fiveStars + fourStars;
+    var positivePercentage = totalReviews > 0 ? Math.Round((double)positiveCount * 100 / totalReviews) : 0;
+}
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+    }
+    
+    .rating-bar-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .rating-num { width: 40px; font-weight: bold; color: #64748b; font-size: 0.9rem; }
+    .rating-star { margin-right: 12px; color: #fbbf24; }
+    .progress {
+        height: 8px;
+        border-radius: 10px;
+        flex-grow: 1;
+        margin-right: 15px;
+        background-color: #f1f5f9;
+        overflow: hidden;
+    }
+    .progress-bar { border-radius: 10px; }
+    .rating-count { width: 35px; text-align: right; font-size: 0.85rem; color: #94a3b8; font-weight: 500;}
+    
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: white;
+    }
+    
+    .table-modern thead th {
+        background: transparent;
+        border-bottom: 2px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding-bottom: 15px;
+    }
+    .table-modern tbody tr {
+        transition: all 0.2s ease;
+    }
+    .table-modern tbody tr:hover {
+        background-color: #f8fafc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+    }
+    .table-modern td {
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .star-display i { margin-right: 3px; }
+    
+    .bg-soft-primary { background-color: rgba(59, 130, 246, 0.1); }
+    .drop-shadow-sm { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); }
+    .delete-review-btn:hover { background-color: #fee2e2 !important; transform: scale(1.1); }
+    .bg-orange { background-color: #f97316 !important; }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bolder mb-1" style="font-family: 'Outfit', sans-serif; color: #0f172a; letter-spacing: -0.5px;">Food Experience Analytics</h2>
+            <p class="text-muted small mb-0 fs-6">Monitor what customers are saying about the meals and manage feedback proactively.</p>
+        </div>
+        
+        <div class="btn-group shadow-sm" role="group">
+            <a href="/Admin/Reviews?period=all" class="btn btn-sm btn-outline-primary @(ViewBag.CurrentPeriod == "all" || string.IsNullOrEmpty(ViewBag.CurrentPeriod) ? "active fw-bold" : "")">All Time</a>
+            <a href="/Admin/Reviews?period=this_month" class="btn btn-sm btn-outline-primary @(ViewBag.CurrentPeriod == "this_month" ? "active fw-bold" : "")">This Month</a>
+            <a href="/Admin/Reviews?period=last_month" class="btn btn-sm btn-outline-primary @(ViewBag.CurrentPeriod == "last_month" ? "active fw-bold" : "")">Last Month</a>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="row g-4 mb-5">
+        <!-- Overall Rating -->
+        <div class="col-lg-3">
+            <div class="card glass-card h-100 p-4 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">Overall Rating</h6>
+                    <div class="bg-warning bg-opacity-10 text-warning p-2 rounded-circle" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-star-fill fs-5"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mb-2 mt-2">
+                    <h1 class="display-3 fw-bold mb-0 text-dark" style="letter-spacing: -1px;">@avgRating.ToString("0.1")</h1>
+                    <span class="text-muted ms-2 fs-5 fw-medium">/ 5.0</span>
+                </div>
+                <p class="text-muted small mb-0 fw-medium"><i class="bi bi-people-fill me-1"></i> Based on <span class="text-dark fw-bold">@totalReviews</span> total reviews</p>
+            </div>
+        </div>
+        
+        <!-- Rating Distribution -->
+        <div class="col-lg-3">
+            <div class="card glass-card h-100 p-4 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">Rating Distribution</h6>
+                    <i class="bi bi-bar-chart-fill text-primary" style="font-size: 1.4rem;"></i>
+                </div>
+                <div class="mt-1">
+                    <!-- 5 Stars -->
+                    <div class="rating-bar-container">
+                        <span class="rating-num">5 <i class="bi bi-star-fill rating-star"></i></span>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: @(totalReviews > 0 ? (fiveStars*100/totalReviews) : 0)%"></div>
+                        </div>
+                        <span class="rating-count">@fiveStars</span>
+                    </div>
+                    <!-- 4 Stars -->
+                    <div class="rating-bar-container">
+                        <span class="rating-num">4 <i class="bi bi-star-fill rating-star"></i></span>
+                        <div class="progress">
+                            <div class="progress-bar" style="background-color: #84cc16; width: @(totalReviews > 0 ? (fourStars*100/totalReviews) : 0)%"></div>
+                        </div>
+                        <span class="rating-count">@fourStars</span>
+                    </div>
+                    <!-- 3 Stars -->
+                    <div class="rating-bar-container">
+                        <span class="rating-num">3 <i class="bi bi-star-fill rating-star"></i></span>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: @(totalReviews > 0 ? (threeStars*100/totalReviews) : 0)%"></div>
+                        </div>
+                        <span class="rating-count">@threeStars</span>
+                    </div>
+                    <!-- 2 Stars -->
+                    <div class="rating-bar-container">
+                        <span class="rating-num">2 <i class="bi bi-star-fill rating-star"></i></span>
+                        <div class="progress">
+                            <div class="progress-bar bg-orange" style="width: @(totalReviews > 0 ? (twoStars*100/totalReviews) : 0)%"></div>
+                        </div>
+                        <span class="rating-count">@twoStars</span>
+                    </div>
+                    <!-- 1 Star -->
+                    <div class="rating-bar-container">
+                        <span class="rating-num">1 <i class="bi bi-star-fill rating-star"></i></span>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" style="width: @(totalReviews > 0 ? (oneStars*100/totalReviews) : 0)%"></div>
+                        </div>
+                        <span class="rating-count">@oneStars</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Customer Sentiment Widget -->
+        <div class="col-lg-3">
+            <div class="card glass-card h-100 p-4 border-0 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                <!-- Decorative element -->
+                <div class="position-absolute" style="right: -30px; top: -30px; opacity: 0.05;">
+                    <i class="bi bi-heart-fill" style="font-size: 16rem; color: #ffffff;"></i>
+                </div>
+                
+                <div class="d-flex align-items-center justify-content-between mb-3 position-relative">
+                    <h6 class="text-white-50 fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">Customer Sentiment</h6>
+                    <div class="bg-white bg-opacity-10 text-white p-2 rounded-circle" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-emoji-smile-fill fs-5"></i>
+                    </div>
+                </div>
+                
+                <div class="position-relative mt-2">
+                    <h2 class="display-3 fw-bold text-white mb-2">@positivePercentage%</h2>
+                    <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.5;">Positive feedback. Represents the percentage of customers who left a 4 or 5-star review.</p>
+                </div>
+                
+                <div class="mt-auto pt-4 position-relative">
+                    <div class="d-flex align-items-center bg-white bg-opacity-10 p-3 rounded-4 backdrop-blur">
+                        <i class="bi bi-chat-quote-fill text-success me-3 fs-3"></i>
+                        <span class="text-white fw-medium fst-italic">"Highlighting the best experiences!"</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Highly Rated Foods Widget -->
+        <div class="col-lg-3">
+            <div class="card glass-card h-100 p-4 border-0">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">Highly Rated</h6>
+                    <i class="bi bi-award-fill text-danger fs-4"></i>
+                </div>
+                
+                <div class="mt-2 d-flex flex-column gap-3">
+                    @if (ViewBag.HighlyRatedFoods != null)
+                    {
+                        var highlyRated = (IEnumerable<NUTRIBITE.Controllers.AdminController.HighlyRatedFoodDto>)ViewBag.HighlyRatedFoods;
+                        if (highlyRated.Any())
+                        {
+                            foreach (var food in highlyRated)
+                            {
+                                <div class="d-flex align-items-center bg-light p-2 rounded-3 border border-light shadow-sm">
+                                    <div class="bg-white rounded p-2 text-warning fw-bold drop-shadow-sm me-3">
+                                        @food.AverageRating.ToString("0.1") <i class="bi bi-star-fill small"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark mb-0" style="font-size:0.85rem; line-height: 1.1;">@food.FoodName</div>
+                                        <div class="text-muted" style="font-size:0.7rem;">@food.VendorName • @food.TotalReviews Reviews</div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-muted small text-center py-4">No top rated items for this period.</div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Reviews Table -->
+    <div class="card glass-card border-0 mb-4 overflow-hidden">
+        <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+            <h4 class="fw-bolder mb-0 text-dark">Recent Reviews</h4>
+            <div class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill fw-bold fs-6">
+                <i class="bi bi-list-stars me-1"></i> @totalReviews Total Voices
+            </div>
+        </div>
+        <div class="card-body px-4 pb-4 pt-3">
+            <div class="table-responsive">
+                <table class="table table-borderless table-modern mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3" style="width: 25%;">CUSTOMER</th>
+                            <th style="width: 25%;">FOOD ITEM & KITCHEN</th>
+                            <th style="width: 15%;">RATING</th>
+                            <th style="width: 25%;">FEEDBACK</th>
+                            <th style="width: 10%;">DATE</th>
+                            <th class="text-end pe-3">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            var colors = new[] { "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ec4899", "#14b8a6", "#ef4444" };
+                            int colorIndex = 0;
+                            
+                            foreach (var item in Model)
+                            {
+                                var uName = item.User?.Name ?? "Anonymous";
+                                var initial = string.IsNullOrEmpty(uName) ? "A" : uName.Substring(0, 1).ToUpper();
+                                var bColor = colors[colorIndex % colors.Length];
+                                colorIndex++;
+                                
+                                <tr>
+                                    <td class="ps-3 py-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-3" style="background-color: @bColor; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                                                @initial
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark" style="font-size: 1rem;">@uName</div>
+                                                <div class="text-muted" style="font-size: 0.8rem;">@(item.User?.Email ?? "No email provided")</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4">
+                                        <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem;">@(item.Food?.Name ?? "Unknown Item")</div>
+                                        <div class="badge bg-light text-secondary border d-inline-flex align-items-center px-2 py-1">
+                                            <i class="bi bi-shop me-1 text-primary"></i> 
+                                            @(item.Vendor?.VendorName ?? "Unknown Kitchen")
+                                        </div>
+                                    </td>
+                                    <td class="py-4">
+                                        <div class="star-display text-warning" style="font-size: 1.1rem;">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                if (i < (item.Ratings ?? 0))
+                                                {
+                                                    <i class="bi bi-star-fill drop-shadow-sm"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star text-black-50 opacity-25"></i>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="text-muted mt-1" style="font-size: 0.75rem; fw-medium;">
+                                            @item.Ratings / 5 Stars
+                                        </div>
+                                    </td>
+                                    <td class="py-4">
+                                        @{
+                                            var msg = item.Message ?? "No feedback provided.";
+                                            var isMuted = string.IsNullOrEmpty(item.Message) ? "text-muted fst-italic" : "text-dark fw-medium";
+                                        }
+                                        <div class="@isMuted" style="font-size: 0.95rem; line-height: 1.5; background: #f8fafc; padding: 10px 15px; border-radius: 12px; border-left: 3px solid #e2e8f0;">
+                                            " @msg "
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-muted fw-medium" style="font-size: 0.85rem;">
+                                        <div class="d-flex flex-column">
+                                            <span class="text-dark">@item.Date?.ToString("MMM dd")</span>
+                                            <span class="small">@item.Date?.ToString("yyyy")</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-end pe-3">
+                                        <button class="btn btn-light text-danger bg-white border border-danger-subtle rounded-circle delete-review-btn d-inline-flex justify-content-center align-items-center shadow-sm" style="width: 40px; height: 40px; transition: all 0.2s;" data-id="@item.Rid" title="Delete Review">
+                                            <i class="bi bi-trash3-fill fs-6"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-4">
+                                        <div class="bg-light rounded-circle p-4 mb-3 d-inline-flex">
+                                            <i class="bi bi-chat-square-text text-muted" style="font-size: 3.5rem;"></i>
+                                        </div>
+                                        <h4 class="text-dark fw-bold">No Reviews Yet</h4>
+                                        <p class="text-muted w-50">When customers rate your food, their feedback and ratings will appear securely right here.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(function() {
+            $('.delete-review-btn').on('click', function() {
+                const id = $(this).data('id');
+                Swal.fire({
+                    title: 'Remove Review?',
+                    text: 'Are you sure you want to delete this customer review? This cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Yes, delete it!',
+                    borderRadius: '20px'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('/Admin/DeleteReview', { id: id }, function(res) {
+                            if(res.success) {
+                                Swal.fire('Deleted!', 'The review has been removed.', 'success')
+                                .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

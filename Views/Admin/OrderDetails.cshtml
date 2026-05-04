@@ -4,6 +4,62 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 2rem;
+            padding-bottom: 1rem;
+        }
+        .timeline-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+        .timeline-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            margin: 0 auto 10px;
+            font-size: 1.2rem;
+            border: 4px solid #fff;
+            transition: all 0.3s;
+        }
+        .timeline-step.active .timeline-icon {
+            background: #2d6a4f;
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.2);
+        }
+        .timeline-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #6c757d;
+        }
+        .timeline-step.active .timeline-label {
+            color: #2d6a4f;
+        }
+        /* Progress line overlay */
+        .timeline-steps.progress-1::before { background: linear-gradient(to right, #2d6a4f 0%, #e9ecef 0%); }
+        .timeline-steps.progress-2::before { background: linear-gradient(to right, #2d6a4f 25%, #e9ecef 25%); }
+        .timeline-steps.progress-3::before { background: linear-gradient(to right, #2d6a4f 50%, #e9ecef 50%); }
+        .timeline-steps.progress-4::before { background: linear-gradient(to right, #2d6a4f 75%, #e9ecef 75%); }
+        .timeline-steps.progress-5::before { background: linear-gradient(to right, #2d6a4f 100%, #e9ecef 100%); }
+    </style>
 }
 
 <div class="card-glass p-4">
@@ -97,6 +153,13 @@
             const refundStatus = data.RefundStatus ?? data.refundStatus;
             const items = data.Items ?? data.items ?? [];
             const deliveryPersonId = data.DeliveryPersonId ?? data.deliveryPersonId;
+            const deliveryAgentName = data.DeliveryAgentName ?? data.deliveryAgentName;
+
+            const timelineHtml = `
+                    <div class="info-group mt-4 pt-3 border-top">
+                        <h5 class="mb-3">Delivery Tracking Timeline</h5>
+                        ${renderTimeline(status)}
+                    </div>`;
 
             let html = `<div class="row g-4">
                 <div class="col-md-7">
@@ -129,8 +192,13 @@
                             <dd class="col-sm-8">${escapeHtml(deliveryAddress || 'Local Address')}</dd>
                             <dt class="col-sm-4 text-muted fw-normal">Delivery Notes</dt>
                             <dd class="col-sm-8"><em class="text-muted small">${escapeHtml(deliveryNotes || 'No notes provided')}</em></dd>
+                            
+                            <dt class="col-sm-4 text-muted fw-normal">Delivery Agent</dt>
+                            <dd class="col-sm-8">${deliveryPersonId ? `<span class="badge bg-secondary"><i class="bi bi-person-badge me-1"></i>${escapeHtml(deliveryAgentName || 'Unknown Agent')}</span>` : '<span class="text-muted small">Not Assigned</span>'}</dd>
                         </dl>
                     </div>
+                    
+                    ${timelineHtml}
                 </div>
 
                 <div class="col-md-5">
@@ -169,10 +237,15 @@
                         <div class="list-group list-group-flush">
                             ${items.map(i => `
                                 <div class="list-group-item bg-transparent px-0 border-0">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>${escapeHtml(i.name || i.Name)} <span class="text-muted small">x${i.quantity || i.Quantity}</span></span>
+                                    <div class="d-flex align-items-center">
+                                        ${(i.imageUrl || i.ImageUrl) ? `<img src="${escapeHtml(i.imageUrl || i.ImageUrl)}" alt="${escapeHtml(i.name || i.Name)}" class="rounded me-3 shadow-sm border" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='/images/placeholder.jpg'" />` : `<div class="bg-light rounded d-flex align-items-center justify-content-center me-3 text-muted border shadow-sm" style="width: 50px; height: 50px;"><i class="bi bi-egg-fried"></i></div>`}
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold">${escapeHtml(i.name || i.Name)} <span class="text-muted small bg-light px-2 py-1 ms-2 rounded-pill shadow-sm">x${i.quantity || i.Quantity}</span></span>
+                                            </div>
+                                            ${(i.instructions || i.Instructions) ? `<small class="text-muted d-block mt-1"><i class="bi bi-chat-left-text me-1"></i>${escapeHtml(i.instructions || i.Instructions)}</small>` : ''}
+                                        </div>
                                     </div>
-                                    ${(i.instructions || i.Instructions) ? `<small class="text-muted d-block mt-1"><i class="bi bi-chat-left-text me-1"></i>${escapeHtml(i.instructions || i.Instructions)}</small>` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -203,6 +276,41 @@
             }
 
             container.innerHTML = html;
+        }
+
+        function renderTimeline(status) {
+            if (status === 'Cancelled') {
+                return `<div class="alert alert-danger text-center"><i class="bi bi-x-circle-fill me-2"></i> Order was Cancelled</div>`;
+            }
+
+            const steps = [
+                { s: 'Placed', i: 'bi-bag-check-fill' },
+                { s: 'Accepted', i: 'bi-shop' },
+                { s: 'Ready for Delivery', i: 'bi-box-seam' },
+                { s: 'In Transit', i: 'bi-truck' },
+                { s: 'Delivered', i: 'bi-house-heart-fill' }
+            ];
+
+            let currentIndex = steps.findIndex(x => x.s === status);
+            // Fallback rules if status string differs slightly
+            if (status.includes("Pending")) currentIndex = 0;
+            if (status === "Completed") currentIndex = 4;
+            
+            if (currentIndex === -1) currentIndex = 0; // Default
+
+            let progressClass = `progress-${currentIndex + 1}`;
+            
+            let timelineHtml = `<div class="timeline-steps ${progressClass}">`;
+            steps.forEach((step, idx) => {
+                let activeClass = idx <= currentIndex ? 'active' : '';
+                timelineHtml += `
+                    <div class="timeline-step ${activeClass}">
+                        <div class="timeline-icon"><i class="bi ${step.i}"></i></div>
+                        <div class="timeline-label">${step.s}</div>
+                    </div>`;
+            });
+            timelineHtml += `</div>`;
+            return timelineHtml;
         }
 
         window.initiateRazorpayRefund = function(orderId, customer, amount) {

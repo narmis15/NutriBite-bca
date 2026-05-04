@@ -4,123 +4,173 @@
     Layout = "~/Views/Shared/_VendorLayout.cshtml";
 }
 
-<div class="row g-4">
+<style>
+    .profile-container { padding: 20px; background: #f8fafc; }
+    .profile-card { border-radius: 16px; border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; height: 100%; }
+    .profile-header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 20px; text-align: center; color: white; }
+    .avatar-circle { width: 120px; height: 120px; background: white; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 800; margin: 0 auto 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .info-row { display: flex; align-items: center; gap: 15px; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f0fdf4; color: #10b981; }
+    .info-content { flex: 1; }
+    .info-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 2px; }
+    .info-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
+    
+    .form-label-custom { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px; }
+    .form-control-custom { border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 15px; font-size: 0.95rem; }
+    .form-control-custom:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+</style>
 
-    <!-- LEFT PROFILE SUMMARY -->
-    <div class="col-md-4">
-        <div class="vendor-card profile-summary text-center h-100 shadow-sm">
-            <div class="profile-avatar-container position-relative mb-3">
-                <div class="profile-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow mb-3" style="width: 120px; height: 120px; font-size: 3rem;">
-                    @Model.VendorName.Substring(0, 1).ToUpper()
+<div class="profile-container">
+    <div class="row g-4">
+        <!-- Profile Sidebar -->
+        <div class="col-lg-4">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="avatar-circle">
+                        @Model.VendorName.Substring(0, 1).ToUpper()
+                    </div>
+                    <h4 class="fw-bold mb-1">@Model.VendorName</h4>
+                    <div class="badge @(Model.IsApproved ? "bg-white text-success" : "bg-warning text-dark") rounded-pill px-3 py-2">
+                        <i class="bi @(Model.IsApproved ? "bi-patch-check-fill" : "bi-clock-fill") me-1"></i>
+                        @(Model.IsApproved ? "Verified Merchant" : "Pending Approval")
+                    </div>
+                </div>
+                <div class="profile-info mt-2">
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-envelope-fill"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Business Email</div>
+                            <div class="info-value">@Model.Email</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Contact Number</div>
+                            <div class="info-value">@(Model.Phone ?? "Not Provided")</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Store Address</div>
+                            <div class="info-value">@(Model.Address ?? "Not Provided")</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-wallet2"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Payment ID (UPI)</div>
+                            <div class="info-value text-success">@(Model.UpiId ?? "Not Set")</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <h4 class="fw-bold mb-1">@Model.VendorName</h4>
-            <p class="text-muted mb-3">@Model.Email</p>
-            <div class="mb-4">
-                @if (Model.IsApproved)
+        </div>
+
+        <!-- Edit Profile -->
+        <div class="col-lg-8">
+            <div class="profile-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-gear-wide-connected me-2 text-success"></i>Account Settings</h5>
+                    <span class="text-muted small">Registered: @(Model.CreatedAt?.ToString("MMM yyyy"))</span>
+                </div>
+
+                @if (ViewBag.Success != null)
                 {
-                    <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i> Approved Vendor</span>
+                    <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">
+                        <i class="bi bi-check-circle-fill me-2"></i> @ViewBag.Success
+                    </div>
                 }
-                else
-                {
-                    <span class="badge bg-warning-soft text-warning px-3 py-2 rounded-pill"><i class="bi bi-clock-fill me-1"></i> Pending Approval</span>
-                }
-            </div>
-            
-            <div class="text-start px-3 border-top pt-3">
-                <p class="mb-2"><i class="bi bi-telephone text-primary me-2"></i> @(Model.Phone ?? "No phone added")</p>
-                <p class="mb-2"><i class="bi bi-geo-alt text-danger me-2"></i> @(Model.Address ?? "No address added")</p>
-                <p class="mb-2"><i class="bi bi-clock text-info me-2"></i> @(Model.OpeningHours ?? "09:00") - @(Model.ClosingHours ?? "21:00")</p>
-                <p class="mb-0"><i class="bi bi-wallet2 text-success me-2"></i> @(Model.UpiId ?? "UPI ID not set")</p>
+
+                <form asp-action="Profile" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Store Name</label>
+                            <input type="text" name="vendorName" class="form-control form-control-custom" value="@Model.VendorName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Contact Email</label>
+                            <input type="email" name="email" class="form-control form-control-custom" value="@Model.Email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Store Phone</label>
+                            <input type="text" name="phone" class="form-control form-control-custom" value="@Model.Phone">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">UPI ID</label>
+                            <input type="text" name="upiId" class="form-control form-control-custom" value="@Model.UpiId">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Full Address</label>
+                            <textarea name="address" class="form-control form-control-custom" rows="2">@Model.Address</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opening Hours</label>
+                            <input type="time" name="openingHours" class="form-control form-control-custom" value="@Model.OpeningHours">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Closing Hours</label>
+                            <input type="time" name="closingHours" class="form-control form-control-custom" value="@Model.ClosingHours">
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top text-end">
+                        <button type="submit" class="btn btn-success px-5 py-2 fw-bold rounded-pill">Update Profile</button>
+                    </div>
+                </form>
+
+                <!-- Security Section -->
+                <div class="mt-5 pt-4 border-top">
+                    <h6 class="fw-bold text-danger mb-4"><i class="bi bi-shield-lock-fill me-2"></i>Change Password</h6>
+                    <form id="vendorPasswordForm">
+                        @Html.AntiForgeryToken()
+                        <div id="pwdErrorVendor" class="alert alert-danger small d-none"></div>
+                        <div id="pwdSuccessVendor" class="alert alert-success small d-none">Password updated!</div>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label-custom">Current Password</label>
+                                <input type="password" class="form-control form-control-custom" name="currentPassword" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-custom">New Password</label>
+                                <input type="password" class="form-control form-control-custom" name="newPassword" id="newVendorPassword" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-custom">Confirm Password</label>
+                                <input type="password" class="form-control form-control-custom" name="confirmPassword" id="confirmVendorPassword" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-outline-danger mt-3 px-4 fw-bold rounded-pill btn-sm">Update Security</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- RIGHT EDIT FORM -->
-    <div class="col-md-8">
-        <div class="vendor-card shadow-sm">
-            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                <h5 class="fw-bold mb-0">Professional Store Information</h5>
-                <small class="text-muted">Last updated: @(Model.CreatedAt?.ToString("dd MMM yyyy"))</small>
-            </div>
+@section Scripts {
+    <script>
+        $('#vendorPasswordForm').on('submit', function(e) {
+            e.preventDefault();
+            $('#pwdErrorVendor').addClass('d-none');
+            $('#pwdSuccessVendor').addClass('d-none');
 
-            @if (ViewBag.Success != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i> @ViewBag.Success
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            if ($('#newVendorPassword').val() !== $('#confirmVendorPassword').val()) {
+                $('#pwdErrorVendor').text('Passwords do not match.').removeClass('d-none');
+                return;
             }
 
-            <form asp-action="Profile" method="post" enctype="multipart/form-data">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Store Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-shop text-muted"></i></span>
-                            <input type="text" name="vendorName" class="form-control border-start-0" value="@Model.VendorName" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Contact Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
-                            <input type="email" name="email" class="form-control border-start-0" value="@Model.Email" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Store Phone</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone text-muted"></i></span>
-                            <input type="text" name="phone" class="form-control border-start-0" value="@Model.Phone" placeholder="+91 98765-43210">
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-12">
-                        <label class="form-label fw-semibold">UPI ID (for payments)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-wallet2 text-muted"></i></span>
-                            <input type="text" name="upiId" class="form-control border-start-0" value="@Model.UpiId" placeholder="vendor@upi">
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Store Description</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Describe your kitchen and specialties...">@Model.Description</textarea>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">Store Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-geo-alt text-muted"></i></span>
-                            <textarea name="address" class="form-control border-start-0" rows="2" placeholder="Full store address...">@Model.Address</textarea>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Opening Time</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-clock text-muted"></i></span>
-                            <input type="time" name="openingHours" class="form-control border-start-0" value="@Model.OpeningHours">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Closing Time</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-clock-history text-muted"></i></span>
-                            <input type="time" name="closingHours" class="form-control border-start-0" value="@Model.ClosingHours">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-end mt-4 pt-3 border-top">
-                    <button type="submit" class="btn btn-primary px-5 shadow">
-                        <i class="bi bi-save me-2"></i> Update Professional Profile
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-</div>
+            $.post('/Vendor/UpdatePassword', $(this).serialize())
+                .done(function(res) {
+                    if (res.success) {
+                        $('#pwdSuccessVendor').removeClass('d-none');
+                        $('#vendorPasswordForm')[0].reset();
+                    } else {
+                        $('#pwdErrorVendor').text(res.message).removeClass('d-none');
+                    }
+                });
+        });
+    </script>
+}

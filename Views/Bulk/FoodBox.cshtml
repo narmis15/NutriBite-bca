@@ -28,18 +28,34 @@
                             <div class="row align-items-center">
                                 <div class="col-md-8">
                                     <h4 class="meal-title">@box.Name</h4>
-                                    <div class="meal-price">₹@box.Price <span class="text-muted small fw-normal">/ per box</span></div>
-                                    <p class="meal-desc">@box.Description</p>
+                                    
+                                    <div class="meal-price-container">
+                                        <div class="meal-price" data-base-price="@box.Price">
+                                            ₹@box.Price <span class="text-muted small fw-normal">/ per box</span>
+                                        </div>
+                                        <div class="discount-info text-success small fw-bold mt-1" style="display:none;"></div>
+                                        <div class="final-price fw-bold mt-1" style="display:none; font-size: 1.1rem;"></div>
+                                    </div>
+                                    
+                                    <p class="meal-desc mt-2">@box.Description</p>
                                 </div>
                                 <div class="col-md-4 text-md-end">
                                     <div class="meal-img-box mb-3">
                                         <img src="@box.ImagePath" class="meal-img" alt="@box.Name" />
                                     </div>
-                                    <button class="btn btn-add-cart btn-add-predefined w-100 w-md-auto"
-                                            data-id="@box.Id"
-                                            data-moq="20">
-                                        Add to Cart
-                                    </button>
+                                    
+                                    <div class="d-flex flex-column align-items-md-end gap-3">
+                                        <div class="qty-box">
+                                            <button class="qty-btn qty-decrease" aria-label="Decrease quantity">−</button>
+                                            <input type="number" class="qty-input" value="@(box.MOQ > 0 ? box.MOQ : 15)" min="@(box.MOQ > 0 ? box.MOQ : 15)" max="1000" data-moq="@(box.MOQ > 0 ? box.MOQ : 15)" />
+                                            <button class="qty-btn qty-increase" aria-label="Increase quantity">+</button>
+                                        </div>
+                                        <div class="qty-validation-msg text-danger small" style="display:none;"></div>
+
+                                        <button class="btn btn-add-cart btn-add-predefined w-100 w-md-auto" data-id="@box.Id">
+                                            Add to Cart
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -65,12 +81,21 @@
                         <div id="boxItemsContainer" class="p-3 bg-white rounded border mb-4" style="min-height: 60px;">
                             <p id="boxItems" class="text-muted mb-0">No Items Selected</p>
                         </div>
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="qty-box" style="background: #fff; border: 1px solid #ddd;">
+                                <button class="qty-btn" onclick="let q=document.getElementById('customBoxQty'); q.value=Math.max(25, parseInt(q.value)-1)">−</button>
+                                <input type="number" id="customBoxQty" class="qty-input" value="25" min="25" max="1000" style="width: 50px;" />
+                                <button class="qty-btn" onclick="let q=document.getElementById('customBoxQty'); q.value=Math.min(1000, parseInt(q.value)+1)">+</button>
+                            </div>
+                            <span class="text-muted small">Minimum 25 boxes</span>
+                        </div>
+
                         <button id="addCustomBox" class="btn btn-add-cart px-5 py-3" style="display:none;">
                             Add Custom Box to Cart
                         </button>
                     </div>
                     <div class="col-md-4 text-center mt-4 mt-md-0">
-                        <img id="boxImage" src="/images/bulk/customize foodbox.png" class="img-fluid" style="max-width: 200px; transition: all 0.5s ease;" />
+                        <img id="boxImage" src="/images/bulk/foodbox_fitness.png" class="img-fluid rounded-4 shadow-sm" style="max-width: 250px; transition: all 0.5s ease;" alt="Build your healthy box" />
                     </div>
                 </div>
             </div>
@@ -144,6 +169,92 @@
 
 @section Scripts {
     <script>
+        // Quantity and discount logic for Predefined Boxes
+        function updatePriceAndDiscount(card, inputVal) {
+            let basePriceElem = card.querySelector(".meal-price");
+            let basePrice = parseFloat(basePriceElem.getAttribute("data-base-price"));
+            let qty = parseInt(inputVal);
+            
+            let discountPercent = 0;
+            if (qty >= 200) discountPercent = 30;
+            else if (qty >= 100) discountPercent = 20;
+            else if (qty >= 50) discountPercent = 10;
+
+            let discountInfo = card.querySelector(".discount-info");
+            let finalPriceElem = card.querySelector(".final-price");
+            
+            if (discountPercent > 0) {
+                let discountedPrice = basePrice * (1 - (discountPercent / 100));
+                basePriceElem.style.textDecoration = "line-through";
+                basePriceElem.style.color = "#6c757d";
+                
+                discountInfo.style.display = "block";
+                discountInfo.innerText = `🔥 ${discountPercent}% Bulk Discount Applied!`;
+                
+                finalPriceElem.style.display = "block";
+                finalPriceElem.innerText = `Final Price: ₹${discountedPrice.toFixed(2)} / box`;
+                finalPriceElem.style.color = "#28a745";
+            } else {
+                basePriceElem.style.textDecoration = "none";
+                basePriceElem.style.color = "var(--text-dark)";
+                discountInfo.style.display = "none";
+                finalPriceElem.style.display = "none";
+            }
+        }
+
+        document.querySelectorAll(".meal-card").forEach(function(card){
+            let input = card.querySelector(".qty-input");
+            if (!input) return; // custom box might not have it
+            
+            let moq = parseInt(input.getAttribute("data-moq")) || 1;
+            let validationMsg = card.querySelector(".qty-validation-msg");
+            let addBtn = card.querySelector(".btn-add-predefined");
+
+            function validateQuantity() {
+                let val = parseInt(input.value) || 0;
+                if (val < moq) {
+                    validationMsg.innerText = `Minimum order quantity is ${moq}`;
+                    validationMsg.style.display = "block";
+                    if (addBtn) addBtn.disabled = true;
+                } else if (val > 1000) {
+                    validationMsg.innerText = `Maximum order quantity is 1000`;
+                    validationMsg.style.display = "block";
+                    if (addBtn) addBtn.disabled = true;
+                } else {
+                    validationMsg.style.display = "none";
+                    if (addBtn) addBtn.disabled = false;
+                    updatePriceAndDiscount(card, val);
+                }
+            }
+
+            input.addEventListener("input", validateQuantity);
+            input.addEventListener("blur", function() {
+                let val = parseInt(input.value) || 0;
+                if (val < moq) {
+                    input.value = moq;
+                    validateQuantity();
+                } else if (val > 1000) {
+                    input.value = 1000;
+                    validateQuantity();
+                }
+            });
+
+            card.querySelector(".qty-decrease").addEventListener("click", function(){
+                let v = Math.max(moq, parseInt(input.value) - 1);
+                input.value = v;
+                validateQuantity();
+            });
+
+            card.querySelector(".qty-increase").addEventListener("click", function(){
+                let v = Math.min(1000, parseInt(input.value) + 1);
+                input.value = v;
+                validateQuantity();
+            });
+
+            // Initialize price/discount
+            validateQuantity();
+        });
+
         let selectedItems = {};
         let totalPrice = 0;
 
@@ -151,6 +262,8 @@
             // Predefined Box Add
             if(e.target.classList.contains("btn-add-predefined")){
                 let btn = e.target;
+                let card = btn.closest(".meal-card");
+                let qty = card.querySelector(".qty-input").value;
                 let id = btn.dataset.id;
                 
                 fetch('/Cart/AddToCart', {
@@ -158,20 +271,23 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         productId: parseInt(id),
-                        quantity: 20,
+                        quantity: parseInt(qty),
                         isBulk: true
                     })
                 })
                 .then(r => r.json())
                 .then(res => {
                     if (res.success) {
+                        const originalText = btn.innerText;
+                        btn.innerHTML = '<i class="bi bi-check2"></i> Added';
+                        btn.classList.add('bg-success');
+                        
                         if (window.updateCartCount) window.updateCartCount();
-                        btn.outerHTML = `
-                        <div class="qty-box predefined d-inline-flex" data-id="${id}" data-min="20">
-                            <button class="qty-btn minus">−</button>
-                            <span class="qty-input px-2">20</span>
-                            <button class="qty-btn plus">+</button>
-                        </div>`;
+
+                        setTimeout(()=>{
+                            btn.innerText = originalText;
+                            btn.classList.remove('bg-success');
+                        }, 1500);
                     } else {
                         alert(res.message || "Failed to add to cart.");
                         if (res.message === "Please login first") window.location.href = '/Auth/Login';
@@ -197,10 +313,11 @@
             // Final Custom Box Add
             if(e.target.id === "addCustomBox"){
                 const itemNames = Object.keys(selectedItems).map(name => `${name} x ${selectedItems[name].qty}`).join(', ');
+                const customQty = parseInt(document.getElementById('customBoxQty').value) || 25;
 
                 const requestData = {
                     productId: 0, // 0 indicates we need to create it
-                    quantity: 25,
+                    quantity: customQty,
                     isBulk: true,
                     itemName: "Custom FoodBox: " + itemNames.substring(0, 30) + (itemNames.length > 30 ? "..." : ""),
                     price: totalPrice,

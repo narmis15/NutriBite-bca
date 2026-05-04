@@ -49,82 +49,103 @@
         background: #fee2e2;
         color: #991b1b;
     }
+    .status-pending-payment {
+        background: #fff3cd;
+        color: #856404;
+    }
 </style>
 
 <div class="orders-wrapper">
-    <h2 class="mb-4">📦 My Orders</h2>
-
-    @if (Model != null && Model.Any())
-    {
-        @Html.AntiForgeryToken()
-        foreach (var order in Model)
-        {
-            var statusClass = "status-picked";
-            if (order.Status == "Cancelled")
-            {
-                statusClass = "status-cancelled";
-            }
-
-            <div class="order-card">
-                <div class="order-info">
-                    <h5>Order #@order.OrderId</h5>
-                    
-                    <div class="mt-1">
-                        <span class="badge bg-purple text-white">Delivery</span>
-                        <small class="text-muted d-block mt-1">Status: <strong>@order.DeliveryStatus</strong></small>
-                        <small class="text-muted d-block">Address: @order.DeliveryAddress</small>
-                        @if (!string.IsNullOrEmpty(order.DeliveryNotes))
-                        {
-                            <small class="text-muted d-block"><em>Note: @order.DeliveryNotes</em></small>
-                        }
-                    </div>
-
-                    <span class="d-block mt-2">
-                        Ordered on:
-                        @(order.CreatedAt?.ToString("dd MMM yyyy"))
-                    </span>
-                </div>
-
-                <div class="d-flex align-items-center">
-                    <div class="order-status @statusClass me-3">
-                        @{
-                            var displayStatus = order.Status;
-                            if (displayStatus == "Ready for Pickup") displayStatus = "Ready for Delivery";
-                            else if (displayStatus == "Picked") displayStatus = "In Transit";
-                        }
-                        @displayStatus
-                    </div>
-
-                    <div class="d-flex flex-column gap-2">
-                        @if (order.Status != "Cancelled" && order.Status != "Completed" && order.Status != "Delivered")
-                        {
-                            <a href="/Home/TrackOrder?orderId=@order.OrderId" class="btn btn-sm btn-primary rounded-pill px-3">
-                                <i class="bi bi-geo-alt me-1"></i> Track
-                            </a>
-
-                            // Cancellation button - Allowed only if not shipped/ready
-                            var canCancel = new[] { "Placed", "New", "Accepted" }.Contains(order.Status, StringComparer.OrdinalIgnoreCase);
-                            if (canCancel)
-                            {
-                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3 cancel-order-btn" data-id="@order.OrderId">
-                                    <i class="bi bi-x-circle me-1"></i> Cancel
-                                </button>
-                            }
-                        }
-                    </div>
-                </div>
-            </div>
-        }
-    }
-    else
-    {
-        <div class="text-center py-5">
-            <i class="bi bi-box display-1 text-muted d-block mb-3"></i>
-            <p class="text-muted">No orders found.</p>
-            <a href="/" class="btn btn-primary rounded-pill mt-2">Explore Menu</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">📦 My Orders</h2>
+        <div class="d-flex gap-2">
+            <input type="text" id="orderSearch" class="form-control form-control-sm rounded-pill px-3" placeholder="Search Order ID or Item..." style="width: 200px;">
+            <select id="statusFilter" class="form-select form-select-sm rounded-pill px-3" style="width: 130px;">
+                <option value="All">All Status</option>
+                <option value="Placed">Placed</option>
+                <option value="Accepted">Accepted</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+            <select id="dateFilter" class="form-select form-select-sm rounded-pill px-3" style="width: 130px;">
+                <option value="All">All Time</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+            </select>
         </div>
-    }
+    </div>
+
+    <div id="ordersContainer">
+        @Html.AntiForgeryToken()
+        @Html.Partial("_OrderList", Model)
+    </div>
 </div>
+
+<!-- ⭐ Rating Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-star-fill me-2"></i>Rate Your Meal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="ratingForm">
+                <div class="modal-body p-4">
+                    <input type="hidden" name="OrderId" id="rateOrderId">
+                    <div id="itemsToRate">
+                        <!-- Items will be injected here -->
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" id="submitRatingBtn">Submit Rating</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    .star-rating input { display: none; }
+    .star-rating label {
+        font-size: 32px;
+        color: #e5e7eb;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .star-rating label:before {
+        content: "\f586";
+        font-family: "bootstrap-icons";
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+    }
+    .star-rating input:checked ~ label:before,
+    .star-rating label:hover ~ label:before,
+    .star-rating label:hover:before { 
+        content: "\f588"; 
+        color: #fbbf24;
+        text-shadow: 0 2px 10px rgba(251, 191, 36, 0.4);
+    }
+    .item-rating-group {
+        background: #fdfdfd;
+        border: 1px solid #f3f4f6;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+</style>
 
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -132,27 +153,171 @@
         $(function () {
             const token = $('input[name="__RequestVerificationToken"]').val();
 
-            $('.cancel-order-btn').on('click', function () {
-                const btn = $(this);
-                const orderId = btn.data('id');
+            const $search = $('#orderSearch');
+            const $status = $('#statusFilter');
+            const $date = $('#dateFilter');
+            const $cards = $('.order-card');
 
-                if (!confirm('Are you sure you want to cancel this order?')) return;
+            function filterOrders() {
+                const searchVal = $search.val().toLowerCase();
+                const statusVal = $status.val();
+                const dateVal = $date.val();
 
-                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
-
-                $.post('/Home/CancelOrder', { orderId: orderId, __RequestVerificationToken: token }, function (res) {
-                    if (res.success) {
-                        alert(res.message);
-                        location.reload();
-                    } else {
-                        alert(res.message);
-                        btn.prop('disabled', false).html('<i class="bi bi-x-circle me-1"></i> Cancel');
+                // Fetch orders from the server with filters
+                $.ajax({
+                    url: '/Home/MyOrders',
+                    type: 'GET',
+                    data: {
+                        searchQuery: searchVal,
+                        statusFilter: statusVal,
+                        dateFilter: dateVal
+                    },
+                    success: function(data) {
+                        $('#ordersContainer').html(data); // Replace the content of ordersContainer with the filtered HTML
+                        // Re-bind event handlers for new elements
+                        bindEventHandlers();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching filtered orders:", error);
+                        alert("Failed to load orders. Please try again.");
                     }
-                }).fail(function () {
-                    alert('An error occurred. Please try again.');
-                    btn.prop('disabled', false).html('<i class="bi bi-x-circle me-1"></i> Cancel');
                 });
-            });
+            }
+
+            function bindEventHandlers() {
+                // Reorder Logic
+                $('.reorder-btn').off('click').on('click', function () {
+                    const orderId = $(this).data('id');
+                    const $btn = $(this);
+                    $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Adding...');
+
+                    $.post('/Cart/Reorder', { orderId: orderId }, function (res) {
+                        if (res.success) {
+                            window.location.href = '/Cart/Index';
+                        } else {
+                            alert(res.message || 'Failed to reorder items.');
+                            $btn.prop('disabled', false).html('<i class="bi bi-arrow-repeat me-1"></i> Reorder');
+                        }
+                    });
+                });
+
+                // Cancel Order Logic
+                $('.cancel-order-btn').off('click').on('click', function () {
+                    const btn = $(this);
+                    const orderId = btn.data('id');
+
+                    if (!confirm('Are you sure you want to cancel this order?')) return;
+
+                    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+                    $.post('/Home/CancelOrder', { orderId: orderId, __RequestVerificationToken: token }, function (res) {
+                        if (res.success) {
+                            alert(res.message);
+                            filterOrders(); // Re-fetch and render orders after cancellation
+                        } else {
+                            alert(res.message);
+                            btn.prop('disabled', false).html('<i class="bi bi-x-circle me-1"></i> Cancel');
+                        }
+                    }).fail(function () {
+                        alert('An error occurred. Please try again.');
+                        btn.prop('disabled', false).html('<i class="bi bi-x-circle me-1"></i> Cancel');
+                    });
+                });
+
+                // ⭐ Rating System Logic
+                $('.rate-order-btn').off('click').on('click', function() {
+                    const btn = $(this);
+                    const orderId = btn.data('id');
+                    let items = btn.data('items');
+                    
+                    if (typeof items === 'string') {
+                        try { items = JSON.parse(items); } catch(e) { console.error('Error parsing items JSON', e); }
+                    }
+                    
+                    $('#rateOrderId').val(orderId);
+                    let html = '';
+                    
+                    if (items && items.length > 0) {
+                        items.forEach((item, index) => {
+                            html += `
+                                <div class="mb-4 item-rating-group" data-food-id="${item.foodId}" data-vendor-id="${item.vendorId}">
+                                    <label class="fw-bold fs-5 mb-3 text-dark d-block">How was your <span class="text-success">${item.itemName}</span>?</label>
+                                    <div class="star-rating mb-3">
+                                        <input type="radio" id="star5-${orderId}-${index}" name="rating-${orderId}-${index}" value="5" /><label for="star5-${orderId}-${index}"></label>
+                                        <input type="radio" id="star4-${orderId}-${index}" name="rating-${orderId}-${index}" value="4" /><label for="star4-${orderId}-${index}"></label>
+                                        <input type="radio" id="star3-${orderId}-${index}" name="rating-${orderId}-${index}" value="3" /><label for="star3-${orderId}-${index}"></label>
+                                        <input type="radio" id="star2-${orderId}-${index}" name="rating-${orderId}-${index}" value="2" /><label for="star2-${orderId}-${index}"></label>
+                                        <input type="radio" id="star1-${orderId}-${index}" name="rating-${orderId}-${index}" value="1" /><label for="star1-${orderId}-${index}"></label>
+                                    </div>
+                                    <textarea class="form-control rounded-3 border-light-subtle review-text" rows="2" placeholder="Tell us more about the food... (Optional)"></textarea>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html = '<div class="alert alert-warning">No rateable items found in this order.</div>';
+                    }
+                    
+                    $('#itemsToRate').html(html);
+                    $('#ratingModal').modal('show');
+                });
+            }
+
+            // Initial binding
+            bindEventHandlers();
+
+            $search.on('keyup', filterOrders);
+            $status.on('change', filterOrders);
+            $date.on('change', filterOrders);
+
+                $('#ratingForm').on('submit', function(e) {
+                    e.preventDefault();
+                    const btn = $('#submitRatingBtn');
+                    const orderId = $('#rateOrderId').val();
+                    const ratings = [];
+                    
+                    $('.item-rating-group').each(function(index) {
+                        const group = $(this);
+                        const foodId = group.data('food-id');
+                        const vendorId = group.data('vendor-id');
+                        const stars = group.find('input:checked').val();
+                        const message = group.find('.review-text').val();
+                        
+                        if(stars) {
+                            ratings.push({
+                                FoodId: parseInt(foodId),
+                                Vid: parseInt(vendorId) || 1, // Fallback to 1 if missing
+                                Ratings: parseInt(stars),
+                                Message: message || "No comment"
+                            });
+                        }
+                    });
+
+                    if(ratings.length === 0) {
+                        alert('Please select a star rating for at least one item.');
+                        return;
+                    }
+
+                    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Submitting...');
+
+                    $.ajax({
+                        url: '/Home/SubmitRating',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ OrderId: parseInt(orderId), Ratings: ratings }),
+                        headers: { "RequestVerificationToken": token },
+                        success: function(res) {
+                            if(res.success) {
+                                alert(res.message);
+                                $('#ratingModal').modal('hide');
+                                filterOrders(); // Refresh order list
+                            } else {
+                                alert(res.message || "Failed to submit rating.");
+                            }
+                        },
+                        error: function() { alert('Server connection error. Please try again later.'); },
+                        complete: function() { btn.prop('disabled', false).text('Submit Rating'); }
+                    });
+                });
         });
     </script>
 }

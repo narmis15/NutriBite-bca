@@ -10,6 +10,7 @@ using NUTRIBITE.ViewModels;
 
 using Microsoft.AspNetCore.SignalR;
 using NUTRIBITE.Hubs;
+using System.Dynamic;
 
 namespace NUTRIBITE.Services
 {
@@ -35,25 +36,40 @@ namespace NUTRIBITE.Services
 
         private SqlConnection GetConn() => new SqlConnection(_cs);
 
-        public async Task<IEnumerable<object>> GetActiveOrdersAsync()
+        public async Task<IEnumerable<object>> GetActiveOrdersAsync(DateTime? from = null, DateTime? to = null)
         {
             var list = new List<object>();
             try
             {
                 using var con = GetConn();
                 await con.OpenAsync();
-                // Filter out old dummy data by only selecting orders created recently (e.g., today or after a specific date)
-                // For a real project feel, we'll only show orders from the last 24 hours or those that are actively being processed
-                var q = @"
+
+                string whereClause = "(CreatedAt >= DATEADD(day, -30, GETDATE()) OR Status IN ('Placed', 'New', 'Accepted', 'Ready for Delivery', 'In Transit', 'On the Way'))";
+                
+                if (from.HasValue && to.HasValue)
+                {
+                    // If user provides dates, we filter specifically by those dates and IGNORE the status-based filter
+                    // to allow viewing "any time" data as requested.
+                    whereClause = "CAST(CreatedAt AS DATE) BETWEEN @from AND @to";
+                }
+
+                var q = $@"
 SELECT OrderId, CustomerName, CustomerPhone, ISNULL(TotalItems,0) AS TotalItems,
        ISNULL(TotalCalories,0) AS TotalCalories, ISNULL(PaymentStatus,'') AS PaymentStatus, ISNULL(Status,'') AS Status,
        ISNULL(IsFlagged,0) AS IsFlagged, CreatedAt, 'Delivery' AS OrderType, ISNULL(DeliveryStatus, '') AS DeliveryStatus,
        ISNULL(DeliveryAddress, '') AS DeliveryAddress, ISNULL(DeliveryNotes, '') AS DeliveryNotes, ISNULL(TotalAmount, 0) AS TotalAmount,
        DeliveryPersonId
 FROM OrderTable
-WHERE (CreatedAt >= DATEADD(day, -7, GETDATE()) OR Status IN ('Placed', 'New', 'Accepted', 'Ready for Delivery', 'In Transit', 'On the Way', 'Cancelled'))
+WHERE {whereClause}
 ORDER BY CreatedAt DESC";
+
                 using var cmd = new SqlCommand(q, con);
+                if (from.HasValue && to.HasValue)
+                {
+                    cmd.Parameters.AddWithValue("@from", from.Value.Date);
+                    cmd.Parameters.AddWithValue("@to", to.Value.Date);
+                }
+
                 using var r = await cmd.ExecuteReaderAsync();
                 while (await r.ReadAsync())
                 {
@@ -98,9 +114,11 @@ SELECT TOP 1 o.OrderId, o.CreatedAt AS OrderDateTime, ISNULL(o.Status,'') AS Sta
        ISNULL(p.IsRefunded,0) AS IsRefunded, ISNULL(p.RefundStatus,'') AS RefundStatus,
        ISNULL(o.OrderType, 'Delivery') AS OrderType, ISNULL(o.DeliveryAddress,'') AS DeliveryAddress,
        ISNULL(o.DeliveryStatus,'') AS DeliveryStatus, o.DeliveryPersonId, ISNULL(o.DeliveryNotes, '') AS DeliveryNotes,
-       ISNULL(p.TransactionId, '') AS TransactionId, ISNULL(o.TrackingProgress, 0) AS TrackingProgress, o.PickupSlot
+       ISNULL(p.TransactionId, '') AS TransactionId, ISNULL(o.TrackingProgress, 0) AS TrackingProgress, ISNULL(o.PickupSlot, ''),
+       ISNULL(u.Name, '') AS DeliveryAgentName
 FROM OrderTable o
 LEFT JOIN Payment p ON p.OrderId = o.OrderId
+LEFT JOIN UserSignup u ON o.DeliveryPersonId = u.Id
 WHERE o.OrderId = @id";
                 using var hcmd = new SqlCommand(headerQ, con);
                 hcmd.Parameters.AddWithValue("@id", orderId);
@@ -109,31 +127,32 @@ WHERE o.OrderId = @id";
 
                 var orderObj = new OrderDetailsViewModel
                 {
-                    OrderId = hr.GetInt32(0),
-                    OrderDateTime = hr.IsDBNull(1) ? "" : hr.GetDateTime(1).ToString("g"),
-                    Status = hr.IsDBNull(2) ? "" : hr.GetString(2),
-                    CustomerName = hr.IsDBNull(3) ? "" : hr.GetString(3),
-                    CustomerPhone = hr.IsDBNull(4) ? "" : hr.GetString(4),
-                    TotalCalories = hr.IsDBNull(5) ? 0 : hr.GetInt32(5),
-                    PaymentMode = hr.IsDBNull(6) ? "" : hr.GetString(6),
-                    Amount = hr.IsDBNull(7) ? 0m : hr.GetDecimal(7),
-                    CommissionAmount = hr.IsDBNull(8) ? 0m : hr.GetDecimal(8),
-                    VendorAmount = hr.IsDBNull(9) ? 0m : hr.GetDecimal(9),
-                    IsRefunded = !hr.IsDBNull(10) && Convert.ToInt32(hr.GetValue(10)) == 1,
-                    RefundStatus = hr.IsDBNull(11) ? "" : hr.GetString(11),
-                    OrderType = hr.IsDBNull(12) ? "Delivery" : hr.GetString(12),
-                    DeliveryAddress = hr.IsDBNull(13) ? "" : hr.GetString(13),
-                    DeliveryStatus = hr.IsDBNull(14) ? "" : hr.GetString(14),
-                    DeliveryPersonId = hr.IsDBNull(15) ? null : hr.GetInt32(15),
-                    DeliveryNotes = hr.IsDBNull(16) ? "" : hr.GetString(16),
-                    TransactionId = hr.IsDBNull(17) ? "" : hr.GetString(17),
-                    TrackingProgress = hr.IsDBNull(18) ? 0 : hr.GetInt32(18),
-                    PickupSlot = hr.IsDBNull(19) ? "" : hr.GetString(19)
+                    OrderId = Convert.ToInt32(hr.GetValue(0)),
+                    OrderDateTime = hr.IsDBNull(1) ? "" : Convert.ToDateTime(hr.GetValue(1)).ToString("g"),
+                    Status = hr.IsDBNull(2) ? "" : Convert.ToString(hr.GetValue(2)),
+                    CustomerName = hr.IsDBNull(3) ? "" : Convert.ToString(hr.GetValue(3)),
+                    CustomerPhone = hr.IsDBNull(4) ? "" : Convert.ToString(hr.GetValue(4)),
+                    TotalCalories = hr.IsDBNull(5) ? 0 : Convert.ToInt32(hr.GetValue(5)),
+                    PaymentMode = hr.IsDBNull(6) ? "" : Convert.ToString(hr.GetValue(6)),
+                    Amount = hr.IsDBNull(7) ? 0m : Convert.ToDecimal(hr.GetValue(7)),
+                    CommissionAmount = hr.IsDBNull(8) ? 0m : Convert.ToDecimal(hr.GetValue(8)),
+                    VendorAmount = hr.IsDBNull(9) ? 0m : Convert.ToDecimal(hr.GetValue(9)),
+                    IsRefunded = !hr.IsDBNull(10) && Convert.ToBoolean(hr.GetValue(10)),
+                    RefundStatus = hr.IsDBNull(11) ? "" : Convert.ToString(hr.GetValue(11)),
+                    OrderType = hr.IsDBNull(12) ? "Delivery" : Convert.ToString(hr.GetValue(12)),
+                    DeliveryAddress = hr.IsDBNull(13) ? "" : Convert.ToString(hr.GetValue(13)),
+                    DeliveryStatus = hr.IsDBNull(14) ? "" : Convert.ToString(hr.GetValue(14)),
+                    DeliveryPersonId = hr.IsDBNull(15) ? null : Convert.ToInt32(hr.GetValue(15)),
+                    DeliveryNotes = hr.IsDBNull(16) ? "" : Convert.ToString(hr.GetValue(16)),
+                    TransactionId = hr.IsDBNull(17) ? "" : Convert.ToString(hr.GetValue(17)),
+                    TrackingProgress = hr.IsDBNull(18) ? 0 : Convert.ToInt32(hr.GetValue(18)),
+                    PickupSlot = hr.IsDBNull(19) ? "" : Convert.ToString(hr.GetValue(19)),
+                    DeliveryAgentName = hr.IsDBNull(20) ? "" : Convert.ToString(hr.GetValue(20))
                 };
 
                 // items
                 var items = new List<OrderItemViewModel>();
-                var itemsQ = @"SELECT ISNULL(ItemName,'') AS Name, ISNULL(Quantity,0) AS Quantity, ISNULL(SpecialInstruction,'') AS Instructions FROM OrderItems WHERE OrderId = @id";
+                var itemsQ = @"SELECT ISNULL(oi.ItemName,'') AS Name, ISNULL(oi.Quantity,0) AS Quantity, ISNULL(oi.SpecialInstruction,'') AS Instructions, ISNULL(f.ImagePath,'') AS ImageUrl FROM OrderItems oi LEFT JOIN Foods f ON oi.FoodId = f.Id WHERE oi.OrderId = @id";
                 using var icmd = new SqlCommand(itemsQ, con);
                 icmd.Parameters.AddWithValue("@id", orderId);
                 using var ir = await icmd.ExecuteReaderAsync();
@@ -141,9 +160,10 @@ WHERE o.OrderId = @id";
                 {
                     items.Add(new OrderItemViewModel
                     {
-                        Name = ir.IsDBNull(0) ? "" : ir.GetString(0),
-                        Quantity = ir.IsDBNull(1) ? 0 : ir.GetInt32(1),
-                        Instructions = ir.IsDBNull(2) ? "" : ir.GetString(2)
+                        Name = ir.IsDBNull(0) ? "" : Convert.ToString(ir.GetValue(0)),
+                        Quantity = ir.IsDBNull(1) ? 0 : Convert.ToInt32(ir.GetValue(1)),
+                        Instructions = ir.IsDBNull(2) ? "" : Convert.ToString(ir.GetValue(2)),
+                        ImageUrl = ir.IsDBNull(3) ? "" : Convert.ToString(ir.GetValue(3))
                     });
                 }
                 orderObj.Items = items;
@@ -166,7 +186,7 @@ WHERE o.OrderId = @id";
             catch (Exception ex)
             {
                 _log.LogError(ex, "GetOrderDetailsAsync failed");
-                return null;
+                throw;
             }
         }
 
@@ -492,6 +512,11 @@ ORDER BY o.CancelledAt DESC";
                 if (order == null || order.DeliveryOTP != otp || order.IsDelivered == true)
                     return false;
 
+                // SECURITY FIX: OTP can only be verified if the order is out for delivery
+                var validStatuses = new[] { "Out for Delivery", "In Transit", "On the Way" };
+                if (!validStatuses.Contains(order.DeliveryStatus) && !validStatuses.Contains(order.Status))
+                    return false;
+
                 order.IsDelivered = true;
                 order.Status = "Delivered";
                 order.DeliveryStatus = "Delivered";
@@ -581,11 +606,14 @@ ORDER BY CreatedAt DESC";
             return list;
         }
 
-        public async Task<object> GetDeliveryDashboardDataAsync()
+        public async Task<System.Dynamic.ExpandoObject> GetDeliveryDashboardDataAsync(string period = "daily", DateTime? refDate = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             try
             {
                 var today = DateTime.Today;
+                var referenceDate = refDate ?? today;
+                var customStartDate = startDate ?? today.AddDays(-7);
+                var customEndDate = endDate ?? today;
 
                 // 1. Statistics
                 var activePartners = await GetAvailableDeliveryPersonnelAsync();
@@ -593,7 +621,18 @@ ORDER BY CreatedAt DESC";
 
                 int inTransitCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "In Transit" || o.Status == "On the Way" || o.DeliveryStatus == "In Transit" || o.DeliveryStatus == "Out for Delivery"));
                 int pendingAssignmentCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "Ready for Delivery" || o.Status == "Accepted") && o.DeliveryPersonId == null);
-                int completedTodayCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "Completed" || o.Status == "Delivered") && o.UpdatedAt >= today);
+                
+                int completedTodayCount = 0;
+                if (period == "custom")
+                {
+                    completedTodayCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "Completed" || o.Status == "Delivered") && o.UpdatedAt.HasValue && o.UpdatedAt.Value.Date >= customStartDate.Date && o.UpdatedAt.Value.Date <= customEndDate.Date);
+                }
+                else
+                {
+                    completedTodayCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "Completed" || o.Status == "Delivered") && o.UpdatedAt >= today);
+                }
+                
+                int completedAllTimeCount = _db.OrderTables.Count(o => o.OrderType == "Delivery" && (o.Status == "Completed" || o.Status == "Delivered"));
 
                 // 2. Partner List with status
                 var partners = new List<object>();
@@ -624,29 +663,130 @@ ORDER BY CreatedAt DESC";
                         Phone = phone,
                         Status = status,
                         CurrentTask = task,
-                        Rating = 0.0 // Default to 0 for real data until a rating system is implemented
+                        Rating = 0.0 
                     });
                 }
 
-                return new
+                // 3. Historical Data for Report based on Period
+                var historyTrend = new List<object>();
+                
+                if (period == "weekly")
                 {
-                    ActivePartnersCount = activePartnersCount,
-                    InTransitCount = inTransitCount,
-                    PendingAssignmentCount = pendingAssignmentCount,
-                    CompletedTodayCount = completedTodayCount,
-                    Partners = partners
-                };
+                    // Last 7 weeks
+                    for (int i = 6; i >= 0; i--)
+                    {
+                        var startOfWeek = referenceDate.AddDays(-(int)referenceDate.DayOfWeek - (i * 7));
+                        var endOfWeek = startOfWeek.AddDays(6);
+                        var count = _db.OrderTables.Count(o => o.OrderType == "Delivery" && 
+                                                             (o.Status == "Completed" || o.Status == "Delivered") && 
+                                                             o.UpdatedAt.HasValue && 
+                                                             o.UpdatedAt.Value.Date >= startOfWeek.Date && 
+                                                             o.UpdatedAt.Value.Date <= endOfWeek.Date);
+                        
+                        historyTrend.Add(new { Label = "Week " + (7-i), Value = count });
+                    }
+                }
+                else if (period == "monthly")
+                {
+                    // Last 6 months
+                    for (int i = 5; i >= 0; i--)
+                    {
+                        var monthDate = referenceDate.AddMonths(-i);
+                        var count = _db.OrderTables.Count(o => o.OrderType == "Delivery" && 
+                                                             (o.Status == "Completed" || o.Status == "Delivered") && 
+                                                             o.UpdatedAt.HasValue && 
+                                                             o.UpdatedAt.Value.Month == monthDate.Month && 
+                                                             o.UpdatedAt.Value.Year == monthDate.Year);
+                        
+                        historyTrend.Add(new { Label = monthDate.ToString("MMM yyyy"), Value = count });
+                    }
+                }
+                else if (period == "custom")
+                {
+                    int totalDays = (int)(customEndDate.Date - customStartDate.Date).TotalDays;
+                    int maxDays = Math.Min(totalDays, 30); // 30 points max
+                    
+                    for (int i = maxDays; i >= 0; i--)
+                    {
+                        var date = customEndDate.AddDays(-i);
+                        if (date < customStartDate.Date) continue;
+                        
+                        var count = _db.OrderTables.Count(o => o.OrderType == "Delivery" && 
+                                                             (o.Status == "Completed" || o.Status == "Delivered") && 
+                                                             o.UpdatedAt.HasValue && 
+                                                             o.UpdatedAt.Value.Date == date.Date);
+                        
+                        historyTrend.Add(new { Label = date.ToString("MMM dd"), Value = count });
+                    }
+                }
+                else if (period == "yearly")
+                {
+                    // Last 5 years
+                    for (int i = 4; i >= 0; i--)
+                    {
+                        var yearDate = referenceDate.AddYears(-i);
+                        var count = _db.OrderTables.Count(o => o.OrderType == "Delivery" && 
+                                                             (o.Status == "Completed" || o.Status == "Delivered") && 
+                                                             o.UpdatedAt.HasValue && 
+                                                             o.UpdatedAt.Value.Year == yearDate.Year);
+                        
+                        historyTrend.Add(new { Label = yearDate.Year.ToString(), Value = count });
+                    }
+                }
+                else // Default: Daily (Last 7 days)
+                {
+                    for (int i = 6; i >= 0; i--)
+                    {
+                        var date = referenceDate.AddDays(-i);
+                        var count = _db.OrderTables.Count(o => o.OrderType == "Delivery" && 
+                                                             (o.Status == "Completed" || o.Status == "Delivered") && 
+                                                             o.UpdatedAt.HasValue && 
+                                                             o.UpdatedAt.Value.Date == date.Date);
+                        
+                        historyTrend.Add(new { Label = date.ToString("MMM dd"), Value = count });
+                    }
+                }
+
+                // 4. Recent Completed Deliveries
+                var recentDeliveries = _db.OrderTables
+                    .Where(o => o.OrderType == "Delivery" && (o.Status == "Completed" || o.Status == "Delivered"))
+                    .OrderByDescending(o => o.UpdatedAt)
+                    .Take(5)
+                    .Select(o => new {
+                        o.OrderId,
+                        o.CustomerName,
+                        o.TotalAmount,
+                        o.Status,
+                        CompletedAt = o.UpdatedAt
+                    })
+                    .ToList();
+
+                dynamic result = new ExpandoObject();
+                result.ActivePartnersCount = activePartnersCount;
+                result.InTransitCount = inTransitCount;
+                result.PendingAssignmentCount = pendingAssignmentCount;
+                result.CompletedTodayCount = completedTodayCount;
+                result.CompletedAllTimeCount = completedAllTimeCount;
+                result.Partners = partners;
+                result.HistoryTrend = historyTrend;
+                result.RecentDeliveries = recentDeliveries;
+
+                return result;
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "GetDeliveryDashboardDataAsync failed");
-                return new { 
-                    ActivePartnersCount = 0, 
-                    InTransitCount = 0, 
-                    PendingAssignmentCount = 0, 
-                    CompletedTodayCount = 0, 
-                    Partners = new List<object>() 
-                };
+                dynamic errorResult = new ExpandoObject();
+                errorResult.ActivePartnersCount = 0;
+                errorResult.InTransitCount = 0;
+                errorResult.PendingAssignmentCount = 0;
+                errorResult.CompletedTodayCount = 0;
+                errorResult.CompletedAllTimeCount = 0;
+                errorResult.Partners = new List<object>();
+                errorResult.HistoryTrend = new List<object>();
+                errorResult.RecentDeliveries = new List<object>();
+                
+                return errorResult;
             }
         }
     }

@@ -86,11 +86,15 @@
 
                                 <h3 class="meal-title">@it.Name</h3>
 
-                                <div class="meal-price">
-                                    ₹@it.Price <span class="text-muted small fw-normal">/ per meal</span>
+                                <div class="meal-price-container">
+                                    <div class="meal-price" data-base-price="@it.Price">
+                                        ₹@it.Price <span class="text-muted small fw-normal">/ per meal</span>
+                                    </div>
+                                    <div class="discount-info text-success small fw-bold mt-1" style="display:none;"></div>
+                                    <div class="final-price fw-bold mt-1" style="display:none; font-size: 1.1rem;"></div>
                                 </div>
 
-                                <p class="meal-desc">
+                                <p class="meal-desc mt-2">
                                     @(it.Description ?? "Freshly prepared meal with high-quality ingredients, balanced nutrition, and authentic taste.")
                                 </p>
 
@@ -108,11 +112,19 @@
                                 </div>
 
                                 <div class="d-flex flex-column align-items-md-end gap-3">
+                                    <div class="qty-suggest-buttons d-flex gap-2 mb-1">
+                                        <button class="btn btn-xs btn-outline-secondary py-0 px-2 rounded-pill small-btn" onclick="setQty(this, 50)">50</button>
+                                        <button class="btn btn-xs btn-outline-secondary py-0 px-2 rounded-pill small-btn" onclick="setQty(this, 100)">100</button>
+                                        <button class="btn btn-xs btn-outline-secondary py-0 px-2 rounded-pill small-btn" onclick="setQty(this, 200)">200</button>
+                                        <button class="btn btn-xs btn-outline-secondary py-0 px-2 rounded-pill small-btn" onclick="setQty(this, 500)">500</button>
+                                    </div>
                                     <div class="qty-box">
                                         <button class="qty-btn qty-decrease" aria-label="Decrease quantity">−</button>
-                                        <input type="text" class="qty-input" value="1" readonly />
+                                        <input type="number" class="qty-input" value="@(it.MOQ ?? 1)" min="@(it.MOQ ?? 1)" max="1000" data-moq="@(it.MOQ ?? 1)" />
                                         <button class="qty-btn qty-increase" aria-label="Increase quantity">+</button>
                                     </div>
+                                    <div id="discountHint" class="text-primary extra-small fw-bold" style="display:none;"></div>
+                                    <div class="qty-validation-msg text-danger small" style="display:none;"></div>
 
                                     <button class="btn btn-add-cart w-100 w-md-auto" data-id="@it.Id">
                                         Add to Cart
@@ -173,28 +185,113 @@
 
 
 
-            /* Quantity buttons */
+            /* Quantity buttons and validation */
+            function updatePriceAndDiscount(card, inputVal) {
+                let basePriceElem = card.querySelector(".meal-price");
+                let basePrice = parseFloat(basePriceElem.getAttribute("data-base-price"));
+                let qty = parseInt(inputVal);
+                
+                let discountPercent = 0;
+                let nextSlab = 0;
+                let nextDiscount = 0;
+
+                if (qty >= 500) { discountPercent = 30; }
+                else if (qty >= 200) { discountPercent = 22; nextSlab = 500; nextDiscount = 30; }
+                else if (qty >= 100) { discountPercent = 15; nextSlab = 200; nextDiscount = 22; }
+                else if (qty >= 50) { discountPercent = 8; nextSlab = 100; nextDiscount = 15; }
+                else { nextSlab = 50; nextDiscount = 8; }
+
+                let discountInfo = card.querySelector(".discount-info");
+                let finalPriceElem = card.querySelector(".final-price");
+                let discountHint = card.querySelector("#discountHint");
+                
+                if (discountPercent > 0) {
+                    let discountedPrice = basePrice * (1 - (discountPercent / 100));
+                    basePriceElem.style.textDecoration = "line-through";
+                    basePriceElem.style.color = "#6c757d";
+                    
+                    discountInfo.style.display = "block";
+                    discountInfo.innerText = `🎉 ${discountPercent}% Bulk Discount Applied!`;
+                    
+                    finalPriceElem.style.display = "block";
+                    finalPriceElem.innerText = `Final Price: ₹${discountedPrice.toFixed(2)} / meal`;
+                    finalPriceElem.style.color = "#28a745";
+                } else {
+                    basePriceElem.style.textDecoration = "none";
+                    basePriceElem.style.color = "var(--text-dark)";
+                    discountInfo.style.display = "none";
+                    finalPriceElem.style.display = "none";
+                }
+
+                if (nextSlab > 0) {
+                    discountHint.innerText = `Add ${nextSlab - qty} more to unlock ${nextDiscount}% discount!`;
+                    discountHint.style.display = "block";
+                } else {
+                    discountHint.style.display = "none";
+                    if (discountPercent === 30) {
+                        discountHint.innerText = "🔥 Best Value Reached!";
+                        discountHint.style.display = "block";
+                    }
+                }
+            }
+
+            window.setQty = function(btn, val) {
+                let card = btn.closest(".meal-card");
+                let input = card.querySelector(".qty-input");
+                input.value = val;
+                input.dispatchEvent(new Event('input'));
+            };
 
             document.querySelectorAll(".meal-card").forEach(function(card){
 
                 let input = card.querySelector(".qty-input");
+                let moq = parseInt(input.getAttribute("data-moq")) || 1;
+                let validationMsg = card.querySelector(".qty-validation-msg");
+                let addBtn = card.querySelector(".btn-add-cart");
 
-                card.querySelector(".qty-decrease")
-                .addEventListener("click", function(){
+                function validateQuantity() {
+                    let val = parseInt(input.value) || 0;
+                    if (val < moq) {
+                        validationMsg.innerText = `Minimum order quantity is ${moq}`;
+                        validationMsg.style.display = "block";
+                        addBtn.disabled = true;
+                    } else if (val > 1000) {
+                        validationMsg.innerText = `Maximum order quantity is 1000`;
+                        validationMsg.style.display = "block";
+                        addBtn.disabled = true;
+                    } else {
+                        validationMsg.style.display = "none";
+                        addBtn.disabled = false;
+                        updatePriceAndDiscount(card, val);
+                    }
+                }
 
-                    let v = Math.max(1, parseInt(input.value) - 1);
-                    input.value = v;
-
+                input.addEventListener("input", validateQuantity);
+                input.addEventListener("blur", function() {
+                    let val = parseInt(input.value) || 0;
+                    if (val < moq) {
+                        input.value = moq;
+                        validateQuantity();
+                    } else if (val > 1000) {
+                        input.value = 1000;
+                        validateQuantity();
+                    }
                 });
 
-                card.querySelector(".qty-increase")
-                .addEventListener("click", function(){
-
-                    let v = parseInt(input.value) + 1;
+                card.querySelector(".qty-decrease").addEventListener("click", function(){
+                    let v = Math.max(moq, parseInt(input.value) - 1);
                     input.value = v;
-
+                    validateQuantity();
                 });
 
+                card.querySelector(".qty-increase").addEventListener("click", function(){
+                    let v = Math.min(1000, parseInt(input.value) + 1);
+                    input.value = v;
+                    validateQuantity();
+                });
+
+                // Initialize price/discount
+                validateQuantity();
             });
 
 

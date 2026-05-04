@@ -1,41 +1,103 @@
-@model NUTRIBITE.Models.UserSignup
+@model NUTRIBITE.ViewModels.UserDetailsViewModel
 
 @{
     ViewData["Title"] = "User Details";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/users.css" />
-
-<div class="card p-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h3>User Details</h3>
-            <small class="text-muted">Full information for user #@Model.Id</small>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">User Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <img src="@(Model.User.ProfilePictureUrl ?? "/img/default-avatar.png")" class="img-fluid rounded-circle" alt="User Profile Picture" style="width: 150px; height: 150px;">
+                    </div>
+                    <h3 class="profile-username text-center">@Model.User.Name</h3>
+                    <p class="text-muted text-center">@Model.User.Role</p>
+                    <ul class="list-group list-group-unbordered mb-3">
+                        <li class="list-group-item">
+                            <b>Email</b> <a class="float-right">@Model.User.Email</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Phone</b> <a class="float-right">@(Model.User.Phone ?? "N/A")</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Address</b> <a class="float-right">@(Model.User.Address ?? "N/A")</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div>
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-approve ms-2">Edit</a>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Account Details</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Username</dt>
+                        <dd class="col-sm-8">@Model.User.Name</dd>
+                        <dt class="col-sm-4">Registration Date</dt>
+                        <dd class="col-sm-8">@Model.User.CreatedAt?.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-sm-4">Account Status</dt>
+                        <dd class="col-sm-8">@Model.User.Status</dd>
+                        <dt class="col-sm-4">Calorie Goal</dt>
+                        <dd class="col-sm-8">@(Model.User.CalorieGoal?.ToString() ?? "N/A")</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h3 class="card-title">Health Survey</h3>
+                </div>
+                <div class="card-body">
+                    @if (Model.HealthSurvey != null)
+                    {
+                        <dl class="row">
+                            <dt class="col-sm-4">Dietary Preference</dt>
+                            <dd class="col-sm-8">@Model.HealthSurvey.DietaryPreference</dd>
+                            <dt class="col-sm-4">Allergies</dt>
+                            <dd class="col-sm-8">@Model.HealthSurvey.FoodAllergies</dd>
+                        </dl>
+                    }
+                    else
+                    {
+                        <p>No health survey data available.</p>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <dl class="row">
-                <dt class="col-4">Name</dt>
-                <dd class="col-8">@Model.Name</dd>
-
-                <dt class="col-4">Email</dt>
-                <dd class="col-8">@Model.Email</dd>
-
-                <dt class="col-4">Phone</dt>
-                <dd class="col-8">@Model.Phone ?? "-"</dd>
-
-                <dt class="col-4">Status</dt>
-                <dd class="col-8">@((Model.Status ?? "Active"))</dd>
-
-                <dt class="col-4">Registered</dt>
-                <dd class="col-8">@((Model.CreatedAt.HasValue) ? Model.CreatedAt.Value.ToString("dd MMM yyyy hh:mm tt") : "-")</dd>
-            </dl>
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Activity History</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var activity in Model.ActivityHistory)
+                            {
+                                <tr>
+                                    <td>@activity.Timestamp.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@activity.Details</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

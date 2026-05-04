@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Location Analytics";
 }
 
@@ -12,7 +12,14 @@
         </div>
 
         <div class="d-flex gap-2 align-items-center">
-            <label class="mb-0 small">City</label>
+            <label class="mb-0 small fw-bold">Period:</label>
+            <select id="period" class="form-select form-select-sm" style="width: auto;">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            <label class="mb-0 small fw-bold ms-2">City:</label>
             <select id="cityFilter" class="form-select form-select-sm ms-2"></select>
             <button id="applyFilter" class="btn btn-sm btn-approve ms-2">Apply</button>
         </div>
@@ -54,26 +61,32 @@
         (function () {
             const api = '/Reports/GetLocationAnalyticsData';
             const $city = $('#cityFilter');
+            const $period = $('#period');
 
             function populateCities(list, selected) {
+                const current = $city.val();
                 $city.empty();
+                $city.append($('<option>').attr('value', 'All').text('All Cities'));
                 (list || []).forEach(c => {
-                    $city.append($('<option>').attr('value', c).text(c));
+                    if (c !== 'All' && c !== 'All Cities') {
+                        $city.append($('<option>').attr('value', c).text(c));
+                    }
                 });
                 if (selected) $city.val(selected);
+                else if (current) $city.val(current);
             }
 
             function renderTable(rows) {
                 const $tbody = $('#locationTable tbody').empty();
                 if (!rows || rows.length === 0) {
-                    $tbody.append('<tr><td colspan="4" class="no-records">No data</td></tr>');
+                    $tbody.append('<tr><td colspan="4" class="no-records text-center py-3">No data available for this selection</td></tr>');
                     return;
                 }
                 rows.forEach(r => {
                     const tr = $('<tr>');
                     tr.append($('<td>').text(r.city || r.City));
                     tr.append($('<td>').text(r.region || r.Region));
-                    tr.append($('<td>').text(r.ordersCount ?? r.OrdersCount));
+                    tr.append($('<td>').text((r.ordersCount ?? r.OrdersCount).toLocaleString()));
                     tr.append($('<td>').text((r.percentage ?? r.Percentage ?? 0).toFixed(2) + '%'));
                     $tbody.append(tr);
                 });
@@ -107,14 +120,30 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { position: 'right', labels: { boxWidth: 12 } }
+                            legend: { 
+                                position: 'right', 
+                                labels: { boxWidth: 12, usePointStyle: true } 
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const value = context.parsed;
+                                        const percentage = ((value / total) * 100).toFixed(2) + '%';
+                                        return context.label + ': ' + value.toLocaleString() + ' orders (' + percentage + ')';
+                                    }
+                                }
+                            }
                         }
                     }
                 });
             }
 
-            function fetch(city) {
-                $.getJSON(api, { city: city || 'All' })
+            function fetchData() {
+                const city = $city.val() || 'All';
+                const period = $period.val() || 'monthly';
+                
+                $.getJSON(api, { city: city, period: period })
                     .done(function (res) {
                         if (res.error) {
                             alert('Error: ' + res.error);
@@ -130,10 +159,9 @@
             }
 
             $(function () {
-                fetch(); // initial load
-                $('#applyFilter').on('click', function () {
-                    fetch($city.val());
-                });
+                fetchData(); // initial load
+                $('#applyFilter').on('click', fetchData);
+                $period.on('change', fetchData);
             });
         })();
     </script>

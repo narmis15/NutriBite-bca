@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "My Calorie Dashboard";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
@@ -319,7 +319,10 @@
 
         function fetchData(){
 
-        $.getJSON('/CalorieTracker/GetAnalytics')
+        $.getJSON('/CalorieTracker/GetAnalytics', {
+            fromDate: document.getElementById('fromDate').value,
+            toDate: document.getElementById('toDate').value
+        })
 
         .done(function(model){
 
@@ -347,10 +350,19 @@
         percent=Math.min((today/recommended)*100,100);
         }
 
-        document.getElementById("todayProgress").style.width=percent+"%";
+        const progressEl = document.getElementById("todayProgress");
+        progressEl.style.width=percent+"%";
 
-        document.getElementById("progressPercent").innerText=
-        percent.toFixed(1)+"% of daily goal";
+        const progressPercentEl = document.getElementById("progressPercent");
+        if (today >= recommended && recommended > 0) {
+            progressPercentEl.innerHTML = '<span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Your calorie intake for today is complete!</span>';
+            progressEl.classList.remove("bg-success");
+            progressEl.classList.add("bg-danger");
+        } else {
+            progressPercentEl.innerText = percent.toFixed(1)+"% of daily goal";
+            progressEl.classList.remove("bg-danger");
+            progressEl.classList.add("bg-success");
+        }
 
         renderTrendList(model.trend||[]);
 

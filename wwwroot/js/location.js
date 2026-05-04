@@ -7,7 +7,7 @@
             getCurrent: '/Location/GetCurrentLocation',
             save: '/Location/SaveLocation',
             saveManual: '/Location/SaveLocationManual',
-            search: (q) => `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&addressdetails=1&limit=6`
+            search: (q) => `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&addressdetails=1&limit=6&countrycodes=in`
         };
 
         const elements = {
@@ -35,12 +35,46 @@
             elements.detectedAddress = document.getElementById('detectedAddress');
             elements.confirmDetected = document.getElementById('confirmDetected');
             elements.searchInput = document.getElementById('locationSearchInput');
-            elements.searchResults = document.getElementById('searchResults');
+            elements.searchResults = document.getElementById('locationSearchResults');
+            elements.btnSearchLocationOk = document.getElementById('btnSearchLocationOk');
 
             // wire buttons
             if (elements.btnDetectNow) elements.btnDetectNow.addEventListener('click', detectAndSave);
             if (elements.confirmDetected) elements.confirmDetected.addEventListener('click', confirmDetectedLocation);
             if (elements.searchInput) elements.searchInput.addEventListener('input', onSearchInput);
+            
+            if (elements.btnSearchLocationOk) {
+                elements.btnSearchLocationOk.addEventListener('click', async function() {
+                    const val = elements.searchInput.value.trim();
+                    if (!val) {
+                        showAlertBootstrap('warning', 'Please enter a location first.');
+                        return;
+                    }
+                    
+                    try {
+                        const payload = {
+                            latitude: 0,
+                            longitude: 0,
+                            city: val.split(',')[0],
+                            area: val,
+                            fullAddress: val
+                        };
+                        const res = await fetch(api.saveManual, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (res.ok) {
+                            updateNavbarLocationDisplay(val);
+                            elements.modal.hide();
+                        } else {
+                            showAlertBootstrap('danger', 'Failed to save location.');
+                        }
+                    } catch (err) {
+                        showAlertBootstrap('danger', 'Error saving location.');
+                    }
+                });
+            }
 
             // initial read: server may have stored location in session
             fetch(api.getCurrent)
@@ -76,27 +110,23 @@
                 return;
             }
 
-            // Only ask if permission is prompt (not denied). Use Permissions API if available.
+            // Only ask if permission is granted. Silently fetch if possible.
             if (navigator.permissions && navigator.permissions.query) {
                 navigator.permissions.query({ name: 'geolocation' }).then(status => {
                     if (status.state === 'granted') {
-                        // directly detect
-                        detectAndSave();
-                    } else if (status.state === 'prompt') {
-                        // show small modal to allow user to start detection
-                        // open modal automatically so user can choose
-                        if (elements.modal) elements.modal.show();
+                        // directly detect silently
+                        detectAndSave(true); 
                     } else {
-                        // denied: show manual prompt
+                        // prompt or denied: do NOT show modal automatically. 
+                        // Just show a gentle prompt in navbar.
                         updateNavbarLocationDisplay('Set your location');
                     }
                 }).catch(() => {
-                    // fallback: show modal
-                    if (elements.modal) elements.modal.show();
+                    updateNavbarLocationDisplay('Set your location');
                 });
             } else {
-                // no permissions API: show modal to give user control
-                if (elements.modal) elements.modal.show();
+                // no permissions API: do NOT show modal automatically
+                updateNavbarLocationDisplay('Set your location');
             }
         }
 
@@ -116,13 +146,13 @@
         const MAX_ACCURACY_FAILS = 3;
         const TARGET_ACCURACY_METERS = 35;
 
-        async function detectAndSave() {
+        async function detectAndSave(silent = false) {
             if (!navigator.geolocation) {
-                showDetectError('Geolocation not supported by your browser.');
+                if (!silent) showDetectError('Geolocation not supported by your browser.');
                 return;
             }
 
-            showLoader(true);
+            if (!silent) showLoader(true);
             elements.detectedLocation.style.display = 'none';
 
             // High precision options
@@ -217,15 +247,17 @@
                 elements.detectedAddress.innerText = full;
                 elements.detectedLocation.style.display = '';
                 updateNavbarLocationDisplay(full || `${location?.City || ''} ${location?.Pincode || ''}`);
-                setTimeout(() => elements.modal?.hide(), 900);
+                if (!silent) setTimeout(() => elements.modal?.hide(), 900);
 
             } catch (err) {
                 console.error("Final geolocation error:", err);
-                if (err.code === 1) showDetectError('Location permission denied.');
-                else if (err.code === 3) showDetectError('Location timeout. Try manually.');
-                else showDetectError(err.message || 'Unable to detect location.');
+                if (!silent) {
+                    if (err.code === 1) showDetectError('Location permission denied.');
+                    else if (err.code === 3) showDetectError('Location timeout. Try manually.');
+                    else showDetectError(err.message || 'Unable to detect location.');
+                }
             } finally {
-                showLoader(false);
+                if (!silent) showLoader(false);
             }
         }
 

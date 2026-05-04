@@ -1,0 +1,255 @@
+1. UserSignup
+mysql> describe UserSignup;
++-------------------+---------------+------+-----+--------------+----------------+
+| Field             | Type          | Null | Key | Default      | Extra          |
++-------------------+---------------+------+-----+--------------+----------------+
+| Id                | int           | NO   | PRI | NULL         | auto_increment |
+| Name              | nvarchar(100) | NO   |     | NULL         |                |
+| Email             | nvarchar(150) | NO   |     | NULL         |                |
+| Password          | nvarchar(100) | NO   |     | NULL         |                |
+| CreatedAt         | datetime      | YES  |     | (getdate())  |                |
+| Phone             | nvarchar(20)  | YES  |     | NULL         |                |
+| Status            | nvarchar(50)  | YES  |     | NULL         |                |
+| Role              | nvarchar(50)  | YES  |     | ('Customer') |                |
+| Address           | nvarchar(255) | YES  |     | NULL         |                |
+| ProfilePictureUrl | nvarchar(255) | YES  |     | NULL         |                |
+| CalorieGoal       | int           | YES  |     | NULL         |                |
++-------------------+---------------+------+-----+--------------+----------------+
+11 rows in set
+
+2. VendorSignup
+mysql> describe VendorSignup;
++---------------------+----------------+------+-----+-------------+----------------+
+| Field               | Type           | Null | Key | Default     | Extra          |
++---------------------+----------------+------+-----+-------------+----------------+
+| VendorId            | int            | NO   | PRI | NULL        | auto_increment |
+| VendorName          | nvarchar(100)  | NO   |     | NULL        |                |
+| Email               | nvarchar(150)  | NO   |     | NULL        |                |
+| PasswordHash        | nvarchar(255)  | NO   |     | NULL        |                |
+| IsApproved          | bit            | NO   |     | ((0))       |                |
+| CreatedAt           | datetime       | YES  |     | (getdate()) |                |
+| IsRejected          | bit            | NO   |     | ((0))       |                |
+| Phone               | nvarchar(20)   | YES  |     | NULL        |                |
+| Address             | nvarchar(500)  | YES  |     | NULL        |                |
+| Description         | nvarchar(1000) | YES  |     | NULL        |                |
+| OpeningHours        | nvarchar(50)   | YES  |     | NULL        |                |
+| ClosingHours        | nvarchar(50)   | YES  |     | NULL        |                |
+| LogoPath            | nvarchar(300)  | YES  |     | NULL        |                |
+| UpiId               | nvarchar(100)  | YES  |     | NULL        |                |
+| MaxDeliveryRadiusKm | float          | YES  |     | ((5.0))     |                |
+| OwnerName           | nvarchar(100)  | YES  |     | NULL        |                |
++---------------------+----------------+------+-----+-------------+----------------+
+16 rows in set
+
+3. Admin
+mysql> describe Admin;
++--------------+---------------+------+-----+-------------+----------------+
+| Field        | Type          | Null | Key | Default     | Extra          |
++--------------+---------------+------+-----+-------------+----------------+
+| UserId       | varchar(50)   | NO   |     | NULL        |                |
+| Password     | varchar(50)   | NO   |     | NULL        |                |
+| Id           | int           | NO   | PRI | NULL        | auto_increment |
+| Name         | nvarchar(100) | YES  |     | NULL        |                |
+| Phone        | nvarchar(20)  | YES  |     | NULL        |                |
+| AvatarPath   | nvarchar(255) | YES  |     | NULL        |                |
+| CreatedAt    | datetime      | YES  |     | (getdate()) |                |
+| LastLogin    | datetime      | YES  |     | NULL        |                |
+| SettingsJson | nvarchar(max) | YES  |     | NULL        |                |
++--------------+---------------+------+-----+-------------+----------------+
+9 rows in set
+
+4. Foods
+mysql> describe Foods;
++-------------------+---------------+------+-----+-------------+----------------+
+| Field             | Type          | Null | Key | Default     | Extra          |
++-------------------+---------------+------+-----+-------------+----------------+
+| Id                | int           | NO   | PRI | NULL        | auto_increment |
+| Name              | nvarchar(150) | NO   |     | NULL        |                |
+| Description       | nvarchar(500) | YES  |     | NULL        |                |
+| Price             | decimal       | NO   |     | NULL        |                |
+| CategoryId        | int           | YES  |     | NULL        |                |
+| VendorId          | int           | YES  |     | NULL        |                |
+| ImagePath         | nvarchar(300) | YES  |     | NULL        |                |
+| Calories          | int           | YES  |     | NULL        |                |
+| PreparationTime   | nvarchar(50)  | YES  |     | NULL        |                |
+| Rating            | float         | YES  |     | ((0))       |                |
+| Status            | nvarchar(20)  | YES  |     | ('Active')  |                |
+| CreatedAt         | datetime      | YES  |     | (getdate()) |                |
+| ProductCategoryId | int           | YES  |     | NULL        |                |
+| MealCategoryId    | int           | YES  |     | NULL        |                |
+| FoodType          | nvarchar(20)  | YES  |     | NULL        |                |
+| NutritionistId    | int           | YES  |     | NULL        |                |
+| IsVerified        | bit           | NO   |     | ((0))       |                |
+| Protein           | float         | YES  |     | NULL        |                |
+| Carbs             | float         | YES  |     | NULL        |                |
+| Fat               | float         | YES  |     | NULL        |                |
+| DailyLimit        | int           | YES  |     | NULL        |                |
+| IsGlutenFree      | bit           | NO   |     | ((0))       |                |
+| IsVegan           | bit           | NO   |     | ((0))       |                |
+| IsNutFree         | bit           | NO   |     | ((0))       |                |
++-------------------+---------------+------+-----+-------------+----------------+
+24 rows in set
+
+5. OrderTable
+mysql> describe OrderTable;
++------------------+----------------+------+-----+--------------------+----------------+
+| Field            | Type           | Null | Key | Default            | Extra          |
++------------------+----------------+------+-----+--------------------+----------------+
+| OrderId          | int            | NO   | PRI | NULL               | auto_increment |
+| UserId           | int            | YES  |     | NULL               |                |
+| CustomerName     | nvarchar(200)  | YES  |     | NULL               |                |
+| CustomerPhone    | nvarchar(50)   | YES  |     | NULL               |                |
+| TotalItems       | int            | YES  |     | NULL               |                |
+| PickupSlot       | nvarchar(200)  | YES  |     | NULL               |                |
+| TotalCalories    | int            | YES  |     | NULL               |                |
+| PaymentStatus    | nvarchar(100)  | YES  |     | NULL               |                |
+| Status           | nvarchar(100)  | YES  |     | NULL               |                |
+| IsFlagged        | bit            | YES  |     | ((0))              |                |
+| IsResolved       | bit            | YES  |     | ((0))              |                |
+| FlagReason       | nvarchar(500)  | YES  |     | NULL               |                |
+| AdminNotes       | nvarchar(max)  | YES  |     | NULL               |                |
+| CancelReason     | nvarchar(500)  | YES  |     | NULL               |                |
+| CancelledBy      | nvarchar(200)  | YES  |     | NULL               |                |
+| CreatedAt        | datetime2      | YES  |     | (sysutcdatetime()) |                |
+| UpdatedAt        | datetime2      | YES  |     | NULL               |                |
+| CancelledAt      | datetime2      | YES  |     | NULL               |                |
+| OrderType        | nvarchar(50)   | YES  |     | NULL               |                |
+| DeliveryAddress  | nvarchar(500)  | YES  |     | NULL               |                |
+| DeliveryNotes    | nvarchar(1000) | YES  |     | NULL               |                |
+| DeliveryPersonId | int            | YES  |     | NULL               |                |
+| DeliveryStatus   | nvarchar(100)  | YES  |     | NULL               |                |
+| TotalAmount      | decimal        | NO   |     | ((0.00))           |                |
+| CommissionAmount | decimal        | NO   |     | ((0.00))           |                |
+| VendorAmount     | decimal        | NO   |     | ((0.00))           |                |
+| VendorId         | int            | YES  |     | NULL               |                |
+| AdminId          | int            | YES  |     | NULL               |                |
+| Version          | int            | NO   |     | ((1))              |                |
+| TrackingProgress | int            | NO   |     | ((0))              |                |
+| DeliveryOTP      | int            | YES  |     | NULL               |                |
+| IsDelivered      | bit            | YES  |     | ((0))              |                |
+| OrderStatus      | nvarchar(50)   | YES  |     | ('Placed')         |                |
+| DeliveryCharge   | decimal        | NO   |     | ((0.00))           |                |
+| GST              | decimal        | NO   |     | ((0.00))           |                |
++------------------+----------------+------+-----+--------------------+----------------+
+35 rows in set
+
+6. OrderItems
+mysql> describe OrderItems;
++--------------------+----------------+------+-----+--------------------+----------------+
+| Field              | Type           | Null | Key | Default            | Extra          |
++--------------------+----------------+------+-----+--------------------+----------------+
+| Id                 | int            | NO   | PRI | NULL               | auto_increment |
+| OrderId            | int            | NO   |     | NULL               |                |
+| ItemName           | nvarchar(300)  | YES  |     | NULL               |                |
+| Quantity           | int            | YES  |     | ((1))              |                |
+| Instructions       | nvarchar(1000) | YES  |     | NULL               |                |
+| CreatedAt          | datetime2      | YES  |     | (sysutcdatetime()) |                |
+| SpecialInstruction | nvarchar(200)  | YES  |     | NULL               |                |
+| FoodId             | int            | YES  |     | NULL               |                |
+| BulkItemId         | int            | YES  |     | NULL               |                |
+| PricePerItem       | decimal        | NO   |     | ((0.00))           |                |
++--------------------+----------------+------+-----+--------------------+----------------+
+10 rows in set
+
+7. Payments
+mysql> describe Payments;
++-----------------+---------------+------+-----+--------------------+----------------+
+| Field           | Type          | Null | Key | Default            | Extra          |
++-----------------+---------------+------+-----+--------------------+----------------+
+| Id              | int           | NO   | PRI | NULL               | auto_increment |
+| UserId          | int           | YES  |     | NULL               |                |
+| OrderId         | int           | YES  |     | NULL               |                |
+| PaymentId       | nvarchar(128) | YES  |     | NULL               |                |
+| Amount          | decimal       | NO   |     | ((0.00))           |                |
+| Currency        | nvarchar(10)  | NO   |     | (N'INR')           |                |
+| Status          | nvarchar(20)  | NO   |     | (N'Pending')       |                |
+| CreatedAt       | datetime2     | NO   |     | (sysutcdatetime()) |                |
+| RazorpayOrderId | nvarchar(128) | YES  |     | NULL               |                |
+| PaymentMode     | nvarchar(100) | YES  |     | NULL               |                |
+| IsRefunded      | bit           | YES  |     | ((0))              |                |
+| RefundStatus    | nvarchar(200) | YES  |     | NULL               |                |
++-----------------+---------------+------+-----+--------------------+----------------+
+12 rows in set
+
+8. Carttable
+mysql> describe Carttable;
++--------------------+---------------+------+-----+---------+----------------+
+| Field              | Type          | Null | Key | Default | Extra          |
++--------------------+---------------+------+-----+---------+----------------+
+| Crid               | int           | NO   | PRI | NULL    | auto_increment |
+| Pid                | int           | NO   |     | NULL    |                |
+| Uid                | int           | NO   |     | NULL    |                |
+| Qty                | int           | NO   |     | NULL    |                |
+| Amount             | int           | YES  |     | NULL    |                |
+| Status             | nvarchar(50)  | YES  |     | NULL    |                |
+| Date               | datetime      | YES  |     | NULL    |                |
+| Servicecharge      | int           | YES  |     | NULL    |                |
+| Total              | int           | YES  |     | NULL    |                |
+| SourceType         | nvarchar(20)  | YES  |     | NULL    |                |
+| SpecialInstruction | nvarchar(200) | YES  |     | NULL    |                |
+| IsBulk             | bit           | NO   |     | ((0))   |                |
++--------------------+---------------+------+-----+---------+----------------+
+12 rows in set
+
+9. Subscriptions
+mysql> describe Subscriptions;
++------------------------+--------------+------+-----+--------------+----------------+
+| Field                  | Type         | Null | Key | Default      | Extra          |
++------------------------+--------------+------+-----+--------------+----------------+
+| Id                     | int          | NO   | PRI | NULL         | auto_increment |
+| FoodId                 | int          | YES  |     | NULL         |                |
+| VendorId               | int          | YES  |     | NULL         |                |
+| SubscriptionType       | nvarchar(50) | NO   |     | ('Weekly')   |                |
+| PricePerDelivery       | decimal      | NO   |     | NULL         |                |
+| StartDate              | datetime2    | NO   |     | (getdate())  |                |
+| EndDate                | datetime2    | YES  |     | NULL         |                |
+| Status                 | nvarchar(50) | NO   |     | ('Active')   |                |
+| DeliveryTimePreference | time         | NO   |     | ('13:00:00') |                |
++------------------------+--------------+------+-----+--------------+----------------+
+10 rows in set
+mysql> describe HealthSurveys;
++---------------------+----------------+------+-----+---------+----------------+
+| Field               | Type           | Null | Key | Default | Extra          |
++---------------------+----------------+------+-----+---------+----------------+
+| Id                  | int            | NO   | PRI | NULL    | auto_increment |
+| UserId              | int            | NO   |     | NULL    |                |
+| Age                 | int            | NO   |     | NULL    |                |
+| Gender              | nvarchar(32)   | YES  |     | NULL    |                |
+| HeightCm            | decimal        | YES  |     | NULL    |                |
+| WeightKg            | decimal        | YES  |     | NULL    |                |
+| ActivityLevel       | nvarchar(64)   | YES  |     | NULL    |                |
+| Goal                | nvarchar(32)   | YES  |     | NULL    |                |
+| BMI                 | decimal        | YES  |     | NULL    |                |
+| BMR                 | decimal        | YES  |     | NULL    |                |
+| RecommendedCalories | int            | YES  |     | NULL    |                |
+| RecommendedProtein  | int            | YES  |     | NULL    |                |
+| CreatedAt           | datetime2      | YES  |     | NULL    |                |
+| ChronicDiseases     | nvarchar(1000) | YES  |     | NULL    |                |
+| FoodAllergies       | nvarchar(1000) | YES  |     | NULL    |                |
+| DietaryPreference   | nvarchar(64)   | YES  |     | NULL    |                |
+| Smoking             | bit            | NO   |     | ((0))   |                |
+| Alcohol             | bit            | NO   |     | ((0))   |                |
++---------------------+----------------+------+-----+---------+----------------+
+18 rows in set
+
+11. BulkItems
+mysql> describe BulkItems;
++-------------+---------------+------+-----+-------------+----------------+
+| Field       | Type          | Null | Key | Default     | Extra          |
++-------------+---------------+------+-----+-------------+----------------+
+| Id          | int           | NO   | PRI | NULL        | auto_increment |
+| Name        | nvarchar(200) | NO   |     | NULL        |                |
+| Category    | nvarchar(50)  | NO   |     | NULL        |                |
+| SubCategory | nvarchar(100) | YES  |     | NULL        |                |
+| Description | nvarchar(max) | YES  |     | NULL        |                |
+| Price       | decimal       | NO   |     | NULL        |                |
+| Weight      | nvarchar(50)  | YES  |     | NULL        |                |
+| IsVeg       | bit           | YES  |     | ((1))       |                |
+| MOQ         | int           | YES  |     | ((1))       |                |
+| ImagePath   | nvarchar(300) | YES  |     | NULL        |                |
+| Status      | nvarchar(20)  | YES  |     | ('Active')  |                |
+| CreatedAt   | datetime      | YES  |     | (getdate()) |                |
+| VendorId    | int           | YES  |     | NULL        |                |
++-------------+---------------+------+-----+-------------+----------------+
+13 rows in set
+

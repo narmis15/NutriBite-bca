@@ -101,11 +101,22 @@
                          alt="Food">
 
                     <div class="food-body">
-                        
-                        @if (food.IsVerified)
+                        @if (food.Status == "Pending")
                         {
-                            <span class="badge bg-success-subtle text-success border border-success-subtle mb-2" style="font-size: 0.7rem;">
-                                <i class="bi bi-patch-check-fill"></i> Verified
+                            <span class="badge bg-warning text-dark mb-2" style="font-size: 0.75rem;">
+                                <i class="bi bi-hourglass-split"></i> Pending Approval
+                            </span>
+                        }
+                        else if (food.Status == "Active")
+                        {
+                            <span class="badge bg-success-subtle text-success border border-success-subtle mb-2" style="font-size: 0.75rem;">
+                                <i class="bi bi-check-circle-fill"></i> Live
+                            </span>
+                        }
+                        else if (food.Status == "Rejected")
+                        {
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle mb-2" style="font-size: 0.75rem;">
+                                <i class="bi bi-x-circle-fill"></i> Rejected
                             </span>
                         }
 
@@ -115,11 +126,7 @@
                             ₹@food.Price <span class="text-muted small fw-normal ms-1">(@food.Calories kcal)</span>
                         </div>
 
-                        <div class="nutrition-summary mt-2 mb-2 p-2 bg-light rounded" style="font-size: 0.75rem; color: #444; border: 1px solid #eee;">
-                            <span class="me-2"><strong>P:</strong> @(food.Protein ?? 0)g</span>
-                            <span class="me-2"><strong>C:</strong> @(food.Carbs ?? 0)g</span>
-                            <span><strong>F:</strong> @(food.Fat ?? 0)g</span>
-                        </div>
+
 
                         @if (!string.IsNullOrEmpty(food.FoodType) && food.FoodType != "NA")
                         {
@@ -127,6 +134,12 @@
                                 <i class="bi bi-tag-fill me-1"></i> @food.FoodType
                             </div>
                         }
+
+                        <div class="d-flex justify-content-end mt-3 border-top pt-3">
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@food.Id, '@food.Name.Replace("'", "\\'")')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
                     </div>
 
                 </div>

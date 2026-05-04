@@ -1,0 +1,144 @@
+@model IEnumerable<NUTRIBITE.Models.Food>
+
+@{
+    ViewData["Title"] = "Pending Food Approvals";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold text-dark mb-2">Pending Food Approvals</h2>
+            <p class="text-muted">Review and approve new food items submitted by vendors before they go live on the platform.</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Item Details</th>
+                            <th>Vendor</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Calories</th>
+                            <th>Submitted On</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="bi bi-check-circle display-4 d-block mb-3"></i>
+                                    No pending food items to review.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr id="food-row-@item.Id">
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(string.IsNullOrEmpty(item.ImagePath) ? "/images/placeholder.png" : item.ImagePath)" 
+                                                 class="rounded-3 me-3 object-fit-cover" 
+                                                 style="width: 50px; height: 50px;" 
+                                                 alt="@item.Name" />
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">@item.Name</h6>
+                                                <small class="text-muted d-block text-truncate" style="max-width: 200px;">
+                                                    @(item.FoodType ?? "N/A")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var vendors = ViewBag.Vendors as Dictionary<int, string>;
+                                            var vendorName = (item.VendorId.HasValue && vendors != null && vendors.ContainsKey(item.VendorId.Value)) ? vendors[item.VendorId.Value] : "Unknown Vendor";
+                                        }
+                                        <span class="fw-medium text-dark">@vendorName</span>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var categories = ViewBag.Categories as Dictionary<int, string>;
+                                            var categoryName = (item.CategoryId.HasValue && categories != null && categories.ContainsKey(item.CategoryId.Value)) ? categories[item.CategoryId.Value] : "N/A";
+                                        }
+                                        <span class="badge bg-secondary">@categoryName</span>
+                                    </td>
+                                    <td>₹@item.Price</td>
+                                    <td>@item.Calories kcal</td>
+                                    <td>@item.CreatedAt?.ToString("MMM dd, yyyy")</td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-success rounded-pill px-3 me-2" onclick="approveFood(@item.Id)">
+                                            <i class="bi bi-check-lg me-1"></i> Approve
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="rejectFood(@item.Id)">
+                                            <i class="bi bi-x-lg me-1"></i> Reject
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function approveFood(id) {
+            Swal.fire({
+                title: 'Approve Food Item?',
+                text: "This item will be visible to all users.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Approve it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/ApproveFood/' + id, function (res) {
+                        if (res.success) {
+                            $('#food-row-' + id).fadeOut(400, function() { $(this).remove(); });
+                            Swal.fire('Approved!', res.message, 'success');
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function rejectFood(id) {
+            Swal.fire({
+                title: 'Reject Food Item?',
+                text: "The vendor will need to submit it again.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Reject it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Admin/RejectFood/' + id, function (res) {
+                        if (res.success) {
+                            $('#food-row-' + id).fadeOut(400, function() { $(this).remove(); });
+                            Swal.fire('Rejected!', res.message, 'success');
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

@@ -46,7 +46,7 @@ namespace NUTRIBITE.Controllers
                     new Food { Name = "Steamed Idli with Mild Sambar", Price = 85, Calories = 350, PreparationTime = "15 mins", FoodType = "Elderly", ImagePath = "/images/menu items/sambhar idli.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
                     new Food { Name = "Mashed Aloo-Baingan Bharta", Price = 80, Calories = 430, PreparationTime = "20 mins", FoodType = "Elderly", ImagePath = "/images/menu items/baigan bharta.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
                     new Food { Name = "Warm Apple & Cinnamon Stew", Price = 50, Calories = 240, PreparationTime = "15 mins", FoodType = "Elderly", ImagePath = "/images/menu items/cinnamon apple stew.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
-                    new Food { Name = "Carrot & Ginger Soup", Price = 65, Calories = 180, PreparationTime = "20 mins", FoodType = "Elderly", ImagePath = "/images/menu items/fresh smoothie.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
+                    new Food { Name = "Carrot & Ginger Soup", Price = 65, Calories = 180, PreparationTime = "20 mins", FoodType = "Elderly", ImagePath = "/images/menu items/carrot soup.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now },
                     new Food { Name = "Ragi Malt Porridge", Price = 55, Calories = 220, PreparationTime = "10 mins", FoodType = "Elderly", ImagePath = "/images/menu items/jowar upma.png", VendorId = vendor.VendorId, Status = "Active", CreatedAt = DateTime.Now }
                 };
 
@@ -65,6 +65,28 @@ namespace NUTRIBITE.Controllers
                     .Take(10)
                     .ToList();
             }
+            // Force update images just in case they were seeded wrongly
+            // Force update images to v2 to bypass browser cache
+            var updates = new Dictionary<string, string> {
+                { "Oats & Moong Dal Cheela", "/images/menu items/moong_cheela_v2.png" },
+                { "Lauki & Chana Dal with Phulka", "/images/menu items/lauki_dal_v2.png" },
+                { "Vegetable Dalia", "/images/menu items/dalia_v2.png" },
+                { "Methi Soft Thepla with Dahi", "/images/menu items/thepla_v2.png" },
+                { "Pumpkin Mash & Phulka", "/images/menu items/pumpkin_v2.png" },
+                { "Steamed Idli with Mild Sambar", "/images/menu items/idli_v2.png" },
+                { "Carrot & Ginger Soup", "/images/menu items/carrot soup.png" },
+                { "Ragi Malt Porridge", "/images/menu items/ragi porridge.png" }
+            };
+
+            bool changed = false;
+            foreach (var kvp in updates) {
+                var item = _context.Foods.FirstOrDefault(f => f.Name == kvp.Key && f.FoodType == "Elderly");
+                if (item != null && item.ImagePath != kvp.Value) {
+                    item.ImagePath = kvp.Value;
+                    changed = true;
+                }
+            }
+            if (changed) _context.SaveChanges();
 
             return View(foods);
         }

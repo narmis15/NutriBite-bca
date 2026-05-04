@@ -45,22 +45,37 @@
 
                 <div class="mb-3">
                     <label for="email" class="form-label small">Email</label>
-                    <input id="email" name="email" type="email" class="form-control custom-input" required />
+                    <div class="input-group has-validation">
+                        <input id="email" name="email" type="email" class="form-control custom-input" required pattern=".*\.com" title="Please enter a valid .com email address" />
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Email must end with .com.
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="password" class="form-label small">Password</label>
-                    <div class="input-group">
-                        <input id="password" name="password" type="password" class="form-control custom-input" required />
+                    <div class="input-group has-validation">
+                        <input id="password" name="password" type="password" class="form-control custom-input" required 
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" 
+                               title="Must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." />
                         <button id="togglePasswordReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Password must be at least 8 characters, include an uppercase, a lowercase, and a number.
+                        </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label small">Confirm Password</label>
-                    <div class="input-group">
-                        <input id="confirmPassword" name="confirmPassword" type="password" class="form-control custom-input" required />
+                    <div class="input-group has-validation">
+                        <input id="confirmPassword" name="confirmPassword" type="password" class="form-control custom-input" required 
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" 
+                               title="Must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." />
                         <button id="toggleConfirmReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Passwords must match and meet all requirements.
+                        </div>
                     </div>
                 </div>
 
@@ -73,17 +88,7 @@
                     <a href="/Auth/Login" class="link-success">Login here</a>
                 </div>
 
-                <div class="auth-divider">or join with</div>
 
-                <div class="social-login">
-                    <a href="/Auth/GoogleLogin" class="social-btn" id="googleSignupBtn">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" />
-                        <span>Sign up with Google</span>
-                    </a>
-                    <div id="demoHintReg" class="mt-2 text-center small text-muted" style="display:none;">
-                        <i class="bi bi-info-circle"></i> <span id="demoMsgReg"></span>
-                    </div>
-                </div>
 
             </form>
         </div>
@@ -117,6 +122,25 @@
                 $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
             });
 
+            // Live validation for password
+            $('#password').on('input', function () {
+                var pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+                if (pattern.test($(this).val())) {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                }
+            });
+
+            // Live validation for confirm password
+            $('#confirmPassword').on('input', function () {
+                if ($(this).val() === $('#password').val() && $(this).val() !== '') {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                }
+            });
+
             // Use explicit AJAX with antiforgery header and improved error handling.
             $('#signupForm').on('submit', function (e) {
                 e.preventDefault();
@@ -137,6 +161,14 @@
                     $('#signupError').text('Passwords do not match.').show();
                     return;
                 }
+
+                // Check HTML5 valid state
+                if (!this.checkValidity()) {
+                    $(this).addClass('was-validated');
+                    return;
+                }
+
+                $(this).removeClass('was-validated');
 
                 // read antiforgery token value from rendered hidden input
                 var token = $('input[name="__RequestVerificationToken"]').first().val() || '';

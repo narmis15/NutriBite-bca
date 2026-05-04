@@ -151,7 +151,7 @@ namespace NUTRIBITE.Controllers
             });
         }
         [HttpGet]
-        public IActionResult GetAnalytics()
+        public IActionResult GetAnalytics(string fromDate, string toDate)
         {
             var uid = HttpContext.Session.GetInt32("UserId");
 
@@ -171,8 +171,18 @@ namespace NUTRIBITE.Controllers
 
             int recommended = survey != null ? (int)survey.RecommendedCalories : 2000;
 
-            var dailyData = _context.DailyCalorieEntries
-                .Where(d => d.UserId == uid.Value)
+            var query = _context.DailyCalorieEntries.Where(d => d.UserId == uid.Value);
+
+            if (!string.IsNullOrEmpty(fromDate) && DateTime.TryParse(fromDate, out var fromDt))
+            {
+                query = query.Where(d => d.Date >= fromDt.Date);
+            }
+            if (!string.IsNullOrEmpty(toDate) && DateTime.TryParse(toDate, out var toDt))
+            {
+                query = query.Where(d => d.Date <= toDt.Date);
+            }
+
+            var dailyData = query
                 .GroupBy(d => d.Date.Date)
                 .Select(g => new
                 {

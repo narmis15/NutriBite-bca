@@ -74,17 +74,18 @@ namespace NUTRIBITE.Controllers
                     new BulkItem { Name = "Student Energy Box", Category = "FoodBox_Predefined", Description = "Peanut butter banana wrap, trail mix, and electrolyte water.", Price = 190, IsVeg = true, MOQ = 25, ImagePath = "/images/bulk/fb1.jpg", Status = "Active", VendorId = vendor.VendorId },
 
                     // === CUSTOM ITEMS ===
-                    new BulkItem { Name = "Fresh Orange Juice", Category = "FoodBox_Custom", SubCategory = "Beverages", Price = 60, IsVeg = true, ImagePath = "/images/bulk/paperboat.jpg", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Tender Coconut Water", Category = "FoodBox_Custom", SubCategory = "Beverages", Price = 80, IsVeg = true, ImagePath = "/images/bulk/default.jpg", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Buttermilk (Chaas)", Category = "FoodBox_Custom", SubCategory = "Beverages", Price = 40, IsVeg = true, ImagePath = "/images/bulk/default.jpg", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Date & Nut Energy Ball", Category = "FoodBox_Custom", SubCategory = "Snacks", Price = 120, IsVeg = true, ImagePath = "/images/bulk/default.jpg", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Fruit Skewers", Category = "FoodBox_Custom", SubCategory = "Desserts", Price = 90, IsVeg = true, ImagePath = "/images/bulk/default.jpg", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Yogurt Parfait", Category = "FoodBox_Custom", SubCategory = "Desserts", Price = 150, IsVeg = true, ImagePath = "/images/bulk/default.jpg", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Fresh Cold-Pressed Orange Juice", Category = "FoodBox_Custom", SubCategory = "Beverages", Price = 80, IsVeg = true, ImagePath = "/images/menu items/fresh smoothie.png", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Tender Coconut Water", Category = "FoodBox_Custom", SubCategory = "Beverages", Price = 80, IsVeg = true, ImagePath = "/images/menu items/fresh smoothie.png", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Spiced Buttermilk", Category = "FoodBox_Custom", SubCategory = "Beverages", Price = 40, IsVeg = true, ImagePath = "/images/menu items/fresh smoothie.png", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Green Detox Smoothie", Category = "FoodBox_Custom", SubCategory = "Beverages", Price = 110, IsVeg = true, ImagePath = "/images/menu items/fresh smoothie.png", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Roasted Makhana Pack", Category = "FoodBox_Custom", SubCategory = "Snacks", Price = 70, IsVeg = true, ImagePath = "/images/bulk/s1.jfif", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "High-Protein Mixed Nuts", Category = "FoodBox_Custom", SubCategory = "Snacks", Price = 130, IsVeg = true, ImagePath = "/images/bulk/s1.jfif", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Date & Seed Energy Bar", Category = "FoodBox_Custom", SubCategory = "Snacks", Price = 95, IsVeg = true, ImagePath = "/images/bulk/s5.jfif", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Oats & Chia Pudding", Category = "FoodBox_Custom", SubCategory = "Desserts", Price = 120, IsVeg = true, ImagePath = "/images/menu items/moong and oats chilla.png", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Fresh Seasonal Fruit Bowl", Category = "FoodBox_Custom", SubCategory = "Desserts", Price = 110, IsVeg = true, ImagePath = "/images/bulk/s4.jfif", Status = "Active", VendorId = vendor.VendorId },
                     new BulkItem { Name = "Avocado & Hummus Sandwich", Category = "FoodBox_Custom", SubCategory = "Mains", Price = 110, IsVeg = true, ImagePath = "/images/bulk/Brownbreadmayosandwich.jpg", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Grilled Chicken Wrap", Category = "FoodBox_Custom", SubCategory = "Mains", Price = 150, IsVeg = false, ImagePath = "/images/bulk/bulk-meal3.webp", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Quinoa Veggie Bowl", Category = "FoodBox_Custom", SubCategory = "Mains", Price = 180, IsVeg = true, ImagePath = "/images/bulk/m5.jpg", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Roasted Makhana", Category = "FoodBox_Custom", SubCategory = "Snacks", Price = 70, IsVeg = true, ImagePath = "/images/bulk/s1.jfif", Status = "Active", VendorId = vendor.VendorId },
-                    new BulkItem { Name = "Mixed Nuts Pack", Category = "FoodBox_Custom", SubCategory = "Snacks", Price = 130, IsVeg = true, ImagePath = "/images/bulk/default.jpg", Status = "Active", VendorId = vendor.VendorId }
+                    new BulkItem { Name = "Quinoa Veggie Mix Bowl", Category = "FoodBox_Custom", SubCategory = "Mains", Price = 180, IsVeg = true, ImagePath = "/images/bulk/m5.jpg", Status = "Active", VendorId = vendor.VendorId },
+                    new BulkItem { Name = "Whole-Wheat Paneer Tikka Wrap", Category = "FoodBox_Custom", SubCategory = "Mains", Price = 160, IsVeg = true, ImagePath = "/images/menu items/pesto paneer wrap.png", Status = "Active", VendorId = vendor.VendorId }
                 };
 
                 foreach (var item in items)
@@ -111,7 +112,7 @@ namespace NUTRIBITE.Controllers
         {
             var list = _context.BulkItems
                 .Where(b => b.Status == "Active" && b.Category == "Meals")
-                .OrderBy(b => b.Name)
+                .OrderBy(b => b.Price).ThenBy(b => b.Name)
                 .Select(b => new {
                     b.Id,
                     b.Name,
@@ -134,7 +135,7 @@ namespace NUTRIBITE.Controllers
         {
             var list = _context.BulkItems
                 .Where(b => b.Status == "Active" && b.Category == "Snacks")
-                .OrderBy(b => b.Name)
+                .OrderBy(b => b.Price).ThenBy(b => b.Name)
                 .Select(b => new {
                     b.Id,
                     b.Name,
@@ -155,10 +156,49 @@ namespace NUTRIBITE.Controllers
         [HttpGet]
         public IActionResult FoodBox()
         {
+            // Force update predefined food box images
+            var predefinedItems = _context.BulkItems.Where(x => x.Category == "FoodBox_Predefined").ToList();
+            bool changed = false;
+            foreach (var item in predefinedItems) {
+                if (item.Name == "Nutri-Celebration Box" && item.ImagePath != "/images/bulk/foodbox_nutricelebration.png") { item.ImagePath = "/images/bulk/foodbox_nutricelebration.png"; changed = true; }
+                else if (item.Name == "Executive Seminar Box" && item.ImagePath != "/images/bulk/foodbox_executive.png") { item.ImagePath = "/images/bulk/foodbox_executive.png"; changed = true; }
+                else if (item.Name == "Fitness Enthusiast Box" && item.ImagePath != "/images/bulk/foodbox_fitness.png") { item.ImagePath = "/images/bulk/foodbox_fitness.png"; changed = true; }
+                else if (item.Name == "Healthy Refreshment Box" && item.ImagePath != "/images/bulk/foodbox_refreshment.png") { item.ImagePath = "/images/bulk/foodbox_refreshment.png"; changed = true; }
+                else if (item.Name == "Corporate Wellness Box" && item.ImagePath != "/images/bulk/foodbox_corporate.png") { item.ImagePath = "/images/bulk/foodbox_corporate.png"; changed = true; }
+                else if (item.Name == "Student Energy Box" && item.ImagePath != "/images/bulk/foodbox_student.png") { item.ImagePath = "/images/bulk/foodbox_student.png"; changed = true; }
+            }
+            if (changed) _context.SaveChanges();
+
+            // Force update Custom Food Box images
+            var customUpdates = new Dictionary<string, string> {
+                { "Fresh Cold-Pressed Orange Juice", "/images/bulk/beverage.png" },
+                { "Tender Coconut Water", "/images/bulk/beverage.png" },
+                { "Spiced Buttermilk", "/images/bulk/beverage.png" },
+                { "Green Detox Smoothie", "/images/bulk/beverage.png" },
+                { "Roasted Makhana Pack", "/images/bulk/snack_nuts.jpg" },
+                { "High-Protein Mixed Nuts", "/images/bulk/snack_nuts.jpg" },
+                { "Date & Seed Energy Bar", "/images/bulk/snack_nuts.jpg" },
+                { "Oats & Chia Pudding", "/images/bulk/dessert_oats.png" },
+                { "Fresh Seasonal Fruit Bowl", "/images/bulk/dessert_fruit.jpg" },
+                { "Avocado & Hummus Sandwich", "/images/bulk/main_sandwich.jpg" },
+                { "Quinoa Veggie Mix Bowl", "/images/bulk/main_bowl.jpg" },
+                { "Whole-Wheat Paneer Tikka Wrap", "/images/bulk/main_wrap.png" }
+            };
+
+            bool customChanged = false;
+            foreach (var kvp in customUpdates) {
+                var item = _context.BulkItems.FirstOrDefault(x => x.Name == kvp.Key && x.Category == "FoodBox_Custom");
+                if (item != null && item.ImagePath != kvp.Value) {
+                    item.ImagePath = kvp.Value;
+                    customChanged = true;
+                }
+            }
+            if (customChanged) _context.SaveChanges();
+
             // Predefined Food Boxes
             var predefined = _context.BulkItems
                 .Where(x => x.Status == "Active" && x.Category == "FoodBox_Predefined")
-                .OrderBy(x => x.Name)
+                .OrderBy(x => x.Price).ThenBy(x => x.Name)
                 .Select(x => new
                 {
                     x.Id,
@@ -175,7 +215,7 @@ namespace NUTRIBITE.Controllers
             // Custom FoodBox items
             var custom = _context.BulkItems
                 .Where(x => x.Status == "Active" && x.Category == "FoodBox_Custom")
-                .OrderBy(x => x.SubCategory)
+                .OrderBy(x => x.SubCategory).ThenBy(x => x.Price).ThenBy(x => x.Name)
                 .Select(x => new
                 {
                     x.Id,

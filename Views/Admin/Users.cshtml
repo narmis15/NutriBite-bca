@@ -1,0 +1,241 @@
+@model IEnumerable<NUTRIBITE.Models.UserSignup>
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">User Management</h2>
+    <div class="d-flex gap-3">
+        <select id="monthFilter" class="form-select rounded-pill shadow-sm" style="width: 180px; border: 1px solid #e9ecef;">
+            <option value="">All Months</option>
+            <option value="2026-03">March 2026</option>
+            <option value="2026-04">April 2026</option>
+            <option value="2026-05">May 2026</option>
+        </select>
+        <select id="statusFilter" class="form-select rounded-pill shadow-sm" style="width: 150px; border: 1px solid #e9ecef;">
+            <option value="All">All Users</option>
+            <option value="Active">Active</option>
+            <option value="Blocked">Blocked</option>
+        </select>
+        <div class="search-box position-relative">
+            <input type="text" id="userSearch" class="form-control rounded-pill pe-5 shadow-sm" placeholder="Search users..." style="border: 1px solid #e9ecef; border-radius: 20px;">
+            <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+        </div>
+    </div>
+</div>
+
+@{
+    var userDates = Model.Where(u => u.CreatedAt.HasValue)
+                         .Select(u => u.CreatedAt.Value.ToString("yyyy-MM"))
+                         .ToList();
+    
+    var availableYears = Model.Where(u => u.CreatedAt.HasValue)
+                              .Select(u => u.CreatedAt.Value.Year)
+                              .Distinct()
+                              .OrderByDescending(y => y)
+                              .ToList();
+    
+    if (!availableYears.Any())
+    {
+        availableYears.Add(DateTime.Now.Year);
+    }
+}
+
+<!-- KPI Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm bg-primary text-white" style="border-radius: 16px;">
+            <div class="card-body p-4 d-flex align-items-center">
+                <div class="fs-1 me-4 opacity-75"><i class="bi bi-people-fill"></i></div>
+                <div>
+                    <h2 class="mb-0 fw-bold">@Model.Count()</h2>
+                    <h6 class="text-white-50 text-uppercase fw-bold mb-0 mt-1">Total Users</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm bg-danger text-white" style="border-radius: 16px;">
+            <div class="card-body p-4 d-flex align-items-center">
+                <div class="fs-1 me-4 opacity-75"><i class="bi bi-person-x-fill"></i></div>
+                <div>
+                    <h2 class="mb-0 fw-bold">@Model.Count(u => u.Status == "Blocked")</h2>
+                    <h6 class="text-white-50 text-uppercase fw-bold mb-0 mt-1">Blocked Users</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4" style="border-radius: 20px;">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>User Growth Trend</h5>
+            <select id="chartYearFilter" class="form-select form-select-sm rounded-pill w-auto">
+                @foreach (var year in availableYears)
+                {
+                    <option value="@year">Year @year</option>
+                }
+            </select>
+        </div>
+        <div style="height: 250px;">
+            <canvas id="userGrowthChart"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">User Details</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Joined Date</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    @foreach (var user in Model)
+                    {
+                        <tr data-status="@(user.Status == "Blocked" ? "Blocked" : "Active")" data-date="@(user.CreatedAt?.ToString("yyyy-MM") ?? "")">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        @(user.Name?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">@user.Name</h6>
+                                        <small class="text-muted">ID: #@user.Id</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@user.Email</td>
+                            <td>@(string.IsNullOrEmpty(user.Phone) ? "—" : user.Phone)</td>
+                            <td>@(user.CreatedAt?.ToString("dd MMM yyyy") ?? "—")</td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <form asp-action="ToggleBlockUser" asp-controller="Admin" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm @(user.Status == "Blocked" ? "btn-success" : "btn-outline-danger") rounded-pill px-3">
+                                            @(user.Status == "Blocked" ? "Unblock" : "Block User")
+                                        </button>
+                                    </form>
+                                    <a href="@Url.Action("UserDetails", "Admin", new { id = user.Id })" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        View Details
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No users found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            function filterTable() {
+                var searchText = $("#userSearch").val().toLowerCase();
+                var statusText = $("#statusFilter").val();
+                var monthText = $("#monthFilter").val();
+
+                $("#usersTableBody tr").each(function () {
+                    // Skip the "No users found" row
+                    if ($(this).find('td').length === 1) return;
+
+                    var textMatch = $(this).text().toLowerCase().indexOf(searchText) > -1;
+                    var rowStatus = $(this).data("status") || "Active";
+                    var rowDate = $(this).data("date") || "";
+                    
+                    var statusMatch = true;
+                    if (statusText === "Blocked") statusMatch = (rowStatus === "Blocked");
+                    if (statusText === "Active") statusMatch = (rowStatus === "Active");
+
+                    var monthMatch = true;
+                    if (monthText) {
+                        monthMatch = (rowDate === monthText);
+                    }
+
+                    $(this).toggle(textMatch && statusMatch && monthMatch);
+                });
+            }
+
+            $("#userSearch").on("keyup", filterTable);
+            $("#statusFilter").on("change", filterTable);
+            $("#monthFilter").on("change", filterTable);
+            
+            // User Growth Chart Logic
+            var rawDates = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(userDates));
+            var ctxUser = document.getElementById('userGrowthChart').getContext('2d');
+            var userChart;
+
+            function renderChart(year) {
+                var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                var dataCount = new Array(12).fill(0);
+
+                rawDates.forEach(function(dt) {
+                    var parts = dt.split('-');
+                    if (parts[0] == year) {
+                        var monthIndex = parseInt(parts[1], 10) - 1;
+                        dataCount[monthIndex]++;
+                    }
+                });
+
+                if (userChart) {
+                    userChart.destroy();
+                }
+
+                userChart = new Chart(ctxUser, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'New Users (' + year + ')',
+                            data: dataCount,
+                            backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                            borderColor: 'rgba(13, 110, 253, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            // Init chart with selected year
+            var initialYear = $("#chartYearFilter").val();
+            if (initialYear) renderChart(initialYear);
+
+            // Listen for year change
+            $("#chartYearFilter").on("change", function() {
+                renderChart($(this).val());
+            });
+        });
+    </script>
+}

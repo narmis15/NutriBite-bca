@@ -21,7 +21,15 @@
             <h3 class="brand">NutriBite</h3>
             <h5 class="mb-3">Create Vendor Account</h5>
 
-            <form method="post" asp-action="Register">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger small py-2 mb-3">@ViewBag.Error</div>
+            }
+
+            <div id="signupError" class="alert alert-danger small" style="display:none;"></div>
+            <div id="signupSuccess" class="alert alert-success small" style="display:none;"></div>
+
+            <form method="post" asp-action="Register" id="vendorSignupForm">
 
                 <div class="mb-3">
                     <label>Vendor Name</label>
@@ -30,22 +38,37 @@
 
                 <div class="mb-3">
                     <label>Email</label>
-                    <input type="email" name="Email" class="form-control" required />
+                    <div class="input-group has-validation">
+                        <input type="email" name="Email" class="form-control" required pattern=".*\.com" title="Please enter a valid .com email address" />
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Email must end with .com.
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label>Password</label>
-                    <div class="input-group">
-                        <input id="password" type="password" name="Password" class="form-control custom-input" required />
+                    <div class="input-group has-validation">
+                        <input id="password" type="password" name="Password" class="form-control custom-input" required 
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" 
+                               title="Must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." />
                         <button id="togglePasswordReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Password must be at least 8 characters, include an uppercase, a lowercase, and a number.
+                        </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label>Confirm Password</label>
-                    <div class="input-group">
-                        <input id="confirmPassword" type="password" name="ConfirmPassword" class="form-control custom-input" required />
+                    <div class="input-group has-validation">
+                        <input id="confirmPassword" type="password" name="ConfirmPassword" class="form-control custom-input" required 
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" 
+                               title="Must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." />
                         <button id="toggleConfirmReg" class="btn btn-outline-secondary d-flex align-items-center" type="button"><i class="bi bi-eye"></i></button>
+                        <div class="invalid-feedback text-danger mt-1" style="font-size: 0.8rem;">
+                            Passwords must match and meet all requirements.
+                        </div>
                     </div>
                 </div>
 
@@ -78,6 +101,57 @@
             const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
             $pwd.attr('type', type);
             $(this).html(type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>');
+        });
+
+        // Live validation for password
+        $('#password').on('input', function () {
+            var pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            if (pattern.test($(this).val())) {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            } else {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+            }
+        });
+
+        // Live validation for confirm password
+        $('#confirmPassword').on('input', function () {
+            if ($(this).val() === $('#password').val() && $(this).val() !== '') {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            } else {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+            }
+        });
+
+        $('#vendorSignupForm').on('submit', function (e) {
+            e.preventDefault();
+            $('#signupError').hide().text('');
+            $('#signupSuccess').hide().text('');
+
+            var vendorName = $('input[name="VendorName"]').val().trim();
+            var email = $('input[name="Email"]').val().trim();
+            var password = $('#password').val();
+            var confirmPassword = $('#confirmPassword').val();
+
+            if (!vendorName || !email || !password || !confirmPassword) {
+                $('#signupError').text('All fields are required.').show();
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                $('#signupError').text('Passwords do not match.').show();
+                return;
+            }
+
+            // Check HTML5 valid state
+            if (!this.checkValidity()) {
+                $(this).addClass('was-validated');
+                return;
+            }
+            
+            $(this).removeClass('was-validated');
+
+            // If all client-side checks pass, submit the form
+            this.submit();
         });
     </script>
 }

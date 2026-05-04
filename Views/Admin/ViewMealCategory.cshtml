@@ -6,107 +6,242 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-soft: #e2e8f0;
+        }
+
+        body { font-family: 'Outfit', sans-serif; background-color: var(--background); }
+
+        .header-title {
+            font-weight: 800;
+            font-size: 1.85rem;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .btn-premium {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 100px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-premium:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .glass-table-wrapper {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.02);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .glass-table { border-collapse: separate; border-spacing: 0; width: 100%; margin: 0; }
+        
+        .glass-table th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-soft);
+            white-space: nowrap;
+        }
+
+        .glass-table td {
+            padding: 1.25rem 1.5rem;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border-soft);
+            vertical-align: middle;
+            transition: background 0.2s;
+        }
+
+        .glass-table tbody tr:hover td { background: #f8fafc; }
+        .glass-table tbody tr:last-child td { border-bottom: none; }
+
+        .meal-icon-box {
+            width: 45px;
+            height: 45px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-dark);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .meal-preview-wrapper {
+            width: 80px;
+            height: 55px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .meal-preview-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .meal-preview-wrapper:hover img {
+            transform: scale(1.1);
+        }
+
+        .btn-action-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 100px;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-action-delete:hover {
+            background: #dc2626;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .empty-state {
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+
+        .sort-icon {
+            font-size: 0.8rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        
+        .table-sort-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .table-sort-link:hover .sort-icon {
+            opacity: 1;
+        }
+    </style>
+}
+
+<div class="container-fluid py-5 px-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold mb-1">Meal Categories</h2>
-            <p class="text-muted small mb-0">Organize and manage different types of meal offerings.</p>
+            <h2 class="header-title">Meal Categorization Matrix</h2>
+            <p class="text-muted fw-medium mb-0">Manage global menu structures and meal type classification.</p>
         </div>
-        <a asp-action="AddFoodCategory" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-1"></i> Add New Category
+        <a asp-action="AddFoodCategory" class="btn-premium">
+            <i class="bi bi-diagram-3-fill me-2"></i> Register New Node
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-muted small text-uppercase">
-                        <tr>
-                            <th class="ps-4" style="width: 100px;">
-                                <a asp-action="ViewMealCategory" asp-route-sortOrder="@ViewBag.IdSort" class="text-decoration-none text-muted">
-                                    ID <i class="bi bi-arrow-down-up ms-1"></i>
-                                </a>
-                            </th>
-                            <th>
-                                <a asp-action="ViewMealCategory" asp-route-sortOrder="@ViewBag.MealSort" class="text-decoration-none text-muted">
-                                    Meal Category <i class="bi bi-arrow-down-up ms-1"></i>
-                                </a>
-                            </th>
-                            <th>Preview Image</th>
-                            <th class="text-end pe-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model != null && Model.Any())
-                        {
-                            foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="ps-4 fw-medium text-muted">#@item.Cid</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="meal-icon-box me-3">
-                                                <i class="bi bi-cup-hot-fill text-success"></i>
-                                            </div>
-                                            <span class="fw-semibold">@item.MealCategory</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="meal-preview-wrapper">
-                                            @if (!string.IsNullOrEmpty(item.MealPic))
-                                            {
-                                                <img src="~/images/Meals/@item.MealPic" alt="@item.MealCategory" class="rounded shadow-sm" style="width: 60px; height: 40px; object-fit: cover;" onerror="this.src='/images/Meals/default.jpg';" />
-                                            }
-                                            else
-                                            {
-                                                <img src="~/images/Meals/default.jpg" alt="No Image" class="rounded shadow-sm" style="width: 60px; height: 40px; object-fit: cover;" />
-                                            }
-                                        </div>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <a asp-action="DeleteMealCategory" asp-route-id="@item.Cid" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Are you sure you want to delete this category?');">
-                                            <i class="bi bi-trash me-1"></i> Delete
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
+    <div class="glass-table-wrapper">
+        <div class="table-responsive">
+            <table class="glass-table">
+                <thead>
+                    <tr>
+                        <th class="ps-4" style="width: 120px;">
+                            <a asp-action="ViewMealCategory" asp-route-sortOrder="@ViewBag.IdSort" class="table-sort-link">
+                                Reference <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-action="ViewMealCategory" asp-route-sortOrder="@ViewBag.MealSort" class="table-sort-link">
+                                Core Identity <i class="bi bi-arrow-down-up sort-icon"></i>
+                            </a>
+                        </th>
+                        <th style="width: 200px;">Thumbnail Map</th>
+                        <th class="text-end pe-4" style="width: 150px;">Management</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
                         {
                             <tr>
-                                <td colspan="4" class="text-center py-5">
-                                    <div class="text-muted">
-                                        <i class="bi bi-egg-fried display-4 d-block mb-3"></i>
-                                        <p class="mb-0">No meal categories found.</p>
+                                <td class="ps-4" style="color: var(--text-muted);">
+                                    <span class="fs-6 fw-bold text-dark">#@item.Cid</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="meal-icon-box">
+                                            <i class="bi bi-egg-fried"></i>
+                                        </div>
+                                        <span class="fs-6 fw-bold">@item.MealCategory</span>
                                     </div>
+                                </td>
+                                <td>
+                                    <div class="meal-preview-wrapper">
+                                        @if (!string.IsNullOrEmpty(item.MealPic))
+                                        {
+                                            <img src="~/images/Meals/@item.MealPic" alt="@item.MealCategory" onerror="this.src='/images/Meals/default.jpg';" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/images/Meals/default.jpg" alt="No Image" />
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="DeleteMealCategory" asp-route-id="@item.Cid" class="btn-action-delete" onclick="return confirm('WARNING: Are you absolutely sure you want to permanently delete this meal classification matrix?');">
+                                        <i class="bi bi-trash3-fill me-1"></i> Destroy
+                                    </a>
                                 </td>
                             </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="bi bi-inbox text-muted opacity-25 display-1 mb-3 d-block"></i>
+                                    <h4 class="fw-bold text-dark">No nodes instantiated</h4>
+                                    <p class="text-muted">The meal classification matrix is completely clear.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
-<style>
-    .meal-icon-box {
-        width: 32px;
-        height: 32px;
-        background: rgba(var(--bs-success-rgb), 0.1);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .table-hover tbody tr:hover {
-        background-color: rgba(0,0,0,0.02);
-    }
-    .meal-preview-wrapper img {
-        transition: transform 0.2s;
-    }
-    .meal-preview-wrapper img:hover {
-        transform: scale(1.1);
-    }
-</style>

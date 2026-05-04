@@ -89,9 +89,18 @@
                                 }
                                 else
                                 {
-                                    <div class="col-12 text-center py-4">
-                                        <i class="bi bi-journal-text text-muted" style="font-size: 2rem;"></i>
-                                        <p class="text-muted mt-2 mb-0">Detailed recipe and ingredients are currently being compiled by our culinary experts.</p>
+                                    var generatedIngredients = GetPlausibleIngredients(Model.Name);
+                                    foreach (var ingredient in generatedIngredients)
+                                    {
+                                        <div class="col-md-6 mb-3">
+                                            <div class="d-flex align-items-center p-3 border rounded-pill bg-light">
+                                                <i class="bi bi-magic text-warning me-3 fs-5" title="Auto-generated ingredient"></i>
+                                                <span class="fw-medium">@ingredient.Trim()</span>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-12 mt-3 text-center">
+                                        <p class="extra-small text-muted fst-italic"><i class="bi bi-info-circle"></i> These ingredients are estimated based on the dish name and may vary slightly per chef.</p>
                                     </div>
                                 }
                             </div>
@@ -139,3 +148,51 @@
     .extra-small { font-size: 0.7rem; }
     .bg-success-subtle { background-color: #e6f9f0 !important; }
 </style>
+
+@functions {
+    public List<string> GetPlausibleIngredients(string foodName) {
+        var baseIngredients = new List<string>();
+        if (string.IsNullOrEmpty(foodName)) return baseIngredients;
+        
+        var nameLower = foodName.ToLower();
+        
+        // Base structure based on category keyword
+        if (nameLower.Contains("dal") || nameLower.Contains("lentil")) {
+             baseIngredients.AddRange(new[] { "1 cup Lentils (Dal)", "1 chopped Onion", "1 chopped Tomato", "1 tsp Turmeric", "Cumin Seeds", "Pinch of Asafoetida (Hing)" });
+        }
+        else if (nameLower.Contains("paneer")) {
+             baseIngredients.AddRange(new[] { "200g Fresh Paneer", "Onion-Tomato Gravy Base", "Garam Masala", "Ginger Garlic Paste", "Fresh Cream" });
+        }
+        else if (nameLower.Contains("chicken")) {
+             baseIngredients.AddRange(new[] { "High-Quality Chicken", "Marinade Spices", "Ginger Garlic Paste", "Onions & Tomatoes", "Fresh Coriander" });
+        }
+        else if (nameLower.Contains("rice") || nameLower.Contains("pulao") || nameLower.Contains("biryani")) {
+             baseIngredients.AddRange(new[] { "1 cup Premium Basmati Rice", "Whole Spices (Cardamom, Cloves)", "Ghee or Refined Oil", "Mixed Vegetables/Protein" });
+        }
+        else if (nameLower.Contains("roti") || nameLower.Contains("bread") || nameLower.Contains("paratha") || nameLower.Contains("chilla")) {
+             baseIngredients.AddRange(new[] { "Whole Wheat Flour / Batter", "Water", "Pinch of Salt", "Light Ghee/Oil for roasting" });
+        }
+        else if (nameLower.Contains("salad") || nameLower.Contains("bowl")) {
+             baseIngredients.AddRange(new[] { "Mixed Greens (Lettuce, Spinach)", "Cherry Tomatoes", "Cucumber", "House Special Dressing" });
+        }
+        else if (nameLower.Contains("idli") || nameLower.Contains("dosa") || nameLower.Contains("upma") || nameLower.Contains("poha")) {
+             baseIngredients.AddRange(new[] { "Fermented Batter / Semolina / Poha", "Curry Leaves", "Mustard Seeds", "Peanuts (optional)" });
+        }
+        else {
+             baseIngredients.AddRange(new[] { "Fresh Local Farm Produce", "Chef's Secret Spice Blend", "Onions & Tomatoes", "Fresh Herb Garnish" });
+        }
+        
+        // Add specific common sub-ingredients if mentioned
+        if (nameLower.Contains("gobi") || nameLower.Contains("cauliflower")) baseIngredients.Add("Fresh Cauliflower Florets");
+        if (nameLower.Contains("matar") || nameLower.Contains("peas")) baseIngredients.Add("Green Peas");
+        if (nameLower.Contains("aloo") || nameLower.Contains("potato")) baseIngredients.Add("Boiled Potatoes");
+        if (nameLower.Contains("spinach") || nameLower.Contains("palak")) baseIngredients.Add("Fresh Spinach Puree");
+        if (nameLower.Contains("methi")) baseIngredients.Add("Fenugreek (Methi) Leaves");
+        if (nameLower.Contains("soya") || nameLower.Contains("tofu")) baseIngredients.Add("Protein-rich Soya/Tofu Chunks");
+        
+        baseIngredients.Add("Salt to taste");
+        baseIngredients.Add("Cooking Oil / Ghee");
+
+        return baseIngredients;
+    }
+}
